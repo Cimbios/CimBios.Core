@@ -2,6 +2,9 @@
 
 namespace CimBios.CimModel.Schema
 {
+    /// <summary>
+    /// Collects serializable types, fields and provide read/write operations.
+    /// </summary>
     internal class CimSchemaReflectionHelper
     {
         public CimSchemaReflectionHelper()
@@ -9,16 +12,31 @@ namespace CimBios.CimModel.Schema
             CollectSerializableTypes();
         }
 
+        /// <summary>
+        /// Get serializable type info by URI.
+        /// </summary>
+        /// <param name="uri">Identifier of type.</param>
+        /// <param name="typeInfo">Out TypeInfo instance.</param>
+        /// <returns>True if getting object succeed.</returns>
         public bool TryGetTypeInfo(string uri, out TypeInfo? typeInfo)
         {
             return _Types.TryGetValue(uri, out typeInfo);
         }
 
+        /// <summary>
+        /// Get serializable member info by URI.
+        /// </summary>
+        /// <param name="uri">Identifier of member.</param>
+        /// <param name="memberInfo">Out MemberInfo instance.</param>
+        /// <returns>True if getting object succeed.</returns>
         public bool TryGetMemberInfo(string uri, out MemberInfo? memberInfo)
         {
             return _Members.TryGetValue(uri, out memberInfo);
         }
 
+        /// <summary>
+        /// Collects serializable types.
+        /// </summary>
         private void CollectSerializableTypes()
         {
             _Types.Clear();
@@ -42,6 +60,9 @@ namespace CimBios.CimModel.Schema
             }
         }
 
+        /// <summary>
+        /// Collects serializable types members.
+        /// </summary>
         private void CollectSerializableMembers(TypeInfo typeInfo)
         {
             foreach (var property in typeInfo.GetMembers())
@@ -59,8 +80,14 @@ namespace CimBios.CimModel.Schema
             }
         }
 
+        /// <summary>
+        /// Set serizalizable member value.
+        /// </summary>
+        /// <param name="descriptionClass">RDF description based instance class.</param>
+        /// <param name="member">Serializable member.</param>
+        /// <param name="value">Value for set to member.</param>
         public void SetMetaMemberValue<T>(object descriptionClass,
-            MemberInfo member, Attribute attribute, T value)
+            MemberInfo member, T value)
         {
             if (member is PropertyInfo propertyInfo)
             {
@@ -75,18 +102,40 @@ namespace CimBios.CimModel.Schema
             }
         }
 
+        /// <summary>
+        /// Collected serializable types.
+        /// </summary>
         private Dictionary<string, TypeInfo> _Types { get; }
             = new Dictionary<string, TypeInfo>();
+
+        /// <summary>
+        /// Collected serializable members.
+        /// </summary>
         private Dictionary<string, MemberInfo> _Members { get; }
             = new Dictionary<string, MemberInfo>();
 
     }
 
+    /// <summary>
+    /// Member serialization types.
+    /// </summary>
     internal enum MetaFieldType
     {
+        /// <summary>
+        /// XML string node value.
+        /// </summary>
         Value,
+        /// <summary>
+        /// Enumeration according schema individuals. 
+        /// </summary>
         Enum,
+        /// <summary>
+        /// Schema RDF description based instance by URI reference.
+        /// </summary>
         ByRef,
+        /// <summary>
+        /// Schema RDF datatype.
+        /// </summary>
         Datatype,
     }
 }
