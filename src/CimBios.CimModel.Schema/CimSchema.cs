@@ -256,12 +256,12 @@ namespace CimBios.CimModel.Schema
                     {
                         if (_All.TryGetValue(valueRefUri, out var description))
                         {
-                            _SerializeHelper.SetMetaMemberValue(metaDescription, memberInfo, attribute, description);
+                            _SerializeHelper.SetMetaMemberValue(metaDescription, memberInfo, description);
                         }
                     }
                     else if (attribute.FieldType == MetaFieldType.Value && value is string valueString)
                     {
-                        _SerializeHelper.SetMetaMemberValue(metaDescription, memberInfo, attribute, valueString);
+                        _SerializeHelper.SetMetaMemberValue(metaDescription, memberInfo, valueString);
                     }
                     else if (attribute.FieldType == MetaFieldType.Enum && value is Uri valueEnumUri)
                     {
@@ -271,7 +271,7 @@ namespace CimBios.CimModel.Schema
                         if (field != null && enumClass != null)
                         {
                             var enumValue = Enum.Parse(enumClass, field.Name);
-                            _SerializeHelper.SetMetaMemberValue(metaDescription, memberInfo, attribute, enumValue);
+                            _SerializeHelper.SetMetaMemberValue(metaDescription, memberInfo, enumValue);
                         }
                     }
                 }
