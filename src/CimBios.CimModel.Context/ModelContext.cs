@@ -1,5 +1,6 @@
-﻿using System.Data;
+using System.Data;
 using System.Xml.Linq;
+using CimBios.CimModel.CimDatatypeLib;
 using CimBios.CimModel.Schema;
 using CimBios.RdfXml.IOLib;
 
@@ -21,19 +22,8 @@ namespace CimBios.CimModel.Context
                 <string, List<(string, string)>>();
         }
 
-        public ModelContext(ICimSchema schema) : this()
-        {
-            _Schema = schema;
-        }
-
         public ModelContext(TextReader textReader, 
             XNamespace baseNamespace) : this()
-        {
-            Load(textReader, baseNamespace);
-        }
-
-        public ModelContext(TextReader textReader,
-            XNamespace baseNamespace, ICimSchema schema) : this(schema)
         {
             Load(textReader, baseNamespace);
         }
@@ -80,7 +70,7 @@ namespace CimBios.CimModel.Context
                 {
                     continue;
                 }
-
+                
                 foreach (var property in instanceNode.Triples)
                 {
                     string predicate = property.Predicate
@@ -200,6 +190,14 @@ namespace CimBios.CimModel.Context
                 return new FullModel(objectData);
             }
 
+            var classUri = new Uri(instanceNode.Element.Name.NamespaceName + classType);
+
+            if (TypesLib != null && TypesLib.RegisteredTypes
+                .TryGetValue(classUri, out var type))
+            {
+                return Activator.CreateInstance(type, objectData) as IModelObject;
+            }
+
             return new ModelObject(objectData);
         }
 
@@ -227,14 +225,14 @@ namespace CimBios.CimModel.Context
         public IFullModel? Description { get; set; }
 
         public ContextSettings Settings { get; set; } = new ContextSettings();
+        public ICimSchema? Schema { get; set; }
+        public IDatatypeLib? TypesLib { get; set; }
 
-        private Dictionary<string, IModelObject> _Objects { get; set; }
-        private Dictionary<string, IModelObject> _PrivateObjects { get; set; }
-        private Dictionary<string, List<(string, string)>> _WaitForReferenceDict;
+        private Dictionary<string, IModelObject> _Objects { get; }
+        private Dictionary<string, IModelObject> _PrivateObjects { get; }
+        private Dictionary<string, List<(string, string)>> _WaitForReferenceDict { get; }
 
-        private ICimSchema? _Schema { get; }
-
-        private RdfXmlReader _Reader { get; set; } = new RdfXmlReader();
+        private RdfXmlReader _Reader { get; } = new RdfXmlReader();
     }
 
     public class ContextSettings
@@ -260,12 +258,12 @@ namespace CimBios.CimModel.Context
         public string Uuid { get => ObjectData.Uuid; }
         public string Created 
         { 
-            get => (ObjectData.GetAttribute("Model.created") as string) ?? ""; 
+            get => ObjectData.GetAttribute<string>("Model.created"); 
             set => ObjectData.SetAttribute("Model.created", value); 
         }
         public string Version
         { 
-            get => (ObjectData.GetAttribute("Model.version") as string) ?? ""; 
+            get => ObjectData.GetAttribute<string>("Model.version"); 
             set => ObjectData.SetAttribute("Model.version", value);
         }
 
