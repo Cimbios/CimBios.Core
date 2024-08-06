@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.RdfXml.IOLib", "Cim
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelDebug", "ModelDebug\ModelDebug.csproj", "{52CD0EFE-4444-4C86-8A27-3BEAF5EF038E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.CimModel.CimDatatypeLib", "CimBios.CimDatatypeLib\CimBios.CimModel.CimDatatypeLib.csproj", "{629F6163-A99E-45E5-A580-122F13459BC8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{52CD0EFE-4444-4C86-8A27-3BEAF5EF038E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52CD0EFE-4444-4C86-8A27-3BEAF5EF038E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52CD0EFE-4444-4C86-8A27-3BEAF5EF038E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{629F6163-A99E-45E5-A580-122F13459BC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{629F6163-A99E-45E5-A580-122F13459BC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{629F6163-A99E-45E5-A580-122F13459BC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{629F6163-A99E-45E5-A580-122F13459BC8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
