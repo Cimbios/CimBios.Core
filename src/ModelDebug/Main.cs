@@ -1,4 +1,5 @@
-﻿using CimBios.CimModel;
+using CimBios.CimModel;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 static internal class ModelDebug
@@ -6,6 +7,7 @@ static internal class ModelDebug
     private static Dictionary<string, ISubProgram> SubPrograms
         = new Dictionary<string, ISubProgram>()
         {
+            { "Foo", new FooSubProgram("Foo") },
             { "LoadSchema", new LoadSchemaSubProgram("LoadSchema") },
             { "LoadModel", new LoadModelSubProgram("LoadModel") }
         };
@@ -21,11 +23,17 @@ static internal class ModelDebug
             Console.Write(">: ");
             line = Console.ReadLine();
 
+            if (line == null)
+            {
+                continue;
+            }
+
             var splitted = Regex.Split(line, "(\"[^\"]+\"|[^\\s\"]+)")
                 .Where(s => s.Trim().Length > 0).Select(s => s.Replace("\"", ""));
             if (splitted.Count() == 0)
             {
                 Console.WriteLine("Invalid command format!");
+                continue;
             }
 
             var subProgramName = splitted.First();
@@ -57,6 +65,7 @@ static internal class ModelDebug
             else 
             {
                 Console.WriteLine("Unknown command!");
+                continue;
             }
         }
     }
@@ -75,12 +84,30 @@ internal interface ISubProgram
 
 internal interface IObjectReturn
 {
-    public Func<IEnumerable<object>, object> InvokeFunc { get; set; }
+    public Func<IEnumerable<object>, object?> InvokeFunc { get; set; }
 }
 
 internal interface IVoidReturn
 {
     public Action<IEnumerable<object>> InvokeAction { get; set; }
+}
+
+internal sealed class FooSubProgram : ISubProgram, IObjectReturn
+{
+    public FooSubProgram(string invokeName)
+    {
+        InvokeName = invokeName;
+    }
+
+    public string InvokeName { get; set; }
+    public Func<IEnumerable<object>, object?> InvokeFunc { get; set; }
+        = new Func<IEnumerable<object>, object?>(
+            (p) =>
+            {
+                var dtl = new CimBios.CimModel.CimDatatypeLib.DatatypeLib();
+             
+                return dtl;
+            });
 }
 
 internal sealed class LoadSchemaSubProgram : ISubProgram, IObjectReturn
@@ -91,8 +118,8 @@ internal sealed class LoadSchemaSubProgram : ISubProgram, IObjectReturn
     }
 
     public string InvokeName { get; set; }
-    public Func<IEnumerable<object>, object> InvokeFunc { get; set; }
-        = new Func<IEnumerable<object>, object>(
+    public Func<IEnumerable<object>, object?> InvokeFunc { get; set; }
+        = new Func<IEnumerable<object>, object?>(
             (p) =>
             {
                 var schema = new CimBios.CimModel.Schema.CimSchema();
@@ -112,11 +139,13 @@ internal sealed class LoadModelSubProgram : ISubProgram, IObjectReturn
     }
 
     public string InvokeName { get; set; }
-    public Func<IEnumerable<object>, object> InvokeFunc { get; set; }
-        = new Func<IEnumerable<object>, object>(
+    public Func<IEnumerable<object>, object?> InvokeFunc { get; set; }
+        = new Func<IEnumerable<object>, object?>(
             (p) =>
             {
-                var model = new CimBios.CimModel.Context.ModelContext();
+                var model = new CimBios.CimModel.Context.ModelContext() 
+                { TypesLib = new CimBios.CimModel.CimDatatypeLib.DatatypeLib() };
+
                 model.Load(p.Single() as string);
 
                 return model;
