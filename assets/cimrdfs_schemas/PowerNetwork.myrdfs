@@ -130,16 +130,6 @@ The BaseVoltage at the two ends of ACLineSegments in a Line shall have the same 
       <rdfs:label xml:lang="en">Asset</rdfs:label>
       <rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
    </rdf:Description>
-   <rdf:Description rdf:about="#Asset.PowerSystemResources">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#PowerSystemResource.Assets"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">All power system resources used to electrically model this asset. For example, transformer asset is electrically modelled with a transformer and its windings and tap changer.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Asset"/>
-      <rdfs:label xml:lang="en">PowerSystemResources</rdfs:label>
-      <rdfs:range rdf:resource="#PowerSystemResource"/>
-   </rdf:Description>
    <rdf:Description rdf:about="#AssetInfo">
       <cims:belongsToCategory rdf:resource="#Package_Assets"/>
       <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -149,16 +139,6 @@ The BaseVoltage at the two ends of ACLineSegments in a Line shall have the same 
 - as attributes of a type asset (generic type of an asset as used in designs/extension planning).</rdfs:comment>
       <rdfs:label xml:lang="en">AssetInfo</rdfs:label>
       <rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#AssetInfo.PowerSystemResources">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#PowerSystemResource.AssetDatasheet"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">All power system resources with this datasheet information.</rdfs:comment>
-      <rdfs:domain rdf:resource="#AssetInfo"/>
-      <rdfs:label xml:lang="en">PowerSystemResources</rdfs:label>
-      <rdfs:range rdf:resource="#PowerSystemResource"/>
    </rdf:Description>
    <rdf:Description rdf:about="#AuxiliaryEquipment">
       <cims:belongsToCategory rdf:resource="#Package_AuxiliaryEquipment"/>
@@ -174,16 +154,6 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
       <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
       <rdfs:comment rdf:parseType="Literal">The Terminal at the equipment where the AuxiliaryEquipment is attached.</rdfs:comment>
-      <rdfs:domain rdf:resource="#AuxiliaryEquipment"/>
-      <rdfs:label xml:lang="en">Terminal</rdfs:label>
-      <rdfs:range rdf:resource="#Terminal"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#AuxiliaryEquipment.Terminal">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#Terminal.AuxiliaryEquipment"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The Terminal at the equipment where the AuxiliaryEquipment is attached.</rdfs:comment>
       <rdfs:domain rdf:resource="#AuxiliaryEquipment"/>
       <rdfs:label xml:lang="en">Terminal</rdfs:label>
       <rdfs:range rdf:resource="#Terminal"/>
@@ -205,28 +175,8 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
       <rdfs:label xml:lang="en">ConductingEquipment</rdfs:label>
       <rdfs:range rdf:resource="#ConductingEquipment"/>
    </rdf:Description>
-   <rdf:Description rdf:about="#BaseVoltage.ConductingEquipment">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#ConductingEquipment.BaseVoltage"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">All conducting equipment with this base voltage.  Use only when there is no voltage level container used and only one base voltage applies.  For example, not used for transformers.</rdfs:comment>
-      <rdfs:domain rdf:resource="#BaseVoltage"/>
-      <rdfs:label xml:lang="en">ConductingEquipment</rdfs:label>
-      <rdfs:range rdf:resource="#ConductingEquipment"/>
-   </rdf:Description>
    <rdf:Description rdf:about="#BaseVoltage.VoltageLevel">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#VoltageLevel.BaseVoltage"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">The voltage levels having this base voltage.</rdfs:comment>
-      <rdfs:domain rdf:resource="#BaseVoltage"/>
-      <rdfs:label xml:lang="en">VoltageLevel</rdfs:label>
-      <rdfs:range rdf:resource="#VoltageLevel"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#BaseVoltage.VoltageLevel">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#VoltageLevel.BaseVoltage"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
       <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
@@ -262,30 +212,8 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
       <rdfs:label xml:lang="en">Substation</rdfs:label>
       <rdfs:range rdf:resource="#Substation"/>
    </rdf:Description>
-   <rdf:Description rdf:about="#Bay.Substation">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#Substation.Bays"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#ofAggregate"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">Substation containing the bay.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Bay"/>
-      <rdfs:label xml:lang="en">Substation</rdfs:label>
-      <rdfs:range rdf:resource="#Substation"/>
-   </rdf:Description>
    <rdf:Description rdf:about="#Bay.VoltageLevel">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#VoltageLevel.Bays"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#ofAggregate"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">The voltage level containing this bay.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Bay"/>
-      <rdfs:label xml:lang="en">VoltageLevel</rdfs:label>
-      <rdfs:range rdf:resource="#VoltageLevel"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#Bay.VoltageLevel">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#VoltageLevel.Bays"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
       <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#ofAggregate"/>
@@ -409,16 +337,6 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
       <rdfs:subClassOf rdf:resource="#Equipment"/>
    </rdf:Description>
    <rdf:Description rdf:about="#ConductingEquipment.BaseVoltage">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#BaseVoltage.ConductingEquipment"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">Base voltage of this conducting equipment.  Use only when there is no voltage level container used and only one base voltage applies.  For example, not used for transformers.</rdfs:comment>
-      <rdfs:domain rdf:resource="#ConductingEquipment"/>
-      <rdfs:label xml:lang="en">BaseVoltage</rdfs:label>
-      <rdfs:range rdf:resource="#BaseVoltage"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#ConductingEquipment.BaseVoltage">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#BaseVoltage.ConductingEquipment"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
@@ -430,16 +348,6 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
    </rdf:Description>
    <rdf:Description rdf:about="#ConductingEquipment.Terminals">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#Terminal.ConductingEquipment"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Conducting equipment have terminals that may be connected to other conducting equipment terminals via connectivity nodes or topological nodes.</rdfs:comment>
-      <rdfs:domain rdf:resource="#ConductingEquipment"/>
-      <rdfs:label xml:lang="en">Terminals</rdfs:label>
-      <rdfs:range rdf:resource="#Terminal"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#ConductingEquipment.Terminals">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#Terminal.ConductingEquipment"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
       <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
@@ -481,16 +389,6 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
       <rdfs:label xml:lang="en">ConnectivityNodeContainer</rdfs:label>
       <rdfs:range rdf:resource="#ConnectivityNodeContainer"/>
    </rdf:Description>
-   <rdf:Description rdf:about="#ConnectivityNode.ConnectivityNodeContainer">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#ConnectivityNodeContainer.ConnectivityNodes"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">Container of this connectivity node.</rdfs:comment>
-      <rdfs:domain rdf:resource="#ConnectivityNode"/>
-      <rdfs:label xml:lang="en">ConnectivityNodeContainer</rdfs:label>
-      <rdfs:range rdf:resource="#ConnectivityNodeContainer"/>
-   </rdf:Description>
    <rdf:Description rdf:about="#ConnectivityNode.Terminals">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#Terminal.ConnectivityNode"/>
@@ -501,32 +399,12 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
       <rdfs:label xml:lang="en">Terminals</rdfs:label>
       <rdfs:range rdf:resource="#Terminal"/>
    </rdf:Description>
-   <rdf:Description rdf:about="#ConnectivityNode.Terminals">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#Terminal.ConnectivityNode"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Terminals interconnected with zero impedance at a this connectivity node.</rdfs:comment>
-      <rdfs:domain rdf:resource="#ConnectivityNode"/>
-      <rdfs:label xml:lang="en">Terminals</rdfs:label>
-      <rdfs:range rdf:resource="#Terminal"/>
-   </rdf:Description>
    <rdf:Description rdf:about="#ConnectivityNodeContainer">
       <cims:belongsToCategory rdf:resource="#Package_Core"/>
       <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
       <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A base class for all objects that may contain connectivity nodes or topological nodes.</rdfs:comment>
       <rdfs:label xml:lang="en">ConnectivityNodeContainer</rdfs:label>
       <rdfs:subClassOf rdf:resource="#PowerSystemResource"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#ConnectivityNodeContainer.ConnectivityNodes">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#ConnectivityNode.ConnectivityNodeContainer"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">Connectivity nodes which belong to this connectivity node container.</rdfs:comment>
-      <rdfs:domain rdf:resource="#ConnectivityNodeContainer"/>
-      <rdfs:label xml:lang="en">ConnectivityNodes</rdfs:label>
-      <rdfs:range rdf:resource="#ConnectivityNode"/>
    </rdf:Description>
    <rdf:Description rdf:about="#ConnectivityNodeContainer.ConnectivityNodes">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
@@ -555,29 +433,8 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
       <rdfs:label xml:lang="en">AdditionalEquipmentContainer</rdfs:label>
       <rdfs:range rdf:resource="#EquipmentContainer"/>
    </rdf:Description>
-   <rdf:Description rdf:about="#Equipment.AdditionalEquipmentContainer">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#EquipmentContainer.AdditionalGroupedEquipment"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">Additional equipment container beyond the primary equipment container.  The equipment is contained in another equipment container, but also grouped with this equipment container.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Equipment"/>
-      <rdfs:label xml:lang="en">AdditionalEquipmentContainer</rdfs:label>
-      <rdfs:range rdf:resource="#EquipmentContainer"/>
-   </rdf:Description>
    <rdf:Description rdf:about="#Equipment.EquipmentContainer">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#EquipmentContainer.Equipments"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#ofAggregate"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">Container of this equipment.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Equipment"/>
-      <rdfs:label xml:lang="en">EquipmentContainer</rdfs:label>
-      <rdfs:range rdf:resource="#EquipmentContainer"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#Equipment.EquipmentContainer">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#EquipmentContainer.Equipments"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
       <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#ofAggregate"/>
@@ -632,16 +489,6 @@ The attribute is not used for EquivalentBranch, EquivalentShunt and EquivalentIn
       <rdfs:subClassOf rdf:resource="#ConnectivityNodeContainer"/>
    </rdf:Description>
    <rdf:Description rdf:about="#EquipmentContainer.AdditionalGroupedEquipment">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#Equipment.AdditionalEquipmentContainer"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">The additonal contained equipment.  The equipment belong to the equipment container. The equipment is contained in another equipment container, but also grouped with this equipment container.  Examples include when a switch contained in a substation is also desired to be grouped with a line contianer or when a switch is included in a secondary substation and also grouped in a feeder.</rdfs:comment>
-      <rdfs:domain rdf:resource="#EquipmentContainer"/>
-      <rdfs:label xml:lang="en">AdditionalGroupedEquipment</rdfs:label>
-      <rdfs:range rdf:resource="#Equipment"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#EquipmentContainer.AdditionalGroupedEquipment">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#Equipment.AdditionalEquipmentContainer"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
@@ -649,17 +496,6 @@ The attribute is not used for EquivalentBranch, EquivalentShunt and EquivalentIn
       <rdfs:comment rdf:parseType="Literal">The additonal contained equipment.  The equipment belong to the equipment container. The equipment is contained in another equipment container, but also grouped with this equipment container.  Examples include when a switch contained in a substation is also desired to be grouped with a line contianer or when a switch is included in a secondary substation and also grouped in a feeder.</rdfs:comment>
       <rdfs:domain rdf:resource="#EquipmentContainer"/>
       <rdfs:label xml:lang="en">AdditionalGroupedEquipment</rdfs:label>
-      <rdfs:range rdf:resource="#Equipment"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#EquipmentContainer.Equipments">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#Equipment.EquipmentContainer"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#aggregateOf"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">Contained equipment.</rdfs:comment>
-      <rdfs:domain rdf:resource="#EquipmentContainer"/>
-      <rdfs:label xml:lang="en">Equipments</rdfs:label>
       <rdfs:range rdf:resource="#Equipment"/>
    </rdf:Description>
    <rdf:Description rdf:about="#EquipmentContainer.Equipments">
@@ -692,16 +528,6 @@ The attribute is not used for EquivalentBranch, EquivalentShunt and EquivalentIn
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
       <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
       <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">All names of this identified object.</rdfs:comment>
-      <rdfs:domain rdf:resource="#IdentifiedObject"/>
-      <rdfs:label xml:lang="en">Names</rdfs:label>
-      <rdfs:range rdf:resource="#Name"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#IdentifiedObject.Names">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#Name.IdentifiedObject"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">All names of this identified object.</rdfs:comment>
       <rdfs:domain rdf:resource="#IdentifiedObject"/>
       <rdfs:label xml:lang="en">Names</rdfs:label>
       <rdfs:range rdf:resource="#Name"/>
@@ -764,16 +590,6 @@ For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is map
       <rdfs:label xml:lang="en">Name</rdfs:label>
    </rdf:Description>
    <rdf:Description rdf:about="#Name.IdentifiedObject">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#IdentifiedObject.Names"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Identified object that this name designates.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Name"/>
-      <rdfs:label xml:lang="en">IdentifiedObject</rdfs:label>
-      <rdfs:range rdf:resource="#IdentifiedObject"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#Name.IdentifiedObject">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#IdentifiedObject.Names"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
@@ -793,16 +609,6 @@ For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is map
       <rdfs:label xml:lang="en">NameType</rdfs:label>
       <rdfs:range rdf:resource="#NameType"/>
    </rdf:Description>
-   <rdf:Description rdf:about="#Name.NameType">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#NameType.Names"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">Type of this name.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Name"/>
-      <rdfs:label xml:lang="en">NameType</rdfs:label>
-      <rdfs:range rdf:resource="#NameType"/>
-   </rdf:Description>
    <rdf:Description rdf:about="#Name.name">
       <cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
@@ -818,16 +624,6 @@ For CIMXML data files in RDF syntax conforming to IEC 61970-552, the mRID is map
       <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Type of name. Possible values for attribute 'name' are implementation dependent but standard profiles may specify types. An enterprise may have multiple IT systems each having its own local name for the same object, e.g. a planning system may have different names from an EMS. An object may also have different names within the same IT system, e.g. localName as defined in CIM version 14. The definition from CIM14 is:
 The localName is a human readable name of the object. It is a free text name local to a node in a naming hierarchy similar to a file directory structure. A power system related naming hierarchy may be: Substation, VoltageLevel, Equipment etc. Children of the same parent in such a hierarchy have names that typically are unique among them.</rdfs:comment>
       <rdfs:label xml:lang="en">NameType</rdfs:label>
-   </rdf:Description>
-   <rdf:Description rdf:about="#NameType.Names">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#Name.NameType"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">All names of this type.</rdfs:comment>
-      <rdfs:domain rdf:resource="#NameType"/>
-      <rdfs:label xml:lang="en">Names</rdfs:label>
-      <rdfs:range rdf:resource="#Name"/>
    </rdf:Description>
    <rdf:Description rdf:about="#NameType.Names">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
@@ -866,16 +662,6 @@ The localName is a human readable name of the object. It is a free text name loc
    </rdf:Description>
    <rdf:Description rdf:about="#PSRType.PowerSystemResources">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#PowerSystemResource.PSRType"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Power system resources classified with this power system resource type.</rdfs:comment>
-      <rdfs:domain rdf:resource="#PSRType"/>
-      <rdfs:label xml:lang="en">PowerSystemResources</rdfs:label>
-      <rdfs:range rdf:resource="#PowerSystemResource"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#PSRType.PowerSystemResources">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#PowerSystemResource.PSRType"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
       <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
@@ -1137,16 +923,6 @@ The integer values are from IEC 61968-9 to support revenue metering applications
       <rdfs:range rdf:resource="#Asset"/>
    </rdf:Description>
    <rdf:Description rdf:about="#PowerSystemResource.PSRType">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#PSRType.PowerSystemResources"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Custom classification for this power system resource.</rdfs:comment>
-      <rdfs:domain rdf:resource="#PowerSystemResource"/>
-      <rdfs:label xml:lang="en">PSRType</rdfs:label>
-      <rdfs:range rdf:resource="#PSRType"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#PowerSystemResource.PSRType">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#PSRType.PowerSystemResources"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
@@ -1176,17 +952,6 @@ The integer values are from IEC 61968-9 to support revenue metering applications
       <rdfs:subClassOf rdf:resource="#EquipmentContainer"/>
    </rdf:Description>
    <rdf:Description rdf:about="#Substation.Bays">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#Bay.Substation"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#aggregateOf"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">Bays contained in the substation.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Substation"/>
-      <rdfs:label xml:lang="en">Bays</rdfs:label>
-      <rdfs:range rdf:resource="#Bay"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#Substation.Bays">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#Bay.Substation"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
@@ -1199,17 +964,6 @@ The integer values are from IEC 61968-9 to support revenue metering applications
    </rdf:Description>
    <rdf:Description rdf:about="#Substation.VoltageLevels">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#VoltageLevel.Substation"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#aggregateOf"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">The voltage levels within this substation.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Substation"/>
-      <rdfs:label xml:lang="en">VoltageLevels</rdfs:label>
-      <rdfs:range rdf:resource="#VoltageLevel"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#Substation.VoltageLevels">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#VoltageLevel.Substation"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
       <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#aggregateOf"/>
@@ -1239,16 +993,6 @@ The integer values are from IEC 61968-9 to support revenue metering applications
       <rdfs:subClassOf rdf:resource="#ACDCTerminal"/>
    </rdf:Description>
    <rdf:Description rdf:about="#Terminal.AuxiliaryEquipment">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#AuxiliaryEquipment.Terminal"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">The auxiliary equipment connected to the terminal.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Terminal"/>
-      <rdfs:label xml:lang="en">AuxiliaryEquipment</rdfs:label>
-      <rdfs:range rdf:resource="#AuxiliaryEquipment"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#Terminal.AuxiliaryEquipment">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#AuxiliaryEquipment.Terminal"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
@@ -1259,16 +1003,6 @@ The integer values are from IEC 61968-9 to support revenue metering applications
       <rdfs:range rdf:resource="#AuxiliaryEquipment"/>
    </rdf:Description>
    <rdf:Description rdf:about="#Terminal.ConductingEquipment">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#ConductingEquipment.Terminals"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The conducting equipment of the terminal.  Conducting equipment have  terminals that may be connected to other conducting equipment terminals via connectivity nodes or topological nodes.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Terminal"/>
-      <rdfs:label xml:lang="en">ConductingEquipment</rdfs:label>
-      <rdfs:range rdf:resource="#ConductingEquipment"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#Terminal.ConductingEquipment">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#ConductingEquipment.Terminals"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
@@ -1277,16 +1011,6 @@ The integer values are from IEC 61968-9 to support revenue metering applications
       <rdfs:domain rdf:resource="#Terminal"/>
       <rdfs:label xml:lang="en">ConductingEquipment</rdfs:label>
       <rdfs:range rdf:resource="#ConductingEquipment"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#Terminal.ConnectivityNode">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#ConnectivityNode.Terminals"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">The connectivity node to which this terminal connects with zero impedance.</rdfs:comment>
-      <rdfs:domain rdf:resource="#Terminal"/>
-      <rdfs:label xml:lang="en">ConnectivityNode</rdfs:label>
-      <rdfs:range rdf:resource="#ConnectivityNode"/>
    </rdf:Description>
    <rdf:Description rdf:about="#Terminal.ConnectivityNode">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
@@ -1299,12 +1023,11 @@ The integer values are from IEC 61968-9 to support revenue metering applications
       <rdfs:range rdf:resource="#ConnectivityNode"/>
    </rdf:Description>
    <rdf:Description rdf:about="#Terminal.phases">
-      <cims:AssociationUsed>Yes</cims:AssociationUsed>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
       <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#attribute"/>
       <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#enumeration"/>
       <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">Represents the normal network phasing condition. If the attribute is missing, three phases (ABC) shall be assumed, except for terminals of grounding classes (specializations of EarthFaultCompensator, GroundDisconnector, and Ground) which will be assumed to be N. Therefore, phase code ABCN is explicitly declared when needed, e.g. for star point grounding equipment.
+      <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Represents the normal network phasing condition. If the attribute is missing, three phases (ABC) shall be assumed, except for terminals of grounding classes (specializations of EarthFaultCompensator, GroundDisconnector, and Ground) which will be assumed to be N. Therefore, phase code ABCN is explicitly declared when needed, e.g. for star point grounding equipment.
 The phase code on terminals connecting same ConnectivityNode or same TopologicalNode as well as for equipment between two terminals shall be consistent.</rdfs:comment>
       <rdfs:domain rdf:resource="#Terminal"/>
       <rdfs:label xml:lang="en">phases</rdfs:label>
@@ -1324,16 +1047,6 @@ The phase code on terminals connecting same ConnectivityNode or same Topological
       <rdfs:subClassOf rdf:resource="#EquipmentContainer"/>
    </rdf:Description>
    <rdf:Description rdf:about="#VoltageLevel.BaseVoltage">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#BaseVoltage.VoltageLevel"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">The base voltage used for all equipment within the voltage level.</rdfs:comment>
-      <rdfs:domain rdf:resource="#VoltageLevel"/>
-      <rdfs:label xml:lang="en">BaseVoltage</rdfs:label>
-      <rdfs:range rdf:resource="#BaseVoltage"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#VoltageLevel.BaseVoltage">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
       <cims:inverseRoleName rdf:resource="#BaseVoltage.VoltageLevel"/>
       <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
@@ -1342,17 +1055,6 @@ The phase code on terminals connecting same ConnectivityNode or same Topological
       <rdfs:domain rdf:resource="#VoltageLevel"/>
       <rdfs:label xml:lang="en">BaseVoltage</rdfs:label>
       <rdfs:range rdf:resource="#BaseVoltage"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#VoltageLevel.Bays">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#Bay.VoltageLevel"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
-      <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#aggregateOf"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">The bays within this voltage level.</rdfs:comment>
-      <rdfs:domain rdf:resource="#VoltageLevel"/>
-      <rdfs:label xml:lang="en">Bays</rdfs:label>
-      <rdfs:range rdf:resource="#Bay"/>
    </rdf:Description>
    <rdf:Description rdf:about="#VoltageLevel.Bays">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
@@ -1364,17 +1066,6 @@ The phase code on terminals connecting same ConnectivityNode or same Topological
       <rdfs:domain rdf:resource="#VoltageLevel"/>
       <rdfs:label xml:lang="en">Bays</rdfs:label>
       <rdfs:range rdf:resource="#Bay"/>
-   </rdf:Description>
-   <rdf:Description rdf:about="#VoltageLevel.Substation">
-      <cims:AssociationUsed>No</cims:AssociationUsed>
-      <cims:inverseRoleName rdf:resource="#Substation.VoltageLevels"/>
-      <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
-      <cims:stereotype rdf:resource="http://iec.ch/TC57/NonStandard/UML#ofAggregate"/>
-      <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-      <rdfs:comment rdf:parseType="Literal">The substation of the voltage level.</rdfs:comment>
-      <rdfs:domain rdf:resource="#VoltageLevel"/>
-      <rdfs:label xml:lang="en">Substation</rdfs:label>
-      <rdfs:range rdf:resource="#Substation"/>
    </rdf:Description>
    <rdf:Description rdf:about="#VoltageLevel.Substation">
       <cims:AssociationUsed>Yes</cims:AssociationUsed>
