@@ -1,4 +1,4 @@
-﻿using System.Xml.Linq;
+using System.Xml.Linq;
 
 namespace CimBios.RdfXml.IOLib
 {
@@ -8,6 +8,40 @@ namespace CimBios.RdfXml.IOLib
     /// </summary>
     public class RdfXmlReader
     {
+        /// <summary>
+        /// Root RDF node.
+        /// </summary>
+        private XElement? _RdfElement { get; set; }
+
+        /// <summary>
+        /// First element in RDF root node.
+        /// </summary>
+        private XElement? _FirstElement
+        {
+            get
+            {
+                return _RdfElement?.Elements().Count() > 0
+                    ? _RdfElement.Elements().First() : null;
+            }
+        }
+
+        /// <summary>
+        /// Stack of read waiting elements.
+        /// </summary>
+        private Stack<XElement> _ReadElementsStack { get; set; }
+            = new Stack<XElement>();
+
+        private Dictionary<Uri, RdfNode> _NodesCache { get; set; }
+            = new Dictionary<Uri, RdfNode>();
+
+        /// <summary>
+        /// RDF document namespaces dictionary.
+        /// </summary>
+        public Dictionary<string, XNamespace> Namespaces { get => _Namespaces; }
+
+        private Dictionary<string, XNamespace> _Namespaces { get; set; }
+            = new Dictionary<string, XNamespace>();
+
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -99,6 +133,9 @@ namespace CimBios.RdfXml.IOLib
             string subjectId = GetXElementIdentifier(content, out bool isAuto);
             Uri subject = MakeUri(subjectId);
 
+            Uri typeIdentifier = new Uri(content.Name.Namespace.NamespaceName
+                    + content.Name.LocalName);
+
             var triples = new List<RdfTriple>(content.Elements().Count());
             foreach (var child in content.Elements())
             {
@@ -141,7 +178,9 @@ namespace CimBios.RdfXml.IOLib
                 }
             }
 
-            return new RdfNode(subject, content, triples.ToArray(), isAuto);
+            var rdfNode = new RdfNode(subject, typeIdentifier, triples.ToArray(), isAuto);
+
+            return rdfNode;
         }
 
         /// <summary>
@@ -154,9 +193,10 @@ namespace CimBios.RdfXml.IOLib
                 throw new Exception("No rdf node");
             }
 
+            _NodesCache.Clear();
             _ReadElementsStack.Clear();
             _RdfElement.Elements().Reverse().ToList()
-                    .ForEach(el => _ReadElementsStack.Push(el));
+                .ForEach(el => _ReadElementsStack.Push(el));
         }
 
         /// <summary>
@@ -177,6 +217,8 @@ namespace CimBios.RdfXml.IOLib
             {
                 yield return rdfNode;
             }
+
+            Reset();
         }
 
         /// <summary>
@@ -220,36 +262,5 @@ namespace CimBios.RdfXml.IOLib
                 return about.Value;
             }
         }
-
-        /// <summary>
-        /// First element in RDF root node.
-        /// </summary>
-        private XElement? _FirstElement
-        {
-            get
-            {
-                return _RdfElement?.Elements().Count() > 0
-                    ? _RdfElement.Elements().First() : null;
-            }
-        }
-
-        /// <summary>
-        /// Root RDF node.
-        /// </summary>
-        private XElement? _RdfElement { get; set; }
-
-        /// <summary>
-        /// Stack of read waiting elements.
-        /// </summary>
-        private Stack<XElement> _ReadElementsStack { get; set; }
-            = new Stack<XElement>();
-
-        /// <summary>
-        /// RDF document namespaces dictionary.
-        /// </summary>
-        public Dictionary<string, XNamespace> Namespaces { get => _Namespaces; }
-
-        private Dictionary<string, XNamespace> _Namespaces { get; set; }
-            = new Dictionary<string, XNamespace>();
     }
 }
