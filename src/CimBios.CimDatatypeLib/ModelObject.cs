@@ -36,10 +36,11 @@ namespace CimBios.CimModel.CimDatatypeLib
     /// </summary>
     public class DataFacade
     {
-        public DataFacade(string uuid, string classType)
+        public DataFacade(string uuid, Uri classType, bool isCompound = false)
         {
             _uuid = uuid;
             _classType = classType;
+            _isCompound = isCompound;
 
             _attributes = new Dictionary<string, object>();
             _assocs1to1 = new Dictionary<string, IModelObject>();
@@ -54,7 +55,12 @@ namespace CimBios.CimModel.CimDatatypeLib
         /// <summary>
         /// Class type name.
         /// </summary>
-        public string ClassType { get => _classType; }
+        public Uri ClassType { get => _classType; }
+
+        /// <summary>
+        /// Compound predicate status
+        /// </summary>
+        public bool IsCompound { get => _isCompound; }
 
         /// <summary>
         /// List of all non-empty attributes.
@@ -167,7 +173,8 @@ namespace CimBios.CimModel.CimDatatypeLib
         }
 
         private string _uuid = string.Empty;
-        private string _classType = string.Empty;
+        private Uri _classType;
+        private bool _isCompound;
         private Dictionary<string, object> _attributes;
         private Dictionary<string, IModelObject> _assocs1to1;
         private Dictionary<string, List<IModelObject>> _assocs1toM;
