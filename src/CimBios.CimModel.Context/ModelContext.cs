@@ -179,21 +179,17 @@ namespace CimBios.CimModel.Context
                 return null;
             }
 
-            var classType = instanceNode.Element.Name.LocalName;
-
             DataFacade objectData = new DataFacade(
                 instanceUuid,
-                classType);
+                instanceNode.TypeIdentifier);
 
-            if (classType == "FullModel")
+            if (instanceNode.TypeIdentifier.Fragment == "#FullModel")
             {
                 return new FullModel(objectData);
             }
 
-            var classUri = new Uri(instanceNode.Element.Name.NamespaceName + classType);
-
             if (TypesLib != null && TypesLib.RegisteredTypes
-                .TryGetValue(classUri, out var type))
+                .TryGetValue(instanceNode.TypeIdentifier, out var type))
             {
                 return Activator.CreateInstance(type, objectData) as IModelObject;
             }
