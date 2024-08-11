@@ -70,49 +70,6 @@ namespace CimBios.CimModel.Context
                 {
                     continue;
                 }
-                
-                foreach (var property in instanceNode.Triples)
-                {
-                    string predicate = property.Predicate
-                        .Fragment.Replace("#", "");
-
-                    if (property.Object is string objectString)
-                    {
-                        instance.ObjectData.SetAttribute(
-                            predicate,
-                            objectString);
-                    }
-                    else if (property.Object is Uri referenceUri)
-                    {
-                        string referenceUuid = string.Empty;
-                        if (TryGetEscapedIdentifier(referenceUri, 
-                            out referenceUuid) == false)
-                        {
-                            continue;
-                        }
-
-                        var referenceInstance = GetObject(referenceUuid);
-                        if (referenceInstance == null)
-                        {
-                            if (_WaitForReferenceDict.ContainsKey(referenceUuid))
-                            {
-                                _WaitForReferenceDict[referenceUuid]
-                                    .Add((instance.Uuid, predicate));
-                            }
-                            else
-                            {
-                                _WaitForReferenceDict.Add(referenceUuid, 
-                                    new List<(string, string)>()
-                                        { (instance.Uuid, predicate) });
-                            }
-                        }
-                        else
-                        {
-                            instance.ObjectData.AddAssoc1ToUnk(predicate, 
-                                referenceInstance);
-                        }
-                    }
-                }
 
                 if (instance is IFullModel)
                 {
@@ -170,7 +127,8 @@ namespace CimBios.CimModel.Context
             }
         }
 
-        private IModelObject? CreateInstance(RdfNode instanceNode)
+        private IModelObject? CreateInstance(RdfNode instanceNode, 
+            bool IsCompound = false)
         {
             string instanceUuid = string.Empty;
             if (TryGetEscapedIdentifier(instanceNode.Identifier,
@@ -179,26 +137,101 @@ namespace CimBios.CimModel.Context
                 return null;
             }
 
-            var classType = instanceNode.Element.Name.LocalName;
-
             DataFacade objectData = new DataFacade(
                 instanceUuid,
-                classType);
+                instanceNode.TypeIdentifier,
+                IsCompound);
 
-            if (classType == "FullModel")
+            IModelObject? instanceObject = null;
+
+            if (instanceNode.TypeIdentifier.Fragment == "#FullModel")
             {
-                return new FullModel(objectData);
+                instanceObject = new FullModel(objectData);
+            }
+            else if (TypesLib != null && TypesLib.RegisteredTypes
+                .TryGetValue(instanceNode.TypeIdentifier, out var type))
+            {
+                instanceObject = Activator.CreateInstance(type, objectData) as IModelObject;
+            }
+            else
+            {
+                instanceObject = new ModelObject(objectData);
             }
 
-            var classUri = new Uri(instanceNode.Element.Name.NamespaceName + classType);
-
-            if (TypesLib != null && TypesLib.RegisteredTypes
-                .TryGetValue(classUri, out var type))
+            if (instanceObject != null)
             {
-                return Activator.CreateInstance(type, objectData) as IModelObject;
+                instanceObject = FillObjectData(instanceObject, instanceNode);
             }
 
-            return new ModelObject(objectData);
+            return instanceObject;
+        }
+
+        private IModelObject FillObjectData(IModelObject instance,
+            RdfNode instanceNode)
+        {
+            foreach (var property in instanceNode.Triples)
+            {
+                string predicate = property.Predicate
+                    .Fragment.Replace("#", "");
+
+                if (property.Object is string objectString)
+                {
+                    instance.ObjectData.SetAttribute(
+                        predicate,
+                        objectString);
+                }
+                else if (property.Object is Uri referenceUri)
+                {
+                    string referenceUuid = string.Empty;
+                    if (TryGetEscapedIdentifier(referenceUri,
+                        out referenceUuid) == false)
+                    {
+                        continue;
+                    }
+
+                    var referenceInstance = GetObject(referenceUuid);
+                    if (referenceInstance == null)
+                    {
+                        if (_WaitForReferenceDict.ContainsKey(referenceUuid))
+                        {
+                            _WaitForReferenceDict[referenceUuid]
+                                .Add((instance.Uuid, predicate));
+                        }
+                        else
+                        {
+                            _WaitForReferenceDict.Add(referenceUuid,
+                                new List<(string, string)>()
+                                    { (instance.Uuid, predicate) });
+                        }
+                    }
+                    else
+                    {
+                        instance.ObjectData.AddAssoc1ToUnk(predicate,
+                            referenceInstance);
+                    }
+                }
+            }
+
+            foreach (var subObject in instanceNode.Children)
+            {
+                var subObjectInstance = CreateInstance(subObject, true);
+                if (subObjectInstance == null)
+                {
+                    continue;
+                }
+
+                var triple = instanceNode.Triples.Where(t => t.Object is Uri uri 
+                    && RdfXmlReaderUtils.RdfUriEquals(uri, subObject.Identifier)).Single();
+
+                string predicate = triple.Predicate
+                    .Fragment.Replace("#", "");
+
+                instance.ObjectData.SetAttribute(
+                       predicate,
+                       subObjectInstance);
+            }
+
+            return instance;
         }
 
         private static bool TryGetEscapedIdentifier(Uri uri, out string identifier)
