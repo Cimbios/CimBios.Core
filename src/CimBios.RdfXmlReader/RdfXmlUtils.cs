@@ -30,6 +30,13 @@ namespace CimBios.RdfXml.IOLib
             get => _ParentNode;
             set
             {
+                if (_ParentNode == value)
+                {
+                    return;
+                }
+
+                _ParentNode = value;
+
                 if (value == null)
                 {
                     _ParentNode?.RemoveChild(this);
@@ -38,8 +45,6 @@ namespace CimBios.RdfXml.IOLib
                 {
                     value.AddChild(this);
                 }
-
-                _ParentNode = value;
             }
         }
         public RdfNode[] Children { get => _Children.ToArray(); }
