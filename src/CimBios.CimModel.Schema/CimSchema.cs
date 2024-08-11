@@ -8,6 +8,7 @@ namespace CimBios.CimModel.Schema
     /// </summary>
     public static class CimSchemaStrings
     {
+        public static Uri RdfDescription = new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Description");
         public static Uri RdfType = new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
         public static Uri RdfsClass = new Uri("http://www.w3.org/2000/01/rdf-schema#Class");
         public static Uri RdfProperty = new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property");
@@ -99,7 +100,8 @@ namespace CimBios.CimModel.Schema
             BuildInternalDatatypes();
 
             var descriptionTypedNodes = _Reader.ReadAll()
-                .Where(n => n.Element.Name == _Reader.Namespaces["rdf"] + "Description")
+                .Where(n => RdfXmlReaderUtils.RdfUriEquals(n.TypeIdentifier, 
+                    CimSchemaStrings.RdfDescription))
                 .Where(n => n.Triples
                     .Any(t => RdfXmlReaderUtils
                         .RdfUriEquals(t.Predicate, CimSchemaStrings.RdfType)
