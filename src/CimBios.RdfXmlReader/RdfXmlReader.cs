@@ -137,6 +137,7 @@ namespace CimBios.RdfXml.IOLib
                     + content.Name.LocalName);
 
             var triples = new List<RdfTriple>(content.Elements().Count());
+            var subObjects = new List<RdfNode>();
             foreach (var child in content.Elements())
             {
                 Uri predicate = new Uri(child.Name.Namespace.NamespaceName
@@ -166,6 +167,12 @@ namespace CimBios.RdfXml.IOLib
                     foreach (var el in child.Elements())
                     {
                         _ReadElementsStack.Push(el);
+                        var subObject = ReadNext();
+                        if (subObject == null)
+                        {
+                            continue;
+                        }
+                        subObjects.Add(subObject);
 
                         string objectId = GetXElementIdentifier(el, out _);
                         object? @object = new Uri(Namespaces["base"].NamespaceName + objectId);
@@ -179,6 +186,8 @@ namespace CimBios.RdfXml.IOLib
             }
 
             var rdfNode = new RdfNode(subject, typeIdentifier, triples.ToArray(), isAuto);
+
+            subObjects.ForEach(so => so.Parent = rdfNode);
 
             return rdfNode;
         }
