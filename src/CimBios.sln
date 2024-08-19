@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
@@ -24,6 +24,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ModelDebug", "ModelDebug", "{149E3D34-C25F-4438-BB69-A9D425523846}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RdfXmlIOLib", "RdfXmlIOLib", "{FC81AB4D-0E26-4A7D-A6F2-CBDB290EB77D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataProvider", "DataProvider", "{00D3E768-D13A-4EF9-823D-F07E5C4C85DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Core.DataProvider", "Core\DataProvider\CimBios.Core.DataProvider\CimBios.Core.DataProvider.csproj", "{5ED1EBC7-CA3A-48BE-B7EC-F9F04F749DEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +59,10 @@ Global
 		{2797C019-57A1-4EED-B39A-F18FBB3D87C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2797C019-57A1-4EED-B39A-F18FBB3D87C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2797C019-57A1-4EED-B39A-F18FBB3D87C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5ED1EBC7-CA3A-48BE-B7EC-F9F04F749DEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ED1EBC7-CA3A-48BE-B7EC-F9F04F749DEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ED1EBC7-CA3A-48BE-B7EC-F9F04F749DEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ED1EBC7-CA3A-48BE-B7EC-F9F04F749DEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +77,8 @@ Global
 		{255F7368-4EE1-48A7-ACBF-3F87392FAF9E} = {81FD696D-24DB-401A-B461-3D04980528B6}
 		{149E3D34-C25F-4438-BB69-A9D425523846} = {29FD2110-4306-4F6F-AFAE-84A3B47A30AF}
 		{FC81AB4D-0E26-4A7D-A6F2-CBDB290EB77D} = {81FD696D-24DB-401A-B461-3D04980528B6}
+		{00D3E768-D13A-4EF9-823D-F07E5C4C85DB} = {81FD696D-24DB-401A-B461-3D04980528B6}
+		{5ED1EBC7-CA3A-48BE-B7EC-F9F04F749DEF} = {00D3E768-D13A-4EF9-823D-F07E5C4C85DB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E063B80A-4158-4C3F-A567-BFB2B929BA33}
