@@ -44,6 +44,26 @@ internal static class XmlDatatypesMapping
 public interface ICimSchema
 {
     /// <summary>
+    /// All CimMetaClass instances - RDF description instances 
+    /// of RDF type Class.
+    /// </summary>
+    public IEnumerable<CimMetaClass> Classes { get; }
+    /// <summary>
+    /// All CimMetaProperty instances - RDF description instances 
+    /// of RDF type Property.
+    /// </summary>
+    public IEnumerable<CimMetaProperty> Properties { get; }
+    /// <summary>
+    /// All CimMetaIndividual instances - RDF description concrete instances.
+    /// </summary>
+    public IEnumerable<CimMetaIndividual> Individuals { get; }
+    /// <summary>
+    /// All CimMetaDatatype instances - RDF description instances 
+    /// of RDF type Datatype.
+    /// </summary>
+    public IEnumerable<CimMetaDatatype> Datatypes { get; }
+
+    /// <summary>
     /// Load RDFS schema content via text reader.
     /// </summary>
     public void Load(TextReader textReader);
@@ -65,26 +85,6 @@ public interface ICimSchema
     public IEnumerable<CimMetaProperty> GetClassProperties(
         CimMetaClass metaClass,
         bool inherit = false);
-
-    /// <summary>
-    /// All CimMetaClass instances - RDF description instances 
-    /// of RDF type Class.
-    /// </summary>
-    public IEnumerable<CimMetaClass> Classes { get; }
-    /// <summary>
-    /// All CimMetaProperty instances - RDF description instances 
-    /// of RDF type Property.
-    /// </summary>
-    public IEnumerable<CimMetaProperty> Properties { get; }
-    /// <summary>
-    /// All CimMetaIndividual instances - RDF description concrete instances.
-    /// </summary>
-    public IEnumerable<CimMetaIndividual> Individuals { get; }
-    /// <summary>
-    /// All CimMetaDatatype instances - RDF description instances 
-    /// of RDF type Datatype.
-    /// </summary>
-    public IEnumerable<CimMetaDatatype> Datatypes { get; }
 }
 
 /// <summary>
@@ -92,6 +92,18 @@ public interface ICimSchema
 /// </summary>
 public class CimSchema : ICimSchema
 {
+    public IEnumerable<CimMetaClass> Classes 
+    { get => _All.Values.OfType<CimMetaClass>(); }
+    public IEnumerable<CimMetaProperty> Properties 
+    { get => _All.Values.OfType<CimMetaProperty>(); }
+    public IEnumerable<CimMetaIndividual> Individuals 
+    { get => _All.Values.OfType<CimMetaIndividual>(); }
+    public IEnumerable<CimMetaDatatype> Datatypes 
+    { get => _All.Values.OfType<CimMetaDatatype>(); }
+
+    private CimSchemaReflectionHelper _SerializeHelper { get; }
+    private RdfXmlReader _Reader { get; set; } = new RdfXmlReader();
+
     public CimSchema()
     {
         _All = new Dictionary<Uri, CimRdfDescriptionBase>(new RdfUriComparer());
@@ -184,10 +196,8 @@ public class CimSchema : ICimSchema
                     out var typeInfo)
                 && typeInfo != null)
             {
-                var instance = Activator.CreateInstance(typeInfo) 
-                    as CimRdfDescriptionBase;
-                    
-                if (instance != null)
+                if (Activator.CreateInstance(typeInfo) 
+                    is CimRdfDescriptionBase instance)
                 {
                     instance.Uri = node.Identifier;
                     _All.Add(node.Identifier, instance);
@@ -241,8 +251,8 @@ public class CimSchema : ICimSchema
     {
         foreach (var node in descriptionTypedNodes)
         {
-            CimRdfDescriptionBase? metaDescription;
-            if (_All.TryGetValue(node.Identifier, out metaDescription) == false
+            if (_All.TryGetValue(node.Identifier, 
+                    out CimRdfDescriptionBase? metaDescription) == false
                 || metaDescription is CimRdfDescriptionBase == false)
             {
                 continue;
@@ -313,163 +323,5 @@ public class CimSchema : ICimSchema
         return null;
     }
 
-    public IEnumerable<CimMetaClass> Classes 
-    { get => _All.Values.OfType<CimMetaClass>(); }
-    public IEnumerable<CimMetaProperty> Properties 
-    { get => _All.Values.OfType<CimMetaProperty>(); }
-    public IEnumerable<CimMetaIndividual> Individuals 
-    { get => _All.Values.OfType<CimMetaIndividual>(); }
-    public IEnumerable<CimMetaDatatype> Datatypes 
-    { get => _All.Values.OfType<CimMetaDatatype>(); }
-
-    private Dictionary<Uri, CimRdfDescriptionBase> _All;
-
-    private CimSchemaReflectionHelper _SerializeHelper { get; }
-
-    private RdfXmlReader _Reader { get; set; } = new RdfXmlReader();
-}
-
-/// <summary>
-/// Custom attribute provides necessary serialization data. 
-/// </summary>
-internal class CimSchemaSerializableAttribute : Attribute
-{
-    public CimSchemaSerializableAttribute(string uri)
-    {
-        AbsoluteUri = uri;
-    }
-
-    public CimSchemaSerializableAttribute(string uri,
-        MetaFieldType fieldType,
-        bool isCollection = false) : this(uri)
-    {
-        FieldType = fieldType;
-        IsCollection = isCollection;
-    }
-
-    public string AbsoluteUri { get; }
-    public MetaFieldType FieldType { get; }
-    public bool IsCollection { get; }
-}
-
-/// <summary>
-/// Base class provides general RDF description node data.
-/// </summary>
-[CimSchemaSerializable("http://www.w3.org/1999/02/22-rdf-syntax-ns#description")]
-public abstract class CimRdfDescriptionBase
-{
-    protected CimRdfDescriptionBase() { }
-
-    public Uri? Uri { get; set; }
-
-    [CimSchemaSerializable(
-        "http://www.w3.org/2000/01/rdf-schema#label",
-        MetaFieldType.Value)]
-    public string Label { get; set; } = string.Empty;
-
-    [CimSchemaSerializable(
-        "http://www.w3.org/2000/01/rdf-schema#comment",
-        MetaFieldType.Value)]
-    public string Comment { get; set; } = string.Empty;
-
-    [CimSchemaSerializable(
-        "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#dataType",
-        MetaFieldType.ByRef)]
-    public CimMetaDatatype? Datatype { get; set; }
-
-    [CimSchemaSerializable(
-       "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#stereotype",
-       MetaFieldType.Enum, isCollection: true)]
-    public List<object> Stereotypes
-    { get => _Stereotypes; }
-
-    private List<object> _Stereotypes =
-        new List<object>();
-}
-
-public class CimMetaIndividual : CimRdfDescriptionBase
-{
-    public CimMetaClass? EquivalentClass { get; set; }
-}
-
-[CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Datatype")]
-public class CimMetaDatatype : CimRdfDescriptionBase
-{
-    public System.Type? SystemType { get; set; }
-
-    public System.Type? EndSystemType
-    {
-        get
-        {
-            var type = SystemType;
-            var nextDatatype = Datatype;
-
-            while (type == null && nextDatatype != null)
-            {
-                type = nextDatatype.SystemType;
-                nextDatatype = nextDatatype.Datatype;
-            }
-
-            return type;
-        }
-    }
-}
-
-[CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Class")]
-public class CimMetaClass : CimRdfDescriptionBase
-{
-    public bool SuperClass { get => SubClassOf == null; }
-
-    [CimSchemaSerializable(
-        "http://www.w3.org/2000/01/rdf-schema#subClassOf",
-        MetaFieldType.ByRef)]
-    public CimMetaClass? SubClassOf { get; set; }
-}
-
-[CimSchemaSerializable("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")]
-public class CimMetaProperty : CimRdfDescriptionBase
-{
-    [CimSchemaSerializable(
-         "http://www.w3.org/2000/01/rdf-schema#domain",
-         MetaFieldType.ByRef)]
-    public CimMetaClass? Domain { get; set; }
-
-    [CimSchemaSerializable(
-        "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#inverseRoleName",
-        MetaFieldType.ByRef)]
-    public CimMetaProperty? InverseOf { get; set; }
-
-    [CimSchemaSerializable(
-        "http://www.w3.org/2000/01/rdf-schema#range",
-        MetaFieldType.ByRef)]
-    public CimMetaClass? Range { get; set; }
-
-    [CimSchemaSerializable(
-        "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#multiplicity",
-        MetaFieldType.Enum)]
-    public Multiplicity? Multiplicity { get; set; }
-}
-
-[CimSchemaSerializable("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#stereotype")]
-public enum UMLStereotype
-{
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#attribute")]
-    Attribute,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#aggregateOf")]
-    AggregateOf,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#ofAggregate")]
-    OfAggregate,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#enumeration")]
-    Enumeration,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#compound")]
-    Compound
-}
-
-[CimSchemaSerializable("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#multiplicity")]
-public enum Multiplicity
-{
-    [CimSchemaSerializable("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1")]
-    OneToOne,
-    [CimSchemaSerializable("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n")]
-    OneToN
+    private readonly Dictionary<Uri, CimRdfDescriptionBase> _All;
 }
