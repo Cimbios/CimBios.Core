@@ -1,6 +1,0 @@
-namespace CimBios.RdfSerializer;
-
-public abstract class RdfSerializerBase
-{
-
-}
