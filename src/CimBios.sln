@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tools.ModelDebug", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Core.CimModel.CimDatatypeLib", "Core\CimModel\CimDatatypeLib\CimBios.Core.CimModel.CimDatatypeLib.csproj", "{629F6163-A99E-45E5-A580-122F13459BC8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.CimModel.RdfSerializer", "Core\CimModel\RdfSerializer\CimBios.Core.CimModel.RdfSerializer.csproj", "{2797C019-57A1-4EED-B39A-F18FBB3D87C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
