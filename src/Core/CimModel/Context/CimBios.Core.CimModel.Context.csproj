@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\DataSerializer\CimBios.Core.CimModel.RdfSerializer.csproj" />
+    <ProjectReference Include="..\RdfSerializer\CimBios.Core.CimModel.RdfSerializer.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
