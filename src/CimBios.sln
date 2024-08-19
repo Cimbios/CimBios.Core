@@ -5,13 +5,13 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.CimModel.Context", "Core\CimModel\Context\CimBios.Core.CimModel.Context.csproj", "{CBCA217B-C786-41D1-8A3F-9E900BEFB19C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.CimModel.Schema", "Core\CimModel\Schema\CimBios.Core.CimModel.Schema.csproj", "{58DE5C9F-5286-4047-94D9-CCEE51BC43B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.CimModel.Schema", "Core\CimModel\Schema\CimBios.Core.CimModel.Schema.csproj", "{58DE5C9F-5286-4047-94D9-CCEE51BC43B5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.RdfXml.IOLib", "Core\RdfXmlIOLib\CimBios.Core.RdfXmlIOLib.csproj", "{7CBC086A-63B3-4701-B243-623AAD9DF0EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.RdfXmlIOLib", "Core\RdfXmlIOLib\CimBios.Core.RdfXmlIOLib.csproj", "{7CBC086A-63B3-4701-B243-623AAD9DF0EB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tools.ModelDebug", "Tools\ModelDebug\CimBios.Tools.ModelDebug.csproj", "{52CD0EFE-4444-4C86-8A27-3BEAF5EF038E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.CimModel.CimDatatypeLib", "Core\CimModel\CimDatatypeLib\CimBios.Core.CimModel.CimDatatypeLib.csproj", "{629F6163-A99E-45E5-A580-122F13459BC8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Core.CimModel.CimDatatypeLib", "Core\CimModel\CimDatatypeLib\CimBios.Core.CimModel.CimDatatypeLib.csproj", "{629F6163-A99E-45E5-A580-122F13459BC8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
