@@ -1,4 +1,4 @@
-using CimBios.RdfXml.IOLib;
+using CimBios.Core.RdfXmlIOLib;
 using System.Reflection;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib
