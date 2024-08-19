@@ -12,6 +12,7 @@
     <ProjectReference Include="..\..\RdfXmlIOLib\CimBios.Core.RdfXmlIOLib.csproj" />
     <ProjectReference Include="..\CimDatatypeLib\CimBios.Core.CimModel.CimDatatypeLib.csproj" />
     <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj" />
+    <ProjectReference Include="..\..\DataProvider\CimBios.Core.DataProvider.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

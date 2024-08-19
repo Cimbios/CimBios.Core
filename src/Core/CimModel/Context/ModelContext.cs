@@ -40,7 +40,10 @@ public class ModelContext
 
     public void Load(string path)
     {
-        Load(new StreamReader(path), new System.Uri(path).AbsoluteUri);
+        var provider = 
+            new DataProvider.RdfXmlFileDataProvider(new Uri(path));
+            
+        Load(provider.Get(), new Uri(path).AbsoluteUri);
     }
 
     public IEnumerable<IModelObject> GetAllObjects()
