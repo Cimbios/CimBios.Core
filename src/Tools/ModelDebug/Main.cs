@@ -1,4 +1,4 @@
-using CimBios.CimModel;
+using CimBios.Core.CimModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -104,7 +104,7 @@ internal sealed class FooSubProgram : ISubProgram, IObjectReturn
         = new Func<IEnumerable<object>, object?>(
             (p) =>
             {
-                var dtl = new CimBios.CimModel.CimDatatypeLib.DatatypeLib();
+                var dtl = new CimBios.Core.CimModel.CimDatatypeLib.DatatypeLib();
              
                 return dtl;
             });
@@ -122,7 +122,7 @@ internal sealed class LoadSchemaSubProgram : ISubProgram, IObjectReturn
         = new Func<IEnumerable<object>, object?>(
             (p) =>
             {
-                var schema = new CimBios.CimModel.Schema.CimSchema();
+                var schema = new CimBios.Core.CimModel.Schema.CimSchema();
 
                 var reader = new StreamReader(p.Single() as string);
                 schema.Load(reader);
@@ -143,8 +143,8 @@ internal sealed class LoadModelSubProgram : ISubProgram, IObjectReturn
         = new Func<IEnumerable<object>, object?>(
             (p) =>
             {
-                var model = new CimBios.CimModel.Context.ModelContext() 
-                { TypesLib = new CimBios.CimModel.CimDatatypeLib.DatatypeLib() };
+                var model = new CimBios.Core.CimModel.Context.ModelContext() 
+                { TypesLib = new CimBios.Core.CimModel.CimDatatypeLib.DatatypeLib() };
 
                 model.Load(p.Single() as string);
 
