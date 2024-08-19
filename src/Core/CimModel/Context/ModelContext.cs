@@ -3,7 +3,7 @@ using System.Data;
 using System.Xml.Linq;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
-using CimBios.RdfXml.IOLib;
+using CimBios.Core.RdfXmlIOLib;
 
 namespace CimBios.Core.CimModel.Context
 {
