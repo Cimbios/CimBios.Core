@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
@@ -27,7 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RdfXmlIOLib", "RdfXmlIOLib"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataProvider", "DataProvider", "{00D3E768-D13A-4EF9-823D-F07E5C4C85DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Core.DataProvider", "Core\DataProvider\CimBios.Core.DataProvider\CimBios.Core.DataProvider.csproj", "{5ED1EBC7-CA3A-48BE-B7EC-F9F04F749DEF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Core.DataProvider", "Core\DataProvider\CimBios.Core.DataProvider.csproj", "{5ED1EBC7-CA3A-48BE-B7EC-F9F04F749DEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
