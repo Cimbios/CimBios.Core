@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.CimModel.Schema", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.RdfXml.IOLib", "Core\RdfXmlIOLib\CimBios.Core.RdfXmlIOLib.csproj", "{7CBC086A-63B3-4701-B243-623AAD9DF0EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelDebug", "ModelDebug\ModelDebug.csproj", "{52CD0EFE-4444-4C86-8A27-3BEAF5EF038E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tools.ModelDebug", "Tools\ModelDebug\CimBios.Tools.ModelDebug.csproj", "{52CD0EFE-4444-4C86-8A27-3BEAF5EF038E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.CimModel.CimDatatypeLib", "Core\CimModel\CimDatatypeLib\CimBios.Core.CimModel.CimDatatypeLib.csproj", "{629F6163-A99E-45E5-A580-122F13459BC8}"
 EndProject
