@@ -1,4 +1,6 @@
 using CimBios.Core.CimModel;
+using CimBios.Core.CimModel.Context;
+using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -143,10 +145,9 @@ internal sealed class LoadModelSubProgram : ISubProgram, IObjectReturn
         = new Func<IEnumerable<object>, object?>(
             (p) =>
             {
-                var model = new CimBios.Core.CimModel.Context.ModelContext() 
-                { TypesLib = new CimBios.Core.CimModel.CimDatatypeLib.DatatypeLib() };
-
-                model.Load(p.Single() as string);
+                var model = new ModelContext(
+                    new RdfXmlFileModelContextFactory
+                        (new Uri(p.Single() as string)));
 
                 return model;
             });
