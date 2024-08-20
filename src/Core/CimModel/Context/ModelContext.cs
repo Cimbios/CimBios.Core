@@ -23,10 +23,9 @@ public class ModelContext
         _Objects = new Dictionary<string, IModelObject>();
     }
 
-    public ModelContext(IModelContextDataFactory contextDataFactory) : this()
+    public ModelContext(IModelContextConfig contextDataConfig) : this()
     {
-        _provider = contextDataFactory.DataProvider;
-        _serializer = contextDataFactory.Serializer;
+        InitContextDataConfig(contextDataConfig);
     }
 
     public void Load()
@@ -36,16 +35,25 @@ public class ModelContext
             return;
         }
 
-        var serialized = _serializer.Deserialize(new RdfSerializerSettings());
+        _serializer.Settings.AllowUnkownClassProperties = false;
+        var serialized = _serializer.Deserialize();
 
         _Objects = new Dictionary<string, IModelObject>(serialized
             .Select(x => new KeyValuePair<string, IModelObject>(x.Uuid, x)));
+
+        var fullModel = _Objects.Values.OfType<IFullModel>()
+            .FirstOrDefault();
+
+        if (fullModel != null)
+        {
+            Description = fullModel;
+            _Objects.Remove(fullModel.Uuid);
+        }
     }
 
-    public void Load(IModelContextDataFactory contextDataFactory)
+    public void Load(IModelContextConfig contextDataConfig)
     {
-        _provider = contextDataFactory.DataProvider;
-        _serializer = contextDataFactory.Serializer;
+        InitContextDataConfig(contextDataConfig);
 
         Load();
     }
@@ -57,7 +65,9 @@ public class ModelContext
 
     public IModelObject? GetObject(string uuid)
     {
-        if (_Objects.TryGetValue(uuid, out var instance))
+        if (_Objects.TryGetValue(uuid, out var instance)
+            && !instance.ObjectData.IsAuto
+            && !instance.ObjectData.IsCompound)
         {
             instance.ObjectData.PropertyChanged 
                 += Notify_ModelObjectPropertyChanged;
@@ -70,10 +80,29 @@ public class ModelContext
         }
     }
 
+    public T? GetObject<T>(string uuid) where T : IModelObject
+    {
+        IModelObject? modelObject = GetObject(uuid);
+        if (modelObject != null && modelObject is T typedObject)
+        {
+            return typedObject;
+        }
+
+        return default;
+    }
+
     private void Notify_ModelObjectPropertyChanged(object? sender, 
         PropertyChangedEventArgs e)
     {
     //    throw new NotImplementedException();
+    }
+
+    private void InitContextDataConfig(IModelContextConfig contextDataConfig)
+    {
+        _provider = contextDataConfig.DataProvider;
+        _serializer = contextDataConfig.Serializer;
+        _serializer.TypeLib = contextDataConfig.TypeLib;
+        _serializer.Schema = contextDataConfig.CimSchema;
     }
 
     private IDataProvider? _provider;
@@ -87,31 +116,4 @@ public class ContextSettings
     public bool AllowUriPathMismatches { get; set; } = true;
 }
 
-public interface IFullModel : IModelObject
-{
-    public string Created { get; set; }
-    public string Version { get; set; }
-}
-
-public class FullModel : IFullModel
-{
-    public string Uuid { get => ObjectData.Uuid; }
-    public string Created 
-    { 
-        get => ObjectData.GetAttribute<string>("Model.created"); 
-        set => ObjectData.SetAttribute("Model.created", value); 
-    }
-    public string Version
-    { 
-        get => ObjectData.GetAttribute<string>("Model.version"); 
-        set => ObjectData.SetAttribute("Model.version", value);
-    }
-
-    public IDataFacade ObjectData { get; }
-
-    public FullModel(DataFacade objectData)
-    {
-        ObjectData = objectData;
-    }
-}
 

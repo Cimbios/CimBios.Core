@@ -27,9 +27,13 @@ public abstract class RdfSerializerBase
     public IDataProvider Provider
     { get => _provider; }
 
+    public RdfSerializerSettings Settings 
+    { get => _settings; set => _settings = value; }
+
     protected RdfSerializerBase(IDataProvider provider) 
     {
         _provider = provider;
+        _settings = new RdfSerializerSettings();
     }
 
     /// <summary>
@@ -37,20 +41,19 @@ public abstract class RdfSerializerBase
     /// <param name="settings">Serializer settings.</param>
     /// <returns>Deserializer IModelObject collection.</returns>
     /// </summary>
-    public abstract IEnumerable<IModelObject> Deserialize(
-        RdfSerializerSettings settings);
+    public abstract IEnumerable<IModelObject> Deserialize();
 
     /// <summary>
     /// Serialize IModelObject instances to data provider source.
     /// <param name="modelObjects">IModelObject collection for serialization.</param>
     /// <param name="settings">Serializer settings.</param>
     /// </summary>
-    public abstract void Serialize(IEnumerable<IModelObject> modelObjects,
-        RdfSerializerSettings settings);
+    public abstract void Serialize(IEnumerable<IModelObject> modelObjects);
 
     private ICimSchema? _schema;
     private IDatatypeLib? _typeLib;
     private IDataProvider _provider;
+    private RdfSerializerSettings _settings;
 }
 
 /// <summary>

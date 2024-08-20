@@ -145,9 +145,19 @@ internal sealed class LoadModelSubProgram : ISubProgram, IObjectReturn
         = new Func<IEnumerable<object>, object?>(
             (p) =>
             {
-                var model = new ModelContext(
-                    new RdfXmlFileModelContextFactory
-                        (new Uri(p.Single() as string)));
+                var schema = new CimBios.Core.CimModel.Schema.CimSchema();
+                var reader = new StreamReader(p.ElementAt(1) as string);
+                schema.Load(reader);
+
+                var modelContextConfig = new RdfXmlFileModelContextConfig(
+                    new Uri(p.First() as string),
+                    schema
+                );
+
+                var model = new ModelContext(modelContextConfig);
+                //model.
+
+                model.Load();
 
                 return model;
             });
