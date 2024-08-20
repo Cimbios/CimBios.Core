@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RdfSerializer\CimBios.Core.CimModel.RdfSerializer.csproj" />
+    <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
