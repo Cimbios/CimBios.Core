@@ -6,8 +6,16 @@ namespace CimBios.Core.RdfXmlIOLib;
 /// Reader for rdf/xml formatted data.
 /// Presents data in RDF-Triple format.
 /// </summary>
-public class RdfXmlReader
+public sealed class RdfXmlReader
 {
+    /// <summary>
+    /// RDF document namespaces dictionary.
+    /// </summary>
+    public Dictionary<string, XNamespace> Namespaces { get => _Namespaces; }
+
+    private Dictionary<string, XNamespace> _Namespaces { get; set; }
+        = new Dictionary<string, XNamespace>();
+
     /// <summary>
     /// Root RDF node.
     /// </summary>
@@ -30,17 +38,6 @@ public class RdfXmlReader
     /// </summary>
     private Stack<XElement> _ReadElementsStack { get; set; }
         = new Stack<XElement>();
-
-    private Dictionary<Uri, RdfNode> _NodesCache { get; set; }
-        = new Dictionary<Uri, RdfNode>();
-
-    /// <summary>
-    /// RDF document namespaces dictionary.
-    /// </summary>
-    public Dictionary<string, XNamespace> Namespaces { get => _Namespaces; }
-
-    private Dictionary<string, XNamespace> _Namespaces { get; set; }
-        = new Dictionary<string, XNamespace>();
 
     /// <summary>
     /// Default constructor.
@@ -73,48 +70,16 @@ public class RdfXmlReader
     public void Load(TextReader textReader)
     {
         XDocument xDoc = XDocument.Load(textReader);
+        Load(xDoc);
+    }
+
+    /// <summary>
+    /// Load rdf/xml content from XDocument.
+    /// </summary>
+    public void Load(XDocument xDoc)
+    {
         ReadRdfNode(xDoc);
         Reset();
-    }
-
-    /// <summary>
-    /// Get rdf:RDF root node.
-    /// </summary>
-    /// <param name="content">Linq Xml document.</param>
-    private void ReadRdfNode(XDocument content)
-    {
-        XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-
-        XElement? rdfNode = content.Element(rdf + "RDF");
-        if (rdfNode == null)
-        {
-            throw new Exception("No RDF Node");
-        }
-
-        _RdfElement = rdfNode;
-        rdfNode.Elements().Reverse().ToList()
-            .ForEach(el => _ReadElementsStack.Push(el));
-
-        ParseXmlns(rdfNode);
-    }
-
-    /// <summary>
-    /// Parse all root namespaces.
-    /// </summary>
-    /// <param name="rdfNode">rdf:RDF root node.</param>
-    private void ParseXmlns(XElement rdfNode)
-    {
-        foreach (XAttribute attr in rdfNode.Attributes())
-        {
-            if (_Namespaces.ContainsKey(attr.Name.LocalName))
-            {
-                _Namespaces[attr.Name.LocalName] = attr.Value;
-            }
-            else
-            {
-                _Namespaces.Add(attr.Name.LocalName, attr.Value);
-            }
-        }
     }
 
     /// <summary>
@@ -208,7 +173,6 @@ public class RdfXmlReader
             throw new Exception("No rdf node");
         }
 
-        _NodesCache.Clear();
         _ReadElementsStack.Clear();
         _RdfElement.Elements().Reverse().ToList()
             .ForEach(el => _ReadElementsStack.Push(el));
@@ -249,6 +213,46 @@ public class RdfXmlReader
         }
 
         return new Uri(Namespaces[ns].NamespaceName + identifier);
+    }
+
+    /// <summary>
+    /// Get rdf:RDF root node.
+    /// </summary>
+    /// <param name="content">Linq Xml document.</param>
+    private void ReadRdfNode(XDocument content)
+    {
+        XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+
+        XElement? rdfNode = content.Element(rdf + "RDF");
+        if (rdfNode == null)
+        {
+            throw new Exception("No RDF Node");
+        }
+
+        _RdfElement = rdfNode;
+        rdfNode.Elements().Reverse().ToList()
+            .ForEach(el => _ReadElementsStack.Push(el));
+
+        ParseXmlns(rdfNode);
+    }
+
+    /// <summary>
+    /// Parse all root namespaces.
+    /// </summary>
+    /// <param name="rdfNode">rdf:RDF root node.</param>
+    private void ParseXmlns(XElement rdfNode)
+    {
+        foreach (XAttribute attr in rdfNode.Attributes())
+        {
+            if (_Namespaces.ContainsKey(attr.Name.LocalName))
+            {
+                _Namespaces[attr.Name.LocalName] = attr.Value;
+            }
+            else
+            {
+                _Namespaces.Add(attr.Name.LocalName, attr.Value);
+            }
+        }
     }
 
     /// <summary>
