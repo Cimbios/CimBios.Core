@@ -1,4 +1,5 @@
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.Schema;
 using CimBios.Core.DataProvider;
 using CimBios.Core.RdfXmlIOLib;
 using System.Xml.Linq;
@@ -14,10 +15,9 @@ public class RdfXmlSerializer : RdfSerializerBase
         _waitingReferenceObjectUuids = new HashSet<string>();
     }
 
-    public override IEnumerable<IModelObject> Deserialize(
-        RdfSerializerSettings settings)
+    public override IEnumerable<IModelObject> Deserialize()
     {
-        _reader = new RdfXmlReader(Provider.Source.AbsolutePath);
+        _reader = new RdfXmlReader(Provider.Source.AbsoluteUri);
         if (Provider.Get() is XDocument xDocument)
         {
             _reader.Load(xDocument);
@@ -26,8 +26,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         return ReadObjects();
     }
 
-    public override void Serialize(IEnumerable<IModelObject> modelObjects, 
-        RdfSerializerSettings settings)
+    public override void Serialize(IEnumerable<IModelObject> modelObjects)
     {
         throw new NotImplementedException();
     }
@@ -64,6 +63,14 @@ public class RdfXmlSerializer : RdfSerializerBase
         string instanceUuid = string.Empty;
         if (TryGetEscapedIdentifier(instanceNode.Identifier,
             out instanceUuid) == false)
+        {
+            return null;
+        }
+
+        if (Settings.AllowUnkownClassProperties == false
+            && Schema != null
+            && Schema.TryGetDescription<CimMetaClass>
+                (instanceNode.TypeIdentifier) == null)
         {
             return null;
         }
@@ -148,7 +155,8 @@ public class RdfXmlSerializer : RdfSerializerBase
             }
 
             var triple = instanceNode.Triples.Where(t => t.Object is Uri uri
-                && RdfXmlReaderUtils.RdfUriEquals(uri, subObject.Identifier)).Single();
+                && RdfXmlReaderUtils.RdfUriEquals(uri, subObject.Identifier))
+                    .Single();
 
             string predicate = triple.Predicate
                 .Fragment.Replace("#", "");
