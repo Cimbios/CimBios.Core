@@ -1,18 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <Compile Remove="RdfSerializerBase.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="RdfSerializerBase.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\RdfXmlIOLib\CimBios.Core.RdfXmlIOLib.csproj" />
     <ProjectReference Include="..\CimDatatypeLib\CimBios.Core.CimModel.CimDatatypeLib.csproj" />
-    <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj" />
     <ProjectReference Include="..\..\DataProvider\CimBios.Core.DataProvider.csproj" />
+    <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
