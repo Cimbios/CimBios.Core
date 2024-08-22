@@ -124,7 +124,7 @@ internal sealed class LoadSchemaSubProgram : ISubProgram, IObjectReturn
         = new Func<IEnumerable<object>, object?>(
             (p) =>
             {
-                var schema = new CimBios.Core.CimModel.Schema.CimSchema();
+                var schema = new CimBios.Core.CimModel.Schema.RdfSchema.CimRdfSchema();
 
                 var reader = new StreamReader(p.Single() as string);
                 schema.Load(reader);
@@ -145,7 +145,7 @@ internal sealed class LoadModelSubProgram : ISubProgram, IObjectReturn
         = new Func<IEnumerable<object>, object?>(
             (p) =>
             {
-                var schema = new CimBios.Core.CimModel.Schema.CimSchema();
+                var schema = new CimBios.Core.CimModel.Schema.RdfSchema.CimRdfSchema();
                 var reader = new StreamReader(p.ElementAt(1) as string);
                 schema.Load(reader);
 

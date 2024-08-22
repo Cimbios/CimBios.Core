@@ -69,7 +69,7 @@ public class RdfXmlSerializer : RdfSerializerBase
 
         if (Settings.AllowUnkownClassProperties == false
             && Schema != null
-            && Schema.TryGetDescription<CimMetaClass>
+            && Schema.TryGetDescription<ICimMetaClass>
                 (instanceNode.TypeIdentifier) == null)
         {
             return null;
