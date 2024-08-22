@@ -1,6 +1,44 @@
-using CimBios.Core.CimModel.Schema;
-
 namespace CimBios.Core.CimModel.Schema.RdfSchema;
+
+/// <summary>
+/// Base class provides general RDF description node data.
+/// </summary>
+[
+    CimSchemaSerializable
+    ("http://www.w3.org/1999/02/22-rdf-syntax-ns#description")
+]
+public abstract class CimRdfDescriptionBase : ICimSchemaSerialiable
+{
+    public Uri? BaseUri { get; set; }
+    public string ShortName {get => Label; set => Label = value; }
+
+    [CimSchemaSerializable(
+        "http://www.w3.org/2000/01/rdf-schema#label",
+        MetaFieldType.Value)]
+    public string Label { get; set; } = string.Empty;
+
+    [CimSchemaSerializable(
+        "http://www.w3.org/2000/01/rdf-schema#comment",
+        MetaFieldType.Value)]
+    public string Comment { get; set; } = string.Empty;
+
+    [CimSchemaSerializable(
+        "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#dataType",
+        MetaFieldType.ByRef)]
+    public CimRdfsDatatype? Datatype { get; set; }
+
+    [CimSchemaSerializable(
+       "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#stereotype",
+       MetaFieldType.Enum, isCollection: true)]
+
+    public List<object> Stereotypes
+    { get => _Stereotypes; }
+
+    protected CimRdfDescriptionBase() { }
+
+    private readonly List<object> _Stereotypes =
+        new List<object>();
+}
 
 public class CimRdfsIndividual : CimRdfDescriptionBase, ICimMetaInstance
 {
