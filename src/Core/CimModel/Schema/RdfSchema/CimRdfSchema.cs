@@ -18,7 +18,7 @@ public class CimRdfSchema : ICimSchema
 
     public CimRdfSchema()
     {
-        _All = new Dictionary<Uri, ICimSchemaSerialiable>(new RdfUriComparer());
+        _All = new Dictionary<Uri, ICimSchemaSerializable>(new RdfUriComparer());
     }
 
     public void Load(TextReader textReader)
@@ -48,7 +48,7 @@ public class CimRdfSchema : ICimSchema
         while (inherit == true && nextClass != null);
     }
 
-    public T? TryGetDescription<T>(Uri uri) where T : ICimSchemaSerialiable
+    public T? TryGetDescription<T>(Uri uri) where T : ICimSchemaSerializable
     {
         if (_All.TryGetValue(uri, out var metaDescription)
             && metaDescription is T meta)
@@ -59,5 +59,5 @@ public class CimRdfSchema : ICimSchema
         return default;
     }
 
-    private Dictionary<Uri, ICimSchemaSerialiable> _All;
+    private Dictionary<Uri, ICimSchemaSerializable> _All;
 }

@@ -19,7 +19,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         _Namespaces = _Reader.Namespaces;
     }
 
-    public Dictionary<Uri, ICimSchemaSerialiable> Deserialize()
+    public Dictionary<Uri, ICimSchemaSerializable> Deserialize()
     {
         BuildInternalDatatypes();
 
@@ -115,7 +115,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         foreach (var node in descriptionTypedNodes)
         {
             if (_ObjectsCache.TryGetValue(node.Identifier, 
-                    out ICimSchemaSerialiable? metaDescription) == false
+                    out ICimSchemaSerializable? metaDescription) == false
                 || metaDescription is CimRdfDescriptionBase == false)
             {
                 continue;
@@ -200,8 +200,8 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
 
     private RdfXmlReader _Reader = new RdfXmlReader();
 
-    private Dictionary<Uri, ICimSchemaSerialiable> _ObjectsCache 
-        = new Dictionary<Uri, ICimSchemaSerialiable>(new RdfUriComparer());
+    private Dictionary<Uri, ICimSchemaSerializable> _ObjectsCache 
+        = new Dictionary<Uri, ICimSchemaSerializable>(new RdfUriComparer());
 
     private Dictionary <string, XNamespace> _Namespaces
         = new Dictionary<string, XNamespace> ();

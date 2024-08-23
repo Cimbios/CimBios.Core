@@ -7,7 +7,7 @@ namespace CimBios.Core.CimModel.Schema.RdfSchema;
     CimSchemaSerializable
     ("http://www.w3.org/1999/02/22-rdf-syntax-ns#description")
 ]
-public abstract class CimRdfDescriptionBase : ICimSchemaSerialiable
+public abstract class CimRdfDescriptionBase : ICimSchemaSerializable
 {
     public Uri? BaseUri { get; set; }
     public string ShortName {get => Label; set => Label = value; }
