@@ -36,7 +36,7 @@ public interface ICimSchema
     /// </summary>
     /// <param name="uri">Identifier of instance.</param>
     /// <returns>CimRdfDescriptionBase inherits instance.</returns>
-    public T? TryGetDescription<T>(Uri uri) where T : ICimSchemaSerialiable;
+    public T? TryGetDescription<T>(Uri uri) where T : ICimSchemaSerializable;
 
     /// <summary>
     /// Get list of class properties.
