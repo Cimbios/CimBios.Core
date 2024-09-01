@@ -12,19 +12,33 @@ public class RdfXmlWriter
         foreach (RdfNode rdfNode in rdfNodes)
         {
             var serializedNode = new XElement(rdfNode.TypeIdentifier.ToString(), new XAttribute("rdf:about", $"#_{rdfNode.Identifier}"));
-            foreach (var triple in rdfNode.Triples)
-            {
-                if (Guid.TryParse(triple.Object.ToString(), out Guid guidResult))
-                {
-                    serializedNode.Add(new XElement(triple.Predicate.ToString(), new XAttribute("rdf:resource", $"#_{guidResult}")));
-                }
-                serializedNode.Add(new XElement(triple.Predicate.ToString(), triple.Object.ToString()));
-            }
+            WriteTriples(ref serializedNode, rdfNode.Triples);
 
-            _xDoc.Add();
+            _xDoc.Add(serializedNode);
         }
         return _xDoc;
     }
+
+    private void WriteTriples(ref XElement serializedNode, IEnumerable<RdfTriple> triples)
+    {
+        foreach (var triple in triples)
+        {
+            if (Guid.TryParse(triple.Object.ToString(), out Guid guidResult))
+            {
+                serializedNode.Add(new XElement(triple.Predicate.ToString(), new XAttribute("rdf:resource", $"#_{guidResult}")));
+            }
+            else if (triple.Object is RdfNode)
+            {
+                var compound = (RdfNode)triple.Object;
+                var compoundNode = new XElement(triple.Predicate.ToString(),
+                                       new XElement(compound.TypeIdentifier.ToString()));
+                WriteTriples(ref compoundNode, compound.Triples); // Рекурсия для компаундов
+                serializedNode.Add(compoundNode);
+            }
+            serializedNode.Add(new XElement(triple.Predicate.ToString(), triple.Object.ToString()));
+        }
+    }
+
     private void WriteFirstLine()
     {
         XAttribute[] namespaces = 
