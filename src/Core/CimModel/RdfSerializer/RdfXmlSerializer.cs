@@ -2,6 +2,7 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.DataProvider;
 using CimBios.Core.RdfXmlIOLib;
+using System.Security.Cryptography;
 using System.Xml.Linq;
 
 namespace CimBios.Core.CimModel.RdfSerializer;
@@ -33,27 +34,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         var objsToWrite = new List<RdfNode>();
         foreach (var modelObject in modelObjects)
         {
-            var triples = new List<RdfTriple>();
-            foreach (var property in modelObject.ObjectData.Attributes)
-            {
-                triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), modelObject.ObjectData.GetAttribute<string>(property)));
-            }
-            foreach (var property in modelObject.ObjectData.Assocs1ToM)
-            {
-                triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), new Uri(modelObject.ObjectData.GetAssoc1To1(property).Uuid)));
-            }
-            foreach (var property in modelObject.ObjectData.Assocs1ToM)
-            {
-                if (modelObject.ObjectData.GetAssoc1ToM(property).Any())
-                {
-                    foreach (ModelObject refObj in modelObject.ObjectData.GetAssoc1ToM(property))
-                    {
-                        triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), new Uri(refObj.Uuid)));
-                    }
-                }
-            }
-            var triplesArr = triples.ToArray();
-            objsToWrite.Add(new RdfNode(new Uri(modelObject.Uuid), modelObject.ObjectData.ClassType, triplesArr, modelObject.ObjectData.IsAuto));
+            objsToWrite.Add(ProcessObject(modelObject));
         }
 
         XDocument writtenObjects = _writer.Write(objsToWrite);
@@ -61,6 +42,37 @@ public class RdfXmlSerializer : RdfSerializerBase
         {
             Provider.Push(writtenObjects);
         }
+    }
+
+    private RdfNode ProcessObject(IModelObject modelObject)
+    {
+        var triples = new List<RdfTriple>();
+        foreach (var property in modelObject.ObjectData.Attributes)
+        {
+            triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), modelObject.ObjectData.GetAttribute<string>(property)));
+        }
+        foreach (var property in modelObject.ObjectData.Assocs1To1)
+        {
+            if (modelObject.ObjectData.GetAssoc1To1(property).ObjectData.IsCompound) // Ожидается, что если это isCompound
+            {
+                var compound = modelObject.ObjectData.GetAssoc1To1(property);
+                var compoundNode = ProcessObject(compound); // Рекурсия
+                triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), compoundNode));
+            }
+            triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), new Uri(modelObject.ObjectData.GetAssoc1To1(property).Uuid)));
+        }
+        foreach (var property in modelObject.ObjectData.Assocs1ToM)
+        {
+            if (modelObject.ObjectData.GetAssoc1ToM(property).Any())
+            {
+                foreach (ModelObject refObj in modelObject.ObjectData.GetAssoc1ToM(property))
+                {
+                    triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), new Uri(refObj.Uuid)));
+                }
+            }
+        }
+        var triplesArr = triples.ToArray();
+        return new RdfNode(new Uri(modelObject.Uuid), modelObject.ObjectData.ClassType, triplesArr, modelObject.ObjectData.IsAuto);
     }
 
     private IEnumerable<IModelObject> ReadObjects()
