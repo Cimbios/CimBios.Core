@@ -2,14 +2,19 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.DataProvider;
 using CimBios.Core.RdfXmlIOLib;
+using System.Globalization;
 using System.Xml.Linq;
 
 namespace CimBios.Core.CimModel.RdfSerializer;
 
+/// <summary>
+/// CIM Rdf/Xml serializer implementation. Based on RdfXmlIOLib.
+/// </summary>
 public class RdfXmlSerializer : RdfSerializerBase
 {
-    public RdfXmlSerializer(RdfXmlFileDataProvider provider) 
-        : base(provider)
+    public RdfXmlSerializer(RdfXmlFileDataProvider provider,
+        ICimSchema schema, IDatatypeLib datatypeLib)
+        : base(provider, schema, datatypeLib)
     {
         _objectsCache = new Dictionary<string, IModelObject>();
         _waitingReferenceObjectUuids = new HashSet<string>();
@@ -31,6 +36,10 @@ public class RdfXmlSerializer : RdfSerializerBase
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Convert RdfNode objects to IModelObject collection.
+    /// </summary>
+    /// <returns>Collection of IModelObject instances.</returns>
     private IEnumerable<IModelObject> ReadObjects()
     {
         _objectsCache.Clear();
@@ -41,7 +50,9 @@ public class RdfXmlSerializer : RdfSerializerBase
             throw new Exception("Reader was not initialized!");
         }
 
-        foreach (RdfNode instanceNode in _reader.ReadAll())
+        var cimDocument = _reader.ReadAll();
+        // First step - creating objects.
+        foreach (var instanceNode in cimDocument)
         {
             var instance = CreateInstance(instanceNode, false);
             if (instance == null)
@@ -49,28 +60,52 @@ public class RdfXmlSerializer : RdfSerializerBase
                 continue;
             }
 
-            _objectsCache.TryAdd(instance.Uuid, instance);
+            _objectsCache.TryAdd(instance.Uuid, instance);   
         }
 
-        ResolveWaitingReferenceObjects();
+        // Second step - fill objects properties.
+        foreach (var instanceNode in cimDocument)
+        {
+            if (TryGetEscapedIdentifier(instanceNode.Identifier,
+                out var instanceUuid) == false)
+            {
+                continue;
+            }
+
+            if (_objectsCache.TryGetValue(instanceUuid, 
+                out var instance) == false)
+            {
+                continue;
+            }
+
+            foreach (var property in instanceNode.Triples)
+            { 
+                InitializeObjectProperty(instance, property);
+            }                
+        }
+
+        _reader.Close();
 
         return _objectsCache.Values.ToList();
     }
 
+    /// <summary>
+    /// Build IModelObject instance from RdfNode.
+    /// </summary>
+    /// <param name="instanceNode">RdfNode CIM object presentation.</param>
+    /// <param name="IsCompound">Is compound (inner child) node.</param>
+    /// <returns>IModelObject instance or null.</returns>
     private IModelObject? CreateInstance(RdfNode instanceNode,
         bool IsCompound = false)
     {
-        string instanceUuid = string.Empty;
         if (TryGetEscapedIdentifier(instanceNode.Identifier,
-            out instanceUuid) == false)
+            out var instanceUuid) == false)
         {
             return null;
         }
 
-        if (Settings.AllowUnkownClassProperties == false
-            && Schema != null
-            && Schema.TryGetDescription<ICimMetaClass>
-                (instanceNode.TypeIdentifier) == null)
+        if (Schema.TryGetDescription<ICimMetaClass>
+            (instanceNode.TypeIdentifier) == null)
         {
             return null;
         }
@@ -82,11 +117,11 @@ public class RdfXmlSerializer : RdfSerializerBase
             IsCompound);
 
         IModelObject? instanceObject = null;
-        
-        if (TypeLib != null && TypeLib.RegisteredTypes
-            .TryGetValue(instanceNode.TypeIdentifier, out var type))
+
+        if (TypeLib.RegisteredTypes.TryGetValue(instanceNode.TypeIdentifier, 
+            out var type))
         {
-            instanceObject = Activator.CreateInstance(type, objectData) 
+            instanceObject = Activator.CreateInstance(type, objectData)
                 as IModelObject;
         }
         else
@@ -94,115 +129,225 @@ public class RdfXmlSerializer : RdfSerializerBase
             instanceObject = new ModelObject(objectData);
         }
 
-        if (instanceObject != null)
-        {
-            instanceObject = FillObjectData(instanceObject, instanceNode);
-        }
-
         return instanceObject;
     }
 
-    private IModelObject FillObjectData(IModelObject instance,
-        RdfNode instanceNode)
+    private void InitializeObjectProperty(IModelObject instance,
+        RdfTriple propertyTriple)
     {
-        foreach (var property in instanceNode.Triples)
+        var schemaProperty = Schema.TryGetDescription<ICimMetaProperty>
+            (propertyTriple.Predicate);
+
+        if (schemaProperty == null
+            || IsPropertyAlignSchemaClass(schemaProperty, instance) == false)
         {
-            string predicate = property.Predicate
-                .Fragment.Replace("#", "");
-
-            if (property.Object is string objectString)
-            {
-                instance.ObjectData.SetAttribute(
-                    predicate,
-                    objectString);
-            }
-            else if (property.Object is Uri referenceUri)
-            {
-                string referenceUuid = string.Empty;
-                if (TryGetEscapedIdentifier(referenceUri,
-                    out referenceUuid) == false)
-                {
-                    continue;
-                }
-
-                IModelObject referenceInstance;
-                if (_objectsCache.ContainsKey(referenceUuid))
-                {
-                    referenceInstance = _objectsCache[referenceUuid];
-                }
-                else
-                {
-                    referenceInstance = 
-                        new ModelObjectUnresolvedReference(
-                            new DataFacade(referenceUuid, 
-                                property.Predicate)
-                        );
-
-                    _waitingReferenceObjectUuids.Add(instance.Uuid);
-                }
-
-                instance.ObjectData.AddAssoc1ToUnk(predicate,
-                    referenceInstance);
-            }
+            return;
         }
 
-        foreach (var subObject in instanceNode.Children)
+        object? data = DeserializableDataSelector(propertyTriple.Object);
+        if (data == null)
         {
-            var subObjectInstance = CreateInstance(subObject, true);
-            if (subObjectInstance == null)
-            {
-                continue;
-            }
-
-            var triple = instanceNode.Triples.Where(t => t.Object is Uri uri
-                && RdfXmlReaderUtils.RdfUriEquals(uri, subObject.Identifier))
-                    .Single();
-
-            string predicate = triple.Predicate
-                .Fragment.Replace("#", "");
-
-            instance.ObjectData.SetAttribute(
-                    predicate,
-                    subObjectInstance);
+            return;
         }
 
-        return instance;
+        switch (schemaProperty.PropertyKind)
+        {
+            case CimMetaPropertyKind.Attribute:
+            {
+                SetObjectDataAsAttribute(instance, 
+                    schemaProperty, data);
+                break;
+            }
+            case CimMetaPropertyKind.Assoc1To1:
+            case CimMetaPropertyKind.Assoc1ToM:
+            {
+                SetObjectDataAsAssociation(instance, 
+                    schemaProperty, (Uri)data);
+                break;
+            }
+        }
     }
 
-    private void ResolveWaitingReferenceObjects()
+    private object? DeserializableDataSelector(object data)
     {
-        foreach (var instanceUuid in _waitingReferenceObjectUuids)
+        if (data is RdfNode objectRdfNode)
         {
-            var instance = _objectsCache[instanceUuid];
-
-            foreach (var assoc1To1 in instance.ObjectData.Assocs1To1)
-            {
-                if (instance.ObjectData.GetAssoc1To1(assoc1To1) 
-                        is ModelObjectUnresolvedReference unresolved
-                    && _objectsCache.TryGetValue(unresolved.Uuid, 
-                        out var referenceInstance))
-                {
-                    instance.ObjectData.SetAssoc1To1(assoc1To1, 
-                        referenceInstance);
-                }
-            }
-
-            foreach (var assoc1ToM in instance.ObjectData.Assocs1ToM)
-            {
-                if (instance.ObjectData.GetAssoc1To1(assoc1ToM)
-                        is ModelObjectUnresolvedReference unresolved
-                    && _objectsCache.TryGetValue(unresolved.Uuid,
-                        out var referenceInstance))
-                {
-                    instance.ObjectData.RemoveAssoc1ToM(assoc1ToM, unresolved);
-
-                    instance.ObjectData.AddAssoc1ToM(assoc1ToM,
-                        referenceInstance);
-                }
-            }
-
-            _waitingReferenceObjectUuids.Remove(instanceUuid);
+            return MakeCompoundPropertyObject(objectRdfNode);
         }
+        else if (data is Uri objectUri)
+        {
+            return objectUri;
+        }
+        else
+        {
+            return data as string;
+        }  
+    }
+
+    private void SetObjectDataAsAttribute(IModelObject instance, 
+        ICimMetaProperty property, object data)
+    {
+        object? endData = null;
+        if (property.PropertyDatatype is ICimMetaDatatype dataType)
+        {
+            var convertedValue = Convert.ChangeType(data, 
+                dataType.SimpleType, CultureInfo.InvariantCulture);
+                
+            if (convertedValue != null)
+            {
+                endData = convertedValue;
+            }
+        }
+        else if (property.PropertyDatatype is ICimMetaClass dataClass)
+        {
+            if (dataClass.IsCompound
+                && data is IModelObject dataObject)
+            {
+                bool isClassesMatches = dataClass.BaseUri.AbsoluteUri 
+                    == dataObject.ObjectData.ClassType.AbsoluteUri;
+
+                if (isClassesMatches)
+                {
+                    endData = dataObject;
+                }   
+            }
+            else if (dataClass.IsEnum
+                && data is Uri enumValueUri)
+            {
+                var schemaEnumValue = Schema
+                    .TryGetDescription<ICimMetaInstance>(enumValueUri);
+
+                bool isClassesMatches = schemaEnumValue?.InstanceOf?
+                    .BaseUri.AbsoluteUri == dataClass.BaseUri.AbsoluteUri;
+                
+                if (isClassesMatches)
+                {
+                    if (TypeLib.RegisteredTypes.TryGetValue(
+                            schemaEnumValue!.InstanceOf!.BaseUri, 
+                            out var typeEnum))
+                    {
+                        var enumValue = Enum.Parse(typeEnum, 
+                            schemaEnumValue.ShortName);
+
+                        endData = enumValue;
+                    }
+                    else
+                    {
+                        endData = enumValueUri;              
+                    }                    
+                }
+            }
+        }      
+
+        if (endData != null)
+        {
+            instance.ObjectData.SetAttribute(
+                property.ShortName,
+                endData);              
+        }
+    }
+
+    private void SetObjectDataAsAssociation(IModelObject instance, 
+        ICimMetaProperty property, Uri referenceUri)
+    {
+        string referenceUuid = string.Empty;
+        if (TryGetEscapedIdentifier(referenceUri,
+            out referenceUuid) == false)
+        {
+            return;
+        }
+
+        if (property.PropertyDatatype is ICimMetaClass assocClassType == false)
+        {
+            return;
+        }
+
+        IModelObject? referenceInstance = null;
+        if (_objectsCache.TryGetValue(referenceUuid, out var modelObject))
+        {
+            var referenceMetaClass = Schema.TryGetDescription<ICimMetaClass>
+                (modelObject.ObjectData.ClassType);
+
+            if (referenceMetaClass == null)
+            {
+                return;
+            }
+
+            if (referenceMetaClass == assocClassType
+                || referenceMetaClass.AllAncestors.Any(a => 
+                    a.BaseUri.AbsoluteUri == assocClassType.BaseUri.AbsoluteUri)
+            )
+            {
+                referenceInstance = modelObject;
+            }
+        }
+
+        if (referenceInstance == null)
+        {
+            referenceInstance =
+                new ModelObjectUnresolvedReference(
+                    new DataFacade(referenceUuid,
+                        property.BaseUri)
+                );
+
+            _waitingReferenceObjectUuids.Add(instance.Uuid);
+        }
+
+        if (property.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+        {
+            instance.ObjectData.SetAssoc1To1(property.ShortName, 
+                referenceInstance);
+        }        
+        else if (property.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+        {
+            instance.ObjectData.AddAssoc1ToM(property.ShortName, 
+                referenceInstance);          
+        }
+    }
+    
+    private IModelObject? MakeCompoundPropertyObject(RdfNode objectRdfNode)
+    {
+        var compoundPropertyObject = CreateInstance(objectRdfNode, true); 
+        if (compoundPropertyObject == null)
+        {
+            return null;
+        }
+
+        foreach (var property in objectRdfNode.Triples)
+        {
+            InitializeObjectProperty(compoundPropertyObject, property);
+        }
+
+        return compoundPropertyObject;
+    }
+
+    private bool IsPropertyAlignSchemaClass(ICimMetaProperty schemaProperty,
+        IModelObject instance)
+    {
+        if (schemaProperty == null
+            || schemaProperty.OwnerClass == null)
+        {
+            return false;
+        }
+
+        var instanceClass = Schema.TryGetDescription<ICimMetaClass>
+            (instance.ObjectData.ClassType);
+        if (instanceClass == null)
+        {
+            return false;
+        }
+
+        var schemaPropClassUri = schemaProperty.OwnerClass.BaseUri.AbsoluteUri;
+        var instanceClassUri = instanceClass.BaseUri.AbsoluteUri;
+
+        if (schemaPropClassUri == instanceClassUri
+            || instanceClass.AllAncestors
+                .Any(a => a.BaseUri.AbsoluteUri == schemaPropClassUri) )
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryGetEscapedIdentifier(Uri uri, out string identifier)
@@ -226,9 +371,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         return false;
     }
 
-    private RdfXmlIOLib.RdfXmlReader? _reader;
-
+    private RdfXmlReader? _reader;
     private Dictionary<string, IModelObject> _objectsCache;
-
     private HashSet<string> _waitingReferenceObjectUuids;
 }

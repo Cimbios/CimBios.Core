@@ -1,5 +1,3 @@
-using System.Xml.Linq;
-
 namespace CimBios.Core.CimModel.Schema;
 
 /// <summary>
@@ -7,8 +5,19 @@ namespace CimBios.Core.CimModel.Schema;
 /// </summary>
 public interface ICimSchemaSerializer
 {
-    public Dictionary <string, XNamespace> Namespaces { get; }
+    /// <summary>
+    /// Prefix to namespace URI mapping for schema.
+    /// </summary>
+    public Dictionary <string, Uri> Namespaces { get; }
+
+    /// <summary>
+    /// Load raw schema text data.
+    /// </summary>
     public void Load(TextReader reader);
+
+    /// <summary>
+    /// Deserialize data to CIM schema.
+    /// </summary>
     public Dictionary<Uri, ICimSchemaSerializable> Deserialize();
 }
 
@@ -17,8 +26,8 @@ public interface ICimSchemaSerializer
 /// </summary>
 public interface ICimSchemaSerializable
 {
-    public Uri? BaseUri { get; set; }
-    public string ShortName { get; set; }
+    public Uri BaseUri { get; }
+    public string ShortName { get; }
 }
 
 /// <summary>
@@ -27,7 +36,10 @@ public interface ICimSchemaSerializable
 public interface ICimMetaClass : ICimSchemaSerializable
 {
     public bool SuperClass { get; }
-    public ICimMetaClass? ParentClass { get;  }
+    public ICimMetaClass? ParentClass { get; }
+    public ICimMetaClass[] AllAncestors { get; }
+    public bool IsEnum { get; }
+    public bool IsCompound { get; }
 }
 
 /// <summary>
@@ -38,6 +50,7 @@ public interface ICimMetaProperty : ICimSchemaSerializable
     public ICimMetaClass? OwnerClass { get;  }
     public CimMetaPropertyKind PropertyKind { get; }
     public ICimMetaProperty? InverseProperty { get; }
+    public ICimSchemaSerializable? PropertyDatatype { get; }
 }
 
 /// <summary>
@@ -46,7 +59,7 @@ public interface ICimMetaProperty : ICimSchemaSerializable
 public interface ICimMetaDatatype : ICimSchemaSerializable
 {
     public System.Type? SystemType { get; }
-    public System.Type? SimpleType { get; }
+    public System.Type SimpleType { get; }
 }
 
 /// <summary>
@@ -65,5 +78,5 @@ public enum CimMetaPropertyKind
     NonStandard,
     Attribute,
     Assoc1To1,
-    Assoc1ToN
+    Assoc1ToM
 }

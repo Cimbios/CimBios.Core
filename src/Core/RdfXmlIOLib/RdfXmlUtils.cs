@@ -7,9 +7,6 @@ namespace CimBios.Core.RdfXmlIOLib;
 /// </summary>
 public class RdfNode
 {
-    private HashSet<RdfNode> _Children;
-    private RdfNode? _ParentNode;
-
     public RdfNode(Uri identifier, Uri typeIdentifier,
         RdfTriple[] triples, bool isAuto)
     {
@@ -17,50 +14,12 @@ public class RdfNode
         TypeIdentifier = typeIdentifier;
         Triples = triples;
         IsAuto = isAuto;
-
-        _Children = new HashSet<RdfNode>();
     }
 
     public Uri Identifier { get; set; }
     public Uri TypeIdentifier { get; set; }
     public RdfTriple[] Triples { get; set; }
     public bool IsAuto { get; set; } = false;
-    public RdfNode? Parent
-    {
-        get => _ParentNode;
-        set
-        {
-            if (_ParentNode == value)
-            {
-                return;
-            }
-
-            _ParentNode = value;
-
-            if (value == null)
-            {
-                _ParentNode?.RemoveChild(this);
-            }
-            else
-            {
-                value.AddChild(this);
-            }
-        }
-    }
-    public RdfNode[] Children { get => _Children.ToArray(); }
-
-    public bool AddChild(RdfNode rdfNode)
-    {
-        rdfNode.Parent = this;
-        return _Children.Add(rdfNode);
-    }
-
-    public bool RemoveChild(RdfNode rdfNode)
-    {
-        rdfNode.Parent = null;
-        return _Children.Remove(rdfNode);
-    }
-
 }
 
 /// <summary>

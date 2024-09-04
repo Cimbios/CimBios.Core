@@ -115,5 +115,3 @@ public class ContextSettings
     public bool AllowUnkownClassProperties { get; set; } = true;
     public bool AllowUriPathMismatches { get; set; } = true;
 }
-
-

@@ -1,26 +1,23 @@
 using System.Reflection;
-using System.Xml.Linq;
 using CimBios.Core.RdfXmlIOLib;
 
 namespace CimBios.Core.CimModel.Schema.RdfSchema;
 
 public class CimRdfSchemaSerializer : ICimSchemaSerializer
 {
-    public Dictionary <string, XNamespace> Namespaces 
+    public Dictionary <string, Uri> Namespaces 
     { get => _Namespaces; }
 
     public void Load(TextReader reader)
     {
-        _Namespaces.Clear();
-        _ObjectsCache.Clear();
-
         _Reader.Load(reader);
-
-        _Namespaces = _Reader.Namespaces;
     }
 
     public Dictionary<Uri, ICimSchemaSerializable> Deserialize()
     {
+        _Namespaces.Clear();
+        _ObjectsCache.Clear();
+
         BuildInternalDatatypes();
 
         var descriptionTypedNodes = _Reader.ReadAll().ToArray();
@@ -28,7 +25,22 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         ReadObjects(descriptionTypedNodes);
         ResolveReferences(descriptionTypedNodes);
 
+        ForwardReaderNamespaces();
+
+        _Reader.Close();
+
         return _ObjectsCache;
+    }
+
+    /// <summary>
+    /// Move namespaces from reader doc.
+    /// </summary>
+    private void ForwardReaderNamespaces()
+    {
+        foreach (var item in _Reader.Namespaces)
+        {
+            _Namespaces.Add(item.Key, new Uri(item.Value.NamespaceName));
+        }
     }
 
     /// <summary>
@@ -59,10 +71,9 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
                     out var typeInfo)
                 && typeInfo != null)
             {
-                if (Activator.CreateInstance(typeInfo) 
+                if (Activator.CreateInstance(typeInfo, node.Identifier) 
                     is CimRdfDescriptionBase instance)
                 {
-                    instance.BaseUri = node.Identifier;
                     _ObjectsCache.Add(node.Identifier, instance);
                 }
             }
@@ -98,9 +109,9 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
                 continue;
             }
 
-            _ObjectsCache.Add(node.Identifier, new CimRdfsIndividual()
+            _ObjectsCache.Add(node.Identifier, 
+                new CimRdfsIndividual(node.Identifier)
             {
-                BaseUri = node.Identifier,
                 EquivalentClass = metaClass
             });
         }
@@ -185,9 +196,8 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         {
             var datatype = XmlDatatypesMapping.UriSystemTypes[typeUri];
 
-            var metaDatatype = new CimRdfsDatatype()
+            var metaDatatype = new CimRdfsDatatype(new Uri(typeUri))
             {
-                BaseUri = new Uri(typeUri),
                 SystemType = datatype
             };
 
@@ -203,8 +213,8 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
     private Dictionary<Uri, ICimSchemaSerializable> _ObjectsCache 
         = new Dictionary<Uri, ICimSchemaSerializable>(new RdfUriComparer());
 
-    private Dictionary <string, XNamespace> _Namespaces
-        = new Dictionary<string, XNamespace> ();
+    private Dictionary <string, Uri> _Namespaces
+        = new Dictionary<string, Uri> ();
 }
 
 /// <summary>

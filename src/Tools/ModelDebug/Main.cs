@@ -146,8 +146,13 @@ internal sealed class LoadModelSubProgram : ISubProgram, IObjectReturn
             (p) =>
             {
                 var schema = new CimBios.Core.CimModel.Schema.RdfSchema.CimRdfSchema();
-                var reader = new StreamReader(p.ElementAt(1) as string);
+                var reader = new StreamReader("/Users/belizahrt/Downloads/GOST_R_58651_2.mrdfs");
                 schema.Load(reader);
+
+                var addSchema = new CimBios.Core.CimModel.Schema.RdfSchema.CimRdfSchema();
+                var reader2 = new StreamReader("/Users/belizahrt/Downloads/GOST_R_58651_3.mrdfs");
+                addSchema.Load(reader2);
+                schema.Join(addSchema);               
 
                 var modelContextConfig = new RdfXmlFileModelContextConfig(
                     new Uri(p.First() as string),
@@ -158,6 +163,8 @@ internal sealed class LoadModelSubProgram : ISubProgram, IObjectReturn
                 //model.
 
                 model.Load();
+
+                var obj = model.GetObject("ad634757-5463-4b58-a97c-9f9ab276af1d");
 
                 return model;
             });

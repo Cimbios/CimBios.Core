@@ -83,6 +83,16 @@ public sealed class RdfXmlReader
     }
 
     /// <summary>
+    /// Close reader.
+    /// </summary>
+    public void Close()
+    {
+        _RdfElement = null;
+        _Namespaces.Clear();
+        _ReadElementsStack.Clear();
+    }
+
+    /// <summary>
     /// Read RDF content of next element.
     /// </summary>
     /// <returns>RDF node of last read element.</returns>
@@ -102,7 +112,6 @@ public sealed class RdfXmlReader
                 + content.Name.LocalName);
 
         var triples = new List<RdfTriple>(content.Elements().Count());
-        var subObjects = new List<RdfNode>();
         foreach (var child in content.Elements())
         {
             Uri predicate = new Uri(child.Name.Namespace.NamespaceName
@@ -139,14 +148,8 @@ public sealed class RdfXmlReader
                     {
                         continue;
                     }
-                    subObjects.Add(subObject);
 
-                    string objectId = GetXElementIdentifier(el, out _);
-                    
-                    object? @object = 
-                        new Uri(Namespaces["base"].NamespaceName + objectId);
-
-                    triples.Add(new RdfTriple(subject, predicate, @object));
+                    triples.Add(new RdfTriple(subject, predicate, subObject));
                 }
             }
             else
@@ -157,8 +160,6 @@ public sealed class RdfXmlReader
 
         var rdfNode = new RdfNode(subject, typeIdentifier, 
             triples.ToArray(), isAuto);
-
-        subObjects.ForEach(so => so.Parent = rdfNode);
 
         return rdfNode;
     }
@@ -207,6 +208,14 @@ public sealed class RdfXmlReader
     /// <param name="ns">Namespace of identifier.</param>
     public Uri MakeUri(string identifier, string ns = "base")
     {
+        var splittedPrefix = identifier.Split(':');
+        if (splittedPrefix.Count() == 2
+            && Namespaces.ContainsKey(splittedPrefix.First()))
+        {
+            return new Uri(Namespaces[splittedPrefix.First()]
+                .NamespaceName + splittedPrefix.Last());
+        }
+
         if (Uri.IsWellFormedUriString(identifier, UriKind.Absolute))
         {
             return new Uri(identifier);

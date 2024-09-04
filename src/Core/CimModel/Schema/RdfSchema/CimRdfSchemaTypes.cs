@@ -9,7 +9,7 @@ namespace CimBios.Core.CimModel.Schema.RdfSchema;
 ]
 public abstract class CimRdfDescriptionBase : ICimSchemaSerializable
 {
-    public Uri? BaseUri { get; set; }
+    public Uri BaseUri { get; set; }
     public string ShortName {get => Label; set => Label = value; }
 
     [CimSchemaSerializable(
@@ -34,7 +34,10 @@ public abstract class CimRdfDescriptionBase : ICimSchemaSerializable
     public List<object> Stereotypes
     { get => _Stereotypes; }
 
-    protected CimRdfDescriptionBase() { }
+    protected CimRdfDescriptionBase(Uri baseUri) 
+    { 
+        BaseUri = baseUri;
+    }
 
     private readonly List<object> _Stereotypes =
         new List<object>();
@@ -45,6 +48,8 @@ public class CimRdfsIndividual : CimRdfDescriptionBase, ICimMetaInstance
     public ICimMetaClass? InstanceOf { get => EquivalentClass; }
 
     public CimRdfsClass? EquivalentClass { get; set; }
+
+    public CimRdfsIndividual(Uri baseUri) : base(baseUri) { }
 }
 
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Datatype")]
@@ -52,7 +57,7 @@ public class CimRdfsDatatype : CimRdfDescriptionBase, ICimMetaDatatype
 {
     public System.Type? SystemType { get; set; }
 
-    public System.Type? SimpleType
+    public System.Type SimpleType
     {
         get
         {
@@ -65,9 +70,16 @@ public class CimRdfsDatatype : CimRdfDescriptionBase, ICimMetaDatatype
                 nextDatatype = nextDatatype.Datatype;
             }
 
+            if (type == null)
+            {
+                return typeof(string);
+            }
+
             return type;
         }
     }
+
+    public CimRdfsDatatype(Uri baseUri) : base(baseUri) { }
 }
 
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Class")]
@@ -75,6 +87,9 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
 {
     public bool SuperClass { get => SubClassOf == null; }
     public ICimMetaClass? ParentClass { get => SubClassOf; }
+    public ICimMetaClass[] AllAncestors { get => GetAllAncestors().ToArray(); }
+    public bool IsEnum { get => Stereotypes.Contains(UMLStereotype.Enumeration); }
+    public bool IsCompound { get => Stereotypes.Contains(UMLStereotype.Compound); }
 
     [
         CimSchemaSerializable(
@@ -82,6 +97,18 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
         MetaFieldType.ByRef)
     ]
     public CimRdfsClass? SubClassOf { get; set; }
+
+    public CimRdfsClass(Uri baseUri) : base(baseUri) { }
+
+    private IEnumerable<ICimMetaClass> GetAllAncestors()
+    {
+        var parent = ParentClass;
+        while (parent != null)
+        {
+            yield return parent;
+            parent = parent.ParentClass;
+        }
+    }
 }
 
 [CimSchemaSerializable("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")]
@@ -89,7 +116,8 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
 {
     public ICimMetaClass? OwnerClass { get => Domain; }
     public CimMetaPropertyKind PropertyKind { get => GetMetaPropertyKind(); }
-    public ICimMetaProperty? InverseProperty { get => InverseOf;  }
+    public ICimMetaProperty? InverseProperty { get => InverseOf; }
+    public ICimSchemaSerializable? PropertyDatatype { get => GetDatatype(); }
 
     [
         CimSchemaSerializable(
@@ -133,11 +161,30 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
 
         if (Multiplicity == RdfSchema.Multiplicity.OneToN)
         {
-            return CimMetaPropertyKind.Assoc1To1;
+            return CimMetaPropertyKind.Assoc1ToM;
         }
 
         return CimMetaPropertyKind.NonStandard;
     }
+
+    private ICimSchemaSerializable? GetDatatype()
+    {
+        if (PropertyKind == CimMetaPropertyKind.NonStandard)
+        {
+            return null;
+        }
+        else if (PropertyKind == CimMetaPropertyKind.Attribute
+            && Datatype != null)
+        {
+            return Datatype;
+        }
+        else
+        {
+            return Range;
+        }
+    }
+
+    public CimRdfsProperty(Uri baseUri) : base(baseUri) { }
 }
 
 [
