@@ -6,6 +6,10 @@ namespace CimBios.Core.CimModel.Schema;
 public interface ICimSchema
 {
     /// <summary>
+    /// Prefix to namespace URI mapping for schema.
+    /// </summary>
+    public IReadOnlyDictionary<string, Uri> Namespaces { get; }
+    /// <summary>
     /// All CimMetaClass instances - RDF description instances 
     /// of RDF type Class.
     /// </summary>
@@ -39,6 +43,13 @@ public interface ICimSchema
     public T? TryGetDescription<T>(Uri uri) where T : ICimSchemaSerializable;
 
     /// <summary>
+    /// Check schema uri instance exists.
+    /// </summary>
+    /// <param name="uri">Identifier of instance.</param>
+    /// <returns>Has schema instance with uri status.</returns>
+    public bool HasUri(Uri uri);
+
+    /// <summary>
     /// Get list of class properties.
     /// </summary>
     /// <param name="metaClass">Meta class instance.</param>
@@ -47,4 +58,11 @@ public interface ICimSchema
     public IEnumerable<ICimMetaProperty> GetClassProperties(
         ICimMetaClass metaClass,
         bool inherit = false);
+
+    /// <summary>
+    /// Join this CIM schema with another one.
+    /// </summary>
+    /// <param name="schema">ICimSchema instance.</param>
+    /// <param name="rewriteNamespaces">Rewrite namespaces URI.</param>
+    public void Join(ICimSchema schema, bool rewriteNamespaces = false);
 }

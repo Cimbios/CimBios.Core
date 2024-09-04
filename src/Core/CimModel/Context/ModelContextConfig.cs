@@ -20,8 +20,14 @@ public interface IModelContextConfig
     /// </summary>
     public RdfSerializerBase Serializer { get; }
 
-    public ICimSchema? CimSchema { get; }
+    /// <summary>
+    /// CIM schema shapes.
+    /// </summary>
+    public ICimSchema CimSchema { get; }
 
+    /// <summary>
+    /// Library of CIM class types.
+    /// </summary>
     public IDatatypeLib TypeLib { get; }
 }
 
@@ -31,17 +37,16 @@ public class RdfXmlFileModelContextConfig : IModelContextConfig
 
     public RdfSerializerBase Serializer { get; }
 
-    public ICimSchema? CimSchema { get; }
+    public ICimSchema CimSchema { get; }
 
     public IDatatypeLib TypeLib { get; }
 
     public RdfXmlFileModelContextConfig(Uri source, 
-        ICimSchema? schema = null, 
+        ICimSchema schema , 
         IDatatypeLib? typeLib = null)
     {
         var provider = new RdfXmlFileDataProvider(source);
         DataProvider = provider;
-        Serializer = new RdfXmlSerializer(provider);
         CimSchema = schema;
         
         if (typeLib == null)
@@ -52,5 +57,7 @@ public class RdfXmlFileModelContextConfig : IModelContextConfig
         {
             TypeLib = typeLib;
         }
+
+        Serializer = new RdfXmlSerializer(provider, schema, TypeLib);
     }
 }

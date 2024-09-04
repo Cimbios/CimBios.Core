@@ -7,6 +7,8 @@ namespace CimBios.Core.CimModel.Schema.RdfSchema;
 /// </summary>
 public class CimRdfSchema : ICimSchema
 {
+    public IReadOnlyDictionary<string, Uri> Namespaces 
+    {get => _Namespaces; }
     public IEnumerable<ICimMetaClass> Classes 
     { get => _All.Values.OfType<ICimMetaClass>(); }
     public IEnumerable<ICimMetaProperty> Properties 
@@ -19,6 +21,7 @@ public class CimRdfSchema : ICimSchema
     public CimRdfSchema()
     {
         _All = new Dictionary<Uri, ICimSchemaSerializable>(new RdfUriComparer());
+        _Namespaces = new Dictionary<string, Uri>();
     }
 
     public void Load(TextReader textReader)
@@ -27,6 +30,7 @@ public class CimRdfSchema : ICimSchema
         serizalizer.Load(textReader);
 
         _All = serizalizer.Deserialize();
+        _Namespaces = serizalizer.Namespaces;
     }
 
     public IEnumerable<ICimMetaProperty> GetClassProperties(
@@ -59,5 +63,66 @@ public class CimRdfSchema : ICimSchema
         return default;
     }
 
+    public bool HasUri(Uri uri)
+    {
+        return _All.ContainsKey(uri);
+    }
+
+    public void Join(ICimSchema schema, bool rewriteNamespaces = false)
+    {
+        JoinNamespaces(schema.Namespaces, rewriteNamespaces);
+
+        foreach (var metaClass in schema.Classes)
+        {
+            if (_All.ContainsKey(metaClass.BaseUri) == false)
+            {
+                _All.Add(metaClass.BaseUri, metaClass);
+            }
+        }
+
+        foreach (var metaProperty in schema.Properties)
+        {
+            if (_All.ContainsKey(metaProperty.BaseUri) == false)
+            {
+                _All.Add(metaProperty.BaseUri, metaProperty);
+            }
+        }
+
+        foreach (var metaDatatype in schema.Datatypes)
+        {
+            if (_All.ContainsKey(metaDatatype.BaseUri) == false)
+            {
+                _All.Add(metaDatatype.BaseUri, metaDatatype);
+            }
+        }       
+
+        foreach (var metaInstance in schema.Individuals)
+        {
+            if (_All.ContainsKey(metaInstance.BaseUri) == false)
+            {
+                _All.Add(metaInstance.BaseUri, metaInstance);
+            }
+        }   
+    }
+
+    private void JoinNamespaces(IReadOnlyDictionary<string, Uri> namespaces, 
+        bool rewriteNamespaces)
+    {
+        foreach (var ns in namespaces)
+        {
+            if (_Namespaces.ContainsKey(ns.Key)
+                && rewriteNamespaces == true)
+            {
+                _Namespaces[ns.Key] = ns.Value;
+            }
+            else
+            {
+                _Namespaces.TryAdd(ns.Key, ns.Value);
+            }
+        }
+    }
+
     private Dictionary<Uri, ICimSchemaSerializable> _All;
+
+    private Dictionary<string, Uri> _Namespaces;
 }

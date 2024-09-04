@@ -12,13 +12,13 @@ public abstract class RdfSerializerBase
     /// <summary>
     /// Cim schema rules.
     /// </summary>
-    public ICimSchema? Schema
+    public ICimSchema Schema
     { get => _schema; set => _schema = value; }
 
     /// <summary>
     /// CIM data types library for contrete typed instances creating.
     /// </summary>
-    public IDatatypeLib? TypeLib
+    public IDatatypeLib TypeLib
     { get => _typeLib; set => _typeLib = value; }
 
     /// <summary>
@@ -30,9 +30,12 @@ public abstract class RdfSerializerBase
     public RdfSerializerSettings Settings 
     { get => _settings; set => _settings = value; }
 
-    protected RdfSerializerBase(IDataProvider provider) 
+    protected RdfSerializerBase(IDataProvider provider,
+        ICimSchema schema, IDatatypeLib datatypeLib) 
     {
         _provider = provider;
+        _schema = schema;
+        _typeLib = datatypeLib;
         _settings = new RdfSerializerSettings();
     }
 
@@ -50,8 +53,8 @@ public abstract class RdfSerializerBase
     /// </summary>
     public abstract void Serialize(IEnumerable<IModelObject> modelObjects);
 
-    private ICimSchema? _schema;
-    private IDatatypeLib? _typeLib;
+    private ICimSchema _schema;
+    private IDatatypeLib _typeLib;
     private IDataProvider _provider;
     private RdfSerializerSettings _settings;
 }

@@ -14,8 +14,8 @@ internal static class XmlDatatypesMapping
             { "http://www.w3.org/2001/XMLSchema#float", typeof(float) },
             { "http://www.w3.org/2001/XMLSchema#double", typeof(double) },
             { "http://www.w3.org/2001/XMLSchema#dateTime", typeof(DateTime) },
-            { "http://www.w3.org/2001/XMLSchema#time", typeof(TimeOnly) },
-            { "http://www.w3.org/2001/XMLSchema#date", typeof(DateOnly) },
+            { "http://www.w3.org/2001/XMLSchema#time", typeof(DateTime) },
+            { "http://www.w3.org/2001/XMLSchema#date", typeof(DateTime) },
             { "http://www.w3.org/2001/XMLSchema#anyURI", typeof(Uri) },
         };
 }
