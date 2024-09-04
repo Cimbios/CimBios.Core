@@ -33,7 +33,50 @@ public class RdfXmlSerializer : RdfSerializerBase
 
     public override void Serialize(IEnumerable<IModelObject> modelObjects)
     {
-        throw new NotImplementedException();
+        _writer = new RdfXmlWriter();
+
+        var objsToWrite = new List<RdfNode>();
+        foreach (var modelObject in modelObjects)
+        {
+            objsToWrite.Add(ProcessObject(modelObject));
+        }
+
+        XDocument writtenObjects = _writer.Write(objsToWrite);
+        if (writtenObjects != null)
+        {
+            Provider.Push(writtenObjects);
+        }
+    }
+
+    private RdfNode ProcessObject(IModelObject modelObject)
+    {
+        var triples = new List<RdfTriple>();
+        foreach (var property in modelObject.ObjectData.Attributes)
+        {
+            triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), modelObject.ObjectData.GetAttribute<string>(property)));
+        }
+        foreach (var property in modelObject.ObjectData.Assocs1To1)
+        {
+            if (modelObject.ObjectData.GetAssoc1To1(property).ObjectData.IsCompound) // ���������, ��� ���� ��� isCompound
+            {
+                var compound = modelObject.ObjectData.GetAssoc1To1(property);
+                var compoundNode = ProcessObject(compound); // ��������
+                triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), compoundNode));
+            }
+            triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), new Uri(modelObject.ObjectData.GetAssoc1To1(property).Uuid)));
+        }
+        foreach (var property in modelObject.ObjectData.Assocs1ToM)
+        {
+            if (modelObject.ObjectData.GetAssoc1ToM(property).Any())
+            {
+                foreach (ModelObject refObj in modelObject.ObjectData.GetAssoc1ToM(property))
+                {
+                    triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), new Uri(refObj.Uuid)));
+                }
+            }
+        }
+        var triplesArr = triples.ToArray();
+        return new RdfNode(new Uri(modelObject.Uuid), modelObject.ObjectData.ClassType, triplesArr, modelObject.ObjectData.IsAuto);
     }
 
     /// <summary>
@@ -371,7 +414,9 @@ public class RdfXmlSerializer : RdfSerializerBase
         return false;
     }
 
-    private RdfXmlReader? _reader;
+    private RdfXmlIOLib.RdfXmlReader? _reader;
+    private RdfXmlIOLib.RdfXmlWriter? _writer;
+
     private Dictionary<string, IModelObject> _objectsCache;
     private HashSet<string> _waitingReferenceObjectUuids;
 }
