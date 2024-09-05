@@ -42,12 +42,22 @@ public class RdfXmlSerializer : RdfSerializerBase
         }
 
         XDocument writtenObjects = _writer.Write(objsToWrite);
+        // TODO: writtenObjects is not nullable typed
         if (writtenObjects != null)
         {
             Provider.Push(writtenObjects);
         }
     }
 
+    /// <summary>
+    /// TODO
+    /// </summary>
+    /// <param name="modelObject"></param>
+    /// <returns></returns>
+    /// TODO:   schema support;
+    ///         split writing on attribute and assoc methods;
+    ///         check nullity of object properties;
+    ///         impl identifier maker method.
     private RdfNode ProcessObject(IModelObject modelObject)
     {
         var triples = new List<RdfTriple>();
@@ -57,6 +67,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         }
         foreach (var property in modelObject.ObjectData.Assocs1To1)
         {
+            // TODO: compound is attribute prop always
             if (modelObject.ObjectData.GetAssoc1To1(property).ObjectData.IsCompound) // ���������, ��� ���� ��� isCompound
             {
                 var compound = modelObject.ObjectData.GetAssoc1To1(property);
@@ -175,6 +186,11 @@ public class RdfXmlSerializer : RdfSerializerBase
         return instanceObject;
     }
 
+    /// <summary>
+    /// Convert RDF n-triple to IModelObject CIM property.
+    /// </summary>
+    /// <param name="instance">IModelObject CIM class instance.</param>
+    /// <param name="propertyTriple">RDF n-triple.</param>
     private void InitializeObjectProperty(IModelObject instance,
         RdfTriple propertyTriple)
     {
@@ -211,6 +227,11 @@ public class RdfXmlSerializer : RdfSerializerBase
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
     private object? DeserializableDataSelector(object data)
     {
         if (data is RdfNode objectRdfNode)
@@ -227,6 +248,12 @@ public class RdfXmlSerializer : RdfSerializerBase
         }  
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <param name="property"></param>
+    /// <param name="data"></param>
     private void SetObjectDataAsAttribute(IModelObject instance, 
         ICimMetaProperty property, object data)
     {
@@ -290,6 +317,12 @@ public class RdfXmlSerializer : RdfSerializerBase
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <param name="property"></param>
+    /// <param name="referenceUri"></param>
     private void SetObjectDataAsAssociation(IModelObject instance, 
         ICimMetaProperty property, Uri referenceUri)
     {
@@ -348,6 +381,11 @@ public class RdfXmlSerializer : RdfSerializerBase
         }
     }
     
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="objectRdfNode"></param>
+    /// <returns></returns>
     private IModelObject? MakeCompoundPropertyObject(RdfNode objectRdfNode)
     {
         var compoundPropertyObject = CreateInstance(objectRdfNode, true); 
@@ -364,6 +402,12 @@ public class RdfXmlSerializer : RdfSerializerBase
         return compoundPropertyObject;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="schemaProperty"></param>
+    /// <param name="instance"></param>
+    /// <returns></returns>
     private bool IsPropertyAlignSchemaClass(ICimMetaProperty schemaProperty,
         IModelObject instance)
     {
@@ -393,6 +437,12 @@ public class RdfXmlSerializer : RdfSerializerBase
         return false;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <param name="identifier"></param>
+    /// <returns></returns>
     private static bool TryGetEscapedIdentifier(Uri uri, out string identifier)
     {
         identifier = string.Empty;
@@ -414,8 +464,8 @@ public class RdfXmlSerializer : RdfSerializerBase
         return false;
     }
 
-    private RdfXmlIOLib.RdfXmlReader? _reader;
-    private RdfXmlIOLib.RdfXmlWriter? _writer;
+    private RdfXmlReader? _reader;
+    private RdfXmlWriter? _writer;
 
     private Dictionary<string, IModelObject> _objectsCache;
     private HashSet<string> _waitingReferenceObjectUuids;
