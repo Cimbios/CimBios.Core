@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Data;
 using CimBios.Core.CimModel.CimDatatypeLib;
@@ -59,6 +60,35 @@ public class ModelContext
         InitContextDataConfig(contextDataConfig);
 
         Load();
+    }
+
+    /// <summary>
+    /// Save CIM model to context via config.
+    /// </summary>
+    public void Save()
+    {
+        if (_provider == null || _serializer == null)
+        {
+            return;
+        }   
+
+        var forSerializeObjects = _Objects.Values.ToImmutableList();
+        if (Description != null)
+        {
+            forSerializeObjects.Add(Description);
+        }
+        _serializer.Serialize(forSerializeObjects);
+    }
+
+    /// <summary>
+    /// Save CIM model to context via config.
+    /// </summary>
+    /// <param name="contextDataConfig">Context configuration.</param>
+    public void Save(IModelContextConfig contextDataConfig)
+    {
+        InitContextDataConfig(contextDataConfig);
+
+        Save();        
     }
 
     /// <summary>
