@@ -5,8 +5,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using CimBios.Core.CimModel.Context;
 using CimBios.Core.CimModel.Schema.RdfSchema;
-using CimBios.Core.DataProvider;
 using CimBios.Tools.ModelDebug.Models;
 using CommunityToolkit.Mvvm.Input;
 
@@ -15,9 +15,9 @@ namespace CimBios.Tools.ModelDebug.ViewModels;
 public class DataSelectorViewModel : ViewModelBase, 
     INotifyPropertyChanged
 {
-    public ObservableCollection<DataProviderModel> DataProviders { get; }
+    public ObservableCollection<ModelDataContextModel> DataProviders { get; }
     public ObservableCollection<SchemaSelectorModel> Schemas { get; }
-    public DataProviderModel? SelectedDataProvider { get; set; }
+    public ModelDataContextModel? SelectedDataProvider { get; set; }
     public SchemaSelectorModel? SelectedSchema { get; set; }
     public AsyncRelayCommand ShowProviderSourceSelectorCommand { get; }
     public AsyncRelayCommand ShowSchemaSourceSelectorCommand { get; }
@@ -69,10 +69,10 @@ public class DataSelectorViewModel : ViewModelBase,
     {
         OwnerView = parentWindow;
 
-        DataProviders = new ObservableCollection<DataProviderModel>()
+        DataProviders = new ObservableCollection<ModelDataContextModel>()
         {
-            new DataProviderModel("CIMXML File", 
-                new RdfXmlFileDataProviderFactory(),
+            new ModelDataContextModel("CIMXML File", 
+                new RdfXmlFileModelDataContextFactory(),
                 new FileDialogSourceSelector() { OwnerWindow = OwnerView }),
         };
         SelectedDataProvider = DataProviders.FirstOrDefault();
