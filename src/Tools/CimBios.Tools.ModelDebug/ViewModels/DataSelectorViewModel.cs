@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CimBios.Core.CimModel.Context;
+using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Tools.ModelDebug.Models;
 using CommunityToolkit.Mvvm.Input;
@@ -15,12 +17,24 @@ namespace CimBios.Tools.ModelDebug.ViewModels;
 public class DataSelectorViewModel : ViewModelBase, 
     INotifyPropertyChanged
 {
-    public ObservableCollection<ModelDataContextModel> DataProviders { get; }
+    public Avalonia.Visual OwnerView { get; }
+    public string ResultMessage 
+    { 
+        get => _resultMessage; 
+        set
+        {
+            _resultMessage = value;
+            OnPropertyChanged(nameof(ResultMessage));   
+        } 
+    }
+    public ObservableCollection<ModelDataContextModel> DataContexties { get; }
     public ObservableCollection<SchemaSelectorModel> Schemas { get; }
-    public ModelDataContextModel? SelectedDataProvider { get; set; }
+    public ModelDataContextModel? SelectedDataContext { get; set; }
     public SchemaSelectorModel? SelectedSchema { get; set; }
-    public AsyncRelayCommand ShowProviderSourceSelectorCommand { get; }
+    public AsyncRelayCommand ShowDataContextSourceSelectorCommand { get; }
     public AsyncRelayCommand ShowSchemaSourceSelectorCommand { get; }
+    public RelayCommand CancelCommand { get; }
+    public RelayCommand GetCommand { get; }
 
     public string SourceStringUri 
     { 
@@ -63,19 +77,17 @@ public class DataSelectorViewModel : ViewModelBase,
         }
     }
 
-    public Avalonia.Visual OwnerView { get; }
-
     public DataSelectorViewModel(Window parentWindow)
     {
         OwnerView = parentWindow;
 
-        DataProviders = new ObservableCollection<ModelDataContextModel>()
+        DataContexties = new ObservableCollection<ModelDataContextModel>()
         {
             new ModelDataContextModel("CIMXML File", 
                 new RdfXmlFileModelDataContextFactory(),
                 new FileDialogSourceSelector() { OwnerWindow = OwnerView }),
         };
-        SelectedDataProvider = DataProviders.FirstOrDefault();
+        SelectedDataContext = DataContexties.FirstOrDefault();
 
         Schemas = new ObservableCollection<SchemaSelectorModel>()
         {
@@ -86,11 +98,14 @@ public class DataSelectorViewModel : ViewModelBase,
         };
         SelectedSchema = Schemas.FirstOrDefault();
 
-        ShowProviderSourceSelectorCommand = 
+        ShowDataContextSourceSelectorCommand = 
             new AsyncRelayCommand(ShowProviderSourceSelector);
 
         ShowSchemaSourceSelectorCommand = 
             new AsyncRelayCommand(ShowSchemaSourceSelector);
+
+        CancelCommand = new RelayCommand(Cancel, () => !_isWork);
+        GetCommand = new RelayCommand(Get, () => !_isWork);
     }
 
     protected new virtual void OnPropertyChanged(string propertyName)
@@ -98,12 +113,42 @@ public class DataSelectorViewModel : ViewModelBase,
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    private void Get()
+    {
+        _isWork = true;
+
+        try
+        {
+            var cimSchema = LoadSchemas();
+            if (cimSchema != null)
+            {
+                ResultMessage += "Schemas successfully loaded.\n";
+
+                CreateModelContext(cimSchema);
+            }
+        }
+        catch (Exception ex)
+        {
+            ResultMessage += $"Exception while loading: {ex.Message}\n";
+        }
+
+        _isWork = false;
+    }
+
+    private void Cancel()
+    {
+        if (OwnerView is Window ownerWindow)
+        {
+            ownerWindow.Close();
+        } 
+    }
+
     private async Task ShowProviderSourceSelector()
     {
-        if (SelectedDataProvider != null)
+        if (SelectedDataContext != null)
         {
             var sources = await GetSourceList(
-                SelectedDataProvider.SourceSelector);
+                SelectedDataContext.SourceSelector);
             
             if (sources != null)
             {
@@ -138,8 +183,62 @@ public class DataSelectorViewModel : ViewModelBase,
         return new List<Uri>();
     }
 
+    private ICimSchema? LoadSchemas()
+    {
+        if (SelectedSchema == null
+            || SchemasUri == null
+            || SchemasUri.Count() == 0)
+        {
+            ResultMessage += "Schemas have not loaded. Schema provider missed?\n";
+            return null;
+        }
+
+        var cimSchema = SelectedSchema.SchemaFactory.CreateSchema();
+        cimSchema.Load(new StreamReader(SchemasUri.First().LocalPath));
+
+        if (SchemasUri.Count() > 1)
+        {
+            foreach (var schemaUri in SchemasUri.Skip(1))
+            {
+                var addSchema = SelectedSchema.SchemaFactory.CreateSchema();
+                addSchema.Load(new StreamReader(schemaUri.LocalPath));
+                cimSchema.Join(addSchema);
+            }
+        }
+
+        return cimSchema;
+    }
+
+    private bool CreateModelContext(ICimSchema cimSchema)
+    {
+        if (Services.ServiceLocator.GetInstance()
+            .TryGetService<ModelContext>(out var modelContext) == false
+            || modelContext == null)
+        {
+            ResultMessage += "Model context service has not registered!\n";
+            return false;
+        }
+
+        if (SelectedDataContext == null
+            || SourceUri == null)
+        {
+            ResultMessage += "Model context provider/source has not selected!\n";
+            return false;
+        }
+
+        var dataContext = SelectedDataContext.ModelDataContextFactory
+            .Create(SourceUri, cimSchema);
+
+        modelContext.Load(dataContext);
+
+        return true;
+    }
+
     public new event PropertyChangedEventHandler? PropertyChanged;
 
     private Uri? _sourceUri;
     private IEnumerable<Uri>? _schemasUri;
+    private string _resultMessage = string.Empty;
+
+    private bool _isWork = false;
 }

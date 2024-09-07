@@ -13,9 +13,9 @@
     </Design.DataContext>
 
   <StackPanel Orientation="Vertical" Margin="5" Spacing="5">
-    <TextBlock Text="Data provider:"/>
-    <ComboBox SelectedItem="{Binding SelectedDataProvider}" 
-              ItemsSource="{Binding DataProviders}" 
+    <TextBlock Text="Data context:"/>
+    <ComboBox SelectedItem="{Binding SelectedDataContext}" 
+              ItemsSource="{Binding DataContexties}" 
               HorizontalAlignment="Stretch">
       <ComboBox.ItemTemplate>
         <DataTemplate>
@@ -27,7 +27,7 @@
       <TextBox  Grid.Column="0" IsReadOnly="True" Text="{Binding SourceStringUri}" 
                 Watermark="Enter URI..."/>
       <Button Grid.Column="1" VerticalAlignment="Stretch" Content="..." 
-              Command="{Binding ShowProviderSourceSelectorCommand}"/>
+              Command="{Binding ShowDataContextSourceSelectorCommand}"/>
     </Grid> 
     <TextBlock Text="CIM Schema:"/>
     <ComboBox SelectedItem="{Binding SelectedSchema}" 
@@ -46,10 +46,14 @@
               Command="{Binding ShowSchemaSourceSelectorCommand}"/>
     </Grid> 
     <StackPanel HorizontalAlignment="Right" Spacing="5" Orientation="Horizontal">
-      <Button Content="Apply"/>
-      <Button Content="Cancel"/>
+      <Button Content="Get" Command="{Binding GetCommand}"/>
+      <Button Content="Push"/>
+      <Button Content="Cancel" Command="{Binding CancelCommand}"/>
     </StackPanel>
-    <TextBox Height="60" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"/>
+    <TextBox  Height="60" Text="{Binding ResultMessage}" 
+              IsReadOnly="True" 
+              AcceptsReturn="True" 
+              TextWrapping="Wrap"/>
   </StackPanel>
 
 </Window>
