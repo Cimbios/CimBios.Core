@@ -15,6 +15,32 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid RowDefinitions="30, *">
+        <Menu>
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open..." Command="{Binding ShowDataProviderSelectorCommand}"/>
+                <Separator/>
+                <MenuItem Header="_Exit"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="Clear"/>
+                <MenuItem Header="Paste"/>
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="150" />
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition Width="2*" MinWidth="150"/>
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition Width="*" MinWidth="150"/>
+            </Grid.ColumnDefinitions>
+            <TreeView Grid.Column="0"/>
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Gray"/>
+            <Rectangle Grid.Column="2" Fill="Tomato"/>
+            <GridSplitter Grid.Column="3" ResizeDirection="Columns" Background="Gray"/>
+            <Rectangle Grid.Column="4" Fill="Steelblue"/>
+        </Grid>
+    </Grid>
 
 </Window>

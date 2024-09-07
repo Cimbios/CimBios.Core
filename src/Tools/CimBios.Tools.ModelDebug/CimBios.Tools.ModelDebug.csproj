@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -21,5 +21,16 @@
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\CimModel\Context\CimBios.Core.CimModel.Context.csproj" />
+    <ProjectReference Include="..\..\Core\DataProvider\CimBios.Core.DataProvider.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views/DataSelectorWindow.axaml.cs">
+      <DependentUpon>DataSelectorWindow.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
