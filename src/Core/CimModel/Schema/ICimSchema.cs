@@ -66,3 +66,15 @@ public interface ICimSchema
     /// <param name="rewriteNamespaces">Rewrite namespaces URI.</param>
     public void Join(ICimSchema schema, bool rewriteNamespaces = false);
 }
+
+/// <summary>
+/// Factory method interface for abstract schema activation.
+/// </summary>
+public interface ICimSchemaFactory
+{
+    /// <summary>
+    /// Create ICimSchema instance.
+    /// </summary>
+    /// <returns>ICimSchema instance.</returns>
+    public ICimSchema CreateSchema();
+}
