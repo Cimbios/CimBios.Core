@@ -15,7 +15,7 @@ public interface ISourceSelector
 
 public class FileDialogSourceSelector : ISourceSelector
 {
-    public Window? OwnerWindow { get; set; }
+    public Avalonia.Visual? OwnerWindow { get; set; }
     public bool MultiSelect { get; set; } = false;
 
     public IEnumerable<Uri> GetSource()

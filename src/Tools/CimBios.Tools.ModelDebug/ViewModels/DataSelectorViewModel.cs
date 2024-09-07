@@ -4,9 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Core.DataProvider;
 using CimBios.Tools.ModelDebug.Models;
@@ -65,27 +63,17 @@ public class DataSelectorViewModel : ViewModelBase,
         }
     }
 
-    private Window? MainWindow 
-    { 
-        get
-        {
-            if (Application.Current?.ApplicationLifetime 
-                is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                return desktop.MainWindow;
-            }
+    public Avalonia.Visual OwnerView { get; }
 
-            return null;
-        }
-    }
-
-    public DataSelectorViewModel()
+    public DataSelectorViewModel(Window parentWindow)
     {
+        OwnerView = parentWindow;
+
         DataProviders = new ObservableCollection<DataProviderModel>()
         {
             new DataProviderModel("CIMXML File", 
                 new RdfXmlFileDataProviderFactory(),
-                new FileDialogSourceSelector() { OwnerWindow =  MainWindow }),
+                new FileDialogSourceSelector() { OwnerWindow = OwnerView }),
         };
         SelectedDataProvider = DataProviders.FirstOrDefault();
 
@@ -94,7 +82,7 @@ public class DataSelectorViewModel : ViewModelBase,
             new SchemaSelectorModel("RDFS",
                 new CimRdfSchemaFactory(),
                 new FileDialogSourceSelector() 
-                    { OwnerWindow =  MainWindow, MultiSelect = true }),
+                    { OwnerWindow = OwnerView, MultiSelect = true }),
         };
         SelectedSchema = Schemas.FirstOrDefault();
 

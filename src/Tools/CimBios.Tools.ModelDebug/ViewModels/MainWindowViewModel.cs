@@ -1,7 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using CimBios.Tools.ModelDebug.Views;
 using CommunityToolkit.Mvvm.Input;
 
@@ -11,38 +9,28 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     public AsyncRelayCommand ShowDataProviderSelectorCommand { get; }
 
-    private Window? MainWindow 
-    { 
-        get
-        {
-            if (Application.Current?.ApplicationLifetime 
-                is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                return desktop.MainWindow;
-            }
+    public Avalonia.Visual OwnerView { get; }
 
-            return null;
-        }
-    }
-
-    public MainWindowViewModel()
+    public MainWindowViewModel(Avalonia.Visual ownerView)
     {
+        OwnerView = ownerView;
+
         ShowDataProviderSelectorCommand = 
             new AsyncRelayCommand(ShowDataProviderSelectorWindow);
     }
 
     private Task ShowDataProviderSelectorWindow()
     {
-        if (MainWindow == null)
+        if (OwnerView is Window ownerWindow == false)
         {
             return Task.CompletedTask;
         }
 
-        var dpsWindow = new DataSelectorWindow()
-        {
-            DataContext = new DataSelectorViewModel()
-        };
-        dpsWindow.ShowDialog(MainWindow);
+        var dpsWindow = new DataSelectorWindow();
+        var dataContext = new DataSelectorViewModel(dpsWindow);
+        dpsWindow.DataContext = dataContext;
+
+        dpsWindow.ShowDialog(ownerWindow);
 
         return Task.CompletedTask;
     }
