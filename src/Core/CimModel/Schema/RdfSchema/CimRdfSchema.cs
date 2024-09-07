@@ -126,3 +126,11 @@ public class CimRdfSchema : ICimSchema
 
     private Dictionary<string, Uri> _Namespaces;
 }
+
+public class CimRdfSchemaFactory : ICimSchemaFactory
+{
+    public ICimSchema CreateSchema()
+    {
+        return new CimRdfSchema();
+    }
+}
