@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Data;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.RdfSerializer;
+using CimBios.Core.CimModel.Schema;
 using CimBios.Core.DataProvider;
 
 namespace CimBios.Core.CimModel.Context;
@@ -17,6 +18,11 @@ public class ModelContext
     /// Model description.
     /// </summary>
     public IFullModel? Description { get; set; }
+
+    /// <summary>
+    /// Applied schema to this context serializer.
+    /// </summary>
+    public ICimSchema? Schema { get => _serializer?.Schema; }
 
     /// <summary>
     /// All cached objects collection (uuid to IModelObject).

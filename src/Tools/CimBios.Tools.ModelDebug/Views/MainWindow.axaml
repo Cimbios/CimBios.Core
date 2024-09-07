@@ -17,14 +17,14 @@
 
     <Grid RowDefinitions="30, *">
         <Menu>
-            <MenuItem Header="_File">
-                <MenuItem Header="_Open..." Command="{Binding ShowDataProviderSelectorCommand}"/>
+            <MenuItem Header="_Data context">
+                <MenuItem Header="_Select context..." Command="{Binding ShowDataProviderSelectorCommand}"/>
                 <Separator/>
-                <MenuItem Header="_Exit"/>
+                <MenuItem Header="_Close context"/>
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem Header="Clear"/>
-                <MenuItem Header="Paste"/>
+                <MenuItem Header="Fake"/>
+                <MenuItem Header="Fake"/>
             </MenuItem>
         </Menu>
         <Grid Grid.Row="1">

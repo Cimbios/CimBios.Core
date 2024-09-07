@@ -12,6 +12,9 @@ public partial class App : Application
 {
     public override void Initialize()
     {
+        Services.ServiceLocator.GetInstance()
+            .RegisterService(new Core.CimModel.Context.ModelContext());
+
         AvaloniaXamlLoader.Load(this);
     }
 
