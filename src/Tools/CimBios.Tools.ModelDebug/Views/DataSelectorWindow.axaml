@@ -1,0 +1,55 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" Width="500" Height="300" CanResize="False" 
+        x:Class="CimBios.Tools.ModelDebug.Views.DataSelectorWindow"
+        x:DataType="vm:DataSelectorViewModel"
+        Title="DataProviderSelectorWindow">
+  
+    <Design.DataContext>
+        <vm:DataProviderSelectorViewModel/>
+    </Design.DataContext>
+
+  <StackPanel Orientation="Vertical" Margin="5" Spacing="5">
+    <TextBlock Text="Data provider:"/>
+    <ComboBox SelectedItem="{Binding SelectedDataProvider}" 
+              ItemsSource="{Binding DataProviders}" 
+              HorizontalAlignment="Stretch">
+      <ComboBox.ItemTemplate>
+        <DataTemplate>
+            <TextBlock Text="{Binding Title}" />
+        </DataTemplate>
+      </ComboBox.ItemTemplate>
+    </ComboBox>
+    <Grid ColumnDefinitions="*,Auto">
+      <TextBox  Grid.Column="0" IsReadOnly="True" Text="{Binding SourceStringUri}" 
+                Watermark="Enter URI..."/>
+      <Button Grid.Column="1" VerticalAlignment="Stretch" Content="..." 
+              Command="{Binding ShowProviderSourceSelectorCommand}"/>
+    </Grid> 
+    <TextBlock Text="CIM Schema:"/>
+    <ComboBox SelectedItem="{Binding SelectedSchema}" 
+              ItemsSource="{Binding Schemas}" 
+              HorizontalAlignment="Stretch">
+      <ComboBox.ItemTemplate>
+        <DataTemplate>
+            <TextBlock Text="{Binding Title}" />
+        </DataTemplate>
+      </ComboBox.ItemTemplate>
+    </ComboBox>
+    <Grid ColumnDefinitions="*,Auto">
+      <TextBox  Grid.Column="0" IsReadOnly="True" Text="{Binding SchemasStringUri}"
+                Watermark="Enter URI(s) via semi-colon..."/>
+      <Button Grid.Column="1" VerticalAlignment="Stretch" Content="..."
+              Command="{Binding ShowSchemaSourceSelectorCommand}"/>
+    </Grid> 
+    <StackPanel HorizontalAlignment="Right" Spacing="5" Orientation="Horizontal">
+      <Button Content="Apply"/>
+      <Button Content="Cancel"/>
+    </StackPanel>
+    <TextBox Height="60" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"/>
+  </StackPanel>
+
+</Window>
