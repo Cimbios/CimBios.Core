@@ -8,7 +8,7 @@ namespace CimBios.Core.CimModel.Context;
 /// <summary>
 /// Factory provides abstract dataprovider and serializer for model context.
 /// </summary>
-public interface IModelContextConfig
+public interface IModelDataContext
 {
     /// <summary>
     /// Data provider with source.
@@ -31,7 +31,13 @@ public interface IModelContextConfig
     public IDatatypeLib TypeLib { get; }
 }
 
-public class RdfXmlFileModelContextConfig : IModelContextConfig
+public interface IModelDataContextFactory
+{
+    public IModelDataContext Create(Uri source, 
+        ICimSchema schema, IDatatypeLib? typeLib = null);
+}
+
+public class RdfXmlFileModelDataContext : IModelDataContext
 {
     public IDataProvider DataProvider { get; }
 
@@ -41,8 +47,8 @@ public class RdfXmlFileModelContextConfig : IModelContextConfig
 
     public IDatatypeLib TypeLib { get; }
 
-    public RdfXmlFileModelContextConfig(Uri source, 
-        ICimSchema schema , 
+    public RdfXmlFileModelDataContext(Uri source, 
+        ICimSchema schema, 
         IDatatypeLib? typeLib = null)
     {
         var provider = new RdfXmlFileDataProvider(source);
@@ -59,5 +65,14 @@ public class RdfXmlFileModelContextConfig : IModelContextConfig
         }
 
         Serializer = new RdfXmlSerializer(provider, schema, TypeLib);
+    }
+}
+
+public class RdfXmlFileModelDataContextFactory : IModelDataContextFactory
+{
+    public IModelDataContext Create(Uri source, 
+        ICimSchema schema, IDatatypeLib? typeLib = null)
+    {
+        return new RdfXmlFileModelDataContext(source, schema, typeLib);
     }
 }
