@@ -27,8 +27,6 @@ public partial class App : Application
             BindingPlugins.DataValidators.RemoveAt(0);
 
             var mainWindow = new MainWindow();
-            var dataContext = new MainWindowViewModel(mainWindow);
-            mainWindow.DataContext = dataContext;
             desktop.MainWindow = mainWindow;
         }
 
