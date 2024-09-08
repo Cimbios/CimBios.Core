@@ -69,6 +69,13 @@ public interface ICimSchema
     /// <param name="schema">ICimSchema instance.</param>
     /// <param name="rewriteNamespaces">Rewrite namespaces URI.</param>
     public void Join(ICimSchema schema, bool rewriteNamespaces = false);
+
+    /// <summary>
+    /// Get string prefix of uri namespace.
+    /// </summary>
+    /// <param name="uri">Object uri.</param>
+    /// <returns>String prefix or '_' if namespace does not exists.</returns>
+    public string GetUriNamespacePrefix(Uri uri);
 }
 
 /// <summary>
