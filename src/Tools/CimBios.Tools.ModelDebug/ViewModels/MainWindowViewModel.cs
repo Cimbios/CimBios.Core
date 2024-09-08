@@ -27,11 +27,6 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         var dpsWindow = new DataSelectorWindow();
-        var dataContext = new DataSelectorViewModel(dpsWindow);
-        dpsWindow.DataContext = dataContext;
-
-        dpsWindow.ShowDialog(ownerWindow);
-
-        return Task.CompletedTask;
+        return dpsWindow.ShowDialog(ownerWindow);
     }
 }
