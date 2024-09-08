@@ -60,7 +60,7 @@ public sealed class RdfXmlReader
     public void Parse(string content)
     {
         XDocument xDoc = XDocument.Parse(content);
-        ReadRdfNode(xDoc);
+        ReadRdfRootNode(xDoc);
         Reset();
     }
 
@@ -78,7 +78,7 @@ public sealed class RdfXmlReader
     /// </summary>
     public void Load(XDocument xDoc)
     {
-        ReadRdfNode(xDoc);
+        ReadRdfRootNode(xDoc);
         Reset();
     }
 
@@ -228,7 +228,7 @@ public sealed class RdfXmlReader
     /// Get rdf:RDF root node.
     /// </summary>
     /// <param name="content">Linq Xml document.</param>
-    private void ReadRdfNode(XDocument content)
+    private void ReadRdfRootNode(XDocument content)
     {
         XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
