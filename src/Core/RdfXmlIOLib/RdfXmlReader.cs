@@ -251,8 +251,16 @@ public sealed class RdfXmlReader
     /// <param name="rdfNode">rdf:RDF root node.</param>
     private void ParseXmlns(XElement rdfNode)
     {
+        XNamespace xlmns = "http://www.w3.org/2000/xmlns/";
+
         foreach (XAttribute attr in rdfNode.Attributes())
         {
+            if (attr.Name.Namespace != xlmns
+                && attr.Name != "xml:base")
+            {
+                continue;
+            }
+
             if (_Namespaces.ContainsKey(attr.Name.LocalName))
             {
                 _Namespaces[attr.Name.LocalName] = attr.Value;
