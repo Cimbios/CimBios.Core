@@ -28,6 +28,7 @@ public interface ICimSchemaSerializable
 {
     public Uri BaseUri { get; }
     public string ShortName { get; }
+    public string Description { get; }
 }
 
 /// <summary>
