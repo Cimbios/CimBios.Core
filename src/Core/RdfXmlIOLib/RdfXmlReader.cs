@@ -252,11 +252,12 @@ public sealed class RdfXmlReader
     private void ParseXmlns(XElement rdfNode)
     {
         XNamespace xlmns = "http://www.w3.org/2000/xmlns/";
+        XNamespace ns = "http://www.w3.org/XML/1998/namespace";
 
         foreach (XAttribute attr in rdfNode.Attributes())
         {
             if (attr.Name.Namespace != xlmns
-                && attr.Name != "xml:base")
+                && attr.Name != (ns + "base"))
             {
                 continue;
             }
