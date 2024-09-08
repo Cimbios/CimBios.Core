@@ -55,6 +55,8 @@ public class ModelContext
             .Select(x => new KeyValuePair<string, IModelObject>(x.Uuid, x)));
 
         ReadModelDescription();
+
+        ModelLoaded?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -192,6 +194,11 @@ public class ModelContext
             _Objects.Remove(fullModel.Uuid);
         }
     }
+
+    /// <summary>
+    /// On model load finish firing event.
+    /// </summary>
+    public event EventHandler? ModelLoaded;
 
     private IDataProvider? _provider;
     private RdfSerializerBase? _serializer;

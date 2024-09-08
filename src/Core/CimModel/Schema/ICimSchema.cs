@@ -9,20 +9,24 @@ public interface ICimSchema
     /// Prefix to namespace URI mapping for schema.
     /// </summary>
     public IReadOnlyDictionary<string, Uri> Namespaces { get; }
+    
     /// <summary>
     /// All CimMetaClass instances - RDF description instances 
     /// of RDF type Class.
     /// </summary>
     public IEnumerable<ICimMetaClass> Classes { get; }
+
     /// <summary>
     /// All CimMetaProperty instances - RDF description instances 
     /// of RDF type Property.
     /// </summary>
     public IEnumerable<ICimMetaProperty> Properties { get; }
+
     /// <summary>
     /// All CimMetaIndividual instances - RDF description concrete instances.
     /// </summary>
     public IEnumerable<ICimMetaInstance> Individuals { get; }
+
     /// <summary>
     /// All CimMetaDatatype instances - RDF description instances 
     /// of RDF type Datatype.
