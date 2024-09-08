@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:v="using:CimBios.Tools.ModelDebug.Views"
         xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -15,8 +16,8 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="30, *">
-        <Menu>
+    <Grid RowDefinitions="Auto, Auto, *">
+        <Menu Grid.Row="0">
             <MenuItem Header="_Data context">
                 <MenuItem Header="_Select context..." Command="{Binding ShowDataProviderSelectorCommand}"/>
                 <Separator/>
@@ -27,7 +28,8 @@
                 <MenuItem Header="Fake"/>
             </MenuItem>
         </Menu>
-        <Grid Grid.Row="1">
+        <Separator Grid.Row="1"/>
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" MinWidth="150" />
                 <ColumnDefinition Width="1"/>
@@ -39,7 +41,7 @@
             <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Gray"/>
             <Rectangle Grid.Column="2" Fill="Tomato"/>
             <GridSplitter Grid.Column="3" ResizeDirection="Columns" Background="Gray"/>
-            <Rectangle Grid.Column="4" Fill="Steelblue"/>
+            <v:CimSchemaTreeUserControl Grid.Column="4"/>
         </Grid>
     </Grid>
 
