@@ -63,7 +63,8 @@ public class CimSchemaTreeViewModel : ViewModelBase
                 continue;
             }
 
-            var node = new CimSchemaEntityNodeModel(schemaClass);
+            var node = new CimSchemaEntityNodeModel(schemaClass, 
+                CimSchemaContext.GetUriNamespacePrefix(schemaClass.BaseUri));
             uriVsNode.Add(schemaClass.BaseUri, node);
         }
 
@@ -85,6 +86,6 @@ public class CimSchemaTreeViewModel : ViewModelBase
                     }
                 }
             }
-        }
+        }  
     }
 }

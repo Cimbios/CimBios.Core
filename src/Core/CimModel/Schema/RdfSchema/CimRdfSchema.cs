@@ -105,6 +105,19 @@ public class CimRdfSchema : ICimSchema
         }   
     }
 
+    public string GetUriNamespacePrefix(Uri uri)
+    {
+        foreach (var ns in Namespaces)
+        {
+            if (ns.Value.AbsolutePath == uri.AbsolutePath)
+            {
+                return ns.Key;
+            }
+        }
+
+        return "_";
+    }
+
     private void JoinNamespaces(IReadOnlyDictionary<string, Uri> namespaces, 
         bool rewriteNamespaces)
     {
