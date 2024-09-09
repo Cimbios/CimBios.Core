@@ -77,7 +77,7 @@ public static class RdfXmlReaderUtils
 
          if (lUri != null && rUri != null)
         {
-            return RdfXmlReaderUtils.RdfUriEquals(lUri, rUri);
+            return lUri.AbsoluteUri == rUri.AbsoluteUri;
         }
 
         return false;
