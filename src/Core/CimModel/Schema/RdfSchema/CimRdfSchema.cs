@@ -42,7 +42,9 @@ public class CimRdfSchema : ICimSchema
         do
         {
             foreach (var prop in Properties
-                .Where(p => p.OwnerClass == nextClass))
+                .Where(p => 
+                    RdfXmlReaderUtils.RdfUriEquals
+                    (p.OwnerClass?.BaseUri, nextClass.BaseUri)))
             {
                 yield return prop;
             }
