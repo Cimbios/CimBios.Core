@@ -38,9 +38,9 @@
                 <ColumnDefinition Width="*" MinWidth="150"/>
             </Grid.ColumnDefinitions>
             <TreeView Grid.Column="0"/>
-            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Gray"/>
-            <Rectangle Grid.Column="2" Fill="Tomato"/>
-            <GridSplitter Grid.Column="3" ResizeDirection="Columns" Background="Gray"/>
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+            <Rectangle Grid.Column="2" Fill="SteelBlue"/>
+            <GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
             <v:CimSchemaTreeUserControl Grid.Column="4"/>
         </Grid>
     </Grid>
