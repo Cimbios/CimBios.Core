@@ -64,6 +64,16 @@ public interface ICimSchema
         bool inherit = false);
 
     /// <summary>
+    /// Get list of class individuals.
+    /// </summary>
+    /// <param name="metaClass">Meta class instance.</param>
+    /// <param name="inherit">Is needed to collect inheritors individuals.</param>
+    /// <returns></returns>
+    public IEnumerable<ICimMetaInstance> GetClassIndividuals(
+        ICimMetaClass metaClass,
+        bool inherit = false);
+
+    /// <summary>
     /// Join this CIM schema with another one.
     /// </summary>
     /// <param name="schema">ICimSchema instance.</param>
