@@ -7,12 +7,36 @@
              x:Class="CimBios.Tools.ModelDebug.Views.CimSchemaTreeUserControl"
              x:DataType="vm:CimSchemaTreeViewModel">
 
-  <TreeView ItemsSource="{Binding Nodes}">
-    <TreeView.ItemTemplate>
-      <TreeDataTemplate ItemsSource="{Binding SubNodes}">
-          <TextBlock Text="{Binding Title}" FontSize="10"/>
-      </TreeDataTemplate>
-    </TreeView.ItemTemplate>
-  </TreeView>
+  <Grid RowDefinitions="Auto,*,Auto" Margin="5">
+
+    <TextBox Grid.Row="0" Watermark="Search..." TextAlignment="Start"/>
+
+    <TreeView x:Name="SchemaTreeView"
+              Grid.Row="1" 
+              ItemsSource="{Binding Nodes}" 
+              SelectedItem="{Binding SelectedItem}">
+      <TreeView.ItemTemplate>
+        <TreeDataTemplate ItemsSource="{Binding SubNodes}">
+            <TextBlock Text="{Binding Title}" FontSize="10"/>
+        </TreeDataTemplate>
+      </TreeView.ItemTemplate>
+      <TreeView.ContextMenu>
+        <ContextMenu>
+          <MenuItem Header="Expand all"
+                    Command="{Binding ExpandTree}"
+                    CommandParameter="{Binding #SchemaTreeView}"/>
+          <MenuItem Header="Unexpand all"
+                    Command="{Binding UnexpandTree}"
+                    CommandParameter="{Binding #SchemaTreeView}"/>
+        </ContextMenu>
+      </TreeView.ContextMenu>  
+    </TreeView>
+
+    <StackPanel Grid.Row="2">
+      <CheckBox Content="Show properties"/>
+      <CheckBox Content="Show individuals"/>
+    </StackPanel>
+
+  </Grid>
 
 </UserControl>
