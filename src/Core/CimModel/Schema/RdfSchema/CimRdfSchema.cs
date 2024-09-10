@@ -54,6 +54,37 @@ public class CimRdfSchema : ICimSchema
         while (inherit == true && nextClass != null);
     }
 
+    public IEnumerable<ICimMetaInstance> GetClassIndividuals(
+        ICimMetaClass metaClass,
+        bool inherit = false)
+    {
+        foreach (var individual in Individuals)
+        {
+            if (individual.InstanceOf == null)
+            {
+                continue;
+            }
+
+            if (RdfXmlReaderUtils.RdfUriEquals(
+                individual.InstanceOf.BaseUri,
+                metaClass.BaseUri))
+            {
+                yield return individual;
+            }
+
+            if (inherit == true)
+            {
+                if (individual.InstanceOf
+                    .AllAncestors.Any(c => 
+                        RdfXmlReaderUtils.RdfUriEquals(c.BaseUri, 
+                        metaClass.BaseUri)))
+                {
+                    yield return individual;
+                }
+            }
+        }
+    }
+
     public T? TryGetDescription<T>(Uri uri) where T : ICimSchemaSerializable
     {
         if (_All.TryGetValue(uri, out var metaDescription)
