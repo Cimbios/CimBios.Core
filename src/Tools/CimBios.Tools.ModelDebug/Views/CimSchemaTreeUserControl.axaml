@@ -10,16 +10,19 @@
 
   <Grid RowDefinitions="Auto,*,Auto" Margin="5">
 
-    <TextBox Grid.Row="0" Watermark="Search..." TextAlignment="Start"/>
+    <TextBox  Grid.Row="0" Text="{Binding SearchString}" 
+              Watermark="Search..." 
+              TextAlignment="Start"/>
 
     <TreeView x:Name="SchemaTreeView"
               Grid.Row="1" 
               ItemsSource="{Binding Nodes}" 
               SelectedItem="{Binding SelectedItem}"
-              AutoScrollToSelectedItem="True">
+              AutoScrollToSelectedItem="True" BorderBrush="Gray" BorderThickness="1">
       <TreeView.Styles>
         <Style Selector="TreeViewItem" x:DataType="m:TreeViewNodeModel">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+            <Setter Property="IsVisible" Value="{Binding IsVisible, Mode=TwoWay}"/>
         </Style>
       </TreeView.Styles>
       <TreeView.ItemTemplate>
@@ -30,18 +33,18 @@
       <TreeView.ContextMenu>
         <ContextMenu>
           <MenuItem Header="Expand all"
-                    Command="{Binding ExpandTree}"
+                    Command="{Binding ExpandAllNodesCommand}"
                     CommandParameter="{Binding #SchemaTreeView}"/>
           <MenuItem Header="Unexpand all"
-                    Command="{Binding UnexpandTree}"
+                    Command="{Binding UnexpandAllNodesCommand}"
                     CommandParameter="{Binding #SchemaTreeView}"/>
         </ContextMenu>
       </TreeView.ContextMenu>  
     </TreeView>
 
     <StackPanel Grid.Row="2">
-      <CheckBox Content="Show properties"/>
-      <CheckBox Content="Show individuals"/>
+      <CheckBox Content="Show properties" IsChecked="{Binding ShowProperties}"/>
+      <CheckBox Content="Show individuals" IsChecked="{Binding ShowIndividuals}"/>
     </StackPanel>
 
   </Grid>

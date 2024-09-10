@@ -1,59 +1,130 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using CimBios.Core.CimModel.Context;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfXmlIOLib;
 using CimBios.Tools.ModelDebug.Models;
+using CommunityToolkit.Mvvm.Input;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
 public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
 {
-    public ObservableCollection<TreeViewNodeModel> Nodes { get; } 
+    public IEnumerable<TreeViewNodeModel> Nodes 
+    { 
+        get
+        {
+            return _NodesCache;
+        }
+    } 
+
     public TreeViewNodeModel? SelectedItem { 
         get => _SelectedItem; 
         set
         {
-            _SelectedItem = value; 
+            _SelectedItem = value;
             OnPropertyChanged(nameof(SelectedItem));   
         }
     }
+
+    public string SearchString 
+    { 
+        get => _SearchString; 
+        set
+        {
+            _SearchString = value;
+
+            ApplyFilter();
+
+            OnPropertyChanged(nameof(SearchString));
+            OnPropertyChanged(nameof(Nodes));
+        }
+    } 
+
+    public bool ShowProperties 
+    { 
+        get => _ShowProperties; 
+        set
+        {
+            _ShowProperties = value;
+            OnPropertyChanged(nameof(ShowProperties));
+        }
+    }
+
+    public bool ShowIndividuals 
+    { 
+        get => _ShowIndividuals; 
+        set
+        {
+            _ShowIndividuals = value;
+            OnPropertyChanged(nameof(ShowIndividuals));
+        }
+    }
+
+    public AsyncRelayCommand ExpandAllNodesCommand { get; }
+
+    public AsyncRelayCommand UnexpandAllNodesCommand { get; }
 
     private ICimSchema? CimSchemaContext { get; set; }
 
     public CimSchemaTreeViewModel()
     {
-        Nodes = new ObservableCollection<TreeViewNodeModel>();
+        _NodesCache = new ObservableCollection<TreeViewNodeModel>();
+        _NodesCache.CollectionChanged += NodesCache_CollectionChanged;
+
+        ExpandAllNodesCommand = new AsyncRelayCommand
+            (() => DoExpandAllNodes(true));
+
+        UnexpandAllNodesCommand = new AsyncRelayCommand
+            (() => DoExpandAllNodes(false));
 
         SubscribeModelContextLoad();
     }
 
-    public Task ExpandTree(object? sender)
+    private void ApplyFilter()
     {
-        if (sender is TreeView senderTreeView == false)
-        {
-            return Task.CompletedTask;
-        }
+        var nodesStack = new Stack<TreeViewNodeModel>(Nodes);
 
-        return DoExpandAllNodes(senderTreeView, true);
+        var visited = new HashSet<TreeViewNodeModel>();
+        while (nodesStack.TryPop(out var node))
+        {
+            if (SearchString.Trim() == string.Empty)
+            {
+                node.IsVisible = true;
+            }
+            else
+            {
+                if (node.Title.Contains(SearchString))
+                {
+                    visited.Add(node);
+                    var parent = node.ParentNode;
+                    while (parent != null)
+                    {
+                        visited.Add(parent);
+                        parent.IsVisible = true;
+                        parent.IsExpanded = true;
+                        parent = parent.ParentNode;
+                    }
+                }
+                else
+                {
+                    if (visited.Contains(node) == false)
+                    {
+                        node.IsVisible = false;
+                    }
+                }
+            }
+
+            node.SubNodes.ToList().ForEach(n => nodesStack.Push(n));
+        }     
     }
 
-    public Task UnexpandTree(object? sender)
-    {
-        if (sender is TreeView senderTreeView == false)
-        {
-            return Task.CompletedTask;
-        }
-
-        return DoExpandAllNodes(senderTreeView, false);
-    }
-
-    public Task DoExpandAllNodes(TreeView senderTreeView, bool IsExpand)
+    private Task DoExpandAllNodes(bool IsExpand)
     {
         var nodesStack = new Stack<TreeViewNodeModel>(Nodes);
 
@@ -64,6 +135,12 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
         }
 
         return Task.CompletedTask;
+    }
+
+    private void NodesCache_CollectionChanged(object? sender, 
+        NotifyCollectionChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(Nodes));
     }
 
     private void SubscribeModelContextLoad()
@@ -91,7 +168,7 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
 
     private void FillData()
     {
-        Nodes.Clear();
+        _NodesCache.Clear();
 
         if (CimSchemaContext == null)
         {
@@ -138,9 +215,9 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
             {
                 if (schemaClass.ParentClass == null)
                 {
-                    Nodes.Add(classNode);
+                    _NodesCache.Add(classNode);
 
-                    if (SelectedItem == null && classNode.SubNodes.Count != 0)
+                    if (SelectedItem == null && classNode.SubNodes.Count() != 0)
                     {
                         SelectedItem = classNode.SubNodes.FirstOrDefault();
                     }        
@@ -150,7 +227,7 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
                     if (uriVsNode.TryGetValue(schemaClass.ParentClass.BaseUri, 
                         out var parentNode))
                     {
-                        parentNode.SubNodes.Add(classNode);
+                        parentNode.AddChild(classNode);
                     }
                 }
             }
@@ -174,7 +251,7 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
                 Title = $"{propKind} {propPrefix}:{prop.ShortName} {dataType}"
             };
 
-            classNode.SubNodes.Add(propNode);
+            classNode.AddChild(propNode);
         }
     }
 
@@ -190,7 +267,7 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
             {
                 Title = $"[I] {individualrefix}:{individual.ShortName}"
             };
-            classNode.SubNodes.Add(individualNode);
+            classNode.AddChild(individualNode);
         }
     }
 
@@ -252,7 +329,9 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
         return string.Empty;
     }
 
+    private ObservableCollection<TreeViewNodeModel> _NodesCache;
     private TreeViewNodeModel? _SelectedItem;
-    
-    //private 
+    private string _SearchString = string.Empty;
+    private bool _ShowProperties = true;
+    private bool _ShowIndividuals = true;
 }
