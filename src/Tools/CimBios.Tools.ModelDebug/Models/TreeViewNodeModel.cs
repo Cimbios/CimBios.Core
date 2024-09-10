@@ -6,19 +6,13 @@ namespace CimBios.Tools.ModelDebug.Models;
 public class TreeViewNodeModel
 {
     public ObservableCollection<TreeViewNodeModel> SubNodes { get; }
-    public string Title { get; }
+    public string Title { get; set; }
     public Bitmap? Image { get; set; }
+    public bool IsExpanded { get; set; }
 
-    public TreeViewNodeModel(string title)
+    public TreeViewNodeModel()
     {
-        Title = title;
+        Title = string.Empty;
         SubNodes = new ObservableCollection<TreeViewNodeModel>();
-    }
-
-    public TreeViewNodeModel(string title, 
-        ObservableCollection<TreeViewNodeModel> subNodes)
-    {
-        Title = title;
-        SubNodes = subNodes;
     }
 }

@@ -7,17 +7,7 @@ public class CimSchemaEntityNodeModel : TreeViewNodeModel
 {
     public ICimSchemaSerializable CimSchemaEntity { get; }
 
-    public CimSchemaEntityNodeModel(ICimSchemaSerializable cimSchemaEntity,
-        string prefix)
-        : base($"{prefix}:{cimSchemaEntity.ShortName}")
-    {
-        CimSchemaEntity = cimSchemaEntity;
-    }
-
-     public CimSchemaEntityNodeModel(ICimSchemaSerializable cimSchemaEntity,
-        string prefix,
-        ObservableCollection<TreeViewNodeModel> subNodes)
-        : base($"{prefix}:{cimSchemaEntity.ShortName}", subNodes)
+    public CimSchemaEntityNodeModel(ICimSchemaSerializable cimSchemaEntity)
     {
         CimSchemaEntity = cimSchemaEntity;
     }
