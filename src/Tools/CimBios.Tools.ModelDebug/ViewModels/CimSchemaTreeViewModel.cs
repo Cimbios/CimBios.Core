@@ -55,13 +55,12 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
 
     public Task DoExpandAllNodes(TreeView senderTreeView, bool IsExpand)
     {
-        foreach (var node in Nodes)
+        var nodesStack = new Stack<TreeViewNodeModel>(Nodes);
+
+        while (nodesStack.TryPop(out var node))
         {
-            var treeViewItemContainer = senderTreeView.ContainerFromItem(node);
-            if (treeViewItemContainer is TreeViewItem treeViewItem)
-            {
-                treeViewItem.IsExpanded = IsExpand;
-            }
+            node.IsExpanded = IsExpand;
+            node.SubNodes.ToList().ForEach(n => nodesStack.Push(n));
         }
 
         return Task.CompletedTask;
@@ -254,4 +253,6 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
     }
 
     private TreeViewNodeModel? _SelectedItem;
+    
+    //private 
 }

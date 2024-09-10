@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
+             xmlns:m="using:CimBios.Tools.ModelDebug.Models"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="CimBios.Tools.ModelDebug.Views.CimSchemaTreeUserControl"
@@ -14,7 +15,13 @@
     <TreeView x:Name="SchemaTreeView"
               Grid.Row="1" 
               ItemsSource="{Binding Nodes}" 
-              SelectedItem="{Binding SelectedItem}">
+              SelectedItem="{Binding SelectedItem}"
+              AutoScrollToSelectedItem="True">
+      <TreeView.Styles>
+        <Style Selector="TreeViewItem" x:DataType="m:TreeViewNodeModel">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+        </Style>
+      </TreeView.Styles>
       <TreeView.ItemTemplate>
         <TreeDataTemplate ItemsSource="{Binding SubNodes}">
             <TextBlock Text="{Binding Title}" FontSize="10"/>
