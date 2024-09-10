@@ -38,11 +38,9 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
         set
         {
             _SearchString = value;
+            OnPropertyChanged(nameof(SearchString));
 
             ApplyFilter();
-
-            OnPropertyChanged(nameof(SearchString));
-            OnPropertyChanged(nameof(Nodes));
         }
     } 
 
@@ -53,6 +51,8 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
         {
             _ShowProperties = value;
             OnPropertyChanged(nameof(ShowProperties));
+
+            ApplyFilter();
         }
     }
 
@@ -63,6 +63,8 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
         {
             _ShowIndividuals = value;
             OnPropertyChanged(nameof(ShowIndividuals));
+
+            ApplyFilter();
         }
     }
 
@@ -93,15 +95,24 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
         var visited = new HashSet<TreeViewNodeModel>();
         while (nodesStack.TryPop(out var node))
         {
-            if (SearchString.Trim() == string.Empty)
+            if (node is CimSchemaEntityNodeModel schemaNode
+                && ((schemaNode.CimSchemaEntity is ICimMetaProperty
+                        && ShowProperties == false)
+                    || (schemaNode.CimSchemaEntity is ICimMetaInstance)
+                        && ShowIndividuals == false))
             {
-                node.IsVisible = true;
+                node.IsVisible = false;
+                continue;
             }
-            else
+
+            node.IsVisible = true;
+
+            if (SearchString.Trim() != string.Empty)
             {
                 if (node.Title.Contains(SearchString))
                 {
                     visited.Add(node);
+
                     var parent = node.ParentNode;
                     while (parent != null)
                     {
@@ -122,6 +133,8 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
 
             node.SubNodes.ToList().ForEach(n => nodesStack.Push(n));
         }     
+
+        OnPropertyChanged(nameof(Nodes));
     }
 
     private Task DoExpandAllNodes(bool IsExpand)
