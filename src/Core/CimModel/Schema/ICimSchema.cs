@@ -25,7 +25,7 @@ public interface ICimSchema
     /// <summary>
     /// All CimMetaIndividual instances - RDF description concrete instances.
     /// </summary>
-    public IEnumerable<ICimMetaInstance> Individuals { get; }
+    public IEnumerable<ICimMetaIndividual> Individuals { get; }
 
     /// <summary>
     /// All CimMetaDatatype instances - RDF description instances 
@@ -69,7 +69,7 @@ public interface ICimSchema
     /// <param name="metaClass">Meta class instance.</param>
     /// <param name="inherit">Is needed to collect inheritors individuals.</param>
     /// <returns></returns>
-    public IEnumerable<ICimMetaInstance> GetClassIndividuals(
+    public IEnumerable<ICimMetaIndividual> GetClassIndividuals(
         ICimMetaClass metaClass,
         bool inherit = false);
 

@@ -285,7 +285,7 @@ public class RdfXmlSerializer : RdfSerializerBase
                 && data is Uri enumValueUri)
             {
                 var schemaEnumValue = Schema
-                    .TryGetDescription<ICimMetaInstance>(enumValueUri);
+                    .TryGetDescription<ICimMetaIndividual>(enumValueUri);
 
                 bool isClassesMatches = schemaEnumValue?.InstanceOf?
                     .BaseUri.AbsoluteUri == dataClass.BaseUri.AbsoluteUri;

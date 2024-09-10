@@ -43,7 +43,7 @@ public abstract class CimRdfDescriptionBase : ICimSchemaSerializable
         new List<object>();
 }
 
-public class CimRdfsIndividual : CimRdfDescriptionBase, ICimMetaInstance
+public class CimRdfsIndividual : CimRdfDescriptionBase, ICimMetaIndividual
 {
     public ICimMetaClass? InstanceOf { get => EquivalentClass; }
 

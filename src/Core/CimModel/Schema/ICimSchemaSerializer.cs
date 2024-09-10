@@ -66,7 +66,7 @@ public interface ICimMetaDatatype : ICimSchemaSerializable
 /// <summary>
 /// Meta cim instance object info. Commonly used for enum members.
 /// </summary>
-public interface ICimMetaInstance : ICimSchemaSerializable
+public interface ICimMetaIndividual : ICimSchemaSerializable
 {
     public ICimMetaClass? InstanceOf { get; }
 }

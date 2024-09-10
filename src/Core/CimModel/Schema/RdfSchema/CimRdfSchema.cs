@@ -13,8 +13,8 @@ public class CimRdfSchema : ICimSchema
     { get => _All.Values.OfType<ICimMetaClass>(); }
     public IEnumerable<ICimMetaProperty> Properties 
     { get => _All.Values.OfType<ICimMetaProperty>(); }
-    public IEnumerable<ICimMetaInstance> Individuals 
-    { get => _All.Values.OfType<ICimMetaInstance>(); }
+    public IEnumerable<ICimMetaIndividual> Individuals 
+    { get => _All.Values.OfType<ICimMetaIndividual>(); }
     public IEnumerable<ICimMetaDatatype> Datatypes 
     { get => _All.Values.OfType<ICimMetaDatatype>(); }
 
@@ -54,7 +54,7 @@ public class CimRdfSchema : ICimSchema
         while (inherit == true && nextClass != null);
     }
 
-    public IEnumerable<ICimMetaInstance> GetClassIndividuals(
+    public IEnumerable<ICimMetaIndividual> GetClassIndividuals(
         ICimMetaClass metaClass,
         bool inherit = false)
     {
