@@ -98,7 +98,7 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
             if (node is CimSchemaEntityNodeModel schemaNode
                 && ((schemaNode.CimSchemaEntity is ICimMetaProperty
                         && ShowProperties == false)
-                    || (schemaNode.CimSchemaEntity is ICimMetaInstance)
+                    || (schemaNode.CimSchemaEntity is ICimMetaIndividual)
                         && ShowIndividuals == false))
             {
                 node.IsVisible = false;
@@ -269,7 +269,7 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
     }
 
     private void HandleClassIndividualsNodes(CimSchemaEntityNodeModel classNode,
-        IEnumerable<ICimMetaInstance> individuals)
+        IEnumerable<ICimMetaIndividual> individuals)
     {
         foreach (var individual in individuals)
         {
