@@ -27,7 +27,8 @@
       </TreeView.Styles>
       <TreeView.ItemTemplate>
         <TreeDataTemplate ItemsSource="{Binding SubNodes}">
-            <TextBlock Text="{Binding Title}" FontSize="10"/>
+            <TextBlock  Text="{Binding Title}" FontSize="10" 
+                        ToolTip.Tip="{Binding Description}"/>
         </TreeDataTemplate>
       </TreeView.ItemTemplate>
       <TreeView.ContextMenu>

@@ -10,5 +10,6 @@ public class CimSchemaEntityNodeModel : TreeViewNodeModel
     public CimSchemaEntityNodeModel(ICimSchemaSerializable cimSchemaEntity)
     {
         CimSchemaEntity = cimSchemaEntity;
+        Description = $"{cimSchemaEntity.BaseUri.AbsoluteUri}\n{cimSchemaEntity.Description}";
     }
 }
