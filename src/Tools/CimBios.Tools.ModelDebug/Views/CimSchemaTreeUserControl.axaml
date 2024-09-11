@@ -45,10 +45,12 @@
       </TreeView.ContextMenu>  
     </TreeView>
 
-    <StackPanel Grid.Row="2">
-      <CheckBox Content="Show properties" IsChecked="{Binding ShowProperties}"/>
-      <CheckBox Content="Show individuals" IsChecked="{Binding ShowIndividuals}"/>
-    </StackPanel>
+    <Border Grid.Row="2" Theme="{DynamicResource CardBorder}" Padding="5">
+      <Grid RowDefinitions="Auto,Auto">
+        <CheckBox Grid.Row="0" Content="Show properties" IsChecked="{Binding ShowProperties}"/>
+        <CheckBox Grid.Row="1" Content="Show individuals" IsChecked="{Binding ShowIndividuals}"/>
+      </Grid>
+    </Border>
 
   </Grid>
 
