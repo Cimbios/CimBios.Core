@@ -60,7 +60,7 @@ public sealed class RdfXmlReader
     public void Parse(string content)
     {
         XDocument xDoc = XDocument.Parse(content);
-        ReadRdfNode(xDoc);
+        ReadRdfRootNode(xDoc);
         Reset();
     }
 
@@ -78,7 +78,7 @@ public sealed class RdfXmlReader
     /// </summary>
     public void Load(XDocument xDoc)
     {
-        ReadRdfNode(xDoc);
+        ReadRdfRootNode(xDoc);
         Reset();
     }
 
@@ -228,7 +228,7 @@ public sealed class RdfXmlReader
     /// Get rdf:RDF root node.
     /// </summary>
     /// <param name="content">Linq Xml document.</param>
-    private void ReadRdfNode(XDocument content)
+    private void ReadRdfRootNode(XDocument content)
     {
         XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
@@ -251,8 +251,17 @@ public sealed class RdfXmlReader
     /// <param name="rdfNode">rdf:RDF root node.</param>
     private void ParseXmlns(XElement rdfNode)
     {
+        XNamespace xlmns = "http://www.w3.org/2000/xmlns/";
+        XNamespace ns = "http://www.w3.org/XML/1998/namespace";
+
         foreach (XAttribute attr in rdfNode.Attributes())
         {
+            if (attr.Name.Namespace != xlmns
+                && attr.Name != (ns + "base"))
+            {
+                continue;
+            }
+
             if (_Namespaces.ContainsKey(attr.Name.LocalName))
             {
                 _Namespaces[attr.Name.LocalName] = attr.Value;

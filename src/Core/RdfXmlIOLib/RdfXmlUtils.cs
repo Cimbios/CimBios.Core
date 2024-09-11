@@ -68,9 +68,19 @@ public static class RdfXmlReaderUtils
     /// <summary>
     /// Equality respects URI fragments comparision.
     /// </summary>
-    public static bool RdfUriEquals(Uri lUri, Uri rUri)
+    public static bool RdfUriEquals(Uri? lUri, Uri? rUri)
     {
-        return lUri.AbsoluteUri == rUri.AbsoluteUri;
+        if (lUri == null && rUri == null)
+        {
+            return true;
+        }
+
+         if (lUri != null && rUri != null)
+        {
+            return lUri.AbsoluteUri == rUri.AbsoluteUri;
+        }
+
+        return false;
     }
 }
 
@@ -78,17 +88,7 @@ public class RdfUriComparer : EqualityComparer<Uri>
 {
     public override bool Equals(Uri? lUri, Uri? rUri)
     {
-        if (lUri != null && rUri != null)
-        {
-            return RdfXmlReaderUtils.RdfUriEquals(lUri, rUri);
-        }
-
-        if (lUri == null && rUri == null)
-        {
-            return true;
-        }
-
-        return false;
+        return RdfXmlReaderUtils.RdfUriEquals(lUri, rUri);
     }
 
     public override int GetHashCode(Uri uri)

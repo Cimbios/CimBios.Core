@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
+             xmlns:m="using:CimBios.Tools.ModelDebug.Models"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="CimBios.Tools.ModelDebug.Views.CimSchemaTreeUserControl"
+             x:DataType="vm:CimSchemaTreeViewModel">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="5">
+
+    <TextBox  Grid.Row="0" Text="{Binding SearchString}" 
+              Watermark="Search..." 
+              TextAlignment="Start"/>
+
+    <TreeView x:Name="SchemaTreeView"
+              Grid.Row="1" 
+              ItemsSource="{Binding Nodes}" 
+              SelectedItem="{Binding SelectedItem}"
+              AutoScrollToSelectedItem="True" BorderBrush="Gray" BorderThickness="1">
+      <TreeView.Styles>
+        <Style Selector="TreeViewItem" x:DataType="m:TreeViewNodeModel">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+            <Setter Property="IsVisible" Value="{Binding IsVisible, Mode=TwoWay}"/>
+        </Style>
+      </TreeView.Styles>
+      <TreeView.ItemTemplate>
+        <TreeDataTemplate ItemsSource="{Binding SubNodes}">
+            <TextBlock  Text="{Binding Title}" FontSize="10" 
+                        ToolTip.Tip="{Binding Description}"/>
+        </TreeDataTemplate>
+      </TreeView.ItemTemplate>
+      <TreeView.ContextMenu>
+        <ContextMenu>
+          <MenuItem Header="Expand all"
+                    Command="{Binding ExpandAllNodesCommand}"
+                    CommandParameter="{Binding #SchemaTreeView}"/>
+          <MenuItem Header="Unexpand all"
+                    Command="{Binding UnexpandAllNodesCommand}"
+                    CommandParameter="{Binding #SchemaTreeView}"/>
+        </ContextMenu>
+      </TreeView.ContextMenu>  
+    </TreeView>
+
+    <StackPanel Grid.Row="2">
+      <CheckBox Content="Show properties" IsChecked="{Binding ShowProperties}"/>
+      <CheckBox Content="Show individuals" IsChecked="{Binding ShowIndividuals}"/>
+    </StackPanel>
+
+  </Grid>
+
+</UserControl>

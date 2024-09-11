@@ -13,8 +13,8 @@ public class CimRdfSchema : ICimSchema
     { get => _All.Values.OfType<ICimMetaClass>(); }
     public IEnumerable<ICimMetaProperty> Properties 
     { get => _All.Values.OfType<ICimMetaProperty>(); }
-    public IEnumerable<ICimMetaInstance> Individuals 
-    { get => _All.Values.OfType<ICimMetaInstance>(); }
+    public IEnumerable<ICimMetaIndividual> Individuals 
+    { get => _All.Values.OfType<ICimMetaIndividual>(); }
     public IEnumerable<ICimMetaDatatype> Datatypes 
     { get => _All.Values.OfType<ICimMetaDatatype>(); }
 
@@ -42,7 +42,9 @@ public class CimRdfSchema : ICimSchema
         do
         {
             foreach (var prop in Properties
-                .Where(p => p.OwnerClass == nextClass))
+                .Where(p => 
+                    RdfXmlReaderUtils.RdfUriEquals
+                    (p.OwnerClass?.BaseUri, nextClass.BaseUri)))
             {
                 yield return prop;
             }
@@ -50,6 +52,37 @@ public class CimRdfSchema : ICimSchema
             nextClass = nextClass?.ParentClass;
         }
         while (inherit == true && nextClass != null);
+    }
+
+    public IEnumerable<ICimMetaIndividual> GetClassIndividuals(
+        ICimMetaClass metaClass,
+        bool inherit = false)
+    {
+        foreach (var individual in Individuals)
+        {
+            if (individual.InstanceOf == null)
+            {
+                continue;
+            }
+
+            if (RdfXmlReaderUtils.RdfUriEquals(
+                individual.InstanceOf.BaseUri,
+                metaClass.BaseUri))
+            {
+                yield return individual;
+            }
+
+            if (inherit == true)
+            {
+                if (individual.InstanceOf
+                    .AllAncestors.Any(c => 
+                        RdfXmlReaderUtils.RdfUriEquals(c.BaseUri, 
+                        metaClass.BaseUri)))
+                {
+                    yield return individual;
+                }
+            }
+        }
     }
 
     public T? TryGetDescription<T>(Uri uri) where T : ICimSchemaSerializable
@@ -105,6 +138,19 @@ public class CimRdfSchema : ICimSchema
         }   
     }
 
+    public string GetUriNamespacePrefix(Uri uri)
+    {
+        foreach (var ns in Namespaces)
+        {
+            if (ns.Value.AbsolutePath == uri.AbsolutePath)
+            {
+                return ns.Key;
+            }
+        }
+
+        return "_";
+    }
+
     private void JoinNamespaces(IReadOnlyDictionary<string, Uri> namespaces, 
         bool rewriteNamespaces)
     {
@@ -125,4 +171,12 @@ public class CimRdfSchema : ICimSchema
     private Dictionary<Uri, ICimSchemaSerializable> _All;
 
     private Dictionary<string, Uri> _Namespaces;
+}
+
+public class CimRdfSchemaFactory : ICimSchemaFactory
+{
+    public ICimSchema CreateSchema()
+    {
+        return new CimRdfSchema();
+    }
 }

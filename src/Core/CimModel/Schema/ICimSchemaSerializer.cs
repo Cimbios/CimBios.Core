@@ -28,6 +28,7 @@ public interface ICimSchemaSerializable
 {
     public Uri BaseUri { get; }
     public string ShortName { get; }
+    public string Description { get; }
 }
 
 /// <summary>
@@ -65,7 +66,7 @@ public interface ICimMetaDatatype : ICimSchemaSerializable
 /// <summary>
 /// Meta cim instance object info. Commonly used for enum members.
 /// </summary>
-public interface ICimMetaInstance : ICimSchemaSerializable
+public interface ICimMetaIndividual : ICimSchemaSerializable
 {
     public ICimMetaClass? InstanceOf { get; }
 }

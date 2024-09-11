@@ -9,20 +9,24 @@ public interface ICimSchema
     /// Prefix to namespace URI mapping for schema.
     /// </summary>
     public IReadOnlyDictionary<string, Uri> Namespaces { get; }
+    
     /// <summary>
     /// All CimMetaClass instances - RDF description instances 
     /// of RDF type Class.
     /// </summary>
     public IEnumerable<ICimMetaClass> Classes { get; }
+
     /// <summary>
     /// All CimMetaProperty instances - RDF description instances 
     /// of RDF type Property.
     /// </summary>
     public IEnumerable<ICimMetaProperty> Properties { get; }
+
     /// <summary>
     /// All CimMetaIndividual instances - RDF description concrete instances.
     /// </summary>
-    public IEnumerable<ICimMetaInstance> Individuals { get; }
+    public IEnumerable<ICimMetaIndividual> Individuals { get; }
+
     /// <summary>
     /// All CimMetaDatatype instances - RDF description instances 
     /// of RDF type Datatype.
@@ -60,9 +64,38 @@ public interface ICimSchema
         bool inherit = false);
 
     /// <summary>
+    /// Get list of class individuals.
+    /// </summary>
+    /// <param name="metaClass">Meta class instance.</param>
+    /// <param name="inherit">Is needed to collect inheritors individuals.</param>
+    /// <returns></returns>
+    public IEnumerable<ICimMetaIndividual> GetClassIndividuals(
+        ICimMetaClass metaClass,
+        bool inherit = false);
+
+    /// <summary>
     /// Join this CIM schema with another one.
     /// </summary>
     /// <param name="schema">ICimSchema instance.</param>
     /// <param name="rewriteNamespaces">Rewrite namespaces URI.</param>
     public void Join(ICimSchema schema, bool rewriteNamespaces = false);
+
+    /// <summary>
+    /// Get string prefix of uri namespace.
+    /// </summary>
+    /// <param name="uri">Object uri.</param>
+    /// <returns>String prefix or '_' if namespace does not exists.</returns>
+    public string GetUriNamespacePrefix(Uri uri);
+}
+
+/// <summary>
+/// Factory method interface for abstract schema activation.
+/// </summary>
+public interface ICimSchemaFactory
+{
+    /// <summary>
+    /// Create ICimSchema instance.
+    /// </summary>
+    /// <returns>ICimSchema instance.</returns>
+    public ICimSchema CreateSchema();
 }
