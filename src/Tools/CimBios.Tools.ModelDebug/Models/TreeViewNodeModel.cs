@@ -25,6 +25,8 @@ public class TreeViewNodeModel : INotifyPropertyChanged
         } 
     }
 
+    public string Description { get; set; } = string.Empty;
+
     public string Title 
     { 
         get => _Title; 
