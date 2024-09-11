@@ -2,6 +2,7 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.DataProvider;
 using CimBios.Core.RdfXmlIOLib;
+using System;
 using System.Globalization;
 using System.Xml.Linq;
 
@@ -33,61 +34,132 @@ public class RdfXmlSerializer : RdfSerializerBase
 
     public override void Serialize(IEnumerable<IModelObject> modelObjects)
     {
-        _writer = new RdfXmlWriter();
+        _writer = new RdfXmlWriter((Dictionary<string, Uri>)Schema.Namespaces);
 
         var objsToWrite = new List<RdfNode>();
         foreach (var modelObject in modelObjects)
         {
             objsToWrite.Add(ProcessObject(modelObject));
         }
-
-        XDocument writtenObjects = _writer.Write(objsToWrite);
-        // TODO: writtenObjects is not nullable typed
-        if (writtenObjects != null)
+        if (_writer.Write(objsToWrite) is XDocument writtenObjects)
         {
             Provider.Push(writtenObjects);
         }
     }
 
     /// <summary>
-    /// TODO
+    /// Converts IModelObject into RdfNode with all the properties turned into RdfTriples
     /// </summary>
     /// <param name="modelObject"></param>
     /// <returns></returns>
-    /// TODO:   schema support;
-    ///         split writing on attribute and assoc methods;
-    ///         check nullity of object properties;
-    ///         impl identifier maker method.
+    /// TODO:   schema support; | Done
+    ///         split writing on attribute and assoc methods; | Done
+    ///         check nullity of object properties; | Questions
+    ///         impl identifier maker method.| Questions
     private RdfNode ProcessObject(IModelObject modelObject)
     {
         var triples = new List<RdfTriple>();
         foreach (var property in modelObject.ObjectData.Attributes)
         {
-            triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), modelObject.ObjectData.GetAttribute<string>(property)));
+            triples.Add(WriteAttribute(modelObject, property));
         }
         foreach (var property in modelObject.ObjectData.Assocs1To1)
         {
-            // TODO: compound is attribute prop always
-            if (modelObject.ObjectData.GetAssoc1To1(property).ObjectData.IsCompound) // ���������, ��� ���� ��� isCompound
+            // TODO: compound is attribute prop always | Not understood, compound is a link to another ModelObject
+            if (modelObject.ObjectData.GetAssoc1To1(property).ObjectData.IsCompound)
             {
                 var compound = modelObject.ObjectData.GetAssoc1To1(property);
-                var compoundNode = ProcessObject(compound); // ��������
-                triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), compoundNode));
+                var compoundNode = ProcessObject(compound);
+                triples.Add(new RdfTriple(GetModelObjectUri(modelObject),
+                                          GetPropertyUri(property),
+                                          compoundNode));
             }
-            triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), new Uri(modelObject.ObjectData.GetAssoc1To1(property).Uuid)));
+            triples.Add(WriteAssoc1To1(modelObject, property));
         }
         foreach (var property in modelObject.ObjectData.Assocs1ToM)
         {
             if (modelObject.ObjectData.GetAssoc1ToM(property).Any())
             {
-                foreach (ModelObject refObj in modelObject.ObjectData.GetAssoc1ToM(property))
-                {
-                    triples.Add(new RdfTriple(new Uri(modelObject.Uuid), new Uri(property), new Uri(refObj.Uuid)));
-                }
+                triples.AddRange(WriteAssoc1ToM(modelObject, property));
             }
         }
         var triplesArr = triples.ToArray();
-        return new RdfNode(new Uri(modelObject.Uuid), modelObject.ObjectData.ClassType, triplesArr, modelObject.ObjectData.IsAuto);
+        var classUri = Schema.Classes.FirstOrDefault
+                (name => name.ShortName == modelObject.ObjectData.ClassType.ToString())
+                .BaseUri;
+
+        return new RdfNode(GetModelObjectUri(modelObject),
+                           classUri,
+                           triplesArr,
+                           modelObject.ObjectData.IsAuto);
+    }
+
+    /// <summary>
+    /// Converts attribute property to RdfTriple
+    /// </summary>
+    /// <param name="subj"></param>
+    /// <param name="attribute"></param>
+    /// <returns></returns>
+    private RdfTriple WriteAttribute(IModelObject subj, string attribute)
+    {
+        return new RdfTriple(GetModelObjectUri(subj),
+                             GetPropertyUri(attribute),
+                             subj.ObjectData.GetAttribute<string>(attribute));
+    }
+
+    /// <summary>
+    /// Converts Assoc1To1 property to RdfTriple
+    /// </summary>
+    /// <param name="subj"></param>
+    /// <param name="assoc"></param>
+    /// <returns></returns>
+    private RdfTriple WriteAssoc1To1(IModelObject subj, string assoc)
+    {
+        return new RdfTriple(GetModelObjectUri(subj),
+                             GetPropertyUri(assoc),
+                             GetModelObjectUri(subj.ObjectData.GetAssoc1To1(assoc)));
+    }
+
+    /// <summary>
+    /// Converts Assoc1ToM property to RdfTriple collection
+    /// </summary>
+    /// <param name="subj"></param>
+    /// <param name="assoc"></param>
+    /// <returns></returns>
+    private IEnumerable<RdfTriple> WriteAssoc1ToM(IModelObject subj, string assoc)
+    {
+        var triples = new List<RdfTriple>();
+        foreach (IModelObject obj in subj.ObjectData.GetAssoc1ToM(assoc))
+        {
+            triples.Add(new RdfTriple(GetModelObjectUri(subj),
+                                      GetPropertyUri(assoc),
+                                      GetModelObjectUri(obj)));
+        }
+        return triples;
+    }
+
+    /// <summary>
+    /// Extracts property Uri from Schema
+    /// TODO: Check with Yuri
+    /// </summary>
+    /// <param name="property"></param>
+    /// <returns></returns>
+    private Uri GetPropertyUri(string property)
+    {
+        return Schema.Properties.FirstOrDefault(name => name.ShortName == property).BaseUri;
+    }
+
+    /// <summary>
+    /// Extracts class Uri from schema and adds GUID identifier to Uri
+    /// TODO: Check with Yuri
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    private Uri GetModelObjectUri(IModelObject obj)
+    {
+        return new Uri(Schema.Classes.FirstOrDefault
+            (name => name.ShortName == obj.ObjectData.ClassType.ToString())
+            .BaseUri.ToString() + $"#_{obj.Uuid}");
     }
 
     /// <summary>
