@@ -1,3 +1,4 @@
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
@@ -31,5 +32,7 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+
+        var a = this.Styles.First() as Semi.Avalonia.SemiTheme;
     }
 }
