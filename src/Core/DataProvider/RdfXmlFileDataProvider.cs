@@ -34,3 +34,4 @@ public class RdfXmlFileDataProvider : IDataProvider
 
     private Uri _source;
 }
+

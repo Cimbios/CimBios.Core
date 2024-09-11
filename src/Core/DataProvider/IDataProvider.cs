@@ -7,3 +7,4 @@ public interface IDataProvider
     public abstract object Get();
     public abstract void Push(object data);
 }
+

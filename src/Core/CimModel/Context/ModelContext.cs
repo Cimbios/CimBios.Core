@@ -3,12 +3,13 @@ using System.ComponentModel;
 using System.Data;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.RdfSerializer;
+using CimBios.Core.CimModel.Schema;
 using CimBios.Core.DataProvider;
 
 namespace CimBios.Core.CimModel.Context;
 
 /// <summary>
-/// Instance of CIM model in Rdf/XML format.
+/// Instance of CIM model in Rdf/* format.
 /// Supports input and output operations for CIM objects.
 /// </summary>
 public class ModelContext
@@ -17,6 +18,11 @@ public class ModelContext
     /// Model description.
     /// </summary>
     public IFullModel? Description { get; set; }
+
+    /// <summary>
+    /// Applied schema to this context serializer.
+    /// </summary>
+    public ICimSchema? Schema { get => _serializer?.Schema; }
 
     /// <summary>
     /// All cached objects collection (uuid to IModelObject).
@@ -28,7 +34,7 @@ public class ModelContext
         _Objects = new Dictionary<string, IModelObject>();
     }
 
-    public ModelContext(IModelContextConfig contextDataConfig) : this()
+    public ModelContext(IModelDataContext contextDataConfig) : this()
     {
         InitContextDataConfig(contextDataConfig);
     }
@@ -49,13 +55,15 @@ public class ModelContext
             .Select(x => new KeyValuePair<string, IModelObject>(x.Uuid, x)));
 
         ReadModelDescription();
+
+        ModelLoaded?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
     /// Load CIM model to context via config.
     /// </summary>
     /// <param name="contextDataConfig">Context configuration.</param>
-    public void Load(IModelContextConfig contextDataConfig)
+    public void Load(IModelDataContext contextDataConfig)
     {
         InitContextDataConfig(contextDataConfig);
 
@@ -84,7 +92,7 @@ public class ModelContext
     /// Save CIM model to context via config.
     /// </summary>
     /// <param name="contextDataConfig">Context configuration.</param>
-    public void Save(IModelContextConfig contextDataConfig)
+    public void Save(IModelDataContext contextDataConfig)
     {
         InitContextDataConfig(contextDataConfig);
 
@@ -164,7 +172,7 @@ public class ModelContext
     /// Initialize read/write model stategy.
     /// </summary>
     /// <param name="contextDataConfig">Context configuration.</param>
-    private void InitContextDataConfig(IModelContextConfig contextDataConfig)
+    private void InitContextDataConfig(IModelDataContext contextDataConfig)
     {
         _provider = contextDataConfig.DataProvider;
         _serializer = contextDataConfig.Serializer;
@@ -186,6 +194,11 @@ public class ModelContext
             _Objects.Remove(fullModel.Uuid);
         }
     }
+
+    /// <summary>
+    /// On model load finish firing event.
+    /// </summary>
+    public event EventHandler? ModelLoaded;
 
     private IDataProvider? _provider;
     private RdfSerializerBase? _serializer;

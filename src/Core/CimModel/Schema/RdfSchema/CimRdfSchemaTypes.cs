@@ -9,8 +9,9 @@ namespace CimBios.Core.CimModel.Schema.RdfSchema;
 ]
 public abstract class CimRdfDescriptionBase : ICimSchemaSerializable
 {
-    public Uri BaseUri { get; set; }
-    public string ShortName {get => Label; set => Label = value; }
+    public Uri BaseUri { get; }
+    public string ShortName { get => Label; }
+    public string Description { get => Comment; }
 
     [CimSchemaSerializable(
         "http://www.w3.org/2000/01/rdf-schema#label",
@@ -30,7 +31,6 @@ public abstract class CimRdfDescriptionBase : ICimSchemaSerializable
     [CimSchemaSerializable(
        "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#stereotype",
        MetaFieldType.Enum, isCollection: true)]
-
     public List<object> Stereotypes
     { get => _Stereotypes; }
 
@@ -43,7 +43,7 @@ public abstract class CimRdfDescriptionBase : ICimSchemaSerializable
         new List<object>();
 }
 
-public class CimRdfsIndividual : CimRdfDescriptionBase, ICimMetaInstance
+public class CimRdfsIndividual : CimRdfDescriptionBase, ICimMetaIndividual
 {
     public ICimMetaClass? InstanceOf { get => EquivalentClass; }
 
