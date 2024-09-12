@@ -13,7 +13,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
-public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
+public class CimSchemaTreeViewModel : ViewModelBase
 {
     public IEnumerable<TreeViewNodeModel> Nodes 
     { 
@@ -113,13 +113,13 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
                 {
                     visited.Add(node);
 
-                    var parent = node.ParentNode;
+                    var parent = node.ParentNode as TreeViewNodeModel;
                     while (parent != null)
                     {
                         visited.Add(parent);
                         parent.IsVisible = true;
                         parent.IsExpanded = true;
-                        parent = parent.ParentNode;
+                        parent = parent.ParentNode as TreeViewNodeModel;
                     }
                 }
                 else
@@ -131,7 +131,8 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
                 }
             }
 
-            node.SubNodes.ToList().ForEach(n => nodesStack.Push(n));
+            node.SubNodes.OfType<TreeViewNodeModel>()
+                .ToList().ForEach(n => nodesStack.Push(n));
         }     
 
         OnPropertyChanged(nameof(Nodes));
@@ -144,7 +145,8 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
         while (nodesStack.TryPop(out var node))
         {
             node.IsExpanded = IsExpand;
-            node.SubNodes.ToList().ForEach(n => nodesStack.Push(n));
+            node.SubNodes.OfType<TreeViewNodeModel>()
+                .ToList().ForEach(n => nodesStack.Push(n));
         }
 
         return Task.CompletedTask;
@@ -232,7 +234,8 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
 
                     if (SelectedItem == null && classNode.SubNodes.Count() != 0)
                     {
-                        SelectedItem = classNode.SubNodes.FirstOrDefault();
+                        SelectedItem = classNode.SubNodes.FirstOrDefault() 
+                            as TreeViewNodeModel;
                     }        
                 }
                 else
