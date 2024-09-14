@@ -228,8 +228,6 @@ public class DataSelectorViewModel : ViewModelBase
         return true;
     }
 
-    public new event PropertyChangedEventHandler? PropertyChanged;
-
     private Uri? _sourceUri;
     private IEnumerable<Uri>? _schemasUri;
     private string _resultMessage = string.Empty;
