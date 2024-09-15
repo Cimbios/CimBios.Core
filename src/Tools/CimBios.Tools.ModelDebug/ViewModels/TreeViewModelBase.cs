@@ -1,21 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CimBios.Tools.ModelDebug.Models;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
-public class TreeViewModelBase : ViewModelBase
+public abstract class TreeViewModelBase : ViewModelBase
 {
-    public IEnumerable<TreeViewNodeModel> Nodes 
-    { 
-        get
-        {
-            return _NodesCache;
-        }
-    } 
+    public abstract IEnumerable<TreeViewNodeModel> Nodes { get; }
 
     public TreeViewNodeModel? SelectedItem { 
         get => _SelectedItem; 
@@ -53,7 +46,6 @@ public class TreeViewModelBase : ViewModelBase
                 if (visited.Contains(node) == false)
                 {
                     node.IsVisible = false;
-                    node.IsExpanded = false;
                 }
             }
 
@@ -77,9 +69,6 @@ public class TreeViewModelBase : ViewModelBase
 
         return Task.CompletedTask;
     }
-
-    protected ObservableCollection<TreeViewNodeModel> _NodesCache
-        = new ObservableCollection<TreeViewNodeModel>();
 
     protected TreeViewNodeModel? _SelectedItem;
 }
