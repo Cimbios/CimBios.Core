@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Controls.Models.TreeDataGrid;
 using CimBios.Core.CimModel.Context;
 using CimBios.Tools.ModelDebug.Models;
 using CommunityToolkit.Mvvm.Input;
@@ -19,7 +20,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         }
     }
 
-    public HierarchicalTreeDataGridSource<TreeViewNodeModel> 
+    public HierarchicalTreeDataGridSource<CimObjectDataTreeModel> 
     CimObjectsSource { get; }
 
     public AsyncRelayCommand ExpandAllNodesCommand { get; }
@@ -30,19 +31,17 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
     public CimObjectsObserverViewModel()
     {
         CimObjectsSource = new 
-        HierarchicalTreeDataGridSource<TreeViewNodeModel>(_NodesCache)
+        HierarchicalTreeDataGridSource<CimObjectDataTreeModel>(_NodesCache)
         {
-            // Columns = 
-            // {
-            //     new HierarchicalExpanderColumn<TreeViewNodeModel>(
-            //             new TextColumn<TreeViewNodeModel, string>
-            //                 ("uuid", x => (x as CimObjectDataTreeModel) == null ? 
-            //                     (x as CimObjectDataTreeModel)!.Uuid : x.Title), 
-            //                 x => x.SubNodes.OfType<TreeViewNodeModel>()),
-            //         new TextColumn<TreeViewNodeModel, string>
-            //                 ("name", x => (x as CimObjectDataTreeModel) == null ? 
-            //                     (x as CimObjectDataTreeModel)!.Uuid : x.Title),
-            // }
+            Columns = 
+            {
+                new HierarchicalExpanderColumn<CimObjectDataTreeModel>(
+                        new TextColumn<CimObjectDataTreeModel, string>
+                            ("uuid", x => x.Uuid), 
+                            x => x.SubNodes.OfType<CimObjectDataTreeModel>()),
+                    new TextColumn<CimObjectDataTreeModel, string>
+                            ("name", x => x.Name),
+            }
         };
 
         ExpandAllNodesCommand = new AsyncRelayCommand
@@ -90,8 +89,6 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         {
             _NodesCache.Add(new CimObjectDataTreeModel(cimObj));
         }
-
-        var a = _NodesCache.Cast<CimObjectDataTreeModel>();
 
         OnPropertyChanged(nameof(CimObjectsSource));
     }
