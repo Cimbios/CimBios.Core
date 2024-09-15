@@ -13,6 +13,13 @@ namespace CimBios.Tools.ModelDebug.ViewModels;
 
 public class CimSchemaTreeViewModel : TreeViewModelBase
 {
+    public override IEnumerable<CimSchemaEntityNodeModel> Nodes
+    { 
+        get
+        {
+            return _NodesCache;
+        }
+    }
 
     public string SearchString 
     { 
@@ -51,14 +58,13 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
     }
 
     public AsyncRelayCommand ExpandAllNodesCommand { get; }
-
     public AsyncRelayCommand UnexpandAllNodesCommand { get; }
 
     private ICimSchema? CimSchemaContext { get; set; }
 
     public CimSchemaTreeViewModel()
     {
-        _NodesCache = new ObservableCollection<TreeViewNodeModel>();
+        _NodesCache = new ObservableCollection<CimSchemaEntityNodeModel>();
         _NodesCache.CollectionChanged += NodesCache_CollectionChanged;
 
         ExpandAllNodesCommand = new AsyncRelayCommand
@@ -72,21 +78,27 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
 
     private bool FilterNode(TreeViewNodeModel node)
     {
-        if (node is CimSchemaEntityNodeModel schemaNode
-            && ((schemaNode.CimSchemaEntity is ICimMetaProperty
-                    && ShowProperties == false)
-                || (schemaNode.CimSchemaEntity is ICimMetaIndividual)
-                    && ShowIndividuals == false))
+        if (node is CimSchemaEntityNodeModel schemaNode == false)
+        {
+            node.IsExpanded = true;
+            return true;
+        }
+
+        if ((schemaNode.CimSchemaEntity is ICimMetaProperty
+                && ShowProperties == false)
+            || (schemaNode.CimSchemaEntity is ICimMetaIndividual)
+                && ShowIndividuals == false)
         {
             return false;
         }
 
         if (SearchString.Trim() == string.Empty)
         {
+            DoExpandAllNodes(false);
             return true;
         }
 
-        if (node.Title.Contains(SearchString))
+        if (schemaNode.Title.Contains(SearchString))
         {
             return true;
         }
@@ -286,6 +298,9 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
 
         return string.Empty;
     }
+
+    protected ObservableCollection<CimSchemaEntityNodeModel> _NodesCache
+        = new ObservableCollection<CimSchemaEntityNodeModel>();
 
     private string _SearchString = string.Empty;
     private bool _ShowProperties = true;

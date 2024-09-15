@@ -4,7 +4,7 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 
 namespace CimBios.Tools.ModelDebug.Models;
 
-public class CimObjectDataTreeModel : LinkedNodeModel
+public class CimObjectDataTreeModel : TreeViewNodeModel
 {
     public IModelObject ModelObject { get; set; }
 
@@ -26,5 +26,7 @@ public class CimObjectDataTreeModel : LinkedNodeModel
     public CimObjectDataTreeModel(IModelObject modelObject) : base()
     {
         ModelObject = modelObject;
+
+        //Title = $"{Uuid}: {Name}";
     }
 }

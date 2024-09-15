@@ -14,7 +14,7 @@
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*" MinHeight="50"/>
     </Grid.RowDefinitions>
-    <TreeDataGrid Grid.Row="0"/>
+    <TreeDataGrid Grid.Row="0" Source="{Binding CimObjectsSource}"/>
     <GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
     <TreeDataGrid Grid.Row="2"/>
   </Grid>
