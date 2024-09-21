@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection.PortableExecutable;
 using System.Xml.Linq;
@@ -41,13 +42,25 @@ public class RdfXmlWriter
         foreach (RdfNode rdfNode in rdfNodes)
         {
             // TODO: exlude '#_' prefix | Done
-            var serializedNode = new XElement(rdfNode.TypeIdentifier.ToString(),
+            var serializedNode = new XElement(ShortForm(rdfNode.TypeIdentifier),
                                  new XAttribute("rdf:about", $"{rdfNode.Identifier}"));
             WriteTriples(ref serializedNode, rdfNode.Triples);
 
             xDoc.Add(serializedNode);
         }
         return xDoc;
+    }
+
+    /// <summary>
+    /// Shortens Namespace part of the string
+    /// </summary>
+    /// <param name="absoluteUri"></param>
+    /// <returns></returns>
+    private string ShortForm(Uri absoluteUri)
+    {
+        var splitUri = absoluteUri.ToString().Split('#');
+        return Namespaces.FirstOrDefault(x => x.Value.AbsolutePath == splitUri[0]).Key
+            + ":" + splitUri[1];
     }
 
     /// <summary>
@@ -64,17 +77,17 @@ public class RdfXmlWriter
         {
             if (Uri.IsWellFormedUriString(triple.Object.ToString(), UriKind.RelativeOrAbsolute))
             {
-                serializedNode.Add(new XElement(triple.Predicate.ToString(),
-                                   new XAttribute("rdf:resource", $"{triple.Object}")));
+                serializedNode.Add(new XElement(ShortForm(triple.Predicate),
+                                   new XAttribute("rdf:resource", $"#_{triple.Object}")));
             }
             else if (triple.Object is RdfNode compound)
             {
-                var compoundNode = new XElement(triple.Predicate.ToString(),
-                                       new XElement(compound.TypeIdentifier.ToString()));
+                var compoundNode = new XElement(ShortForm(triple.Predicate),
+                                       new XElement(ShortForm(compound.TypeIdentifier)));
                 WriteTriples(ref compoundNode, compound.Triples);
                 serializedNode.Add(compoundNode);
             }
-            serializedNode.Add(new XElement(triple.Predicate.ToString(), triple.Object.ToString()));
+            serializedNode.Add(new XElement(ShortForm(triple.Predicate), triple.Object.ToString()));
         }
     }
 
@@ -89,7 +102,7 @@ public class RdfXmlWriter
         if (Namespaces == null)
         {
             namespaces = new XAttribute[8] // For Testing
-            {   
+            {
                 new XAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
                 new XAttribute("xmlns:cim", "http://iec.ch/TC57/2014/CIM-schema-cim16#"),
                 new XAttribute("xmlns:cim17", "http://iec.ch/TC57/2014/CIM-schema-cim17#"),
