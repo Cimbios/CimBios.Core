@@ -47,7 +47,7 @@
     </Grid> 
     <StackPanel HorizontalAlignment="Right" Spacing="5" Orientation="Horizontal">
       <Button Content="Get" Command="{Binding GetCommand}"/>
-      <Button Content="Push"/>
+      <Button Content="Push" Command="{Binding PushCommand}"/>
       <Button Content="Cancel" Command="{Binding CancelCommand}"/>
     </StackPanel>
     <TextBox  Height="60" Text="{Binding ResultMessage}" 

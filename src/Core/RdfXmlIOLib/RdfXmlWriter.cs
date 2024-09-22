@@ -43,7 +43,7 @@ public class RdfXmlWriter
         {
             // TODO: exlude '#_' prefix | Done
             var serializedNode = new XElement(ShortForm(rdfNode.TypeIdentifier),
-                                 new XAttribute("rdf:about", $"{rdfNode.Identifier}"));
+                                 new XAttribute(rdf + "about", $"#_{rdfNode.Identifier}"));
             WriteTriples(ref serializedNode, rdfNode.Triples);
 
             xDoc.Add(serializedNode);
@@ -56,11 +56,13 @@ public class RdfXmlWriter
     /// </summary>
     /// <param name="absoluteUri"></param>
     /// <returns></returns>
-    private string ShortForm(Uri absoluteUri)
+    private XName ShortForm(Uri absoluteUri)
     {
         var splitUri = absoluteUri.ToString().Split('#');
-        return Namespaces.FirstOrDefault(x => x.Value.AbsolutePath == splitUri[0]).Key
-            + ":" + splitUri[1];
+        XNamespace result = absoluteUri.AbsoluteUri.ToString();
+        return result + absoluteUri.Fragment.Trim('#');
+        /*return Namespaces.FirstOrDefault(x => x.Value.AbsolutePath == splitUri[0]).Key cim:IdentifiedObject
+            + ":" + splitUri[1];*/
     }
 
     /// <summary>
@@ -78,7 +80,7 @@ public class RdfXmlWriter
             if (Uri.IsWellFormedUriString(triple.Object.ToString(), UriKind.RelativeOrAbsolute))
             {
                 serializedNode.Add(new XElement(ShortForm(triple.Predicate),
-                                   new XAttribute("rdf:resource", $"#_{triple.Object}")));
+                                   new XAttribute(rdf + "resource", $"#_{triple.Object}")));
             }
             else if (triple.Object is RdfNode compound)
             {
@@ -121,7 +123,9 @@ public class RdfXmlWriter
                 namespaces.Append(new XAttribute(entry.Key, entry.Value));
             }
         }
-        return new XElement("rdf:RDF", namespaces);
+
+        return new XElement(rdf + "RDF", namespaces);
+        //return new XElement("rdf:RDF", namespaces);
     }
 
     /// <summary>
@@ -135,4 +139,5 @@ public class RdfXmlWriter
     }
 
     private ReadOnlyDictionary<string, Uri> _namespaces { get; set; }
+    XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 }
