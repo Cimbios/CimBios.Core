@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection.PortableExecutable;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using System.Xml;
+using System.ComponentModel.Design;
 
 namespace CimBios.Core.RdfXmlIOLib;
 
@@ -27,7 +30,7 @@ public class RdfXmlWriter
     }
 
     /// <summary>
-    /// Writes RdfNodes to XDocument
+    /// Writes RdfNodes to XxmlDocument
     /// </summary>
     /// <param name="rdfNodes"></param>
     /// <returns></returns>
@@ -42,27 +45,39 @@ public class RdfXmlWriter
         foreach (RdfNode rdfNode in rdfNodes)
         {
             // TODO: exlude '#_' prefix | Done
-            var serializedNode = new XElement(ShortForm(rdfNode.TypeIdentifier),
-                                 new XAttribute(rdf + "about", $"#_{rdfNode.Identifier}"));
+            var headTuple = GetNamespace(rdfNode.TypeIdentifier);
+            var serializedNode = new XElement(headTuple.Item1 + headTuple.Item2,
+                                    new XAttribute(rdf + "about", $"{GetUuid(rdfNode.Identifier.ToString())}"));
             WriteTriples(ref serializedNode, rdfNode.Triples);
 
-            xDoc.Add(serializedNode);
+            header.Add(serializedNode);
         }
         return xDoc;
     }
 
-    /// <summary>
-    /// Shortens Namespace part of the string
-    /// </summary>
-    /// <param name="absoluteUri"></param>
-    /// <returns></returns>
-    private XName ShortForm(Uri absoluteUri)
+    private Tuple<XNamespace, string> GetNamespace(Uri uri)
     {
-        var splitUri = absoluteUri.ToString().Split('#');
-        XNamespace result = absoluteUri.AbsoluteUri.ToString();
-        return result + absoluteUri.Fragment.Trim('#');
-        /*return Namespaces.FirstOrDefault(x => x.Value.AbsolutePath == splitUri[0]).Key cim:IdentifiedObject
-            + ":" + splitUri[1];*/
+        XNamespace selectedNamespace = Namespaces.FirstOrDefault(
+            x => uri.ToString().Contains(x.Value.ToString())).Value.ToString();
+
+        var remainder = uri.ToString().Substring(
+            selectedNamespace.ToString().Length);
+        if (remainder.StartsWith('#')) remainder = remainder.Substring(1);
+
+        return new Tuple<XNamespace, string>(
+            selectedNamespace, remainder);
+    }
+
+    private string GetUuid(string stringWithUid)
+    {
+        var regexPattern = new Regex(
+            "(?im)[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?");
+        var match = regexPattern.Matches(stringWithUid);
+        if (match.Any())
+        {
+            return "#_" + match[0].Value;//Expecting a single GUID pattern in a string
+        }
+        return null;
     }
 
     /// <summary>
@@ -77,19 +92,36 @@ public class RdfXmlWriter
     {
         foreach (var triple in triples)
         {
-            if (Uri.IsWellFormedUriString(triple.Object.ToString(), UriKind.RelativeOrAbsolute))
+            var dataTuple = GetNamespace(triple.Predicate);
+            if (GetUuid(triple.Object.ToString()) != null)
             {
-                serializedNode.Add(new XElement(ShortForm(triple.Predicate),
-                                   new XAttribute(rdf + "resource", $"#_{triple.Object}")));
+                serializedNode.Add(new XElement(dataTuple.Item1 + dataTuple.Item2,
+                                    new XAttribute(rdf + "resource", $"{GetUuid(triple.Object.ToString())}")));
             }
             else if (triple.Object is RdfNode compound)
             {
-                var compoundNode = new XElement(ShortForm(triple.Predicate),
-                                       new XElement(ShortForm(compound.TypeIdentifier)));
+                var headCompoundNode = GetNamespace(compound.TypeIdentifier);
+                var compoundNode = new XElement(dataTuple.Item1 + dataTuple.Item2,
+                                    new XElement(headCompoundNode.Item1 + headCompoundNode.Item2));
+                XElement headCompound = (XElement)compoundNode.LastNode;
                 WriteTriples(ref compoundNode, compound.Triples);
+                headCompound.Add(compoundNode.LastNode);
+                compoundNode.LastNode.Remove();
                 serializedNode.Add(compoundNode);
             }
-            serializedNode.Add(new XElement(ShortForm(triple.Predicate), triple.Object.ToString()));
+            else
+            {
+                if (Uri.IsWellFormedUriString(triple.Object.ToString(), UriKind.Absolute)) //For Enum
+                {
+                    var obj = GetNamespace((Uri)triple.Object);
+                    serializedNode.Add(new XElement(dataTuple.Item1 + dataTuple.Item2,
+                                        new XAttribute(rdf + "resource", $"{Namespaces.FirstOrDefault(x => x.Value.ToString() == obj.Item1.ToString()).Key}:{obj.Item2}")));
+                }
+                else
+                {
+                    serializedNode.Add(new XElement(dataTuple.Item1 + dataTuple.Item2, triple.Object.ToString()));
+                }
+            }
         }
     }
 
@@ -100,27 +132,27 @@ public class RdfXmlWriter
     ///         return xelement besides to add to xdoc. | Done
     private XElement CreateRootRdfNode()
     {
-        XAttribute[] namespaces;
+        List<XAttribute> namespaces;
         if (Namespaces == null)
         {
-            namespaces = new XAttribute[8] // For Testing
+            namespaces = new List<XAttribute>() // For Testing
             {
-                new XAttribute("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
-                new XAttribute("xmlns:cim", "http://iec.ch/TC57/2014/CIM-schema-cim16#"),
-                new XAttribute("xmlns:cim17", "http://iec.ch/TC57/2014/CIM-schema-cim17#"),
-                new XAttribute("xmlns:rf", "http://gost.ru/2019/schema-cim01#"),
-                new XAttribute("xmlns:me", "http://monitel.com/2014/schema-cim16"),
-                new XAttribute("xmlns:rh", "http://rushydro.ru/2015/schema-cim16#"),
-                new XAttribute("xmlns:so", "http://so-ups.ru/2015/schema-cim16#"),
-                new XAttribute("xmlns:md", "http://iec.ch/TC57/61970-552/ModelDescription/1#"),
+                new XAttribute(XNamespace.Xmlns + "rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
+                new XAttribute(XNamespace.Xmlns + "cim", "http://iec.ch/TC57/2014/CIM-schema-cim16#"),
+                new XAttribute(XNamespace.Xmlns + "cim17", "http://iec.ch/TC57/2014/CIM-schema-cim17#"),
+                new XAttribute(XNamespace.Xmlns + "rf", "http://gost.ru/2019/schema-cim01#"),
+                new XAttribute(XNamespace.Xmlns + "me", "http://monitel.com/2014/schema-cim16"),
+                new XAttribute(XNamespace.Xmlns + "rh", "http://rushydro.ru/2015/schema-cim16#"),
+                new XAttribute(XNamespace.Xmlns + "so", "http://so-ups.ru/2015/schema-cim16#"),
+                new XAttribute(XNamespace.Xmlns + "md", "http://iec.ch/TC57/61970-552/ModelDescription/1#"),
             };
         }
         else
         {
-            namespaces = new XAttribute[Namespaces.Count];
+            namespaces = new List<XAttribute>();
             foreach (var entry in Namespaces)
             {
-                namespaces.Append(new XAttribute(entry.Key, entry.Value));
+                namespaces.Add(new XAttribute(XNamespace.Xmlns + entry.Key, entry.Value));
             }
         }
 

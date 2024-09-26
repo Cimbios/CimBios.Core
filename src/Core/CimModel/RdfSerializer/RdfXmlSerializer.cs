@@ -86,7 +86,7 @@ public class RdfXmlSerializer : RdfSerializerBase
                 continue;
             }
 
-            
+
             switch (property.PropertyKind)
             {
                 case CimMetaPropertyKind.Attribute:
@@ -125,7 +125,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         {
             simpleType = metaDatatype.SimpleType;
         }
-        else if(attribute.PropertyDatatype is ICimMetaClass metaClass)
+        else if (attribute.PropertyDatatype is ICimMetaClass metaClass)
         {
 
             simpleType = typeof(ModelObject);
@@ -141,6 +141,12 @@ public class RdfXmlSerializer : RdfSerializerBase
 
         if (simpleType != null)
         {
+            if (attribute.PropertyDatatype is ICimMetaClass metaClass && metaClass.IsCompound)
+            {
+                return new RdfTriple(new Uri(subj.ObjectData.ClassType.ToString() + $"|{subj.Uuid}"),
+                                         attribute.BaseUri,
+                                         ProcessObject((ModelObject)subj.ObjectData.GetAttribute(attribute.ShortName, simpleType)));
+            }
             return new RdfTriple(new Uri(subj.ObjectData.ClassType.ToString() + $"|{subj.Uuid}"),
                                          attribute.BaseUri,
                                          subj.ObjectData.GetAttribute(attribute.ShortName, simpleType));
