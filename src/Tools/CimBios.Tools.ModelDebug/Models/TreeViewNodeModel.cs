@@ -1,13 +1,29 @@
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Avalonia.Media.Imaging;
 
 namespace CimBios.Tools.ModelDebug.Models;
 
 public class TreeViewNodeModel : LinkedNodeModel
 {
-    public ReadOnlyDictionary<string, object> Fields 
-    { get => _Fields.AsReadOnly(); }
+    public string Title
+    { 
+        get => _Title; 
+        set
+        {
+            _Title = value;
+            OnPropertyChanged(nameof(Title));
+        }
+    }
+
+    public string Description
+    { 
+        get => _Description; 
+        set
+        {
+            _Description = value;
+            OnPropertyChanged(nameof(Description));
+        }
+    }
 
     public Bitmap? Image { get; set; }
 
@@ -41,4 +57,6 @@ public class TreeViewNodeModel : LinkedNodeModel
 
     private bool _IsExpanded = false;
     private bool _IsVisible = true;
+    private string _Title = string.Empty;
+    private string _Description = string.Empty;
 }
