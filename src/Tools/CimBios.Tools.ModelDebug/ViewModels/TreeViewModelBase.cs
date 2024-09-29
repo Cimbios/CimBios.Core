@@ -70,5 +70,5 @@ public abstract class TreeViewModelBase : ViewModelBase
         return Task.CompletedTask;
     }
 
-    protected TreeViewNodeModel? _SelectedItem;
+    private TreeViewNodeModel? _SelectedItem;
 }
