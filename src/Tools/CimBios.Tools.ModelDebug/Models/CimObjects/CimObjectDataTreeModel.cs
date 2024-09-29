@@ -27,6 +27,6 @@ public class CimObjectDataTreeModel : TreeViewNodeModel
     {
         ModelObject = modelObject;
 
-        //Title = $"{Uuid}: {Name}";
+        Title = $"{Uuid}: {Name}";
     }
 }
