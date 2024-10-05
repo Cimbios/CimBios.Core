@@ -80,8 +80,11 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         SelectedItem = e.SelectedItems.FirstOrDefault();
     }
 
-    public Task Foo()
+    public Task Foo(TreeDataGrid? dataGrid)
     {   
+        CimObjectsSource.RowSelection!.Select(CimObjectsSource.Items.Count()-1);
+        dataGrid!.RowsPresenter!.BringIntoView(CimObjectsSource.Items.Count()-1);
+        
         return Task.CompletedTask;
     }
 

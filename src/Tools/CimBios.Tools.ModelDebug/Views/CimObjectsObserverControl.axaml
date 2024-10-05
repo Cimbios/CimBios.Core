@@ -21,13 +21,13 @@
               Text="{Binding SearchString}" 
               Watermark="Search..." 
               TextAlignment="Start"/>
-    <TreeDataGrid Grid.Row="1"  Source="{Binding CimObjectsSource}"
+    <TreeDataGrid x:Name="dataGrid" Grid.Row="1"  Source="{Binding CimObjectsSource}"
                                 FontSize="10"
                                 CanUserSortColumns="False" 
                                 ShowColumnHeaders="False">
     </TreeDataGrid>
     <GridSplitter Grid.Row="2" ResizeDirection="Rows"/>
-    <Button Grid.Row="3" Content="..." Command="{Binding Foo}"/>
+    <Button Grid.Row="3" Content="..." Command="{Binding Foo}" CommandParameter="{Binding #dataGrid}"/>
   </Grid>
 
 </UserControl>
