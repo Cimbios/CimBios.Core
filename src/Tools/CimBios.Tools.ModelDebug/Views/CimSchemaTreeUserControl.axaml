@@ -10,7 +10,9 @@
 
   <Grid RowDefinitions="Auto,*,Auto" Margin="5">
 
-    <TextBox  Grid.Row="0" Text="{Binding SearchString}" 
+    <TextBox  Grid.Row="0"
+              Classes="Small, Bordered" 
+              Text="{Binding SearchString}" 
               Watermark="Search..." 
               TextAlignment="Start"/>
 
@@ -18,7 +20,7 @@
               Grid.Row="1" 
               ItemsSource="{Binding Nodes}" 
               SelectedItem="{Binding SelectedItem}"
-              AutoScrollToSelectedItem="True" BorderBrush="Gray" BorderThickness="1">
+              AutoScrollToSelectedItem="True">
       <TreeView.Styles>
         <Style Selector="TreeViewItem" x:DataType="m:TreeViewNodeModel">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
@@ -43,10 +45,12 @@
       </TreeView.ContextMenu>  
     </TreeView>
 
-    <StackPanel Grid.Row="2">
-      <CheckBox Content="Show properties" IsChecked="{Binding ShowProperties}"/>
-      <CheckBox Content="Show individuals" IsChecked="{Binding ShowIndividuals}"/>
-    </StackPanel>
+    <Border Grid.Row="2" Theme="{DynamicResource CardBorder}" Padding="5">
+      <Grid RowDefinitions="Auto,Auto">
+        <CheckBox Grid.Row="0" Content="Show properties" IsChecked="{Binding ShowProperties}"/>
+        <CheckBox Grid.Row="1" Content="Show individuals" IsChecked="{Binding ShowIndividuals}"/>
+      </Grid>
+    </Border>
 
   </Grid>
 
