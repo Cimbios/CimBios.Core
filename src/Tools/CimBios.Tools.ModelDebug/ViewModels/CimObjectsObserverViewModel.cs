@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
+using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Context;
 using CimBios.Core.RdfXmlIOLib;
 using CimBios.Tools.ModelDebug.Models;
@@ -20,6 +21,9 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
     {  get => _NodesCache; }
 
     public HierarchicalTreeDataGridSource<TreeViewNodeModel> CimObjectsSource 
+    { get; }
+
+    public HierarchicalTreeDataGridSource<CimObjectPropertyModel> PropertySource 
     { get; }
 
     public AsyncRelayCommand ExpandAllNodesCommand { get; }
@@ -37,6 +41,17 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
 
         }
     } 
+
+    public string SelectedUuid 
+    { 
+        get => _SelectedUuid; 
+        set
+        {
+            _SelectedUuid = value;
+            OnPropertyChanged(nameof(SelectedUuid));
+
+        }
+    }    
 
     public CimObjectsObserverViewModel()
     {
@@ -59,6 +74,21 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         CimObjectsSource.RowSelection!.SelectionChanged 
             += CellSelection_SelectionChanged;
 
+        PropertySource = new HierarchicalTreeDataGridSource<CimObjectPropertyModel>(_PropCache)
+        {
+            Columns =
+            {
+                new HierarchicalExpanderColumn<CimObjectPropertyModel>(
+                    new TextColumn<CimObjectPropertyModel, string>
+                        ("Name", x => x.Name),
+                    x => x.SubNodes.Cast<CimObjectPropertyModel>()),
+                new TextColumn<CimObjectPropertyModel, string>
+                    ("Value", x => x.Value),
+            },
+        };
+
+        PropertySource.RowSelection!.SingleSelect = true;
+
         ExpandAllNodesCommand = new AsyncRelayCommand
             (() => DoExpandAllNodes(true));
 
@@ -66,6 +96,63 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             (() => DoExpandAllNodes(false));
 
         SubscribeModelContextLoad();
+    }
+
+    public Task Find(TreeDataGrid? dataGrid)
+    {   
+        if (SearchString == string.Empty
+            || dataGrid == null)
+        {
+            return Task.CompletedTask;
+        }
+
+        int classRow = 0;
+        foreach (var item in CimObjectsSource.Items)
+        {
+            int objectRow = 0;
+            foreach (var subItem in item.SubNodes.OfType<TreeViewNodeModel>())
+            {
+                if (subItem.Title.Contains(SearchString))
+                {
+                    var idx = new IndexPath([classRow, objectRow]);
+                    CimObjectsSource.Expand(idx);
+                    CimObjectsSource.RowSelection!.Select(idx);
+
+                    var rowId = dataGrid.RowsPresenter!.Items!.ToList()
+                        .FindIndex(r => r.Model == subItem);
+
+                    dataGrid.RowsPresenter!.BringIntoView(rowId);
+
+                    return Task.CompletedTask;
+                }
+
+                ++objectRow;
+            }
+
+            ++classRow;
+        }
+       
+        return Task.CompletedTask;
+    }
+
+    public async Task Navigate(TreeDataGrid? dataGrid)
+    {
+        if (PropertySource.RowSelection!.SelectedItem 
+            is not CimObjectPropertyModel selectedProp)
+        {
+            return;
+        }
+
+        var mObj = _CimModelContext?.GetObject(selectedProp.Value);
+        if (mObj != null)
+        {
+            var tmpSearchString = SearchString;
+            SearchString = mObj.Uuid;
+            await Find(dataGrid);
+            SearchString = tmpSearchString;
+        }
+
+        return;
     }
 
     private void CellSelection_SelectionChanged(object? sender, 
@@ -78,14 +165,98 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         }
 
         SelectedItem = e.SelectedItems.FirstOrDefault();
+
+        ShowSelectedProperties();
     }
 
-    public Task Foo(TreeDataGrid? dataGrid)
-    {   
-        CimObjectsSource.RowSelection!.Select(CimObjectsSource.Items.Count()-1);
-        dataGrid!.RowsPresenter!.BringIntoView(CimObjectsSource.Items.Count()-1);
+    private void ShowSelectedProperties()
+    {
+        _PropCache.Clear();
+        SelectedUuid = string.Empty;
+
+        if (SelectedItem == null
+            || SelectedItem is not CimObjectDataTreeModel cimObjectItem)
+        {
+            return;
+        }
+
+        var dataFacade = cimObjectItem.ModelObject.ObjectData;
+
+        SelectedUuid = dataFacade.Uuid;
+
+        foreach (var attrName in dataFacade.Attributes)
+        {
+            var attrValue = dataFacade.GetAttribute<object>(attrName);
+            var attrValueStr = attrValue.ToString();
+            if (attrValueStr == null)
+            {
+                attrValueStr = "null";
+            }
+            else
+            {
+                attrValueStr += $" ({attrValue.GetType().Name})";
+            }
+
+            var attrNode = new CimObjectPropertyModel() 
+                { Name = attrName, Value = attrValueStr };
+            
+            if (attrValue is IModelObject compoundAttr)
+            {
+                 foreach (var compoundAttrName in compoundAttr.ObjectData.Attributes)
+                {
+                    var compoundAttrValue = compoundAttr.ObjectData.GetAttribute<object>(attrName);
+                    var compoundAttrValueStr = compoundAttrValue.ToString();
+                    if (compoundAttrValueStr == null)
+                    {
+                        compoundAttrValueStr = "null";
+                    }
+                    else
+                    {
+                        compoundAttrValueStr += $" ({compoundAttrValue.GetType().Name})";
+                    }
+
+                    var compoundAttrNode = new CimObjectPropertyModel() 
+                        { Name = compoundAttrName, Value = compoundAttrValueStr };
+                    
+                    attrNode.AddChild(compoundAttrNode);
+                }
+            }
+
+            _PropCache.Add(attrNode);
+        }
+
+        foreach (var assoc11Name in dataFacade.Assocs1To1)
+        {
+            var assoc11Ref = dataFacade.GetAssoc1To1(assoc11Name);
+            string assoc11RefStr = "null";
+            if (assoc11Ref != null)
+            {
+                assoc11RefStr = assoc11Ref.Uuid;
+            }
+
+            _PropCache.Add(new CimObjectPropertyModel() 
+                { Name = assoc11Name, Value = assoc11RefStr });
+        }
         
-        return Task.CompletedTask;
+        foreach (var assoc1MName in dataFacade.Assocs1ToM)
+        {
+            var assoc1MArray = dataFacade.GetAssoc1ToM(assoc1MName);
+            if (assoc1MArray == null)
+            {
+                continue;
+            }
+
+            var assoc1MNode = new CimObjectPropertyModel() 
+                { Name = assoc1MName, Value = $"Count: {assoc1MArray.Count()}" };
+
+            foreach (var assoc1MRef in assoc1MArray.OfType<IModelObject>())
+            {
+                assoc1MNode.AddChild(new CimObjectPropertyModel() 
+                { Name = string.Empty, Value = assoc1MRef.Uuid });
+            }
+
+            _PropCache.Add(assoc1MNode);
+        }    
     }
 
     private void SubscribeModelContextLoad()
@@ -147,7 +318,12 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
 
     private string _SearchString = string.Empty;
 
+    private string _SelectedUuid = string.Empty;
+
     private ObservableCollection<TreeViewNodeModel> _NodesCache 
         = new ObservableCollection<TreeViewNodeModel>();
+
+    private ObservableCollection<CimObjectPropertyModel> _PropCache 
+        = new ObservableCollection<CimObjectPropertyModel>();
 
 }
