@@ -39,6 +39,9 @@ public interface IDataFacade : INotifyPropertyChanged
     /// </summary>
     public string[] Assocs1ToM { get; }
 
+    public bool HasProperty(string property);
+    public object GetAttribute(string property, Type type);
+
     /// <summary>
     /// Get attribute typed T value. Throws exception if attribute does not exists.
     /// </summary>
@@ -119,6 +122,30 @@ public class DataFacade : IDataFacade
         _attributes = new Dictionary<string, object>();
         _assocs1to1 = new Dictionary<string, IModelObject>();
         _assocs1toM = new Dictionary<string, List<IModelObject>>();
+    }
+
+    public bool HasProperty(string property)
+    {
+        if (this._attributes.ContainsKey(property)
+            || this._assocs1to1.ContainsKey(property)
+            || this._assocs1toM.ContainsKey(property))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public object GetAttribute(string attribute, Type attributeType)
+    {
+        if (_attributes.TryGetValue(attribute, out var value)
+            && value.GetType() == attributeType)
+        {
+            return value;
+        }
+        throw new ArgumentException($"Attribute {attribute} does not exists!");
     }
 
     public T GetAttribute<T>(string attribute) where T : class

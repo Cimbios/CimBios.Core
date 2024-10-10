@@ -34,6 +34,7 @@ public class DataSelectorViewModel : ViewModelBase
     public AsyncRelayCommand ShowSchemaSourceSelectorCommand { get; }
     public RelayCommand CancelCommand { get; }
     public RelayCommand GetCommand { get; }
+    public RelayCommand PushCommand { get; }
 
     public string SourceStringUri 
     { 
@@ -105,6 +106,7 @@ public class DataSelectorViewModel : ViewModelBase
 
         CancelCommand = new RelayCommand(Cancel, () => !_isWork);
         GetCommand = new RelayCommand(Get, () => !_isWork);
+        PushCommand = new RelayCommand(Push, () => !_isWork);
     }
 
     private void Get()
@@ -125,6 +127,29 @@ public class DataSelectorViewModel : ViewModelBase
         {
             ResultMessage += $"Exception while loading: {ex.Message}\n";
         }
+
+        _isWork = false;
+    }
+
+    private void Push()
+    {
+        if (Services.ServiceLocator.GetInstance()
+            .TryGetService<ModelContext>(out var modelContext) == false
+            || modelContext == null)
+        {
+            ResultMessage += "Model context service has not registered!\n";
+            return;
+        }
+        _isWork = true;
+
+        //try
+        //{
+            modelContext.Save();
+        //}
+        /*catch (Exception ex)
+        {
+            ResultMessage += $"Exception while loading: {ex.Message}\n";
+        }*/
 
         _isWork = false;
     }
