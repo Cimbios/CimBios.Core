@@ -14,8 +14,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
-public class DataSelectorViewModel : ViewModelBase, 
-    INotifyPropertyChanged
+public class DataSelectorViewModel : ViewModelBase
 {
     public Avalonia.Visual OwnerView { get; }
     public string ResultMessage 
@@ -108,11 +107,6 @@ public class DataSelectorViewModel : ViewModelBase,
         CancelCommand = new RelayCommand(Cancel, () => !_isWork);
         GetCommand = new RelayCommand(Get, () => !_isWork);
         PushCommand = new RelayCommand(Push, () => !_isWork);
-    }
-
-    protected new virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private void Get()
@@ -258,8 +252,6 @@ public class DataSelectorViewModel : ViewModelBase,
 
         return true;
     }
-
-    public new event PropertyChangedEventHandler? PropertyChanged;
 
     private Uri? _sourceUri;
     private IEnumerable<Uri>? _schemasUri;

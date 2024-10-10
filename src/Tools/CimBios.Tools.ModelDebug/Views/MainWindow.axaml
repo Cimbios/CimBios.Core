@@ -37,7 +37,7 @@
                 <ColumnDefinition Width="1"/>
                 <ColumnDefinition Width="*" MinWidth="150"/>
             </Grid.ColumnDefinitions>
-            <TreeView Grid.Column="0"/>
+            <v:CimObjectsObserverControl Grid.Column="0"/>
             <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
             <Rectangle Grid.Column="2" Fill="SteelBlue"/>
             <GridSplitter Grid.Column="3" ResizeDirection="Columns"/>

@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using CimBios.Core.CimModel.Context;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfXmlIOLib;
@@ -13,22 +11,13 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
-public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
+public class CimSchemaTreeViewModel : TreeViewModelBase
 {
-    public IEnumerable<TreeViewNodeModel> Nodes 
+    public override IEnumerable<CimSchemaEntityNodeModel> Nodes
     { 
         get
         {
             return _NodesCache;
-        }
-    } 
-
-    public TreeViewNodeModel? SelectedItem { 
-        get => _SelectedItem; 
-        set
-        {
-            _SelectedItem = value;
-            OnPropertyChanged(nameof(SelectedItem));   
         }
     }
 
@@ -40,7 +29,7 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
             _SearchString = value;
             OnPropertyChanged(nameof(SearchString));
 
-            ApplyFilter();
+            ApplyFilter(FilterNode);
         }
     } 
 
@@ -52,7 +41,7 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
             _ShowProperties = value;
             OnPropertyChanged(nameof(ShowProperties));
 
-            ApplyFilter();
+            ApplyFilter(FilterNode);
         }
     }
 
@@ -64,19 +53,18 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
             _ShowIndividuals = value;
             OnPropertyChanged(nameof(ShowIndividuals));
 
-            ApplyFilter();
+            ApplyFilter(FilterNode);
         }
     }
 
     public AsyncRelayCommand ExpandAllNodesCommand { get; }
-
     public AsyncRelayCommand UnexpandAllNodesCommand { get; }
 
     private ICimSchema? CimSchemaContext { get; set; }
 
     public CimSchemaTreeViewModel()
     {
-        _NodesCache = new ObservableCollection<TreeViewNodeModel>();
+        _NodesCache = new ObservableCollection<CimSchemaEntityNodeModel>();
         _NodesCache.CollectionChanged += NodesCache_CollectionChanged;
 
         ExpandAllNodesCommand = new AsyncRelayCommand
@@ -88,66 +76,34 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
         SubscribeModelContextLoad();
     }
 
-    private void ApplyFilter()
+    private bool FilterNode(TreeViewNodeModel node)
     {
-        var nodesStack = new Stack<TreeViewNodeModel>(Nodes);
-
-        var visited = new HashSet<TreeViewNodeModel>();
-        while (nodesStack.TryPop(out var node))
+        if (node is CimSchemaEntityNodeModel schemaNode == false)
         {
-            if (node is CimSchemaEntityNodeModel schemaNode
-                && ((schemaNode.CimSchemaEntity is ICimMetaProperty
-                        && ShowProperties == false)
-                    || (schemaNode.CimSchemaEntity is ICimMetaIndividual)
-                        && ShowIndividuals == false))
-            {
-                node.IsVisible = false;
-                continue;
-            }
-
-            node.IsVisible = true;
-
-            if (SearchString.Trim() != string.Empty)
-            {
-                if (node.Title.Contains(SearchString))
-                {
-                    visited.Add(node);
-
-                    var parent = node.ParentNode;
-                    while (parent != null)
-                    {
-                        visited.Add(parent);
-                        parent.IsVisible = true;
-                        parent.IsExpanded = true;
-                        parent = parent.ParentNode;
-                    }
-                }
-                else
-                {
-                    if (visited.Contains(node) == false)
-                    {
-                        node.IsVisible = false;
-                    }
-                }
-            }
-
-            node.SubNodes.ToList().ForEach(n => nodesStack.Push(n));
-        }     
-
-        OnPropertyChanged(nameof(Nodes));
-    }
-
-    private Task DoExpandAllNodes(bool IsExpand)
-    {
-        var nodesStack = new Stack<TreeViewNodeModel>(Nodes);
-
-        while (nodesStack.TryPop(out var node))
-        {
-            node.IsExpanded = IsExpand;
-            node.SubNodes.ToList().ForEach(n => nodesStack.Push(n));
+            node.IsExpanded = true;
+            return true;
         }
 
-        return Task.CompletedTask;
+        if ((schemaNode.CimSchemaEntity is ICimMetaProperty
+                && ShowProperties == false)
+            || (schemaNode.CimSchemaEntity is ICimMetaIndividual)
+                && ShowIndividuals == false)
+        {
+            return false;
+        }
+
+        if (SearchString.Trim() == string.Empty)
+        {
+            DoExpandAllNodes(false);
+            return true;
+        }
+
+        if (schemaNode.Title.Contains(SearchString))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void NodesCache_CollectionChanged(object? sender, 
@@ -232,7 +188,8 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
 
                     if (SelectedItem == null && classNode.SubNodes.Count() != 0)
                     {
-                        SelectedItem = classNode.SubNodes.FirstOrDefault();
+                        SelectedItem = classNode.SubNodes.FirstOrDefault() 
+                            as TreeViewNodeModel;
                     }        
                 }
                 else
@@ -342,8 +299,9 @@ public class CimSchemaTreeViewModel : ViewModelBase, INotifyPropertyChanged
         return string.Empty;
     }
 
-    private ObservableCollection<TreeViewNodeModel> _NodesCache;
-    private TreeViewNodeModel? _SelectedItem;
+    protected ObservableCollection<CimSchemaEntityNodeModel> _NodesCache
+        = new ObservableCollection<CimSchemaEntityNodeModel>();
+
     private string _SearchString = string.Empty;
     private bool _ShowProperties = true;
     private bool _ShowIndividuals = true;
