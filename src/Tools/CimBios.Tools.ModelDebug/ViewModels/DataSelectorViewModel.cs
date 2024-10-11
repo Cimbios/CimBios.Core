@@ -140,16 +140,28 @@ public class DataSelectorViewModel : ViewModelBase
             ResultMessage += "Model context service has not registered!\n";
             return;
         }
+
+        if (SelectedDataContext == null
+            || SourceUri == null
+            || modelContext.Schema == null)
+        {
+            ResultMessage += "Cannot initialize model data context factory!\n";
+            return;         
+        }
+
         _isWork = true;
 
-        //try
-        //{
-            modelContext.Save();
-        //}
-        /*catch (Exception ex)
+        try
+        {
+            var dataContext = SelectedDataContext.ModelDataContextFactory
+                .Create(SourceUri, modelContext.Schema);
+
+            modelContext.Save(dataContext);
+        }
+        catch (Exception ex)
         {
             ResultMessage += $"Exception while loading: {ex.Message}\n";
-        }*/
+        }
 
         _isWork = false;
     }
@@ -249,6 +261,8 @@ public class DataSelectorViewModel : ViewModelBase
             .Create(SourceUri, cimSchema);
 
         modelContext.Load(dataContext);
+
+        ResultMessage += "Model successfully loaded!\n";
 
         return true;
     }
