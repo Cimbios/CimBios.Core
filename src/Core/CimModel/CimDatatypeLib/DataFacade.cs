@@ -47,26 +47,26 @@ public interface IDataFacade : INotifyPropertyChanged
     public bool HasProperty(string property);
 
     /// <summary>
-    /// Get attribute value.
+    /// Get attribute value. Throws exception if property does not exists.
     /// </summary>
     /// <param name="property"></param>
     /// <param name="type"></param>
-    /// <returns>Value or null.</returns>
+    /// <returns>Value.</returns>
     public object GetAttribute(string property);
 
     /// <summary>
-    /// Get attribute typed value.
+    /// Get attribute typed value. Throws exception if property does not exists.
     /// </summary>
     /// <param name="property"></param>
     /// <param name="type"></param>
-    /// <returns>Value or null.</returns>
+    /// <returns>Value.</returns>
     public object GetAttribute(string property, Type type);
 
     /// <summary>
-    /// Get attribute typed T value. Throws exception if attribute does not exists.
+    /// Get attribute typed T value. Throws exception if property does not exists.
     /// </summary>
     /// <param name="attribute">Attribute name in format of 'Domain.Attribute'.</param>
-    /// <returns>Typed value or null.</returns>
+    /// <returns>Typed value.</returns>
     public T GetAttribute<T>(string attribute) where T : class;
 
     /// <summary>
@@ -77,10 +77,10 @@ public interface IDataFacade : INotifyPropertyChanged
     public void SetAttribute<T>(string attribute, T value) where T : class;
 
     /// <summary>
-    /// Get 1 to 1 assoc object.
+    /// Get 1 to 1 assoc object. Throws exception if property does not exists.
     /// </summary>
     /// <param name="assoc">Assoc name in format of 'Domain.Assoc'.</param>
-    /// <returns>IModelObject instance or null.</returns>
+    /// <returns>IModelObject instance.</returns>
     public IModelObject GetAssoc1To1(string assoc);
 
     /// <summary>
@@ -97,10 +97,10 @@ public interface IDataFacade : INotifyPropertyChanged
     public void RemoveAssoc1To1(string assoc);
 
     /// <summary>
-    /// Get 1 to M assoc objects.
+    /// Get 1 to M assoc objects. Throws exception if property does not exists.
     /// </summary>
     /// <param name="assoc">Assoc name in format of 'Domain.Assoc'.</param>
-    /// <returns>IModelObject instances array or null.</returns>
+    /// <returns>IModelObject instances array.</returns>
     public object[] GetAssoc1ToM(string assoc);
 
     /// <summary>
