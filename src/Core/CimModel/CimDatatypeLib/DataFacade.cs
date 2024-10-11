@@ -39,15 +39,35 @@ public interface IDataFacade : INotifyPropertyChanged
     /// </summary>
     public string[] Assocs1ToM { get; }
 
+    /// <summary>
+    /// Check is property exists method.
+    /// </summary>
+    /// <param name="property">String property name.</param>
+    /// <returns>True if exists like attribute or assoc.</returns>
     public bool HasProperty(string property);
-    public object GetAttribute(string property, Type type);
+
+    /// <summary>
+    /// Get attribute value.
+    /// </summary>
+    /// <param name="property"></param>
+    /// <param name="type"></param>
+    /// <returns>Value or null.</returns>
+    public object? GetAttribute(string property);
+
+    /// <summary>
+    /// Get attribute typed value.
+    /// </summary>
+    /// <param name="property"></param>
+    /// <param name="type"></param>
+    /// <returns>Value or null.</returns>
+    public object? GetAttribute(string property, Type type);
 
     /// <summary>
     /// Get attribute typed T value. Throws exception if attribute does not exists.
     /// </summary>
     /// <param name="attribute">Attribute name in format of 'Domain.Attribute'.</param>
-    /// <returns>Typed value.</returns>
-    public T GetAttribute<T>(string attribute) where T : class;
+    /// <returns>Typed value or null.</returns>
+    public T? GetAttribute<T>(string attribute) where T : class;
 
     /// <summary>
     /// Set attribute typed T value.
@@ -82,6 +102,12 @@ public interface IDataFacade : INotifyPropertyChanged
     /// <param name="assoc">Assoc name in format of 'Domain.Assoc'.</param>
     /// <returns>IModelObject instances array or null.</returns>
     public object[]? GetAssoc1ToM(string assoc);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="assoc"></param>
+    /// <param name="obj"></param>
     public void AddAssoc1ToM(string assoc, IModelObject obj);
 
     /// <summary>
@@ -126,29 +152,33 @@ public class DataFacade : IDataFacade
 
     public bool HasProperty(string property)
     {
-        if (this._attributes.ContainsKey(property)
-            || this._assocs1to1.ContainsKey(property)
-            || this._assocs1toM.ContainsKey(property))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return _attributes.ContainsKey(property)
+            || _assocs1to1.ContainsKey(property)
+            || _assocs1toM.ContainsKey(property);
     }
 
-    public object GetAttribute(string attribute, Type attributeType)
+    public object? GetAttribute(string attribute)
+    {
+        if (_attributes.TryGetValue(attribute, out var value))
+        {
+            return value;
+        }
+
+        return null;
+    }
+
+    public object? GetAttribute(string attribute, Type attributeType)
     {
         if (_attributes.TryGetValue(attribute, out var value)
             && value.GetType() == attributeType)
         {
             return value;
         }
-        throw new ArgumentException($"Attribute {attribute} does not exists!");
+
+        return null;
     }
 
-    public T GetAttribute<T>(string attribute) where T : class
+    public T? GetAttribute<T>(string attribute) where T : class
     {
         if (_attributes.TryGetValue(attribute, out var value)
             && value is T typedValue)
@@ -156,11 +186,16 @@ public class DataFacade : IDataFacade
             return typedValue;
         }
 
-        throw new ArgumentException($"Attribute {attribute} does not exists!");
+        return default;
     }
 
     public void SetAttribute<T>(string attribute, T value) where T : class
     {
+        if (CanChangeProperty(attribute) == false)
+        {
+            return;
+        }
+
         _attributes[attribute] = value;
 
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(attribute));
@@ -173,6 +208,11 @@ public class DataFacade : IDataFacade
 
     public void SetAssoc1To1(string assoc, IModelObject obj)
     {
+        if (CanChangeProperty(assoc) == false)
+        {
+            return;
+        }
+
         _assocs1to1[assoc] = obj;
 
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(assoc));
@@ -180,6 +220,11 @@ public class DataFacade : IDataFacade
 
     public void RemoveAssoc1To1(string assoc)
     {
+        if (CanChangeProperty(assoc) == false)
+        {
+            return;
+        }
+        
         _assocs1to1.Remove(assoc);
 
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(assoc));
@@ -193,6 +238,11 @@ public class DataFacade : IDataFacade
 
     public void AddAssoc1ToM(string assoc, IModelObject obj)
     {
+        if (CanChangeProperty(assoc) == false)
+        {
+            return;
+        }
+
         if (_assocs1toM.ContainsKey(assoc) == false
             || _assocs1toM[assoc] == null)
         {
@@ -206,6 +256,16 @@ public class DataFacade : IDataFacade
 
     public void RemoveAssoc1ToM(string assoc, IModelObject obj)
     {
+        if (CanChangeProperty(assoc) == false)
+        {
+            return;
+        }
+
+        if (_assocs1toM.ContainsKey(assoc) == false)
+        {
+            throw new ArgumentException($"Assoc {assoc} does not exists!");
+        }
+
         _assocs1toM[assoc].Remove(obj);
 
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(assoc));
@@ -213,9 +273,36 @@ public class DataFacade : IDataFacade
 
     public void RemoveAllAssoc1ToM(string assoc)
     {
+        if (CanChangeProperty(assoc) == false)
+        {
+            return;
+        }
+
+        if (_assocs1toM.ContainsKey(assoc) == false)
+        {
+            throw new ArgumentException($"Assoc {assoc} does not exists!");
+        }
+
         _assocs1toM[assoc].Clear();
 
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(assoc));
+    }
+
+    private bool CanChangeProperty(string propertyName)
+    {
+        if (PropertyChanging != null)
+        {
+            var arg = new CanCancelPropertyChangingEventArgs(propertyName, false);
+
+            PropertyChanging.Invoke(this, arg);
+            
+            if (arg.Cancel == true)
+            {
+                return false;
+            }
+        }      
+
+        return true;
     }
 
     private string _uuid = string.Empty;
@@ -227,6 +314,10 @@ public class DataFacade : IDataFacade
     private Dictionary<string, List<IModelObject>> _assocs1toM;
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    public delegate void CanCancelPropertyChangingEventHandler(object? sender, 
+        CanCancelPropertyChangingEventArgs e);
+    public event CanCancelPropertyChangingEventHandler? PropertyChanging;
 }
 
 /// <summary>
@@ -254,4 +345,21 @@ public static class DataFacadeExtension
             cimObj.AddAssoc1ToM(assoc, obj);
         }
     }
+}
+
+/// <summary>
+/// Can cancel functionality for PropertyChangingEventArgs.
+/// </summary>
+public class CanCancelPropertyChangingEventArgs : PropertyChangingEventArgs
+{
+    public CanCancelPropertyChangingEventArgs(string? propertyName, bool cancel)
+        : base(propertyName)
+    {
+        Cancel = cancel;
+    }
+
+    /// <summary>
+    /// Cancel property changing flag.
+    /// </summary>
+    public virtual bool Cancel { get; set; }
 }
