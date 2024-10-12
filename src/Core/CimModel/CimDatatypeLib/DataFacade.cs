@@ -101,7 +101,7 @@ public interface IDataFacade : INotifyPropertyChanged
     /// </summary>
     /// <param name="assoc">Assoc name in format of 'Domain.Assoc'.</param>
     /// <returns>IModelObject instances array.</returns>
-    public object[] GetAssoc1ToM(string assoc);
+    public IModelObject[] GetAssoc1ToM(string assoc);
 
     /// <summary>
     /// 
@@ -235,7 +235,7 @@ public class DataFacade : IDataFacade
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(assoc));
     }
 
-    public object[] GetAssoc1ToM(string assoc)
+    public IModelObject[] GetAssoc1ToM(string assoc)
     {
         if (_assocs1toM.TryGetValue(assoc, out var assocRef))
         {
