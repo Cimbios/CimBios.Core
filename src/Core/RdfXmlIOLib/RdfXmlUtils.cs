@@ -82,6 +82,33 @@ public static class RdfXmlReaderUtils
 
         return false;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <param name="identifier"></param>
+    /// <returns></returns>
+    public static bool TryGetEscapedIdentifier(Uri uri, out string identifier)
+    {
+        identifier = string.Empty;
+
+        if (uri.Fragment != string.Empty)
+        {
+            identifier = uri.Fragment
+                .Replace("#", "")
+                .Replace("_", "");
+
+            return true;
+        }
+        else if (uri.LocalPath != string.Empty)
+        {
+            identifier = uri.LocalPath.Replace("/", "");
+            return true;
+        }
+
+        return false;
+    }
 }
 
 public class RdfUriComparer : EqualityComparer<Uri>
