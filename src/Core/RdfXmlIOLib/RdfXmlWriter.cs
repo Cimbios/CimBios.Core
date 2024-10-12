@@ -1,15 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Reflection.PortableExecutable;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using System.Xml;
-using System.ComponentModel.Design;
+﻿using System.Xml.Linq;
 
 namespace CimBios.Core.RdfXmlIOLib;
-
-// TODO: docs everywhere
 
 /// <summary>
 /// Writer for rdf/xml formatted data.
@@ -17,67 +8,106 @@ namespace CimBios.Core.RdfXmlIOLib;
 /// </summary>
 public class RdfXmlWriter
 {
-    // TODO:    Code style fields order: props (public, private), constructor, 
-    //          methods (public, private), fields
-    //          + lines 80 chars length limit!
+    /// <summary>
+    /// RDF document namespaces dictionary.
+    /// </summary>
+    public Dictionary<string, Uri> Namespaces { get => _Namespaces; }
+
+    private Dictionary<string, Uri> _Namespaces { get; set; }
+        = new Dictionary<string, Uri>();
+
     /// <summary>
     /// Default constructor, needs namespaces from Schema to function properly
     /// </summary>
-    /// <param name="schemaNamespaces"></param>
-    public RdfXmlWriter(Dictionary<string, Uri> schemaNamespaces)
-    {
-        Namespaces = new ReadOnlyDictionary<string, Uri>(schemaNamespaces);
-    }
+    public RdfXmlWriter() { }
 
     /// <summary>
     /// Writes RdfNodes to XxmlDocument
     /// </summary>
     /// <param name="rdfNodes"></param>
-    /// <returns></returns>
-    public XDocument Write(IEnumerable<RdfNode> rdfNodes)
+    /// <param name="excludeBase"></param>
+    /// <returns>Serialized model XDocument</returns>
+    public XDocument Write(IEnumerable<RdfNode> rdfNodes,
+        bool excludeBase = true)
     {
         var xDoc = new XDocument();
 
-        // TODO: add root xelement to xdoc here | Done
         var header = CreateRootRdfNode();
         xDoc.Add(header);
 
         foreach (RdfNode rdfNode in rdfNodes)
         {
-            // TODO: exlude '#_' prefix | Done
-            var headTuple = GetNamespace(rdfNode.TypeIdentifier);
-            var serializedNode = new XElement(headTuple.Item1 + headTuple.Item2,
-                                    new XAttribute(rdf + "about", $"{GetUuid(rdfNode.Identifier.ToString())}"));
+            var resouceIdentifier = NormalizeIdentifier(rdfNode.Identifier);
+
+            var nodeIdentifier = UriToXName(rdfNode.TypeIdentifier);
+            var serializedNode = new XElement(nodeIdentifier,
+                                 new XAttribute(rdf + "about", resouceIdentifier));
+
             WriteTriples(ref serializedNode, rdfNode.Triples);
 
             header.Add(serializedNode);
         }
+
+        if (excludeBase == true)
+        {
+            header.Attribute(XNamespace.Xmlns + "base")?.Remove();
+        }
+        
         return xDoc;
     }
 
-    private Tuple<XNamespace, string> GetNamespace(Uri uri)
-    {
-        XNamespace selectedNamespace = Namespaces.FirstOrDefault(
-            x => uri.ToString().Contains(x.Value.ToString())).Value.ToString();
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    private XName UriToXName(Uri uri)
+    {        
+        XNamespace ns = uri.AbsoluteUri[..(uri.AbsoluteUri.IndexOf('#') + 1)];
 
-        var remainder = uri.ToString().Substring(
-            selectedNamespace.ToString().Length);
-        if (remainder.StartsWith('#')) remainder = remainder.Substring(1);
+        if (Namespaces.Values.Contains(uri) == false)
+        {
+            throw new Exception("RdfXmlWriter.GetNameWithPrefix: no ns");
+        }
 
-        return new Tuple<XNamespace, string>(
-            selectedNamespace, remainder);
+        if (RdfXmlReaderUtils.TryGetEscapedIdentifier(uri, out var identifier))
+        {
+            XName result = ns + identifier;
+            return result;
+        }
+
+        throw new Exception("RdfXmlWriter.GetNameWithPrefix: invalid rid");
     }
 
-    private string GetUuid(string stringWithUid)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <returns></returns>
+    private string NormalizeIdentifier(Uri uri)
     {
-        var regexPattern = new Regex(
-            "(?im)[{(]?[0-9A-F]{8}[-]?(?:[0-9A-F]{4}[-]?){3}[0-9A-F]{12}[)}]?");
-        var match = regexPattern.Matches(stringWithUid);
-        if (match.Any())
+        string result = uri.AbsoluteUri;
+
+        if (Namespaces.TryGetValue("base", out var baseUri)
+            && baseUri == uri)
         {
-            return "#_" + match[0].Value;//Expecting a single GUID pattern in a string
+            result = uri.AbsoluteUri[uri.AbsoluteUri.IndexOf('#')..];
+        } 
+        else if (RdfXmlReaderUtils.TryGetEscapedIdentifier(uri, out var rid))
+        {
+            if (Namespaces.ContainsValue(uri))
+            {
+                var prefix = Namespaces.FirstOrDefault(ns => ns.Value == uri).Key;
+                result = $"{prefix}:{rid}";
+            }
+            else
+            {
+                result = rid;
+            }
         }
-        return null;
+
+        return result;
     }
 
     /// <summary>
@@ -85,42 +115,42 @@ public class RdfXmlWriter
     /// </summary>
     /// <param name="serializedNode"></param>
     /// <param name="triples"></param>
-    /// TODO:   Exlude System.Guid parsing | Done now checks if IsWellFormedUriString
-    ///         Add rdf:id support | Questions
-    ///         Exlude '#_' prefix (its serializer resp-ty) | Done
-    private void WriteTriples(ref XElement serializedNode, IEnumerable<RdfTriple> triples)
+    private void WriteTriples(ref XElement serializedNode, 
+        IEnumerable<RdfTriple> triples)
     {
         foreach (var triple in triples)
         {
-            var dataTuple = GetNamespace(triple.Predicate);
-            if (GetUuid(triple.Object.ToString()) != null)
+            var xPredicate = UriToXName(triple.Predicate);
+
+            // resource reference - blank
+            if (triple.Object is Uri refIdentifier)
             {
-                serializedNode.Add(new XElement(dataTuple.Item1 + dataTuple.Item2,
-                                    new XAttribute(rdf + "resource", $"{GetUuid(triple.Object.ToString())}")));
+                serializedNode.Add(
+                    new XElement(
+                        xPredicate,
+                        new XAttribute(
+                            rdf + "resource", 
+                            NormalizeIdentifier(refIdentifier)))
+                );
             }
+            // compound prop - anonymous
             else if (triple.Object is RdfNode compound)
             {
-                var headCompoundNode = GetNamespace(compound.TypeIdentifier);
-                var compoundNode = new XElement(dataTuple.Item1 + dataTuple.Item2,
-                                    new XElement(headCompoundNode.Item1 + headCompoundNode.Item2));
-                XElement headCompound = (XElement)compoundNode.LastNode;
+                var xType = UriToXName(compound.TypeIdentifier);
+
+                var headCompound = new XElement(xType);
+                var compoundNode = new XElement(xPredicate, headCompound);
                 WriteTriples(ref compoundNode, compound.Triples);
+
                 headCompound.Add(compoundNode.LastNode);
-                compoundNode.LastNode.Remove();
+                compoundNode.LastNode?.Remove();
+
                 serializedNode.Add(compoundNode);
             }
+            // variable prop - literal
             else
             {
-                if (Uri.IsWellFormedUriString(triple.Object.ToString(), UriKind.Absolute)) //For Enum
-                {
-                    var obj = GetNamespace((Uri)triple.Object);
-                    serializedNode.Add(new XElement(dataTuple.Item1 + dataTuple.Item2,
-                                        new XAttribute(rdf + "resource", $"{Namespaces.FirstOrDefault(x => x.Value.ToString() == obj.Item1.ToString()).Key}:{obj.Item2}")));
-                }
-                else
-                {
-                    serializedNode.Add(new XElement(dataTuple.Item1 + dataTuple.Item2, triple.Object.ToString()));
-                }
+                serializedNode.Add(new XElement(xPredicate, triple.Object));
             }
         }
     }
@@ -128,48 +158,13 @@ public class RdfXmlWriter
     /// <summary>
     /// Creates header-node with all on XML-RDF namespaces
     /// </summary>
-    /// TODO:   reimplement namespaces to Namespaces property. | Done
-    ///         return xelement besides to add to xdoc. | Done
     private XElement CreateRootRdfNode()
     {
-        List<XAttribute> namespaces;
-        if (Namespaces == null)
-        {
-            namespaces = new List<XAttribute>() // For Testing
-            {
-                new XAttribute(XNamespace.Xmlns + "rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
-                new XAttribute(XNamespace.Xmlns + "cim", "http://iec.ch/TC57/2014/CIM-schema-cim16#"),
-                new XAttribute(XNamespace.Xmlns + "cim17", "http://iec.ch/TC57/2014/CIM-schema-cim17#"),
-                new XAttribute(XNamespace.Xmlns + "rf", "http://gost.ru/2019/schema-cim01#"),
-                new XAttribute(XNamespace.Xmlns + "me", "http://monitel.com/2014/schema-cim16"),
-                new XAttribute(XNamespace.Xmlns + "rh", "http://rushydro.ru/2015/schema-cim16#"),
-                new XAttribute(XNamespace.Xmlns + "so", "http://so-ups.ru/2015/schema-cim16#"),
-                new XAttribute(XNamespace.Xmlns + "md", "http://iec.ch/TC57/61970-552/ModelDescription/1#"),
-            };
-        }
-        else
-        {
-            namespaces = new List<XAttribute>();
-            foreach (var entry in Namespaces)
-            {
-                namespaces.Add(new XAttribute(XNamespace.Xmlns + entry.Key, entry.Value));
-            }
-        }
+        var xNamespaces = Namespaces.Select(
+            n =>  new XAttribute(XNamespace.Xmlns + n.Key, n.Value));
 
-        return new XElement(rdf + "RDF", namespaces);
-        //return new XElement("rdf:RDF", namespaces);
+        return new XElement(rdf + "RDF", xNamespaces);
     }
 
-    /// <summary>
-    /// RDF document namespaces dictionary.
-    /// </summary>
-    /// TODO: Fill it from ICimSchema.Namespaces via serializer. | Done
-    public IReadOnlyDictionary<string, Uri> Namespaces
-    {
-        get => _namespaces;
-        set => _namespaces = (ReadOnlyDictionary<string, Uri>)value;
-    }
-
-    private ReadOnlyDictionary<string, Uri> _namespaces { get; set; }
-    XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    private static XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 }

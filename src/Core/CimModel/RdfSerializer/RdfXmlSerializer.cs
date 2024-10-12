@@ -2,10 +2,7 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.DataProvider;
 using CimBios.Core.RdfXmlIOLib;
-using System;
 using System.Globalization;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
 namespace CimBios.Core.CimModel.RdfSerializer;
@@ -36,12 +33,19 @@ public class RdfXmlSerializer : RdfSerializerBase
 
     public override void Serialize(IEnumerable<IModelObject> modelObjects)
     {
-        _writer = new RdfXmlWriter((Dictionary<string, Uri>)Schema.Namespaces);
+        _writer = new RdfXmlWriter();
+        InitializeWriterNamespaces();
 
         var objsToWrite = new List<RdfNode>();
         foreach (var modelObject in modelObjects)
         {
-            objsToWrite.Add(ProcessObject(modelObject));
+            var moNode = ModelObjectToRdfNode(modelObject);
+            if (moNode == null)
+            {
+                continue;
+            }
+
+            objsToWrite.Add(moNode);
         }
         if (_writer.Write(objsToWrite) is XDocument writtenObjects)
         {
@@ -50,57 +54,95 @@ public class RdfXmlSerializer : RdfSerializerBase
     }
 
     /// <summary>
-    /// Converts IModelObject into RdfNode with all the properties turned into RdfTriples
+    /// Make URI from uuid and provider source path.
     /// </summary>
-    /// <param name="modelObject"></param>
+    /// <param name="uuid">IModelObject uuid.</param>
+    /// <param name="prefix">Uuid prefix. 
+    /// '#_' for rdf:about, '_' for rdf:id.</param>
     /// <returns></returns>
-    /// TODO:   schema support; | Done
-    ///         split writing on attribute and assoc methods; | Done
-    ///         check nullity of object properties; | Questions
-    ///         impl identifier maker method.| Questions
-    private RdfNode ProcessObject(IModelObject modelObject)
-    {
-        var objProperties = Schema.GetClassProperties(GetObjectClass(modelObject), true);
-        var triples = WriteProperties(modelObject, objProperties);
-        return new RdfNode(new Uri(modelObject.ObjectData.ClassType.ToString() + $"|{modelObject.Uuid}"),
-                           GetObjectClass(modelObject).BaseUri,
-                           triples,
-                           modelObject.ObjectData.IsAuto);
-    }
+    private Uri GetBasedIdentifier(string uuid, string prefix)
+        => new Uri(Provider.Source + $"{prefix}{uuid}");
 
     /// <summary>
-    /// Converts properties into RdfNodes
+    /// Fill writer namespaces from CimSchema.
     /// </summary>
-    /// <param name="obj"></param>
-    /// <param name="properties"></param>
-    /// <returns></returns>
-    private RdfTriple[] WriteProperties(IModelObject obj,
-                                        IEnumerable<ICimMetaProperty> properties)
+    private void InitializeWriterNamespaces()
     {
-        var result = new List<RdfTriple>();
-        foreach (var property in properties)
+        if (_writer == null)
         {
-            // TODO: Check if Property has value and not null
-            if (!obj.ObjectData.HasProperty(property.ShortName))
+            return;
+        }
+
+        foreach (var ns in Schema.Namespaces)
+        {
+            if (ns.Key == "base")
             {
                 continue;
             }
 
+            _writer.Namespaces.Add(ns.Key, ns.Value);
+        }
+
+        _writer.Namespaces.Add("base", Provider.Source);
+    }
+
+    /// <summary>
+    /// Converts IModelObject into RdfNode with all 
+    /// the properties turned into RdfTriples
+    /// </summary>
+    /// <param name="modelObject">Rdf triple object - CIM object.</param>
+    /// <returns>Converted RdfNode or null.</returns>
+    private RdfNode? ModelObjectToRdfNode(IModelObject modelObject)
+    {
+        var metaClass = Schema.TryGetDescription<ICimMetaClass>(
+            modelObject.ObjectData.ClassType);
+
+        if (metaClass == null)
+        {
+            return null;
+        }
+
+        var objProperties = Schema.GetClassProperties(metaClass, true);
+        var triples = WriteProperties(modelObject, objProperties);
+
+        return new RdfNode(
+            GetBasedIdentifier(modelObject.Uuid, "#_"),
+            metaClass.BaseUri,
+            triples,
+            modelObject.ObjectData.IsAuto);
+    }
+
+    /// <summary>
+    /// Converts properties into RdfNodes.
+    /// </summary>
+    /// <param name="modelObject">Rdf triple object - CIM object.</param>
+    /// <param name="properties">CIM meta properties set.</param>
+    /// <returns>Set of Rdf property triples.</returns>
+    private RdfTriple[] WriteProperties(IModelObject modelObject,
+        IEnumerable<ICimMetaProperty> properties)
+    {
+        var result = new List<RdfTriple>();
+        foreach (var property in properties)
+        {
+            if (modelObject.ObjectData.HasProperty(property.ShortName) == false)
+            {
+                continue;
+            }
 
             switch (property.PropertyKind)
             {
                 case CimMetaPropertyKind.Attribute:
-                    var attributeResult = WriteAttribute(obj, property);
+                    var attributeResult = WriteAttribute(modelObject, property);
                     if (attributeResult != null)
                     {
                         result.Add(attributeResult);
                     }
                     break;
                 case CimMetaPropertyKind.Assoc1To1:
-                    result.Add(WriteAssoc1To1(obj, property));
+                    result.Add(WriteAssoc1To1(modelObject, property));
                     break;
                 case CimMetaPropertyKind.Assoc1ToM:
-                    result.AddRange(WriteAssoc1ToM(obj, property));
+                    result.AddRange(WriteAssoc1ToM(modelObject, property));
                     break;
                 default: //CimMetaPropertyKind.NonStandard
                     break;
@@ -109,16 +151,18 @@ public class RdfXmlSerializer : RdfSerializerBase
         return result.ToArray();
     }
 
+    /// TODO:   Extract type parsing in the other one method.
+    ///         Fix datatypelib enum handling - need parse uri from schema by enum value.
+    ///         + code style %)
     /// <summary>
-    /// Converts attribute property to RdfTriple
+    /// Converts attribute property to RdfTriple.
     /// </summary>
-    /// <param name="subj"></param>
+    /// <param name="subject">Rdf triple subject - CIM object.</param>
     /// <param name="attribute"></param>
     /// <returns></returns>
-    private RdfTriple WriteAttribute(IModelObject subj, ICimMetaProperty attribute)
+    private RdfTriple WriteAttribute(IModelObject subject, 
+        ICimMetaProperty attribute)
     {
-        //ICimMetaDatatype? datatype = attribute.PropertyDatatype as ICimMetaDatatype;
-
         Type? simpleType = null;
 
         if (attribute.PropertyDatatype is ICimMetaDatatype metaDatatype)
@@ -127,9 +171,9 @@ public class RdfXmlSerializer : RdfSerializerBase
         }
         else if (attribute.PropertyDatatype is ICimMetaClass metaClass)
         {
-
-            simpleType = typeof(ModelObject);
-            if (TypeLib.RegisteredTypes.TryGetValue(metaClass.BaseUri, out var libType))
+            simpleType = typeof(IModelObject);
+            if (TypeLib.RegisteredTypes.TryGetValue(metaClass.BaseUri, 
+                out var libType))
             {
                 simpleType = libType;
             }
@@ -141,72 +185,85 @@ public class RdfXmlSerializer : RdfSerializerBase
 
         if (simpleType != null)
         {
-            if (attribute.PropertyDatatype is ICimMetaClass metaClass && metaClass.IsCompound)
+            if (attribute.PropertyDatatype is ICimMetaClass metaClass 
+                && metaClass.IsCompound)
             {
-                return new RdfTriple(new Uri(subj.ObjectData.ClassType.ToString() + $"|{subj.Uuid}"),
-                                         attribute.BaseUri,
-                                         ProcessObject((ModelObject)subj.ObjectData.GetAttribute(attribute.ShortName, simpleType)));
+                var compoundObject = subject.ObjectData
+                    .GetAttribute(attribute.ShortName, simpleType) 
+                    as IModelObject;
+                
+                RdfNode? compoundNode;
+                if (compoundObject != null
+                    && (compoundNode = ModelObjectToRdfNode(compoundObject)) != null)
+                {
+                    return new RdfTriple(
+                        GetBasedIdentifier(subject.Uuid, "#_"),
+                        attribute.BaseUri,
+                        compoundNode);
+                }    
             }
-            return new RdfTriple(new Uri(subj.ObjectData.ClassType.ToString() + $"|{subj.Uuid}"),
-                                         attribute.BaseUri,
-                                         subj.ObjectData.GetAttribute(attribute.ShortName, simpleType));
+
+            return new RdfTriple(
+                GetBasedIdentifier(subject.Uuid, "#_"),
+                attribute.BaseUri,
+                subject.ObjectData.GetAttribute(attribute.ShortName, simpleType));
         }
         else
         {
-            return null;
+            throw new Exception("attr");
         }
     }
 
     /// <summary>
-    /// Converts Assoc1To1 property to RdfTriple
+    /// Converts Assoc1To1 property to RdfTriple.
     /// </summary>
-    /// <param name="subj"></param>
-    /// <param name="assoc"></param>
-    /// <returns></returns>
-    private RdfTriple WriteAssoc1To1(IModelObject subj, ICimMetaProperty assoc1To1)
+    /// <param name="subject">Rdf triple subject - CIM object.</param>
+    /// <param name="assoc1To1">CIM meta property - assoc.</param>
+    /// <returns>Rdf property triple.</returns>
+    private RdfTriple WriteAssoc1To1(IModelObject subject, 
+        ICimMetaProperty assoc1To1)
     {
-        var assocObj = subj.ObjectData.GetAssoc1To1(assoc1To1.ShortName);
+        object resultAssocObject;
+
+        var assocObj = subject.ObjectData.GetAssoc1To1(assoc1To1.ShortName);
         if (assocObj.ObjectData.IsAuto)
         {
-            return new RdfTriple(new Uri(subj.ObjectData.ClassType.ToString() + $"|{subj.Uuid}"),
-                                 assoc1To1.BaseUri,
-                                 ProcessObject(assocObj));
+            var compoundNode = ModelObjectToRdfNode(assocObj);
+            if (compoundNode == null)
+            {
+                throw new Exception("RdfXmlSerializer.WriteAssoc1To1 compound null");
+            }
+
+            resultAssocObject = compoundNode;
         }
         else
         {
-            return new RdfTriple(new Uri(subj.ObjectData.ClassType.ToString() + $"|{subj.Uuid}"),
-                                 assoc1To1.BaseUri,
-                                 assocObj.Uuid);
+            resultAssocObject = GetBasedIdentifier(assocObj.Uuid, "#_");
         }
+
+        return new RdfTriple(
+                GetBasedIdentifier(subject.Uuid, "#_"),
+                assoc1To1.BaseUri,
+                resultAssocObject);
     }
 
     /// <summary>
     /// Converts Assoc1ToM property to RdfTriple collection
     /// </summary>
-    /// <param name="subj"></param>
-    /// <param name="assoc"></param>
-    /// <returns></returns>
-    private IEnumerable<RdfTriple> WriteAssoc1ToM(IModelObject subj,
-                                                  ICimMetaProperty assoc1ToM)
+    /// <param name="subject">Rdf triple subject - CIM object.</param>
+    /// <param name="assoc1ToM">CIM meta property - assoc.</param>
+    /// <returns>Set of Rdf property triples.</returns>
+    private IEnumerable<RdfTriple> WriteAssoc1ToM(IModelObject subject,
+        ICimMetaProperty assoc1ToM)
     {
-        var triples = new List<RdfTriple>();
-        foreach (IModelObject obj in subj.ObjectData.GetAssoc1ToM(assoc1ToM.ShortName))
-        {
-            triples.Add(new RdfTriple(new Uri(subj.ObjectData.ClassType.ToString() + $"|{subj.Uuid}"),
-                                      assoc1ToM.BaseUri,
-                                      obj.Uuid));
-        }
-        return triples;
-    }
+        return subject.ObjectData.GetAssoc1ToM(assoc1ToM.ShortName)
+            .Select(assoc => 
+                new RdfTriple(
+                    GetBasedIdentifier(subject.Uuid, "#_"),
+                    assoc1ToM.BaseUri,
+                    GetBasedIdentifier(assoc.Uuid, "#_"))
+        );
 
-    /// <summary>
-    /// Finds object's class in schema
-    /// </summary>
-    /// <param name="obj"></param>
-    /// <returns></returns>
-    private ICimMetaClass GetObjectClass(IModelObject obj)
-    {
-        return Schema.Classes.Where(x => RdfXmlReaderUtils.RdfUriEquals(x.BaseUri, obj.ObjectData.ClassType)).FirstOrDefault();
     }
 
     /// <summary>
@@ -239,7 +296,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         // Second step - fill objects properties.
         foreach (var instanceNode in cimDocument)
         {
-            if (TryGetEscapedIdentifier(instanceNode.Identifier,
+            if (RdfXmlReaderUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
                 out var instanceUuid) == false)
             {
                 continue;
@@ -271,7 +328,7 @@ public class RdfXmlSerializer : RdfSerializerBase
     private IModelObject? CreateInstance(RdfNode instanceNode,
         bool IsCompound = false)
     {
-        if (TryGetEscapedIdentifier(instanceNode.Identifier,
+        if (RdfXmlReaderUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
             out var instanceUuid) == false)
         {
             return null;
@@ -347,10 +404,9 @@ public class RdfXmlSerializer : RdfSerializerBase
     }
 
     /// <summary>
-    /// 
+    /// Select expecting IModelObject property data.
     /// </summary>
-    /// <param name="data"></param>
-    /// <returns></returns>
+    /// <returns>Casted data or compound.</returns>
     private object? DeserializableDataSelector(object data)
     {
         if (data is RdfNode objectRdfNode)
@@ -368,11 +424,11 @@ public class RdfXmlSerializer : RdfSerializerBase
     }
 
     /// <summary>
-    /// 
+    /// Push attribute value to IModelObject.
     /// </summary>
-    /// <param name="instance"></param>
-    /// <param name="property"></param>
-    /// <param name="data"></param>
+    /// <param name="instance">IModelObject instance.</param>
+    /// <param name="property">CIM meta property.</param>
+    /// <param name="data">Attribute value: simple, enum or compound.</param>
     private void SetObjectDataAsAttribute(IModelObject instance,
         ICimMetaProperty property, object data)
     {
@@ -437,16 +493,16 @@ public class RdfXmlSerializer : RdfSerializerBase
     }
 
     /// <summary>
-    /// 
+    /// Push association to IModelObject.
     /// </summary>
-    /// <param name="instance"></param>
-    /// <param name="property"></param>
-    /// <param name="referenceUri"></param>
+    /// <param name="instance">IModelObject instance.</param>
+    /// <param name="property">CIM meta property.</param>
+    /// <param name="referenceUri">Association object reference by Uri.</param>
     private void SetObjectDataAsAssociation(IModelObject instance,
         ICimMetaProperty property, Uri referenceUri)
     {
         string referenceUuid = string.Empty;
-        if (TryGetEscapedIdentifier(referenceUri,
+        if (RdfXmlReaderUtils.TryGetEscapedIdentifier(referenceUri,
             out referenceUuid) == false)
         {
             return;
@@ -501,10 +557,10 @@ public class RdfXmlSerializer : RdfSerializerBase
     }
 
     /// <summary>
-    /// 
+    /// Makes auto compound object from RdfNode.
     /// </summary>
-    /// <param name="objectRdfNode"></param>
-    /// <returns></returns>
+    /// <param name="objectRdfNode">Compound property Rdf node.</param>
+    /// <returns>Auto IModelObject or null.</returns>
     private IModelObject? MakeCompoundPropertyObject(RdfNode objectRdfNode)
     {
         var compoundPropertyObject = CreateInstance(objectRdfNode, true);
@@ -522,11 +578,10 @@ public class RdfXmlSerializer : RdfSerializerBase
     }
 
     /// <summary>
-    /// 
+    /// Check is property consider schema.
     /// </summary>
-    /// <param name="schemaProperty"></param>
-    /// <param name="instance"></param>
-    /// <returns></returns>
+    /// <param name="schemaProperty">CIM meta property.</param>
+    /// <param name="instance">IModelObject instance.</param>
     private bool IsPropertyAlignSchemaClass(ICimMetaProperty schemaProperty,
         IModelObject instance)
     {
@@ -550,33 +605,6 @@ public class RdfXmlSerializer : RdfSerializerBase
             || instanceClass.AllAncestors
                 .Any(a => a.BaseUri.AbsoluteUri == schemaPropClassUri))
         {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="uri"></param>
-    /// <param name="identifier"></param>
-    /// <returns></returns>
-    private static bool TryGetEscapedIdentifier(Uri uri, out string identifier)
-    {
-        identifier = string.Empty;
-
-        if (uri.Fragment != string.Empty)
-        {
-            identifier = uri.Fragment
-                .Replace("#", "")
-                .Replace("_", "");
-
-            return true;
-        }
-        else if (uri.LocalPath != string.Empty)
-        {
-            identifier = uri.LocalPath.Replace("/", "");
             return true;
         }
 
