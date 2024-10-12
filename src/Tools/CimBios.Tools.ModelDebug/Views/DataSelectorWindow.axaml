@@ -1,0 +1,72 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" Width="500" Height="300" CanResize="False" 
+        x:Class="CimBios.Tools.ModelDebug.Views.DataSelectorWindow"
+        x:DataType="vm:DataSelectorViewModel"
+        Title="DataProviderSelectorWindow">
+  
+    <Design.DataContext>
+        <vm:DataProviderSelectorViewModel/>
+    </Design.DataContext>
+
+  <StackPanel Orientation="Vertical" Margin="5" Spacing="5">
+    <TextBlock Text="Data context:"/>
+    <ComboBox SelectedItem="{Binding SelectedDataContext}" 
+              ItemsSource="{Binding DataContexties}" 
+              HorizontalAlignment="Stretch"
+              Classes="Small">
+      <ComboBox.ItemTemplate>
+        <DataTemplate>
+            <TextBlock Text="{Binding Title}" />
+        </DataTemplate>
+      </ComboBox.ItemTemplate>
+    </ComboBox>
+    <TextBox  Classes="Small, Bordered" 
+              IsReadOnly="True" 
+              Text="{Binding SourceStringUri}" 
+              Watermark="Source URI...">
+      <TextBox.InnerRightContent>
+        <Button Theme="{DynamicResource BorderlessButton}" 
+                Classes="Small, Secondary"
+                Content="..."
+                Command="{Binding ShowDataContextSourceSelectorCommand}"/>
+      </TextBox.InnerRightContent>
+    </TextBox>
+    <TextBlock Text="CIM Schema:"/>
+    <ComboBox SelectedItem="{Binding SelectedSchema}" 
+              ItemsSource="{Binding Schemas}" 
+              HorizontalAlignment="Stretch"
+              Classes="Small">
+      <ComboBox.ItemTemplate>
+        <DataTemplate>
+            <TextBlock Text="{Binding Title}" />
+        </DataTemplate>
+      </ComboBox.ItemTemplate>
+    </ComboBox>
+    <TextBox  Classes="Small, Bordered" 
+              IsReadOnly="True" 
+              Text="{Binding SchemasStringUri}" 
+              Watermark="Schema URI(s) via semi-colon...">
+      <TextBox.InnerRightContent>
+        <Button Theme="{DynamicResource BorderlessButton}" 
+                Classes="Small, Secondary"
+                Content="..."
+                Command="{Binding ShowSchemaSourceSelectorCommand}"/>
+      </TextBox.InnerRightContent>
+    </TextBox>
+    <StackPanel HorizontalAlignment="Right" Spacing="5" Orientation="Horizontal">
+      <Button Classes="Small" Content="Get" Command="{Binding GetCommand}"/>
+      <Button Classes="Small" Content="Push" Command="{Binding PushCommand}"/>
+      <Button Classes="Small" Content="Cancel" Command="{Binding CancelCommand}"/>
+    </StackPanel>
+    <TextBox  Classes="TextArea, Small, Bordered"  
+              Height="60" Text="{Binding ResultMessage}" 
+              IsReadOnly="True" 
+              AcceptsReturn="True" 
+              TextWrapping="Wrap"/>
+  </StackPanel>
+
+</Window>
