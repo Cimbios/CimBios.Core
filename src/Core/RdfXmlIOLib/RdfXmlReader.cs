@@ -6,8 +6,16 @@ namespace CimBios.Core.RdfXmlIOLib;
 /// Reader for rdf/xml formatted data.
 /// Presents data in RDF-Triple format.
 /// </summary>
-public class RdfXmlReader
+public sealed class RdfXmlReader
 {
+    /// <summary>
+    /// RDF document namespaces dictionary.
+    /// </summary>
+    public Dictionary<string, XNamespace> Namespaces { get => _Namespaces; }
+
+    private Dictionary<string, XNamespace> _Namespaces { get; set; }
+        = new Dictionary<string, XNamespace>();
+
     /// <summary>
     /// Root RDF node.
     /// </summary>
@@ -31,17 +39,6 @@ public class RdfXmlReader
     private Stack<XElement> _ReadElementsStack { get; set; }
         = new Stack<XElement>();
 
-    private Dictionary<Uri, RdfNode> _NodesCache { get; set; }
-        = new Dictionary<Uri, RdfNode>();
-
-    /// <summary>
-    /// RDF document namespaces dictionary.
-    /// </summary>
-    public Dictionary<string, XNamespace> Namespaces { get => _Namespaces; }
-
-    private Dictionary<string, XNamespace> _Namespaces { get; set; }
-        = new Dictionary<string, XNamespace>();
-
     /// <summary>
     /// Default constructor.
     /// </summary>
@@ -63,7 +60,7 @@ public class RdfXmlReader
     public void Parse(string content)
     {
         XDocument xDoc = XDocument.Parse(content);
-        ReadRdfNode(xDoc);
+        ReadRdfRootNode(xDoc);
         Reset();
     }
 
@@ -73,48 +70,26 @@ public class RdfXmlReader
     public void Load(TextReader textReader)
     {
         XDocument xDoc = XDocument.Load(textReader);
-        ReadRdfNode(xDoc);
+        Load(xDoc);
+    }
+
+    /// <summary>
+    /// Load rdf/xml content from XDocument.
+    /// </summary>
+    public void Load(XDocument xDoc)
+    {
+        ReadRdfRootNode(xDoc);
         Reset();
     }
 
     /// <summary>
-    /// Get rdf:RDF root node.
+    /// Close reader.
     /// </summary>
-    /// <param name="content">Linq Xml document.</param>
-    private void ReadRdfNode(XDocument content)
+    public void Close()
     {
-        XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-
-        XElement? rdfNode = content.Element(rdf + "RDF");
-        if (rdfNode == null)
-        {
-            throw new Exception("No RDF Node");
-        }
-
-        _RdfElement = rdfNode;
-        rdfNode.Elements().Reverse().ToList()
-            .ForEach(el => _ReadElementsStack.Push(el));
-
-        ParseXmlns(rdfNode);
-    }
-
-    /// <summary>
-    /// Parse all root namespaces.
-    /// </summary>
-    /// <param name="rdfNode">rdf:RDF root node.</param>
-    private void ParseXmlns(XElement rdfNode)
-    {
-        foreach (XAttribute attr in rdfNode.Attributes())
-        {
-            if (_Namespaces.ContainsKey(attr.Name.LocalName))
-            {
-                _Namespaces[attr.Name.LocalName] = attr.Value;
-            }
-            else
-            {
-                _Namespaces.Add(attr.Name.LocalName, attr.Value);
-            }
-        }
+        _RdfElement = null;
+        _Namespaces.Clear();
+        _ReadElementsStack.Clear();
     }
 
     /// <summary>
@@ -137,7 +112,6 @@ public class RdfXmlReader
                 + content.Name.LocalName);
 
         var triples = new List<RdfTriple>(content.Elements().Count());
-        var subObjects = new List<RdfNode>();
         foreach (var child in content.Elements())
         {
             Uri predicate = new Uri(child.Name.Namespace.NamespaceName
@@ -174,14 +148,8 @@ public class RdfXmlReader
                     {
                         continue;
                     }
-                    subObjects.Add(subObject);
 
-                    string objectId = GetXElementIdentifier(el, out _);
-                    
-                    object? @object = 
-                        new Uri(Namespaces["base"].NamespaceName + objectId);
-
-                    triples.Add(new RdfTriple(subject, predicate, @object));
+                    triples.Add(new RdfTriple(subject, predicate, subObject));
                 }
             }
             else
@@ -192,8 +160,6 @@ public class RdfXmlReader
 
         var rdfNode = new RdfNode(subject, typeIdentifier, 
             triples.ToArray(), isAuto);
-
-        subObjects.ForEach(so => so.Parent = rdfNode);
 
         return rdfNode;
     }
@@ -208,7 +174,6 @@ public class RdfXmlReader
             throw new Exception("No rdf node");
         }
 
-        _NodesCache.Clear();
         _ReadElementsStack.Clear();
         _RdfElement.Elements().Reverse().ToList()
             .ForEach(el => _ReadElementsStack.Push(el));
@@ -243,12 +208,69 @@ public class RdfXmlReader
     /// <param name="ns">Namespace of identifier.</param>
     public Uri MakeUri(string identifier, string ns = "base")
     {
+        var splittedPrefix = identifier.Split(':');
+        if (splittedPrefix.Count() == 2
+            && Namespaces.ContainsKey(splittedPrefix.First()))
+        {
+            return new Uri(Namespaces[splittedPrefix.First()]
+                .NamespaceName + splittedPrefix.Last());
+        }
+
         if (Uri.IsWellFormedUriString(identifier, UriKind.Absolute))
         {
             return new Uri(identifier);
         }
 
         return new Uri(Namespaces[ns].NamespaceName + identifier);
+    }
+
+    /// <summary>
+    /// Get rdf:RDF root node.
+    /// </summary>
+    /// <param name="content">Linq Xml document.</param>
+    private void ReadRdfRootNode(XDocument content)
+    {
+        XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+
+        XElement? rdfNode = content.Element(rdf + "RDF");
+        if (rdfNode == null)
+        {
+            throw new Exception("No RDF Node");
+        }
+
+        _RdfElement = rdfNode;
+        rdfNode.Elements().Reverse().ToList()
+            .ForEach(el => _ReadElementsStack.Push(el));
+
+        ParseXmlns(rdfNode);
+    }
+
+    /// <summary>
+    /// Parse all root namespaces.
+    /// </summary>
+    /// <param name="rdfNode">rdf:RDF root node.</param>
+    private void ParseXmlns(XElement rdfNode)
+    {
+        XNamespace xlmns = "http://www.w3.org/2000/xmlns/";
+        XNamespace ns = "http://www.w3.org/XML/1998/namespace";
+
+        foreach (XAttribute attr in rdfNode.Attributes())
+        {
+            if (attr.Name.Namespace != xlmns
+                && attr.Name != (ns + "base"))
+            {
+                continue;
+            }
+
+            if (_Namespaces.ContainsKey(attr.Name.LocalName))
+            {
+                _Namespaces[attr.Name.LocalName] = attr.Value;
+            }
+            else
+            {
+                _Namespaces.Add(attr.Name.LocalName, attr.Value);
+            }
+        }
     }
 
     /// <summary>

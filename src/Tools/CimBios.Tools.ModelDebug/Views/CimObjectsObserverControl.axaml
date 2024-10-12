@@ -1,0 +1,78 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
+             xmlns:m="using:CimBios.Tools.ModelDebug.Models"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="CimBios.Tools.ModelDebug.Views.CimObjectsObserverControl"
+             x:DataType="vm:CimObjectsObserverViewModel">
+  
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="2*" MinHeight="100"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="2*" MinHeight="50"/>
+    </Grid.RowDefinitions>
+
+    <TextBox  Grid.Row="0"
+              Classes="Small, Bordered" 
+              Text="{Binding SearchString}" 
+              Watermark="Search..." 
+              TextAlignment="Start">
+      <TextBox.InnerRightContent>
+        <Button Theme="{DynamicResource BorderlessButton}" 
+                Classes="Small, Secondary"
+                Content="🔍"
+                Command="{Binding Find}"
+                CommandParameter="{Binding #dataGrid}"/>
+      </TextBox.InnerRightContent>
+    </TextBox>
+
+    <TreeDataGrid x:Name="dataGrid" 
+                  Grid.Row="1"  
+                  Source="{Binding CimObjectsSource}"
+                  FontSize="10"
+                  CanUserSortColumns="False" 
+                  ShowColumnHeaders="False">
+      <TreeDataGrid.Styles>
+        <Style Selector="TreeDataGridRow:pointerover">
+          <Setter Property="Background" Value="#80808080"/>
+        </Style>
+        <Style Selector="TreeDataGridRow">
+          <Setter Property="MinHeight" Value="20"/>
+        </Style>
+      </TreeDataGrid.Styles>
+    </TreeDataGrid>
+
+    <GridSplitter Grid.Row="2" ResizeDirection="Rows"/>
+
+    <TextBox  Grid.Row="3"
+              FontSize="10"
+              Classes="Small, Bordered" 
+              Text="{Binding SelectedUuid}" 
+              IsReadOnly="True" 
+              TextAlignment="Start"/>
+
+    <TreeDataGrid   Grid.Row="4"
+                    Source="{Binding PropertySource}"
+                    FontSize="10"
+                    CanUserSortColumns="False">
+      <TreeDataGrid.Styles>
+        <Style Selector="TreeDataGridRow">
+          <Setter Property="MinHeight" Value="20"/>
+        </Style>
+      </TreeDataGrid.Styles>
+      <TreeDataGrid.ContextMenu>
+        <ContextMenu>
+          <MenuItem Header="Navigate" 
+                    Command="{Binding Navigate}"
+                    CommandParameter="{Binding #dataGrid}"/>
+        </ContextMenu>
+      </TreeDataGrid.ContextMenu>
+    </TreeDataGrid>
+  </Grid>
+
+</UserControl>

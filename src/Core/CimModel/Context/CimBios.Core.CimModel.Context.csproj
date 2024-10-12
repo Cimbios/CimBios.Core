@@ -2,10 +2,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RdfSerializer\CimBios.Core.CimModel.RdfSerializer.csproj" />
+    <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

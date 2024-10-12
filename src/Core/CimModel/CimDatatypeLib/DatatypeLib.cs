@@ -53,7 +53,7 @@ public class DatatypeLib : IDatatypeLib
         LoadAssembly(Assembly.GetExecutingAssembly());
     }
 
-    public DatatypeLib(string typesAssemblyPath)
+    public DatatypeLib(string typesAssemblyPath) : this()
     {
         LoadAssembly(typesAssemblyPath);
     }
