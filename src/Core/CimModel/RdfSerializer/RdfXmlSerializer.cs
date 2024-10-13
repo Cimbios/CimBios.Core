@@ -171,7 +171,6 @@ public class RdfXmlSerializer : RdfSerializerBase
         }
         else if (attribute.PropertyDatatype is ICimMetaClass metaClass)
         {
-            simpleType = typeof(IModelObject);
             if (TypeLib.RegisteredTypes.TryGetValue(metaClass.BaseUri, 
                 out var libType))
             {
@@ -189,8 +188,7 @@ public class RdfXmlSerializer : RdfSerializerBase
                 && metaClass.IsCompound)
             {
                 var compoundObject = subject.ObjectData
-                    .GetAttribute(attribute.ShortName, simpleType) 
-                    as IModelObject;
+                    .GetAttribute<IModelObject>(attribute.ShortName);
                 
                 RdfNode? compoundNode;
                 if (compoundObject != null
