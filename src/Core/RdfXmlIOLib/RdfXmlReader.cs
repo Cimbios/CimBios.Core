@@ -22,18 +22,6 @@ public sealed class RdfXmlReader
     private XElement? _RdfElement { get; set; }
 
     /// <summary>
-    /// First element in RDF root node.
-    /// </summary>
-    private XElement? _FirstElement
-    {
-        get
-        {
-            return _RdfElement?.Elements().Count() > 0
-                ? _RdfElement.Elements().First() : null;
-        }
-    }
-
-    /// <summary>
     /// Stack of read waiting elements.
     /// </summary>
     private Stack<XElement> _ReadElementsStack { get; set; }
@@ -60,8 +48,7 @@ public sealed class RdfXmlReader
     public void Parse(string content)
     {
         XDocument xDoc = XDocument.Parse(content);
-        ReadRdfRootNode(xDoc);
-        Reset();
+        Load(xDoc);
     }
 
     /// <summary>
