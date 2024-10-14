@@ -1,7 +1,7 @@
 using System.Xml.Linq;
 using CimBios.Core.RdfXmlIOLib;
 
-namespace Core.RdfXmlIOLib.Tests;
+namespace CimBios.Tests.RdfXmlIOLib;
 
 public class ReadEmptyValidRdfNodeTest
 {
@@ -58,7 +58,7 @@ public class ReadEmptyValidRdfNodeTest
 
     private static TextReader GetLoadAsset()
     {
-       return new StreamReader(@"..\..\..\assets\EmptyRdfNode.xml"); 
+        return new StreamReader("../../../assets/EmptyRdfNode.xml"); 
     }
 
     private static XDocument GetLoadXDocAsset()

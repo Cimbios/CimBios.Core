@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.DataProvider",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tools.ModelDebug", "Tools\CimBios.Tools.ModelDebug\CimBios.Tools.ModelDebug.csproj", "{E54996F0-2375-48D3-A4D2-31122401629A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.RdfXmlIOLib.Tests", "..\test\Core.RdfXmlIOLib.Tests\Core.RdfXmlIOLib.Tests.csproj", "{16F17CAB-6D1A-4014-8FBA-270C310BC878}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tests.RdfXmlIOLib", "..\test\CimBios.Tests.RdfXmlIOLib\CimBios.Tests.RdfXmlIOLib.csproj", "{16F17CAB-6D1A-4014-8FBA-270C310BC878}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B2BF029E-0939-468F-BE76-7C67B7A485A8}"
 EndProject
