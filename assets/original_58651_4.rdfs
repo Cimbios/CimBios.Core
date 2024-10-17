@@ -1,0 +1,1554 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" xmlns:uml="http://langdale.com.au/2005/UML#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xml:base="http://iec.ch/TC57/CIM100">
+	<rdf:Description rdf:about="#ActivePower">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#ActivePower</rdfs:label>
+		<rdfs:comment>Product of RMS value of the voltage and the RMS value of the in-phase component of the current.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ActivePowerChangeRate">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#ActivePowerChangeRate</rdfs:label>
+		<rdfs:comment>Rate of change of active power per time.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ActivePowerLimit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#ActivePowerLimit</rdfs:label>
+		<rdfs:comment>Limit on active power flow.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_OperationalLimits"/>
+		<rdfs:subClassOf rdf:resource="#OperationalLimit"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ActivePowerLimit.normalValue">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>normalValue</rdfs:label>
+		<rdfs:comment>The normal value of active power limit. The attribute shall be a positive value or zero.</rdfs:comment>
+		<rdfs:domain rdf:resource="#ActivePowerLimit"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ActivePowerLimit.value">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>value</rdfs:label>
+		<rdfs:comment>Value of active power limit. The attribute shall be a positive value or zero.</rdfs:comment>
+		<rdfs:domain rdf:resource="#ActivePowerLimit"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ApparentPower">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#ApparentPower</rdfs:label>
+		<rdfs:comment>Product of the RMS value of the voltage and the RMS value of the current.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#AssetInfo">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#AssetInfo</rdfs:label>
+		<rdfs:comment>Set of attributes of an asset, representing typical datasheet information of a physical device that can be instantiated and shared in different data exchange contexts:
+- as attributes of an asset instance (installed or in stock)
+- as attributes of an asset model (product by a manufacturer)
+- as attributes of a type asset (generic type of an asset as used in designs/extension planning).</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Assets"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#AssetInfo"/>
+		<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AssetInfo">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#AssetInfo</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#AsynchronousMachine">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#AsynchronousMachine</rdfs:label>
+		<rdfs:comment>A rotating machine whose shaft rotates asynchronously with the electrical field.  Also known as an induction machine with no external connection to the rotor windings, e.g. squirrel-cage induction machine.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#AsynchronousMachine"/>
+		<rdfs:subClassOf rdf:resource="#RotatingMachine"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#AsynchronousMachine.asynchronousMachineType">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>asynchronousMachineType</rdfs:label>
+		<rdfs:comment>Indicates the type of Asynchronous Machine (motor or generator).</rdfs:comment>
+		<rdfs:domain rdf:resource="#AsynchronousMachine"/>
+		<rdfs:range rdf:resource="#AsynchronousMachineKind"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#AsynchronousMachine.efficiency">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>efficiency</rdfs:label>
+		<rdfs:comment>Efficiency of the asynchronous machine at nominal operation as a percentage. Indicator for converter drive motors. Used for short circuit data exchange according to IEC 60909.</rdfs:comment>
+		<rdfs:domain rdf:resource="#AsynchronousMachine"/>
+		<cims:dataType rdf:resource="#PerCent"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#AsynchronousMachine.ratedMechanicalPower">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedMechanicalPower</rdfs:label>
+		<rdfs:comment>Rated mechanical power (Pr in IEC 60909-0). Used for short circuit data exchange according to IEC 60909.</rdfs:comment>
+		<rdfs:domain rdf:resource="#AsynchronousMachine"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachine">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#AsynchronousMachine</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#AsynchronousMachineKind">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#AsynchronousMachineKind</rdfs:label>
+		<rdfs:comment>Kind of Asynchronous Machine.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#AsynchronousMachineKind.generator">
+		<rdf:type rdf:resource="#AsynchronousMachineKind"/>
+		<rdfs:label>generator</rdfs:label>
+		<rdfs:comment>The Asynchronous Machine is a generator.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#AsynchronousMachineKind.motor">
+		<rdf:type rdf:resource="#AsynchronousMachineKind"/>
+		<rdfs:label>motor</rdfs:label>
+		<rdfs:comment>The Asynchronous Machine is a motor.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachineKind">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#AsynchronousMachineKind</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachineReactiveCapabilityCurve">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#AsynchronousMachineReactiveCapabilityCurve</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Curve"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachinelnfo">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#AsynchronousMachinelnfo</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#RotatingMachineInfo"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#BrushlessExciterlnfo">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#BrushlessExciterlnfo</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#AssetInfo"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CapacityConfiguration">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#CapacityConfiguration</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#CogenerationPlant">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#CogenerationPlant</rdfs:label>
+		<rdfs:comment>A set of thermal generating units for the production of electrical energy and process steam (usually from the output of the steam turbines). The steam sendout is typically used for industrial purposes or for municipal heating and cooling.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<rdfs:subClassOf rdf:resource="#PowerSystemResource"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#CogenerationPlant.ThermalGeneratingUnits">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ThermalGeneratingUnits</rdfs:label>
+		<rdfs:comment>A thermal generating unit may be a member of a cogeneration plant.</rdfs:comment>
+		<rdfs:domain rdf:resource="#CogenerationPlant"/>
+		<rdfs:range rdf:resource="#ThermalGeneratingUnit"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="#ThermalGeneratingUnit.CogenerationPlant"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#CogenerationPlant.ratedP">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedP</rdfs:label>
+		<rdfs:comment>The rated output active power of the cogeneration plant.
+The attribute shall be a positive value.</rdfs:comment>
+		<rdfs:domain rdf:resource="#CogenerationPlant"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#CombinedCyclePlant">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#CombinedCyclePlant</rdfs:label>
+		<rdfs:comment>A set of combustion turbines and steam turbines where the exhaust heat from the combustion turbines is recovered to make steam for the steam turbines, resulting in greater overall plant efficiency.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#CombinedCyclePlant"/>
+		<rdfs:subClassOf rdf:resource="#PowerSystemResource"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#CombinedCyclePlant.ThermalGeneratingUnits">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ThermalGeneratingUnits</rdfs:label>
+		<rdfs:comment>A thermal generating unit may be a member of a combined cycle plant.</rdfs:comment>
+		<rdfs:domain rdf:resource="#CombinedCyclePlant"/>
+		<rdfs:range rdf:resource="#ThermalGeneratingUnit"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="#ThermalGeneratingUnit.CombinedCyclePlant"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#CombinedCyclePlant.combCyclePlantRating">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>combCyclePlantRating</rdfs:label>
+		<rdfs:comment>The combined cycle plant's active power output rating.</rdfs:comment>
+		<rdfs:domain rdf:resource="#CombinedCyclePlant"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CombinedCyclePlant">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#CombinedCyclePlant</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#CoolantType">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#CoolantType</rdfs:label>
+		<rdfs:comment>Method of cooling a machine.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#CoolantType.air">
+		<rdf:type rdf:resource="#CoolantType"/>
+		<rdfs:label>air</rdfs:label>
+		<rdfs:comment>Air.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#CoolantType.hydrogenGas">
+		<rdf:type rdf:resource="#CoolantType"/>
+		<rdfs:label>hydrogenGas</rdfs:label>
+		<rdfs:comment>Hydrogen gas.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#CoolantType.water">
+		<rdf:type rdf:resource="#CoolantType"/>
+		<rdfs:label>water</rdfs:label>
+		<rdfs:comment>Water.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Curve">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#Curve</rdfs:label>
+		<rdfs:comment>A multi-purpose curve or functional relationship between an independent variable (X-axis) and dependent (Y-axis) variables.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Core"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Curve"/>
+		<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Curve">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#Curve</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#DynamicsFunctionBlock">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#DynamicsFunctionBlock</rdfs:label>
+		<rdfs:comment>Abstract parent class for all Dynamics function blocks.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_StandardModels"/>
+		<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Equipment">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#Equipment</rdfs:label>
+		<rdfs:comment>The parts of a power system that are physical devices, electronic or mechanical.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Core"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Equipment"/>
+		<rdfs:subClassOf rdf:resource="#PowerSystemResource"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Equipment">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#Equipment</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ExcitationControl">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#ExcitationControl</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Equipment"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ExcitationControllnfo">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#ExcitationControllnfo</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#AssetInfo"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ExcitationSystem">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#ExcitationSystem</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Equipment"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FossilFuel">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#FossilFuel</rdfs:label>
+		<rdfs:comment>The fossil fuel consumed by the non-nuclear thermal generating unit.   For example, coal, oil, gas, etc.   These are the specific fuels that the generating unit can consume.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FossilFuel.ThermalGeneratingUnit">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ThermalGeneratingUnit</rdfs:label>
+		<rdfs:comment>A thermal generating unit may have one or more fossil fuels.</rdfs:comment>
+		<rdfs:domain rdf:resource="#FossilFuel"/>
+		<rdfs:range rdf:resource="#ThermalGeneratingUnit"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:inverseRoleName rdf:resource="#ThermalGeneratingUnit.FossilFuels"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FossilFuel.fossilFuelType">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>fossilFuelType</rdfs:label>
+		<rdfs:comment>The type of fossil fuel, such as coal, oil, or gas.</rdfs:comment>
+		<rdfs:domain rdf:resource="#FossilFuel"/>
+		<rdfs:range rdf:resource="#FuelType"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FossilFuel.fuelEffFactor">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>fuelEffFactor</rdfs:label>
+		<rdfs:comment>The efficiency factor for the fuel (per unit) in terms of the effective energy absorbed.</rdfs:comment>
+		<rdfs:domain rdf:resource="#FossilFuel"/>
+		<cims:dataType rdf:resource="#PU"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FossilFuel.fuelHeatContent">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>fuelHeatContent</rdfs:label>
+		<rdfs:comment>The amount of heat per weight (or volume) of the given type of fuel.</rdfs:comment>
+		<rdfs:domain rdf:resource="#FossilFuel"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FuelType">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#FuelType</rdfs:label>
+		<rdfs:comment>Type of fuel.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FuelType.coal">
+		<rdf:type rdf:resource="#FuelType"/>
+		<rdfs:label>coal</rdfs:label>
+		<rdfs:comment>Generic coal, not including lignite type.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FuelType.gas">
+		<rdf:type rdf:resource="#FuelType"/>
+		<rdfs:label>gas</rdfs:label>
+		<rdfs:comment>Natural gas.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FuelType.hardCoal">
+		<rdf:type rdf:resource="#FuelType"/>
+		<rdfs:label>hardCoal</rdfs:label>
+		<rdfs:comment>Hard coal.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FuelType.lignite">
+		<rdf:type rdf:resource="#FuelType"/>
+		<rdfs:label>lignite</rdfs:label>
+		<rdfs:comment>The fuel is lignite coal.  Note that this is a special type of coal, so the other enum of coal is reserved for hard coal types or if the exact type of coal is not known.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FuelType.oil">
+		<rdf:type rdf:resource="#FuelType"/>
+		<rdfs:label>oil</rdfs:label>
+		<rdfs:comment>Oil.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FuelType.oilShale">
+		<rdf:type rdf:resource="#FuelType"/>
+		<rdfs:label>oilShale</rdfs:label>
+		<rdfs:comment>Oil Shale.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FuelType.other">
+		<rdf:type rdf:resource="#FuelType"/>
+		<rdfs:label>other</rdfs:label>
+		<rdfs:comment>Any fuel type not included in the rest of the enumerated value.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#FuelType.peat">
+		<rdf:type rdf:resource="#FuelType"/>
+		<rdfs:label>peat</rdfs:label>
+		<rdfs:comment>Peat.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#GeneratingUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#GeneratingUnit</rdfs:label>
+		<rdfs:comment>A single or set of synchronous machines for converting mechanical power into alternating-current power. For example, individual machines within a set may be defined for scheduling purposes while a single control signal is derived for the set. In this case there would be a GeneratingUnit for each member of the set and an additional GeneratingUnit corresponding to the set.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<rdfs:subClassOf rdf:resource="#Equipment"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#GeneratingUnit"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#GeneratingUnit.governorSCD">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>governorSCD</rdfs:label>
+		<rdfs:comment>Governor Speed Changer Droop.   This is the change in generator power output divided by the change in frequency normalized by the nominal power of the generator and the nominal frequency and expressed in percent and negated. A positive value of speed change droop provides additional generator output upon a drop in frequency.</rdfs:comment>
+		<rdfs:domain rdf:resource="#GeneratingUnit"/>
+		<cims:dataType rdf:resource="#PerCent"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#GeneratingUnit.highControlLimit">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>highControlLimit</rdfs:label>
+		<rdfs:comment>High limit for secondary (AGC) control.</rdfs:comment>
+		<rdfs:domain rdf:resource="#GeneratingUnit"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#GeneratingUnit.lowControlLimit">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>lowControlLimit</rdfs:label>
+		<rdfs:comment>Low limit for secondary (AGC) control.</rdfs:comment>
+		<rdfs:domain rdf:resource="#GeneratingUnit"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#GeneratingUnit.lowerRampRate">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>lowerRampRate</rdfs:label>
+		<rdfs:comment>The normal maximum rate the generating unit active power output can be lowered by control actions.</rdfs:comment>
+		<rdfs:domain rdf:resource="#GeneratingUnit"/>
+		<cims:dataType rdf:resource="#ActivePowerChangeRate"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#GeneratingUnit.maxOperatingP">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>maxOperatingP</rdfs:label>
+		<rdfs:comment>This is the maximum operating active power limit the dispatcher can enter for this unit.</rdfs:comment>
+		<rdfs:domain rdf:resource="#GeneratingUnit"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#GeneratingUnit.minOperatingP">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>minOperatingP</rdfs:label>
+		<rdfs:comment>This is the minimum operating active power limit the dispatcher can enter for this unit.</rdfs:comment>
+		<rdfs:domain rdf:resource="#GeneratingUnit"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#GeneratingUnit.nominalP">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>nominalP</rdfs:label>
+		<rdfs:comment>The nominal power of the generating unit.  Used to give precise meaning to percentage based attributes such as the governor speed change droop (governorSCD attribute).
+The attribute shall be a positive value equal to or less than RotatingMachine.ratedS.</rdfs:comment>
+		<rdfs:domain rdf:resource="#GeneratingUnit"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#GeneratingUnit.raiseRampRate">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>raiseRampRate</rdfs:label>
+		<rdfs:comment>The normal maximum rate the generating unit active power output can be raised by control actions.</rdfs:comment>
+		<rdfs:domain rdf:resource="#GeneratingUnit"/>
+		<cims:dataType rdf:resource="#ActivePowerChangeRate"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#GeneratingUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#GeneratingUnit</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroEnergyConversionKind">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#HydroEnergyConversionKind</rdfs:label>
+		<rdfs:comment>Specifies the capability of the hydro generating unit to convert energy as a generator or pump.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroEnergyConversionKind.generator">
+		<rdf:type rdf:resource="#HydroEnergyConversionKind"/>
+		<rdfs:label>generator</rdfs:label>
+		<rdfs:comment>Able to generate power, but not able to pump water for energy storage.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroEnergyConversionKind.pumpAndGenerator">
+		<rdf:type rdf:resource="#HydroEnergyConversionKind"/>
+		<rdfs:label>pumpAndGenerator</rdfs:label>
+		<rdfs:comment>Able to both generate power and pump water for energy storage.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroGeneratingUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#HydroGeneratingUnit</rdfs:label>
+		<rdfs:comment>A generating unit whose prime mover is a hydraulic turbine (e.g., Francis, Pelton, Kaplan).</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<rdfs:subClassOf rdf:resource="#GeneratingUnit"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#HydroGeneratingUnit"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroGeneratingUnit.HydroPowerPlant">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>HydroPowerPlant</rdfs:label>
+		<rdfs:comment>The hydro generating unit belongs to a hydro power plant.</rdfs:comment>
+		<rdfs:domain rdf:resource="#HydroGeneratingUnit"/>
+		<rdfs:range rdf:resource="#HydroPowerPlant"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="#HydroPowerPlant.HydroGeneratingUnits"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#ofAggregate"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroGeneratingUnit.energyConversionCapability">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>energyConversionCapability</rdfs:label>
+		<rdfs:comment>Energy conversion capability for generating.</rdfs:comment>
+		<rdfs:domain rdf:resource="#HydroGeneratingUnit"/>
+		<rdfs:range rdf:resource="#HydroEnergyConversionKind"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#HydroGeneratingUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#HydroGeneratingUnit</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroPlantStorageKind">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#HydroPlantStorageKind</rdfs:label>
+		<rdfs:comment>The type of hydro power plant.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroPlantStorageKind.pumpedStorage">
+		<rdf:type rdf:resource="#HydroPlantStorageKind"/>
+		<rdfs:label>pumpedStorage</rdfs:label>
+		<rdfs:comment>Pumped storage.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroPlantStorageKind.runOfRiver">
+		<rdf:type rdf:resource="#HydroPlantStorageKind"/>
+		<rdfs:label>runOfRiver</rdfs:label>
+		<rdfs:comment>Run of river.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroPlantStorageKind.storage">
+		<rdf:type rdf:resource="#HydroPlantStorageKind"/>
+		<rdfs:label>storage</rdfs:label>
+		<rdfs:comment>Storage.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroPowerPlant">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#HydroPowerPlant</rdfs:label>
+		<rdfs:comment>A hydro power station which can generate or pump. When generating, the generator turbines receive water from an upper reservoir. When pumping, the pumps receive their water from a lower reservoir.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<rdfs:subClassOf rdf:resource="#PowerSystemResource"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroPowerPlant.HydroGeneratingUnits">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>HydroGeneratingUnits</rdfs:label>
+		<rdfs:comment>The hydro generating unit belongs to a hydro power plant.</rdfs:comment>
+		<rdfs:domain rdf:resource="#HydroPowerPlant"/>
+		<rdfs:range rdf:resource="#HydroGeneratingUnit"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="#HydroGeneratingUnit.HydroPowerPlant"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#aggregateOf"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroPowerPlant.genRatedP">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>genRatedP</rdfs:label>
+		<rdfs:comment>The hydro plant's generating rating active power for rated head conditions.
+The attribute shall be a positive value.</rdfs:comment>
+		<rdfs:domain rdf:resource="#HydroPowerPlant"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroPowerPlant.hydroPlantStorageType">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>hydroPlantStorageType</rdfs:label>
+		<rdfs:comment>The type of hydro power plant water storage.</rdfs:comment>
+		<rdfs:domain rdf:resource="#HydroPowerPlant"/>
+		<rdfs:range rdf:resource="#HydroPlantStorageKind"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroTurbine">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#HydroTurbine</rdfs:label>
+		<rdfs:comment>A water driven prime mover. Typical turbine types are: Francis, Kaplan, and Pelton.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_GenerationTrainingSimulation"/>
+		<rdfs:subClassOf rdf:resource="#PrimeMover"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroTurbine.turbineType">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>turbineType</rdfs:label>
+		<rdfs:comment>Type of turbine.</rdfs:comment>
+		<rdfs:domain rdf:resource="#HydroTurbine"/>
+		<rdfs:range rdf:resource="#HydroTurbineKind"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroTurbineKind">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#HydroTurbineKind</rdfs:label>
+		<rdfs:comment>Type of turbine.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_GenerationTrainingSimulation"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroTurbineKind.francis">
+		<rdf:type rdf:resource="#HydroTurbineKind"/>
+		<rdfs:label>francis</rdfs:label>
+		<rdfs:comment>Francis.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroTurbineKind.kaplan">
+		<rdf:type rdf:resource="#HydroTurbineKind"/>
+		<rdfs:label>kaplan</rdfs:label>
+		<rdfs:comment>Kaplan.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#HydroTurbineKind.pelton">
+		<rdf:type rdf:resource="#HydroTurbineKind"/>
+		<rdfs:label>pelton</rdfs:label>
+		<rdfs:comment>Pelton.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#HydroTurbineKind">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#HydroTurbineKind</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#IdentifiedObject">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#IdentifiedObject</rdfs:label>
+		<rdfs:comment>This is a root class to provide common identification for all classes needing identification and naming attributes.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Core"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#IdentifiedObject">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#IdentifiedObject</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#OperationalLimit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#OperationalLimit</rdfs:label>
+		<rdfs:comment>A value and normal value associated with a specific kind of limit. 
+The sub class value and normalValue attributes vary inversely to the associated OperationalLimitType.acceptableDuration (acceptableDuration for short).  
+If a particular piece of equipment has multiple operational limits of the same kind (apparent power, current, etc.), the limit with the greatest acceptableDuration shall have the smallest limit value and the limit with the smallest acceptableDuration shall have the largest limit value.  Note: A large current can only be allowed to flow through a piece of equipment for a short duration without causing damage, but a lesser current can be allowed to flow for a longer duration.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_OperationalLimits"/>
+		<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PU">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#PU</rdfs:label>
+		<rdfs:comment>Per Unit - a positive or negative value referred to a defined base. Values typically range from -10 to +10.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PerCent">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#PerCent</rdfs:label>
+		<rdfs:comment>Percentage on a defined base.   For example, specify as 100 to indicate at the defined base.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PhotoVoltaicUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#PhotoVoltaicUnit</rdfs:label>
+		<rdfs:comment>A photovoltaic device or an aggregation of such devices.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<rdfs:subClassOf rdf:resource="#PowerElectronicsUnit"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Plant">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#Plant</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerElectronicsConnection">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#PowerElectronicsConnection</rdfs:label>
+		<rdfs:comment>A connection to the AC network for energy production or consumption that uses power electronics rather than rotating machines.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#PowerElectronicsConnection"/>
+		<rdfs:subClassOf rdf:resource="#RegulatingCondEq"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerElectronicsConnection.PowerElectronicsUnit">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>PowerElectronicsUnit</rdfs:label>
+		<rdfs:comment>An AC network connection may have several power electronics units connecting through it.</rdfs:comment>
+		<rdfs:domain rdf:resource="#PowerElectronicsConnection"/>
+		<rdfs:range rdf:resource="#PowerElectronicsUnit"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="#PowerElectronicsUnit.PowerElectronicsConnection"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerElectronicsConnection.maxQ">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>maxQ</rdfs:label>
+		<rdfs:comment>Maximum reactive power limit. This is the maximum (nameplate) limit for the unit.</rdfs:comment>
+		<rdfs:domain rdf:resource="#PowerElectronicsConnection"/>
+		<cims:dataType rdf:resource="#ReactivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerElectronicsConnection.minQ">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>minQ</rdfs:label>
+		<rdfs:comment>Minimum reactive power limit for the unit. This is the minimum (nameplate) limit for the unit.</rdfs:comment>
+		<rdfs:domain rdf:resource="#PowerElectronicsConnection"/>
+		<cims:dataType rdf:resource="#ReactivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerElectronicsConnection.ratedS">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedS</rdfs:label>
+		<rdfs:comment>Nameplate apparent power rating for the unit.
+The attribute shall have a positive value.</rdfs:comment>
+		<rdfs:domain rdf:resource="#PowerElectronicsConnection"/>
+		<cims:dataType rdf:resource="#ApparentPower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerElectronicsConnection.ratedU">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedU</rdfs:label>
+		<rdfs:comment>Rated voltage (nameplate data, Ur in IEC 60909-0). It is primarily used for short circuit data exchange according to IEC 60909.
+The attribute shall be a positive value.</rdfs:comment>
+		<rdfs:domain rdf:resource="#PowerElectronicsConnection"/>
+		<cims:dataType rdf:resource="#Voltage"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PowerElectronicsConnection">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#PowerElectronicsConnection</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PowerElectronicsReactiveCapabilityCurve">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#PowerElectronicsReactiveCapabilityCurve</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Curve"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerElectronicsUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#PowerElectronicsUnit</rdfs:label>
+		<rdfs:comment>A generating unit or battery or aggregation that connects to the AC network using power electronics rather than rotating machines.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<rdfs:subClassOf rdf:resource="#Equipment"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#PowerElectronicsUnit"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerElectronicsUnit.PowerElectronicsConnection">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>PowerElectronicsConnection</rdfs:label>
+		<rdfs:comment>A power electronics unit has a connection to the AC network.</rdfs:comment>
+		<rdfs:domain rdf:resource="#PowerElectronicsUnit"/>
+		<rdfs:range rdf:resource="#PowerElectronicsConnection"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:inverseRoleName rdf:resource="#PowerElectronicsConnection.PowerElectronicsUnit"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerElectronicsUnit.maxP">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>maxP</rdfs:label>
+		<rdfs:comment>Maximum active power limit. This is the maximum (nameplate) limit for the unit.</rdfs:comment>
+		<rdfs:domain rdf:resource="#PowerElectronicsUnit"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerElectronicsUnit.minP">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>minP</rdfs:label>
+		<rdfs:comment>Minimum active power limit. This is the minimum (nameplate) limit for the unit.</rdfs:comment>
+		<rdfs:domain rdf:resource="#PowerElectronicsUnit"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PowerElectronicsUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#PowerElectronicsUnit</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerElectronicsWindUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#PowerElectronicsWindUnit</rdfs:label>
+		<rdfs:comment>A wind generating unit that connects to the AC network with power electronics rather than rotating machines or an aggregation of such units.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<rdfs:subClassOf rdf:resource="#PowerElectronicsUnit"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PowerSystemResource">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#PowerSystemResource</rdfs:label>
+		<rdfs:comment>A power system resource (PSR) can be an item of equipment such as a switch, an equipment container containing many individual items of equipment such as a substation, or an organisational entity such as sub-control area. Power system resources can have measurements associated.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Core"/>
+		<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#PrimeMover">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#PrimeMover</rdfs:label>
+		<rdfs:comment>The machine used to develop mechanical energy used to drive a generator.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_GenerationTrainingSimulation"/>
+		<rdfs:subClassOf rdf:resource="#PowerSystemResource"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#PrimeMover"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PrimeMover">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#PrimeMover</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Reactance">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#Reactance</rdfs:label>
+		<rdfs:comment>Reactance (imaginary part of impedance), at rated frequency.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ReactiveCapabilityCurve">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#ReactiveCapabilityCurve</rdfs:label>
+		<rdfs:comment>Reactive power rating envelope versus the synchronous machine's active power, in both the generating and motoring modes. For each active power value there is a corresponding high and low reactive power limit  value. Typically there will be a separate curve for each coolant condition, such as hydrogen pressure.  The Y1 axis values represent reactive minimum and the Y2 axis values represent reactive maximum.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="#Curve"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ReactiveCapabilityCurve.InitiallyUsedBySynchronousMachines">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>InitiallyUsedBySynchronousMachines</rdfs:label>
+		<rdfs:comment>Synchronous machines using this curve as default.</rdfs:comment>
+		<rdfs:domain rdf:resource="#ReactiveCapabilityCurve"/>
+		<rdfs:range rdf:resource="#SynchronousMachine"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n"/>
+		<cims:inverseRoleName rdf:resource="#SynchronousMachine.InitialReactiveCapabilityCurve"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ReactiveCapabilityCurve.SynchronousMachines">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>SynchronousMachines</rdfs:label>
+		<rdfs:comment>Synchronous machines using this curve.</rdfs:comment>
+		<rdfs:domain rdf:resource="#ReactiveCapabilityCurve"/>
+		<rdfs:range rdf:resource="#SynchronousMachine"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n"/>
+		<cims:inverseRoleName rdf:resource="#SynchronousMachine.ReactiveCapabilityCurves"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ReactivePower">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#ReactivePower</rdfs:label>
+		<rdfs:comment>Product of RMS value of the voltage and the RMS value of the quadrature component of the current.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#RegulatingCondEq">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#RegulatingCondEq</rdfs:label>
+		<rdfs:comment>A type of conducting equipment that can regulate a quantity (i.e. voltage or flow) at a specific point in the network.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="#Equipment"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Resistance">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#Resistance</rdfs:label>
+		<rdfs:comment>Resistance (real part of impedance).</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#RotatingMachine">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#RotatingMachine</rdfs:label>
+		<rdfs:comment>A rotating machine which may be used as a generator or motor.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="#RegulatingCondEq"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#RotatingMachine.ratedPowerFactor">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedPowerFactor</rdfs:label>
+		<rdfs:comment>Power factor (nameplate data). It is primarily used for short circuit data exchange according to IEC 60909. The attribute cannot be a negative value.</rdfs:comment>
+		<rdfs:domain rdf:resource="#RotatingMachine"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#RotatingMachine.ratedS">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedS</rdfs:label>
+		<rdfs:comment>Nameplate apparent power rating for the unit.
+The attribute shall have a positive value.</rdfs:comment>
+		<rdfs:domain rdf:resource="#RotatingMachine"/>
+		<cims:dataType rdf:resource="#ApparentPower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#RotatingMachine.ratedU">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedU</rdfs:label>
+		<rdfs:comment>Rated voltage (nameplate data, Ur in IEC 60909-0). It is primarily used for short circuit data exchange according to IEC 60909.
+The attribute shall be a positive value.</rdfs:comment>
+		<rdfs:domain rdf:resource="#RotatingMachine"/>
+		<cims:dataType rdf:resource="#Voltage"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#RotatingMachineDynamics">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#RotatingMachineDynamics</rdfs:label>
+		<rdfs:comment>Abstract parent class for all synchronous and asynchronous machine standard models.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_StandardModels"/>
+		<rdfs:subClassOf rdf:resource="#DynamicsFunctionBlock"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#RotatingMachineDynamics.inertia">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>inertia</rdfs:label>
+		<rdfs:comment>Inertia constant of generator or motor and mechanical load (&lt;i&gt;H&lt;/i&gt;) (&amp;gt; 0).  This is the specification for the stored energy in the rotating mass when operating at rated speed.  For a generator, this includes the generator plus all other elements (turbine, exciter) on the same shaft and has units of MW x s.  For a motor, it includes the motor plus its mechanical load. Conventional units are PU on the generator MVA base, usually expressed as MW x s / MVA or just s. This value is used in the accelerating power reference frame for operator training simulator solutions.  Typical value = 3.</rdfs:comment>
+		<rdfs:domain rdf:resource="#RotatingMachineDynamics"/>
+		<cims:dataType rdf:resource="#Seconds"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#RotatingMachineDynamics.statorLeakageReactance">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>statorLeakageReactance</rdfs:label>
+		<rdfs:comment>Stator leakage reactance (&lt;i&gt;Xl&lt;/i&gt;) (&amp;gt;= 0). Typical value = 0,15.</rdfs:comment>
+		<rdfs:domain rdf:resource="#RotatingMachineDynamics"/>
+		<cims:dataType rdf:resource="#PU"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#RotatingMachineInfo">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#RotatingMachineInfo</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#RotorKind">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#RotorKind</rdfs:label>
+		<rdfs:comment>Type of rotor on physical machine.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_SynchronousMachineDynamics"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#RotorKind.roundRotor">
+		<rdf:type rdf:resource="#RotorKind"/>
+		<rdfs:label>roundRotor</rdfs:label>
+		<rdfs:comment>Round rotor type of synchronous machine.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#RotorKind.salientPole">
+		<rdf:type rdf:resource="#RotorKind"/>
+		<rdfs:label>salientPole</rdfs:label>
+		<rdfs:comment>Salient pole type of synchronous machine.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Seconds">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#Seconds</rdfs:label>
+		<rdfs:comment>Time, in seconds.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#SynchronousMachine</rdfs:label>
+		<rdfs:comment>An electromechanical device that operates with shaft rotating synchronously with the network. It is a single machine operating either as a generator or synchronous condenser or pump.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="#RotatingMachine"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#SynchronousMachine"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.InitialReactiveCapabilityCurve">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>InitialReactiveCapabilityCurve</rdfs:label>
+		<rdfs:comment>The default reactive capability curve for use by a synchronous machine.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<rdfs:range rdf:resource="#ReactiveCapabilityCurve"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="#ReactiveCapabilityCurve.InitiallyUsedBySynchronousMachines"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.ReactiveCapabilityCurves">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ReactiveCapabilityCurves</rdfs:label>
+		<rdfs:comment>All available reactive capability curves for this synchronous machine.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<rdfs:range rdf:resource="#ReactiveCapabilityCurve"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="#ReactiveCapabilityCurve.SynchronousMachines"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.SynchronousMachineDynamics">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>SynchronousMachineDynamics</rdfs:label>
+		<rdfs:comment>Synchronous machine dynamics model used to describe dynamic behaviour of this synchronous machine.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<rdfs:range rdf:resource="#SynchronousMachineDynamics"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="#SynchronousMachineDynamics.SynchronousMachine"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.condenserP">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>condenserP</rdfs:label>
+		<rdfs:comment>Active power consumed when in condenser mode operation.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#ActivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.coolantType">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>coolantType</rdfs:label>
+		<rdfs:comment>Method of cooling the machine.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<rdfs:range rdf:resource="#CoolantType"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.earthing">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>earthing</rdfs:label>
+		<rdfs:comment>Indicates whether or not the generator is earthed. Used for short circuit data exchange according to IEC 60909.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.earthingStarPointR">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>earthingStarPointR</rdfs:label>
+		<rdfs:comment>Generator star point earthing resistance (Re). Used for short circuit data exchange according to IEC 60909.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#Resistance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.earthingStarPointX">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>earthingStarPointX</rdfs:label>
+		<rdfs:comment>Generator star point earthing reactance (Xe). Used for short circuit data exchange according to IEC 60909.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#Reactance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.maxQ">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>maxQ</rdfs:label>
+		<rdfs:comment>Maximum reactive power limit. This is the maximum (nameplate) limit for the unit.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#ReactivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.maxU">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>maxU</rdfs:label>
+		<rdfs:comment>Maximum voltage limit for the unit.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#Voltage"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.minQ">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>minQ</rdfs:label>
+		<rdfs:comment>Minimum reactive power limit for the unit.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#ReactivePower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.minU">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>minU</rdfs:label>
+		<rdfs:comment>Minimum voltage  limit for the unit.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#Voltage"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.operatingMode">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>operatingMode</rdfs:label>
+		<rdfs:comment>Current mode of operation.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<rdfs:range rdf:resource="#SynchronousMachineOperatingMode"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.r">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>r</rdfs:label>
+		<rdfs:comment>Equivalent resistance (RG) of generator. RG is considered for the calculation of all currents, except for the calculation of the peak current ip. Used for short circuit data exchange according to IEC 60909.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#Resistance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.r0">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>r0</rdfs:label>
+		<rdfs:comment>Zero sequence resistance of the synchronous machine.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#Resistance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.satDirectSubtransX">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>satDirectSubtransX</rdfs:label>
+		<rdfs:comment>Direct-axis subtransient reactance saturated, also known as Xd"sat.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#PU"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.type">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>type</rdfs:label>
+		<rdfs:comment>Modes that this synchronous machine can operate in.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<rdfs:range rdf:resource="#SynchronousMachineKind"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.x0">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>x0</rdfs:label>
+		<rdfs:comment>Zero sequence reactance of the synchronous machine.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#Reactance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachine.x2">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>x2</rdfs:label>
+		<rdfs:comment>Negative sequence reactance.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachine"/>
+		<cims:dataType rdf:resource="#Reactance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#SynchronousMachine">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#SynchronousMachine</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineDetailed">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#SynchronousMachineDetailed</rdfs:label>
+		<rdfs:comment>All synchronous machine detailed types use a subset of the same data parameters and input/output variables.  
+The several variations differ in the following ways:
+- the number of  equivalent windings that are included;
+- the way in which saturation is incorporated into the model;
+- whether or not “subtransient saliency” (&lt;i&gt;X''q&lt;/i&gt; not = &lt;i&gt;X''d&lt;/i&gt;) is represented.
+It is not necessary for each simulation tool to have separate models for each of the model types.  The same model can often be used for several types by alternative logic within the model.  Also, differences in saturation representation might not result in significant model performance differences so model substitutions are often acceptable.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_SynchronousMachineDynamics"/>
+		<rdfs:subClassOf rdf:resource="#SynchronousMachineDynamics"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineDynamics">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#SynchronousMachineDynamics</rdfs:label>
+		<rdfs:comment>Synchronous machine whose behaviour is described by reference to a standard model expressed in one of the following forms:
+- simplified (or classical), where a group of generators or motors is not modelled in detail;
+- detailed, in equivalent circuit form;
+- detailed, in time constant reactance form; or
+&lt;font color="#0f0f0f"&gt;- by definition of a user-defined model.&lt;/font&gt;
+&lt;font color="#0f0f0f"&gt;It is a common practice to represent small generators by a negative load rather than by a dynamic generator model when performing dynamics simulations. In this case, a SynchronousMachine in the static model is not represented by anything in the dynamics model, instead it is treated as an ordinary load.&lt;/font&gt;
+&lt;font color="#0f0f0f"&gt;Parameter details:&lt;/font&gt;
+&lt;ol&gt;
+	&lt;li&gt;&lt;font color="#0f0f0f"&gt;Synchronous machine parameters such as &lt;i&gt;Xl, Xd, Xp&lt;/i&gt; etc. are actually used as inductances in the models,&lt;/font&gt; but are commonly referred to as reactances since, at nominal frequency, the PU values are the same. However, some references use the symbol &lt;i&gt;L&lt;/i&gt; instead of &lt;i&gt;X&lt;/i&gt;.&lt;/li&gt;
+&lt;/ol&gt;</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_SynchronousMachineDynamics"/>
+		<rdfs:subClassOf rdf:resource="#RotatingMachineDynamics"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineDynamics.SynchronousMachine">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>SynchronousMachine</rdfs:label>
+		<rdfs:comment>Synchronous machine to which synchronous machine dynamics model applies.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineDynamics"/>
+		<rdfs:range rdf:resource="#SynchronousMachine"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:inverseRoleName rdf:resource="#SynchronousMachine.SynchronousMachineDynamics"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineKind">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#SynchronousMachineKind</rdfs:label>
+		<rdfs:comment>Synchronous machine type.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineKind.condenser">
+		<rdf:type rdf:resource="#SynchronousMachineKind"/>
+		<rdfs:label>condenser</rdfs:label>
+		<rdfs:comment>Indicates the synchronous machine can operate as a condenser.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineKind.generator">
+		<rdf:type rdf:resource="#SynchronousMachineKind"/>
+		<rdfs:label>generator</rdfs:label>
+		<rdfs:comment>Indicates the synchronous machine can operate as a generator.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineKind.generatorOrCondenser">
+		<rdf:type rdf:resource="#SynchronousMachineKind"/>
+		<rdfs:label>generatorOrCondenser</rdfs:label>
+		<rdfs:comment>Indicates the synchronous machine can operate as a generator or as a condenser.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineKind.generatorOrCondenserOrMotor">
+		<rdf:type rdf:resource="#SynchronousMachineKind"/>
+		<rdfs:label>generatorOrCondenserOrMotor</rdfs:label>
+		<rdfs:comment>Indicates the synchronous machine can operate as a generator or as a condenser or as a motor.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineKind.generatorOrMotor">
+		<rdf:type rdf:resource="#SynchronousMachineKind"/>
+		<rdfs:label>generatorOrMotor</rdfs:label>
+		<rdfs:comment>Indicates the synchronous machine can operate as a generator or as a motor.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineKind.motor">
+		<rdf:type rdf:resource="#SynchronousMachineKind"/>
+		<rdfs:label>motor</rdfs:label>
+		<rdfs:comment>Indicates the synchronous machine can operate as a motor.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineKind.motorOrCondenser">
+		<rdf:type rdf:resource="#SynchronousMachineKind"/>
+		<rdfs:label>motorOrCondenser</rdfs:label>
+		<rdfs:comment>Indicates the synchronous machine can operate as a motor or as a condenser.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineOperatingMode">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#SynchronousMachineOperatingMode</rdfs:label>
+		<rdfs:comment>Synchronous machine operating mode.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineOperatingMode.condenser">
+		<rdf:type rdf:resource="#SynchronousMachineOperatingMode"/>
+		<rdfs:label>condenser</rdfs:label>
+		<rdfs:comment>Operating as condenser.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineOperatingMode.generator">
+		<rdf:type rdf:resource="#SynchronousMachineOperatingMode"/>
+		<rdfs:label>generator</rdfs:label>
+		<rdfs:comment>Operating as generator.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineOperatingMode.motor">
+		<rdf:type rdf:resource="#SynchronousMachineOperatingMode"/>
+		<rdfs:label>motor</rdfs:label>
+		<rdfs:comment>Operating as motor.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#SynchronousMachineTimeConstantReactance</rdfs:label>
+		<rdfs:comment>Synchronous machine detailed modelling types are defined by the combination of the attributes SynchronousMachineTimeConstantReactance.modelType and SynchronousMachineTimeConstantReactance.rotorType.  
+Parameter details:
+&lt;ol&gt;
+	&lt;li&gt;The “p” in the time-related attribute names is a substitution for a “prime” in the usual parameter notation, e.g. tpdo refers to &lt;i&gt;T'do&lt;/i&gt;.&lt;/li&gt;
+	&lt;li&gt;The parameters used for models expressed in time constant reactance form include:&lt;/li&gt;
+&lt;/ol&gt;
+- RotatingMachine.ratedS (&lt;i&gt;MVAbase&lt;/i&gt;);
+- RotatingMachineDynamics.damping (&lt;i&gt;D&lt;/i&gt;);
+- RotatingMachineDynamics.inertia (&lt;i&gt;H&lt;/i&gt;);
+- RotatingMachineDynamics.saturationFactor (&lt;i&gt;S1&lt;/i&gt;);
+- RotatingMachineDynamics.saturationFactor120 (&lt;i&gt;S12&lt;/i&gt;);
+- RotatingMachineDynamics.statorLeakageReactance (&lt;i&gt;Xl&lt;/i&gt;);
+- RotatingMachineDynamics.statorResistance (&lt;i&gt;Rs&lt;/i&gt;);
+- SynchronousMachineTimeConstantReactance.ks (&lt;i&gt;Ks&lt;/i&gt;);
+- SynchronousMachineDetailed.saturationFactorQAxis (&lt;i&gt;S1q&lt;/i&gt;);
+- SynchronousMachineDetailed.saturationFactor120QAxis (&lt;i&gt;S12q&lt;/i&gt;);
+- SynchronousMachineDetailed.efdBaseRatio;
+- SynchronousMachineDetailed.ifdBaseType;
+- .xDirectSync (&lt;i&gt;Xd&lt;/i&gt;);
+- .xDirectTrans (&lt;i&gt;X'd&lt;/i&gt;);
+- .xDirectSubtrans (&lt;i&gt;X''d&lt;/i&gt;);
+- .xQuadSync (&lt;i&gt;Xq&lt;/i&gt;);
+- .xQuadTrans (&lt;i&gt;X'q&lt;/i&gt;);
+- .xQuadSubtrans (&lt;i&gt;X''q&lt;/i&gt;);
+- .tpdo (&lt;i&gt;T'do&lt;/i&gt;);
+- .tppdo (&lt;i&gt;T''do&lt;/i&gt;);
+- .tpqo (&lt;i&gt;T'qo&lt;/i&gt;);
+- .tppqo (&lt;i&gt;T''qo&lt;/i&gt;);
+- .tc.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_SynchronousMachineDynamics"/>
+		<rdfs:subClassOf rdf:resource="#SynchronousMachineDetailed"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#SynchronousMachineTimeConstantReactance"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance.rotorType">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>rotorType</rdfs:label>
+		<rdfs:comment>Type of rotor on physical machine.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineTimeConstantReactance"/>
+		<rdfs:range rdf:resource="#RotorKind"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance.tpdo">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>tpdo</rdfs:label>
+		<rdfs:comment>Direct-axis transient rotor time constant (&lt;i&gt;T'do&lt;/i&gt;) (&amp;gt; SynchronousMachineTimeConstantReactance.tppdo).  Typical value = 5.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineTimeConstantReactance"/>
+		<cims:dataType rdf:resource="#Seconds"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance.tppdo">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>tppdo</rdfs:label>
+		<rdfs:comment>Direct-axis subtransient rotor time constant (&lt;i&gt;T''do&lt;/i&gt;) (&amp;gt; 0).  Typical value = 0,03.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineTimeConstantReactance"/>
+		<cims:dataType rdf:resource="#Seconds"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance.tppqo">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>tppqo</rdfs:label>
+		<rdfs:comment>Quadrature-axis subtransient rotor time constant (&lt;i&gt;T''qo&lt;/i&gt;) (&amp;gt; 0). Typical value = 0,03.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineTimeConstantReactance"/>
+		<cims:dataType rdf:resource="#Seconds"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance.tpqo">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>tpqo</rdfs:label>
+		<rdfs:comment>Quadrature-axis transient rotor time constant (&lt;i&gt;T'qo&lt;/i&gt;) (&amp;gt; SynchronousMachineTimeConstantReactance.tppqo). Typical value = 0,5.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineTimeConstantReactance"/>
+		<cims:dataType rdf:resource="#Seconds"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance.xDirectSubtrans">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>xDirectSubtrans</rdfs:label>
+		<rdfs:comment>Direct-axis subtransient reactance (unsaturated) (&lt;i&gt;X''d&lt;/i&gt;) (&amp;gt; RotatingMachineDynamics.statorLeakageReactance).  Typical value = 0,2.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineTimeConstantReactance"/>
+		<cims:dataType rdf:resource="#PU"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance.xDirectSync">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>xDirectSync</rdfs:label>
+		<rdfs:comment>Direct-axis synchronous reactance (&lt;i&gt;Xd&lt;/i&gt;) (&amp;gt;= SynchronousMachineTimeConstantReactance.xDirectTrans). The quotient of a sustained value of that AC component of armature voltage that is produced by the total direct-axis flux due to direct-axis armature current and the value of the AC component of this current, the machine running at rated speed.  Typical value = 1,8.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineTimeConstantReactance"/>
+		<cims:dataType rdf:resource="#PU"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance.xDirectTrans">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>xDirectTrans</rdfs:label>
+		<rdfs:comment>Direct-axis transient reactance (unsaturated) (&lt;i&gt;X'd&lt;/i&gt;) (&amp;gt;= SynchronousMachineTimeConstantReactance.xDirectSubtrans).  Typical value = 0,5.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineTimeConstantReactance"/>
+		<cims:dataType rdf:resource="#PU"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance.xQuadSubtrans">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>xQuadSubtrans</rdfs:label>
+		<rdfs:comment>Quadrature-axis subtransient reactance (&lt;i&gt;X''q&lt;/i&gt;) (&amp;gt; RotatingMachineDynamics.statorLeakageReactance).  Typical value = 0,2.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineTimeConstantReactance"/>
+		<cims:dataType rdf:resource="#PU"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance.xQuadSync">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>xQuadSync</rdfs:label>
+		<rdfs:comment>Quadrature-axis synchronous reactance (&lt;i&gt;Xq&lt;/i&gt;) (&amp;gt;= SynchronousMachineTimeConstantReactance.xQuadTrans).
+The ratio of the component of reactive armature voltage, due to the quadrature-axis component of armature current, to this component of current, under steady state conditions and at rated frequency.  Typical value = 1,6.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineTimeConstantReactance"/>
+		<cims:dataType rdf:resource="#PU"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance.xQuadTrans">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>xQuadTrans</rdfs:label>
+		<rdfs:comment>Quadrature-axis transient reactance (&lt;i&gt;X'q&lt;/i&gt;) (&amp;gt;= SynchronousMachineTimeConstantReactance.xQuadSubtrans).  Typical value = 0,3.</rdfs:comment>
+		<rdfs:domain rdf:resource="#SynchronousMachineTimeConstantReactance"/>
+		<cims:dataType rdf:resource="#PU"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#SynchronousMachineTimeConstantReactance">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#SynchronousMachineTimeConstantReactance</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#SynchronousMachinelnfo">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#SynchronousMachinelnfo</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#RotatingMachineInfo"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ThermalGeneratingUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#ThermalGeneratingUnit</rdfs:label>
+		<rdfs:comment>A generating unit whose prime mover could be a steam turbine, combustion turbine, or diesel engine.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Production"/>
+		<rdfs:subClassOf rdf:resource="#GeneratingUnit"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#ThermalGeneratingUnit"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ThermalGeneratingUnit.CogenerationPlant">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>CogenerationPlant</rdfs:label>
+		<rdfs:comment>A thermal generating unit may be a member of a cogeneration plant.</rdfs:comment>
+		<rdfs:domain rdf:resource="#ThermalGeneratingUnit"/>
+		<rdfs:range rdf:resource="#CogenerationPlant"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="#CogenerationPlant.ThermalGeneratingUnits"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ThermalGeneratingUnit.CombinedCyclePlant">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>CombinedCyclePlant</rdfs:label>
+		<rdfs:comment>A thermal generating unit may be a member of a combined cycle plant.</rdfs:comment>
+		<rdfs:domain rdf:resource="#ThermalGeneratingUnit"/>
+		<rdfs:range rdf:resource="#CombinedCyclePlant"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="#CombinedCyclePlant.ThermalGeneratingUnits"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ThermalGeneratingUnit.FossilFuels">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>FossilFuels</rdfs:label>
+		<rdfs:comment>A thermal generating unit may have one or more fossil fuels.</rdfs:comment>
+		<rdfs:domain rdf:resource="#ThermalGeneratingUnit"/>
+		<rdfs:range rdf:resource="#FossilFuel"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="#FossilFuel.ThermalGeneratingUnit"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ThermalGeneratingUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#ThermalGeneratingUnit</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#TorqueSpeedCurve">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#TorqueSpeedCurve</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Curve"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#TurbineRegulatinglnfo">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#TurbineRegulatinglnfo</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#AssetInfo"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Voltage">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#Voltage</rdfs:label>
+		<rdfs:comment>Electrical voltage, can be both AC and DC.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#WindTurbine">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#WindTurbine</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#PrimeMover"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Base">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Base</rdfs:label>
+		<rdfs:comment>Content of the base CIM published as IEC 61970-301.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_IEC61970"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_RUGOST">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>RUGOST</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_GenerationTrainingSimulation">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>GenerationTrainingSimulation</rdfs:label>
+		<rdfs:comment>The GenerationTrainingSimululation package contains prime movers, such as turbines and boilers, which are needed for simulation and educational purposes.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Generation"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_OperationalLimits">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>OperationalLimits</rdfs:label>
+		<rdfs:comment>This package models a specification of limits associated with equipment and other operational entities.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Base"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Wires">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Wires</rdfs:label>
+		<rdfs:comment>An extension to the Core and Topology package that models information on the electrical characteristics of Transmission and Distribution networks. This package is used by network applications such as State Estimation, Load Flow and Optimal Power Flow.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Base"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Assets">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Assets</rdfs:label>
+		<rdfs:comment>This package contains the core information classes that support asset management applications that deal with the physical and lifecycle aspects of various network resources (as opposed to power system resource models defined in IEC61970::Wires package, which support network applications).</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_IEC61968"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_IEC61968">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>IEC61968</rdfs:label>
+		<rdfs:comment>The IEC 61968 subpackages of the CIM are developed, standardized and maintained by the UCA community including its working groups and task forces.
+Currently, normative parts of the model support the needs of information exchange defined in IEC 61968-3, IEC 61968-4, IEC 61968-5, IEC 61968-6, IEC 61968-8, IEC 61968-9 and in IEC 61968-13.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_SynchronousMachineDynamics">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>SynchronousMachineDynamics</rdfs:label>
+		<rdfs:comment>For conventional power generating units (e.g., thermal, hydro, combustion turbine), a synchronous machine model represents the electrical characteristics of the generator and the mechanical characteristics of the turbine-generator rotational inertia.  Large industrial motors or groups of similar motors can be represented by individual motor models which are represented as generators with negative active power in the static (power flow) data.  
+The interconnection with the electrical network equations can differ among simulation tools.  The tool only needs to know the synchronous machine to establish the correct interconnection.  The interconnection with the motor’s equipment could also differ due to input and output signals required by standard models.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_StandardModels"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_IEC61970">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>IEC61970</rdfs:label>
+		<rdfs:comment>Top package for IEC 61970.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Core">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Core</rdfs:label>
+		<rdfs:comment>Contains the core PowerSystemResource and ConductingEquipment entities shared by all applications plus common collections of those entities. Not all applications require all the Core entities.  This package does not depend on any other package except the Domain package, but most of the other packages have associations and generalizations that depend on it.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Base"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_StandardModels">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>StandardModels</rdfs:label>
+		<rdfs:comment>This subclause contains standard dynamic model specifications grouped into packages by standard function block (type of equipment being modelled).
+In the CIM, standard dynamic models are expressed by means of a class named with the standard model name and attributes reflecting each of the parameters necessary to describe the behaviour of an instance of the standard model.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Dynamics"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Generation">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Generation</rdfs:label>
+		<rdfs:comment>This package contains packages that have information for Unit Commitment and Economic Dispatch of hydro and thermal generating units, Load Forecasting, Automatic Generation Control, and unit modeling for Training Simulation.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Base"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Domain">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Domain</rdfs:label>
+		<rdfs:comment>The domain package defines primitive datatypes that are used by classes in other packages. Stereotypes are used to describe the datatypes. The following stereotypes are defined:
+&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt; A list of permissible constant values.
+&amp;lt;&amp;lt;Primitive&amp;gt;&amp;gt; The most basic data types used to compose all other data types.
+&amp;lt;&amp;lt;CIMDatatype&amp;gt;&amp;gt; A datatype that contains a value attribute, an optional unit of measure and a unit multiplier. The unit and multiplier may be specified as a static variable initialized to the allowed value.
+&amp;lt;&amp;lt;Compound&amp;gt;&amp;gt; A composite of Primitive, enumeration, CIMDatatype or other Compound classes, as long as the Compound classes do not recurse.
+For all datatypes both positive and negative values are allowed unless stated otherwise for a particular datatype.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Base"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Dynamics">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Dynamics</rdfs:label>
+		<rdfs:comment>The CIM dynamic model definitions reflect the most common IEEE or, in the case of wind models, IEC, representations of models as well as models included in some of the transient stability software widely used by utilities. 
+These dynamic models are intended to ensure interoperability between different vendors’ software products currently in use by electric utility energy companies, utilities, Transmission System Operators (TSOs), Regional Transmission Organizations (RTOs), and Independent System Operators (ISOs).  It is important to note that each vendor is free to select its own internal implementation of these models.  Differences in vendor results, as long as they are within accepted engineering practice, caused by different internal representations, are acceptable.
+Unless explicitly stated otherwise, the following modelling conventions are followed:
+- limited integrators are of the non-windup type;
+- it shall be possible to enter a time constant of zero (where it makes sense).</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_IEC61970"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Production">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Production</rdfs:label>
+		<rdfs:comment>The production package is responsible for classes which describe various kinds of generators. These classes also provide production costing information which is used to economically allocate demand among committed units and calculate reserve quantities.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Generation"/>
+	</rdf:Description>
+</rdf:RDF>
