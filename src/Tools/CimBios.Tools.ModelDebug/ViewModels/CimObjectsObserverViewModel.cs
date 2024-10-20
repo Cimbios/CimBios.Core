@@ -98,12 +98,12 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         SubscribeModelContextLoad();
     }
 
-    public Task Find(TreeDataGrid? dataGrid)
+    public void Find(TreeDataGrid? dataGrid)
     {   
         if (SearchString == string.Empty
             || dataGrid == null)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         int classRow = 0;
@@ -116,14 +116,11 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
                 {
                     var idx = new IndexPath([classRow, objectRow]);
                     CimObjectsSource.Expand(idx);
+                    var rowId = dataGrid.Rows!.ModelIndexToRowIndex(idx);
+                    dataGrid.RowsPresenter!.BringIntoView(rowId);
                     CimObjectsSource.RowSelection!.Select(idx);
 
-                    var rowId = dataGrid.RowsPresenter!.Items!.ToList()
-                        .FindIndex(r => r.Model == subItem);
-
-                    dataGrid.RowsPresenter!.BringIntoView(rowId);
-
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 ++objectRow;
@@ -132,10 +129,10 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             ++classRow;
         }
        
-        return Task.CompletedTask;
+        return;
     }
 
-    public async Task Navigate(TreeDataGrid? dataGrid)
+    public void Navigate(TreeDataGrid? dataGrid)
     {
         if (PropertySource.RowSelection!.SelectedItem 
             is not CimObjectPropertyModel selectedProp)
@@ -148,7 +145,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         {
             var tmpSearchString = SearchString;
             SearchString = mObj.Uuid;
-            await Find(dataGrid);
+            Find(dataGrid);
             SearchString = tmpSearchString;
         }
 
