@@ -51,13 +51,6 @@ public class DatatypeLib : IDatatypeLib
     public DatatypeLib()
     {
         _Log = new PlainLogView(this);
-        if (_Log.DebugLogMode)
-        {
-            _Log.NewMessage(
-                "DatatypeLib: Log view initialized", 
-                LogMessageSeverity.Info             
-            );
-        }
 
         LoadAssembly(Assembly.GetExecutingAssembly());
     }
