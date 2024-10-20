@@ -8,13 +8,12 @@
              x:Class="CimBios.Tools.ModelDebug.Views.CimObjectsObserverControl"
              x:DataType="vm:CimObjectsObserverViewModel">
   
-  <Grid>
+  <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch"> 
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
-      <RowDefinition Height="2*" MinHeight="100"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="2*" MinHeight="50"/>
+      <RowDefinition Height="*" MinHeight="100"/>
+      <RowDefinition Height="1"/>
+      <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
     <TextBox  Grid.Row="0"
@@ -49,30 +48,30 @@
 
     <GridSplitter Grid.Row="2" ResizeDirection="Rows"/>
 
-    <TextBox  Grid.Row="3"
-              FontSize="10"
-              Classes="Small, Bordered" 
-              Text="{Binding SelectedUuid}" 
-              IsReadOnly="True" 
-              TextAlignment="Start"/>
+    <Grid Grid.Row="3" RowDefinitions="Auto, *">
+      <TextBox  Grid.Row="0" FontSize="10"
+                Classes="Small, Bordered" 
+                Text="{Binding SelectedUuid}" 
+                IsReadOnly="True" 
+                TextAlignment="Start"/>
 
-    <TreeDataGrid   Grid.Row="4"
-                    Source="{Binding PropertySource}"
-                    FontSize="10"
-                    CanUserSortColumns="False">
-      <TreeDataGrid.Styles>
-        <Style Selector="TreeDataGridRow">
-          <Setter Property="MinHeight" Value="20"/>
-        </Style>
-      </TreeDataGrid.Styles>
-      <TreeDataGrid.ContextMenu>
-        <ContextMenu>
-          <MenuItem Header="Navigate" 
-                    Command="{Binding Navigate}"
-                    CommandParameter="{Binding #dataGrid}"/>
-        </ContextMenu>
-      </TreeDataGrid.ContextMenu>
-    </TreeDataGrid>
+      <TreeDataGrid Grid.Row="1"  Source="{Binding PropertySource}"
+                      FontSize="10"
+                      CanUserSortColumns="False" VerticalAlignment="Stretch">
+        <TreeDataGrid.Styles>
+          <Style Selector="TreeDataGridRow">
+            <Setter Property="MinHeight" Value="20"/>
+          </Style>
+        </TreeDataGrid.Styles>
+        <TreeDataGrid.ContextMenu>
+          <ContextMenu>
+            <MenuItem Header="Navigate" 
+                      Command="{Binding Navigate}"
+                      CommandParameter="{Binding #dataGrid}"/>
+          </ContextMenu>
+        </TreeDataGrid.ContextMenu>
+      </TreeDataGrid>
+    </Grid>
   </Grid>
 
 </UserControl>
