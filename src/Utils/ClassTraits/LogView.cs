@@ -14,6 +14,14 @@ public class PlainLogView : ILogView
     public PlainLogView(object source)
     {
         Source = source;
+
+        if (DebugLogMode)
+        {
+            NewMessage(
+                $"{source.GetType().FullName}: Log view initialized", 
+                LogMessageSeverity.Info             
+            );
+        }
     }
 
     /// <summary>
