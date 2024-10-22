@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RdfSerializer\CimBios.Core.CimModel.RdfSerializer.csproj" />
     <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj" />
+    <ProjectReference Include="..\..\..\Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
