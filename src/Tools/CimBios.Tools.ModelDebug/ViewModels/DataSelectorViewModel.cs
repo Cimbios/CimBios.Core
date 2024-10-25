@@ -84,7 +84,7 @@ public class DataSelectorViewModel : ViewModelBase
         DataContexties = new ObservableCollection<ModelDataContextModel>()
         {
             new ModelDataContextModel("CIMXML File", 
-                new RdfXmlFileModelDataContextFactory(),
+                new RdfXmlFileModelObjectsProviderFactory(),
                 new FileDialogSourceSelector() { OwnerWindow = OwnerView }),
         };
         SelectedDataContext = DataContexties.FirstOrDefault();

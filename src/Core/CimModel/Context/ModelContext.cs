@@ -39,9 +39,9 @@ public class ModelContext : ICanLog
         _Objects = new Dictionary<string, IModelObject>();
     }
 
-    public ModelContext(IModelDataContext contextDataConfig) : this()
+    public ModelContext(IModelObjectsProvider modelObjectsProvider) : this()
     {
-        InitContextDataConfig(contextDataConfig);
+        InitContextDataConfig(modelObjectsProvider);
     }
 
     /// <summary>
@@ -92,9 +92,9 @@ public class ModelContext : ICanLog
     /// Load CIM model to context via config.
     /// </summary>
     /// <param name="contextDataConfig">Context configuration.</param>
-    public void Load(IModelDataContext contextDataConfig)
+    public void Load(IModelObjectsProvider modelObjectsProvider)
     {
-        InitContextDataConfig(contextDataConfig);
+        InitContextDataConfig(modelObjectsProvider);
 
         Load();
     }
@@ -144,9 +144,9 @@ public class ModelContext : ICanLog
     /// Save CIM model to context via config.
     /// </summary>
     /// <param name="contextDataConfig">Context configuration.</param>
-    public void Save(IModelDataContext contextDataConfig)
+    public void Save(IModelObjectsProvider modelObjectsProvider)
     {
-        InitContextDataConfig(contextDataConfig);
+        InitContextDataConfig(modelObjectsProvider);
 
         Save();        
     }
@@ -223,13 +223,14 @@ public class ModelContext : ICanLog
     /// <summary>
     /// Initialize read/write model stategy.
     /// </summary>
-    /// <param name="contextDataConfig">Context configuration.</param>
-    private void InitContextDataConfig(IModelDataContext contextDataConfig)
+    /// <param name="modelObjectsProvider">Context configuration.</param>
+    private void InitContextDataConfig(
+        IModelObjectsProvider modelObjectsProvider)
     {
-        _provider = contextDataConfig.DataProvider;
-        _serializer = contextDataConfig.Serializer;
-        _serializer.TypeLib = contextDataConfig.TypeLib;
-        _serializer.Schema = contextDataConfig.CimSchema;
+        _provider = modelObjectsProvider.DataProvider;
+        _serializer = modelObjectsProvider.Serializer;
+        _serializer.TypeLib = modelObjectsProvider.TypeLib;
+        _serializer.Schema = modelObjectsProvider.CimSchema;
     }
 
     /// <summary>
