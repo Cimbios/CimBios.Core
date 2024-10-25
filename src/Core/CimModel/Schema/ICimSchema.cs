@@ -1,9 +1,11 @@
+using CimBios.Utils.ClassTraits;
+
 namespace CimBios.Core.CimModel.Schema;
 
 /// <summary>
 /// Cim schema interface. Defines usage structure.
 /// </summary>
-public interface ICimSchema
+public interface ICimSchema : ICanLog
 {
     /// <summary>
     /// Prefix to namespace URI mapping for schema.
