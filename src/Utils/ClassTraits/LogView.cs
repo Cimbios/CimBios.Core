@@ -52,21 +52,3 @@ public class PlainLogView : ILogView
     protected BlockingCollection<ILogMessage> _Log 
         = new BlockingCollection<ILogMessage>();
 }
-
-public class LogMessage : ILogMessage
-{
-    public string Title { get; }
-    public string Details { get; }
-    public LogMessageSeverity Severity { get; }
-    public DateTime DateTimeMarker { get; }
-
-    public LogMessage(string title, LogMessageSeverity severity,
-        string details = "")
-    {
-        Title = title;
-        Details = details;
-        Severity = severity;
-
-        DateTimeMarker = DateTime.UtcNow;
-    }
-}
