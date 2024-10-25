@@ -1,4 +1,4 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -33,6 +33,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{FAC6A4DE-5702-4BB8-B407-F244C2D987FB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Utils.ClassTraits", "Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj", "{6C600575-B8EC-48F1-8D7B-D0C3A61B023F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tests.ClassTraits", "..\test\CimBios.Tests.ClassTraits\CimBios.Tests.ClassTraits.csproj", "{D18ECC24-3EF0-4A8E-9ECF-7C6E70C86C29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,6 +78,10 @@ Global
 		{6C600575-B8EC-48F1-8D7B-D0C3A61B023F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C600575-B8EC-48F1-8D7B-D0C3A61B023F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C600575-B8EC-48F1-8D7B-D0C3A61B023F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D18ECC24-3EF0-4A8E-9ECF-7C6E70C86C29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D18ECC24-3EF0-4A8E-9ECF-7C6E70C86C29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D18ECC24-3EF0-4A8E-9ECF-7C6E70C86C29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D18ECC24-3EF0-4A8E-9ECF-7C6E70C86C29}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -93,6 +99,7 @@ Global
 		{5ED1EBC7-CA3A-48BE-B7EC-F9F04F749DEF} = {00D3E768-D13A-4EF9-823D-F07E5C4C85DB}
 		{E54996F0-2375-48D3-A4D2-31122401629A} = {29FD2110-4306-4F6F-AFAE-84A3B47A30AF}
 		{6C600575-B8EC-48F1-8D7B-D0C3A61B023F} = {FAC6A4DE-5702-4BB8-B407-F244C2D987FB}
+		{D18ECC24-3EF0-4A8E-9ECF-7C6E70C86C29} = {B2BF029E-0939-468F-BE76-7C67B7A485A8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E063B80A-4158-4C3F-A567-BFB2B929BA33}
