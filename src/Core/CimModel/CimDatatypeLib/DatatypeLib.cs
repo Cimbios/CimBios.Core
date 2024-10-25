@@ -1,4 +1,5 @@
 using CimBios.Core.RdfXmlIOLib;
+using CimBios.Utils.ClassTraits;
 using System.Reflection;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
@@ -6,7 +7,7 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 /// <summary>
 /// Structure interface for datatype lib.
 /// </summary>
-public interface IDatatypeLib
+public interface IDatatypeLib : ICanLog
 {
     /// <summary>
     /// Dictionary Uri to Type of IModelObject concrete classes.
@@ -42,14 +43,15 @@ public class DatatypeLib : IDatatypeLib
     /// <summary>
     /// Runtime attached typelib assemblies.
     /// </summary>
-    public HashSet<Assembly> LoadedAssemblies 
-    { get => _LoadedAssemblies; }
+    public HashSet<Assembly> LoadedAssemblies => _LoadedAssemblies;
+    public Dictionary<Uri, System.Type> RegisteredTypes => _RegisteredTypes;
 
-    public Dictionary<Uri, System.Type> RegisteredTypes 
-    { get => _RegisteredTypes; }
+    public ILogView Log => _Log;
 
     public DatatypeLib()
     {
+        _Log = new PlainLogView(this);
+
         LoadAssembly(Assembly.GetExecutingAssembly());
     }
 
@@ -66,6 +68,15 @@ public class DatatypeLib : IDatatypeLib
 
     public void LoadAssembly(Assembly typesAssembly, bool reset = true)
     {
+        if (_Log.DebugLogMode)
+        {
+            _Log.NewMessage(
+                "DatatypeLib: Loading types assembly", 
+                LogMessageSeverity.Info,
+                typesAssembly.FullName ?? string.Empty               
+            );
+        }
+
         if (reset == true)
         {
             _LoadedAssemblies.Clear();
@@ -85,18 +96,39 @@ public class DatatypeLib : IDatatypeLib
 
     public void RegisterType(System.Type type)
     {
+        if (_Log.DebugLogMode)
+        {
+            _Log.NewMessage(
+                "DatatypeLib: Register type", 
+                LogMessageSeverity.Info,
+                type.FullName ?? string.Empty               
+            );
+        }
+
         var iface = type.GetInterface(nameof(IModelObject));
 
         if (iface == null)
         {
-            throw new ArgumentException("Type does not implement IModelObject interface!");
+            _Log.NewMessage(
+                "Type does not implement IModelObject interface!",
+                LogMessageSeverity.Warning,
+                type.FullName ?? string.Empty
+            );
+
+            return;
         }
 
         var attribute = type.GetCustomAttribute<CimClassAttribute>();
 
         if (attribute == null)
         {
-            throw new ArgumentException("Type does not have CimClass attribute!");
+            _Log.NewMessage(
+                "Type does not have CimClass attribute!",
+                LogMessageSeverity.Warning,
+                type.FullName ?? string.Empty
+            );
+
+            return;
         }
 
         _RegisteredTypes.Add(new Uri(attribute.AbsoluteUri), type);
@@ -107,6 +139,8 @@ public class DatatypeLib : IDatatypeLib
 
     private Dictionary<Uri, System.Type> _RegisteredTypes
         = new Dictionary<Uri, Type>(new RdfUriComparer());
+
+    private PlainLogView _Log;
 }
 
 /// <summary>
