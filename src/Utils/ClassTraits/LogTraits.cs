@@ -38,26 +38,3 @@ public interface ILogView
     public delegate void MessageAddedEventHandler(ILogView sender, 
         ILogMessage message);
 }
-
-/// <summary>
-/// Log's message interface.
-/// </summary>
-public interface ILogMessage
-{
-    public string Title { get; }
-    public string Details { get; }
-    public LogMessageSeverity Severity { get; }
-    public DateTime DateTimeMarker { get; }
-}
-
-/// <summary>
-/// Log message severity.
-/// </summary>
-public enum LogMessageSeverity
-{
-    None,
-    Info,
-    Warning,
-    Error,
-    Critical,
-}
