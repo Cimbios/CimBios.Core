@@ -1,4 +1,5 @@
 using CimBios.Core.RdfXmlIOLib;
+using CimBios.Utils.ClassTraits;
 
 namespace CimBios.Core.CimModel.Schema.RdfSchema;
 
@@ -7,6 +8,8 @@ namespace CimBios.Core.CimModel.Schema.RdfSchema;
 /// </summary>
 public class CimRdfSchema : ICimSchema
 {
+    public ILogView Log => _Log;
+
     public IReadOnlyDictionary<string, Uri> Namespaces 
     {get => _Namespaces; }
     public IEnumerable<ICimMetaClass> Classes 
@@ -20,6 +23,8 @@ public class CimRdfSchema : ICimSchema
 
     public CimRdfSchema()
     {
+        _Log = new PlainLogView(this);
+
         _All = new Dictionary<Uri, ICimSchemaSerializable>(new RdfUriComparer());
         _Namespaces = new Dictionary<string, Uri>();
     }
@@ -31,6 +36,18 @@ public class CimRdfSchema : ICimSchema
 
         _All = serizalizer.Deserialize();
         _Namespaces = serizalizer.Namespaces;
+
+        var details = string.Empty;
+        if (_Namespaces.TryGetValue("base", out var baseUri))
+        {
+            details = baseUri.AbsoluteUri;
+        }
+
+        _Log.NewMessage(
+            "Schema: Rdf schema has been loaded.",
+            LogMessageSeverity.Info,
+            details
+        );
     }
 
     public IEnumerable<ICimMetaProperty> GetClassProperties(
@@ -103,6 +120,18 @@ public class CimRdfSchema : ICimSchema
 
     public void Join(ICimSchema schema, bool rewriteNamespaces = false)
     {
+        var details = string.Empty;
+        if (schema.Namespaces.TryGetValue("base", out var baseUri))
+        {
+            details = baseUri.AbsoluteUri;
+        }
+
+        _Log.NewMessage(
+            "Schema: Rdf schemas are joining.",
+            LogMessageSeverity.Info,
+            details
+        );
+
         JoinNamespaces(schema.Namespaces, rewriteNamespaces);
 
         foreach (var metaClass in schema.Classes)
@@ -171,6 +200,8 @@ public class CimRdfSchema : ICimSchema
     private Dictionary<Uri, ICimSchemaSerializable> _All;
 
     private Dictionary<string, Uri> _Namespaces;
+
+    private PlainLogView _Log;
 }
 
 public class CimRdfSchemaFactory : ICimSchemaFactory

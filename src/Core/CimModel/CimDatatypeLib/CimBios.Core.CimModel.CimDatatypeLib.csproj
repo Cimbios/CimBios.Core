@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\RdfXmlIOLib\CimBios.Core.RdfXmlIOLib.csproj" />
+    <ProjectReference Include="..\..\..\Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

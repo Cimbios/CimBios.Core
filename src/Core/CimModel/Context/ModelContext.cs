@@ -5,6 +5,7 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.DataProvider;
+using CimBios.Utils.ClassTraits;
 
 namespace CimBios.Core.CimModel.Context;
 
@@ -12,8 +13,10 @@ namespace CimBios.Core.CimModel.Context;
 /// Instance of CIM model in Rdf/* format.
 /// Supports input and output operations for CIM objects.
 /// </summary>
-public class ModelContext
+public class ModelContext : ICanLog
 {
+    public ILogView Log => _Log;
+
     /// <summary>
     /// Model description.
     /// </summary>
@@ -22,7 +25,7 @@ public class ModelContext
     /// <summary>
     /// Applied schema to this context serializer.
     /// </summary>
-    public ICimSchema? Schema { get => _serializer?.Schema; }
+    public ICimSchema? Schema => _serializer?.Schema;
 
     /// <summary>
     /// All cached objects collection (uuid to IModelObject).
@@ -31,6 +34,8 @@ public class ModelContext
 
     public ModelContext()
     {
+        _Log = new PlainLogView(this);
+
         _Objects = new Dictionary<string, IModelObject>();
     }
 
@@ -46,17 +51,41 @@ public class ModelContext
     {
         if (_provider == null || _serializer == null)
         {
+            _Log.NewMessage(
+                "ModelContext: Object data provider has not been initialized!",
+                LogMessageSeverity.Error
+            );            
+
             return;
         }
 
-        var serialized = _serializer.Deserialize();
+        _Log.NewMessage(
+            "ModelContext: Loading model context.",
+            LogMessageSeverity.Info,
+            _provider.Source.AbsoluteUri
+        );
 
-        _Objects = new Dictionary<string, IModelObject>(serialized
-            .Select(x => new KeyValuePair<string, IModelObject>(x.Uuid, x)));
+        try
+        {
+            var serialized = _serializer.Deserialize();
 
-        ReadModelDescription();
+            _Objects = new Dictionary<string, IModelObject>(serialized
+                .Select(x => new KeyValuePair<string, IModelObject>(x.Uuid, x)));
+        }
+        catch (Exception ex)
+        {
+            _Log.NewMessage(
+                "ModelContext: Deserialization failed.",
+                LogMessageSeverity.Critical,
+                ex.Message
+            );
+        }
+        finally
+        {        
+            ReadModelDescription();
 
-        ModelLoaded?.Invoke(this, EventArgs.Empty);
+            ModelLoaded?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     /// <summary>
@@ -77,15 +106,38 @@ public class ModelContext
     {
         if (_provider == null || _serializer == null)
         {
+            _Log.NewMessage(
+                "ModelContext: Object data provider has not been initialized!",
+                LogMessageSeverity.Error
+            );  
+
             return;
-        }   
+        }  
+
+        _Log.NewMessage(
+            "ModelContext: Saving model context.",
+            LogMessageSeverity.Info,
+            _provider.Source.AbsoluteUri
+        ); 
 
         var forSerializeObjects = _Objects.Values.ToImmutableList();
         if (Description != null)
         {
             forSerializeObjects.Add(Description);
         }
-        _serializer.Serialize(forSerializeObjects);
+
+        try
+        {
+            _serializer.Serialize(forSerializeObjects);
+        }
+        catch (Exception ex)
+        {
+            _Log.NewMessage(
+                "ModelContext: Serialization failed.",
+                LogMessageSeverity.Critical,
+                ex.Message
+            );
+        }
     }
 
     /// <summary>
@@ -193,6 +245,15 @@ public class ModelContext
             Description = fullModel;
             _Objects.Remove(fullModel.Uuid);
         }
+        else
+        {
+            _Log.NewMessage(
+                "ModelContext: FullModel description node not found.",
+                LogMessageSeverity.Warning
+            );  
+
+            // TODO: init FullModel self
+        }
     }
 
     /// <summary>
@@ -202,4 +263,6 @@ public class ModelContext
 
     private IDataProvider? _provider;
     private RdfSerializerBase? _serializer;
+
+    private PlainLogView _Log;
 }
