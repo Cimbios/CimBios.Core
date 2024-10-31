@@ -854,6 +854,12 @@ Mechanical limit of the busbar in the substation itself. Used for short circuit 
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#ShuntReactorInfo"/>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CoolingKind">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#CoolingKind</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
 	<rdf:Description rdf:about="#CoolingKind">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#CoolingKind</rdfs:label>
@@ -876,12 +882,6 @@ Mechanical limit of the busbar in the substation itself. Used for short circuit 
 	<rdf:Description rdf:about="#CoolingKind.selfCooling">
 		<rdf:type rdf:resource="#CoolingKind"/>
 		<rdfs:label>selfCooling</rdfs:label>
-	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CoolingKind">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#CoolingKind</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#CoordinateSystem">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -3273,6 +3273,12 @@ The attributes minAllowedTargetValue and maxAllowedTargetValue are not related t
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ShuntCompensatorInfo">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#ShuntCompensatorInfo</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
 	<rdf:Description rdf:about="#ShuntCompensatorInfo">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#ShuntCompensatorInfo</rdfs:label>
@@ -3316,12 +3322,6 @@ The attributes minAllowedTargetValue and maxAllowedTargetValue are not related t
 		<cims:dataType rdf:resource="#Voltage"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
-	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ShuntCompensatorInfo">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#ShuntCompensatorInfo</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ShuntReactorInfo">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>

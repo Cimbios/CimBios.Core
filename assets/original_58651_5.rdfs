@@ -148,6 +148,12 @@
 		<rdfs:label>operable</rdfs:label>
 		<rdfs:comment>Usage point is equipped with an AMI capable meter that is functioning and communicating with the AMI network.</rdfs:comment>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Asset">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#Asset</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
 	<rdf:Description rdf:about="#Asset">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#Asset</rdfs:label>
@@ -217,12 +223,6 @@
 		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
-	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Asset">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#Asset</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#AssetContainer">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -1692,18 +1692,18 @@ EnergyConsumer.pfixed, .qfixed, .pfixedPct and .qfixedPct have meaning only if t
 		<cims:belongsToCategory rdf:resource="#Package_Metering"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#IdentifiedObject">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#IdentifiedObject</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
 	<rdf:Description rdf:about="#IdentifiedObject">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#IdentifiedObject</rdfs:label>
 		<rdfs:comment>This is a root class to provide common identification for all classes needing identification and naming attributes.</rdfs:comment>
 		<cims:belongsToCategory rdf:resource="#Package_Core"/>
 		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#IdentifiedObject"/>
-	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#IdentifiedObject">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#IdentifiedObject</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#IntervalBlock">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -3692,6 +3692,12 @@ Note: Different meter designs use different methods to arrive at their results. 
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#UserAttribute">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#UserAttribute</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
 	<rdf:Description rdf:about="#UserAttribute">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#UserAttribute</rdfs:label>
@@ -3725,12 +3731,6 @@ Note: Different meter designs use different methods to arrive at their results. 
 		<rdfs:range rdf:resource="#StringQuantity"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
-	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#UserAttribute">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#UserAttribute</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#Voltage">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>

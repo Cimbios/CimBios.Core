@@ -1,9 +1,19 @@
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" xmlns:uml="http://langdale.com.au/2005/UML#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xml:base="http://gost.ru/2019/schema-cim01">
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" xmlns:uml="http://langdale.com.au/2005/UML#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xml:base="http://iec.ch/TC57/CIM100">
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AssetInfo">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>http://gost.ru/2019/schema-cim01#AssetInfo</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#AssetInfo">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#AssetInfo</rdfs:label>
+		<rdfs:comment>Set of attributes of an asset, representing typical datasheet information of a physical device that can be instantiated and shared in different data exchange contexts:
+- as attributes of an asset instance (installed or in stock)
+- as attributes of an asset model (product by a manufacturer)
+- as attributes of a type asset (generic type of an asset as used in designs/extension planning).</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Assets"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#AssetInfo"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachine">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -736,6 +746,7 @@
 		<rdfs:label>http://gost.ru/2019/schema-cim01#RotatingMachineInfo</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="#AssetInfo"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#RotatingMachineInfo.rotorGD2">
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
@@ -1058,5 +1069,17 @@
 	<rdf:Description rdf:about="#Package_RUGOST">
 		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
 		<rdfs:label>RUGOST</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Assets">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Assets</rdfs:label>
+		<rdfs:comment>This package contains the core information classes that support asset management applications that deal with the physical and lifecycle aspects of various network resources (as opposed to power system resource models defined in IEC61970::Wires package, which support network applications).</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_IEC61968"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_IEC61968">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>IEC61968</rdfs:label>
+		<rdfs:comment>The IEC 61968 subpackages of the CIM are developed, standardized and maintained by the UCA community including its working groups and task forces.
+Currently, normative parts of the model support the needs of information exchange defined in IEC 61968-3, IEC 61968-4, IEC 61968-5, IEC 61968-6, IEC 61968-8, IEC 61968-9 and in IEC 61968-13.</rdfs:comment>
 	</rdf:Description>
 </rdf:RDF>
