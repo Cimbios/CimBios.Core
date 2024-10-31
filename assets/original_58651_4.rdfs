@@ -45,6 +45,12 @@
 		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AssetInfo">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#AssetInfo</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
 	<rdf:Description rdf:about="#AssetInfo">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#AssetInfo</rdfs:label>
@@ -56,9 +62,9 @@
 		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#AssetInfo"/>
 		<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
 	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AssetInfo">
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachine">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#AssetInfo</rdfs:label>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#AsynchronousMachine</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
@@ -97,11 +103,11 @@
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachine">
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachineKind">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#AsynchronousMachine</rdfs:label>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#AsynchronousMachineKind</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#AsynchronousMachineKind">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -119,12 +125,6 @@
 		<rdf:type rdf:resource="#AsynchronousMachineKind"/>
 		<rdfs:label>motor</rdfs:label>
 		<rdfs:comment>The Asynchronous Machine is a motor.</rdfs:comment>
-	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachineKind">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#AsynchronousMachineKind</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachineReactiveCapabilityCurve">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -180,6 +180,12 @@ The attribute shall be a positive value.</rdfs:comment>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CombinedCyclePlant">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#CombinedCyclePlant</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
 	<rdf:Description rdf:about="#CombinedCyclePlant">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#CombinedCyclePlant</rdfs:label>
@@ -206,12 +212,6 @@ The attribute shall be a positive value.</rdfs:comment>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CombinedCyclePlant">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#CombinedCyclePlant</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
-	</rdf:Description>
 	<rdf:Description rdf:about="#CoolantType">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#CoolantType</rdfs:label>
@@ -234,6 +234,12 @@ The attribute shall be a positive value.</rdfs:comment>
 		<rdfs:label>water</rdfs:label>
 		<rdfs:comment>Water.</rdfs:comment>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Curve">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#Curve</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
 	<rdf:Description rdf:about="#Curve">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#Curve</rdfs:label>
@@ -242,18 +248,18 @@ The attribute shall be a positive value.</rdfs:comment>
 		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Curve"/>
 		<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
 	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Curve">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#Curve</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
-	</rdf:Description>
 	<rdf:Description rdf:about="#DynamicsFunctionBlock">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#DynamicsFunctionBlock</rdfs:label>
 		<rdfs:comment>Abstract parent class for all Dynamics function blocks.</rdfs:comment>
 		<cims:belongsToCategory rdf:resource="#Package_StandardModels"/>
 		<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Equipment">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#Equipment</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#Equipment">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -262,12 +268,6 @@ The attribute shall be a positive value.</rdfs:comment>
 		<cims:belongsToCategory rdf:resource="#Package_Core"/>
 		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Equipment"/>
 		<rdfs:subClassOf rdf:resource="#PowerSystemResource"/>
-	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Equipment">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#Equipment</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ExcitationControl">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -380,6 +380,12 @@ The attribute shall be a positive value.</rdfs:comment>
 		<rdfs:label>peat</rdfs:label>
 		<rdfs:comment>Peat.</rdfs:comment>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#GeneratingUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#GeneratingUnit</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
 	<rdf:Description rdf:about="#GeneratingUnit">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#GeneratingUnit</rdfs:label>
@@ -461,12 +467,6 @@ The attribute shall be a positive value equal to or less than RotatingMachine.ra
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#GeneratingUnit">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#GeneratingUnit</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
-	</rdf:Description>
 	<rdf:Description rdf:about="#HydroEnergyConversionKind">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#HydroEnergyConversionKind</rdfs:label>
@@ -483,6 +483,12 @@ The attribute shall be a positive value equal to or less than RotatingMachine.ra
 		<rdf:type rdf:resource="#HydroEnergyConversionKind"/>
 		<rdfs:label>pumpAndGenerator</rdfs:label>
 		<rdfs:comment>Able to both generate power and pump water for energy storage.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#HydroGeneratingUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#HydroGeneratingUnit</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#HydroGeneratingUnit">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -510,12 +516,6 @@ The attribute shall be a positive value equal to or less than RotatingMachine.ra
 		<rdfs:range rdf:resource="#HydroEnergyConversionKind"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
-	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#HydroGeneratingUnit">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#HydroGeneratingUnit</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#HydroPlantStorageKind">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -591,6 +591,12 @@ The attribute shall be a positive value.</rdfs:comment>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#HydroTurbineKind">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#HydroTurbineKind</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
 	<rdf:Description rdf:about="#HydroTurbineKind">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#HydroTurbineKind</rdfs:label>
@@ -613,11 +619,11 @@ The attribute shall be a positive value.</rdfs:comment>
 		<rdfs:label>pelton</rdfs:label>
 		<rdfs:comment>Pelton.</rdfs:comment>
 	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#HydroTurbineKind">
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#IdentifiedObject">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#HydroTurbineKind</rdfs:label>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#IdentifiedObject</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#IdentifiedObject">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -625,12 +631,6 @@ The attribute shall be a positive value.</rdfs:comment>
 		<rdfs:comment>This is a root class to provide common identification for all classes needing identification and naming attributes.</rdfs:comment>
 		<cims:belongsToCategory rdf:resource="#Package_Core"/>
 		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#IdentifiedObject"/>
-	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#IdentifiedObject">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#IdentifiedObject</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#OperationalLimit">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -665,6 +665,12 @@ If a particular piece of equipment has multiple operational limits of the same k
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Plant">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>http://gost.ru/2019/schema-cim01#Plant</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PowerElectronicsConnection">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#PowerElectronicsConnection</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
@@ -723,18 +729,18 @@ The attribute shall be a positive value.</rdfs:comment>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PowerElectronicsConnection">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#PowerElectronicsConnection</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
-	</rdf:Description>
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PowerElectronicsReactiveCapabilityCurve">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>http://gost.ru/2019/schema-cim01#PowerElectronicsReactiveCapabilityCurve</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Curve"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PowerElectronicsUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#PowerElectronicsUnit</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#PowerElectronicsUnit">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -771,12 +777,6 @@ The attribute shall be a positive value.</rdfs:comment>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PowerElectronicsUnit">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#PowerElectronicsUnit</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
-	</rdf:Description>
 	<rdf:Description rdf:about="#PowerElectronicsWindUnit">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#PowerElectronicsWindUnit</rdfs:label>
@@ -791,6 +791,12 @@ The attribute shall be a positive value.</rdfs:comment>
 		<cims:belongsToCategory rdf:resource="#Package_Core"/>
 		<rdfs:subClassOf rdf:resource="#IdentifiedObject"/>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PrimeMover">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#PrimeMover</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
 	<rdf:Description rdf:about="#PrimeMover">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#PrimeMover</rdfs:label>
@@ -798,12 +804,6 @@ The attribute shall be a positive value.</rdfs:comment>
 		<cims:belongsToCategory rdf:resource="#Package_GenerationTrainingSimulation"/>
 		<rdfs:subClassOf rdf:resource="#PowerSystemResource"/>
 		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#PrimeMover"/>
-	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PrimeMover">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#PrimeMover</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#Reactance">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -924,6 +924,7 @@ The attribute shall be a positive value.</rdfs:comment>
 		<rdfs:label>http://gost.ru/2019/schema-cim01#RotatingMachineInfo</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="#AssetInfo"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#RotorKind">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -948,6 +949,12 @@ The attribute shall be a positive value.</rdfs:comment>
 		<rdfs:comment>Time, in seconds.</rdfs:comment>
 		<cims:belongsToCategory rdf:resource="#Package_Domain"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimdatatype"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#SynchronousMachine">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#SynchronousMachine</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#SynchronousMachine">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -1128,12 +1135,6 @@ The attribute shall be a positive value.</rdfs:comment>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#SynchronousMachine">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#SynchronousMachine</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
-	</rdf:Description>
 	<rdf:Description rdf:about="#SynchronousMachineDetailed">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>#SynchronousMachineDetailed</rdfs:label>
@@ -1234,6 +1235,12 @@ It is not necessary for each simulation tool to have separate models for each of
 		<rdf:type rdf:resource="#SynchronousMachineOperatingMode"/>
 		<rdfs:label>motor</rdfs:label>
 		<rdfs:comment>Operating as motor.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#SynchronousMachineTimeConstantReactance">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#SynchronousMachineTimeConstantReactance</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#SynchronousMachineTimeConstantReactance">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -1371,18 +1378,18 @@ The ratio of the component of reactive armature voltage, due to the quadrature-a
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#SynchronousMachineTimeConstantReactance">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#SynchronousMachineTimeConstantReactance</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
-	</rdf:Description>
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#SynchronousMachinelnfo">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>http://gost.ru/2019/schema-cim01#SynchronousMachinelnfo</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#RotatingMachineInfo"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ThermalGeneratingUnit">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>http://gost.ru/2019/schema-cim01#ThermalGeneratingUnit</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#ThermalGeneratingUnit">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -1418,12 +1425,6 @@ The ratio of the component of reactive armature voltage, due to the quadrature-a
 		<rdfs:range rdf:resource="#FossilFuel"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
 		<cims:inverseRoleName rdf:resource="#FossilFuel.ThermalGeneratingUnit"/>
-	</rdf:Description>
-	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ThermalGeneratingUnit">
-		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
-		<rdfs:label>http://gost.ru/2019/schema-cim01#ThermalGeneratingUnit</rdfs:label>
-		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
-		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#TorqueSpeedCurve">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>

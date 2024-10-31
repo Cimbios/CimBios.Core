@@ -288,6 +288,7 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 		<rdfs:label>http://gost.ru/2019/schema-cim01#BusArrangement</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="#AuxiliaryEquipment"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="#BusbarSection">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
