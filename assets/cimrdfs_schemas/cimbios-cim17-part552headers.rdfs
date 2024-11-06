@@ -1,4 +1,11 @@
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" xmlns:uml="http://langdale.com.au/2005/UML#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xml:base="http://cim.bios/Profiles/v1">
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+	 xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+	 xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" 
+	 xmlns:uml="http://langdale.com.au/2005/UML#" 
+	 xmlns:xsd="http://www.w3.org/2001/XMLSchema#" 
+	 xmlns:dm="http://iec.ch/TC57/61970-552/DifferenceModel/1#"
+	 xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+ 	 xml:base="http://cim.bios/Profiles/v1">
 	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
 		<rdfs:label>http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel</rdfs:label>
