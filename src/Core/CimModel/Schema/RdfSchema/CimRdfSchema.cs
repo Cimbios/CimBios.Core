@@ -25,7 +25,7 @@ public class CimRdfSchema : ICimSchema
     {
         _Log = new PlainLogView(this);
 
-        _All = new Dictionary<Uri, ICimSchemaSerializable>(new RdfUriComparer());
+        _All = new Dictionary<Uri, ICimMetaResource>(new RdfUriComparer());
         _Namespaces = new Dictionary<string, Uri>();
     }
 
@@ -102,7 +102,7 @@ public class CimRdfSchema : ICimSchema
         }
     }
 
-    public T? TryGetDescription<T>(Uri uri) where T : ICimSchemaSerializable
+    public T? TryGetDescription<T>(Uri uri) where T : ICimMetaResource
     {
         if (_All.TryGetValue(uri, out var metaDescription)
             && metaDescription is T meta)
@@ -197,7 +197,7 @@ public class CimRdfSchema : ICimSchema
         }
     }
 
-    private Dictionary<Uri, ICimSchemaSerializable> _All;
+    private Dictionary<Uri, ICimMetaResource> _All;
 
     private Dictionary<string, Uri> _Namespaces;
 
