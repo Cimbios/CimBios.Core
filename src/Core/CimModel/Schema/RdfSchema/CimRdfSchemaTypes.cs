@@ -193,15 +193,15 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
 ]
 public enum UMLStereotype
 {
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#attribute")]
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#attribute")]
     Attribute,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#aggregateOf")]
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#aggregateOf")]
     AggregateOf,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#ofAggregate")]
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#ofAggregate")]
     OfAggregate,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#enumeration")]
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#enumeration")]
     Enumeration,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#compound")]
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#compound")]
     Compound
 }
 
