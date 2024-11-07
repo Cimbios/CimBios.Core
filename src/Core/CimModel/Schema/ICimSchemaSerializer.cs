@@ -18,13 +18,13 @@ public interface ICimSchemaSerializer
     /// <summary>
     /// Deserialize data to CIM schema.
     /// </summary>
-    public Dictionary<Uri, ICimSchemaSerializable> Deserialize();
+    public Dictionary<Uri, ICimMetaResource> Deserialize();
 }
 
 /// <summary>
 /// Root interface for any schema entity.
 /// </summary>
-public interface ICimSchemaSerializable
+public interface ICimMetaResource
 {
     public Uri BaseUri { get; }
     public string ShortName { get; }
@@ -34,7 +34,7 @@ public interface ICimSchemaSerializable
 /// <summary>
 /// Meta cim class info.
 /// </summary>
-public interface ICimMetaClass : ICimSchemaSerializable
+public interface ICimMetaClass : ICimMetaResource
 {
     public bool SuperClass { get; }
     public ICimMetaClass? ParentClass { get; }
@@ -46,18 +46,18 @@ public interface ICimMetaClass : ICimSchemaSerializable
 /// <summary>
 /// Meta cim property info.
 /// </summary>
-public interface ICimMetaProperty : ICimSchemaSerializable
+public interface ICimMetaProperty : ICimMetaResource
 {   
     public ICimMetaClass? OwnerClass { get;  }
     public CimMetaPropertyKind PropertyKind { get; }
     public ICimMetaProperty? InverseProperty { get; }
-    public ICimSchemaSerializable? PropertyDatatype { get; }
+    public ICimMetaResource? PropertyDatatype { get; }
 }
 
 /// <summary>
 /// Provides system type information about cim entity.
 /// </summary>
-public interface ICimMetaDatatype : ICimSchemaSerializable
+public interface ICimMetaDatatype : ICimMetaResource
 {
     public System.Type? SystemType { get; }
     public System.Type SimpleType { get; }
@@ -66,7 +66,7 @@ public interface ICimMetaDatatype : ICimSchemaSerializable
 /// <summary>
 /// Meta cim instance object info. Commonly used for enum members.
 /// </summary>
-public interface ICimMetaIndividual : ICimSchemaSerializable
+public interface ICimMetaIndividual : ICimMetaResource
 {
     public ICimMetaClass? InstanceOf { get; }
 }

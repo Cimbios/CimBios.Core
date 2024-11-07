@@ -7,7 +7,7 @@ namespace CimBios.Core.CimModel.Schema.RdfSchema;
     CimSchemaSerializable
     ("http://www.w3.org/1999/02/22-rdf-syntax-ns#description")
 ]
-public abstract class CimRdfDescriptionBase : ICimSchemaSerializable
+public abstract class CimRdfDescriptionBase : ICimMetaResource
 {
     public Uri BaseUri { get; }
     public string ShortName { get => Label; }
@@ -117,7 +117,7 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
     public ICimMetaClass? OwnerClass { get => Domain; }
     public CimMetaPropertyKind PropertyKind { get => GetMetaPropertyKind(); }
     public ICimMetaProperty? InverseProperty { get => InverseOf; }
-    public ICimSchemaSerializable? PropertyDatatype { get => GetDatatype(); }
+    public ICimMetaResource? PropertyDatatype { get => GetDatatype(); }
 
     [
         CimSchemaSerializable(
@@ -167,7 +167,7 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
         return CimMetaPropertyKind.NonStandard;
     }
 
-    private ICimSchemaSerializable? GetDatatype()
+    private ICimMetaResource? GetDatatype()
     {
         if (PropertyKind == CimMetaPropertyKind.NonStandard)
         {
