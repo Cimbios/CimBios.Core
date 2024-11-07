@@ -220,5 +220,10 @@ public enum Multiplicity
         CimSchemaSerializable
         ("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n")
     ]
-    OneToN
+    OneToN,
+    [
+        CimSchemaSerializable
+        ("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1")
+    ]
+    StrictlyOne,
 }
