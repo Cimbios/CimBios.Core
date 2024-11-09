@@ -39,6 +39,8 @@ public interface ICimMetaClass : ICimMetaResource
     public bool SuperClass { get; }
     public ICimMetaClass? ParentClass { get; }
     public ICimMetaClass[] AllAncestors { get; }
+    public bool IsAbstract { get; }
+    public bool IsExtension { get; }
     public bool IsEnum { get; }
     public bool IsCompound { get; }
 }
@@ -51,13 +53,14 @@ public interface ICimMetaProperty : ICimMetaResource
     public ICimMetaClass? OwnerClass { get;  }
     public CimMetaPropertyKind PropertyKind { get; }
     public ICimMetaProperty? InverseProperty { get; }
-    public ICimMetaResource? PropertyDatatype { get; }
+    public ICimMetaClass? PropertyDatatype { get; }
+    public bool IsExtension { get; }
 }
 
 /// <summary>
 /// Provides system type information about cim entity.
 /// </summary>
-public interface ICimMetaDatatype : ICimMetaResource
+public interface ICimMetaDatatype : ICimMetaClass
 {
     public System.Type? SystemType { get; }
     public System.Type SimpleType { get; }

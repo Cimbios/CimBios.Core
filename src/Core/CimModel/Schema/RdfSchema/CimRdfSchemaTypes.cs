@@ -26,7 +26,7 @@ public abstract class CimRdfDescriptionBase : ICimMetaResource
     [CimSchemaSerializable(
         "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#dataType",
         MetaFieldType.ByRef)]
-    public CimRdfsDatatype? Datatype { get; set; }
+    public CimRdfsClass? Datatype { get; set; }
 
     [CimSchemaSerializable(
        "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#stereotype",
@@ -53,7 +53,7 @@ public class CimRdfsIndividual : CimRdfDescriptionBase, ICimMetaIndividual
 }
 
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Datatype")]
-public class CimRdfsDatatype : CimRdfDescriptionBase, ICimMetaDatatype
+public class CimRdfsDatatype : CimRdfsClass, ICimMetaDatatype
 {
     public System.Type? SystemType { get; set; }
 
@@ -61,21 +61,22 @@ public class CimRdfsDatatype : CimRdfDescriptionBase, ICimMetaDatatype
     {
         get
         {
-            var type = SystemType;
-            var nextDatatype = Datatype;
+            // var type = SystemType;
+            // var nextDatatype = Datatype;
 
-            while (type == null && nextDatatype != null)
-            {
-                type = nextDatatype.SystemType;
-                nextDatatype = nextDatatype.Datatype;
-            }
+            // while (type == null && nextDatatype != null)
+            // {
+            //     type = nextDatatype.SystemType;
+            //     nextDatatype = nextDatatype.Datatype;
+            // }
 
-            if (type == null)
-            {
-                return typeof(string);
-            }
+            // if (type == null)
+            // {
+            //     return typeof(string);
+            // }
 
-            return type;
+            // return type;
+            return typeof(string);
         }
     }
 
@@ -85,20 +86,28 @@ public class CimRdfsDatatype : CimRdfDescriptionBase, ICimMetaDatatype
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Class")]
 public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
 {
-    public bool SuperClass { get => SubClassOf == null; }
-    public ICimMetaClass? ParentClass { get => SubClassOf; }
-    public ICimMetaClass[] AllAncestors { get => GetAllAncestors().ToArray(); }
-    public bool IsEnum { get => Stereotypes.Contains(UMLStereotype.Enumeration); }
-    public bool IsCompound { get => Stereotypes.Contains(UMLStereotype.Compound); }
+    public bool SuperClass => (SubClassOf == null);
+    public ICimMetaClass? ParentClass => GetParentClass();
+    public ICimMetaClass[] AllAncestors => GetAllAncestors().ToArray();
+    public bool IsAbstract => Stereotypes.Contains(UMLStereotype.CIMAbstract);
+    public bool IsExtension => Stereotypes.Contains(UMLStereotype.CIMExtension);
+    public bool IsEnum => Stereotypes.Contains(UMLStereotype.Enumeration);
+    public bool IsCompound => Stereotypes.Contains(UMLStereotype.Compound);
 
     [
         CimSchemaSerializable(
         "http://www.w3.org/2000/01/rdf-schema#subClassOf",
-        MetaFieldType.ByRef)
+        MetaFieldType.ByRef, isCollection: true)
     ]
-    public CimRdfsClass? SubClassOf { get; set; }
+    public List<ICimMetaResource> SubClassOf => _SubClassOf;
 
     public CimRdfsClass(Uri baseUri) : base(baseUri) { }
+
+    private ICimMetaClass? GetParentClass()
+    {
+        return SubClassOf.OfType<ICimMetaClass>()
+            .FirstOrDefault(o => o.IsExtension == false);
+    }
 
     private IEnumerable<ICimMetaClass> GetAllAncestors()
     {
@@ -109,15 +118,19 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
             parent = parent.ParentClass;
         }
     }
+
+    private readonly List<ICimMetaResource> _SubClassOf =
+        new List<ICimMetaResource>();
 }
 
 [CimSchemaSerializable("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")]
 public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
 {
-    public ICimMetaClass? OwnerClass { get => Domain; }
-    public CimMetaPropertyKind PropertyKind { get => GetMetaPropertyKind(); }
-    public ICimMetaProperty? InverseProperty { get => InverseOf; }
-    public ICimMetaResource? PropertyDatatype { get => GetDatatype(); }
+    public ICimMetaClass? OwnerClass => Domain;
+    public CimMetaPropertyKind PropertyKind => GetMetaPropertyKind();
+    public ICimMetaProperty? InverseProperty => InverseOf;
+    public ICimMetaClass? PropertyDatatype => GetDatatype();
+    public bool IsExtension => IsDomainExtension();
 
     [
         CimSchemaSerializable(
@@ -147,6 +160,8 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
     ]
     public Multiplicity? Multiplicity { get; set; }
 
+    public CimRdfsProperty(Uri baseUri) : base(baseUri) { }
+
     private CimMetaPropertyKind GetMetaPropertyKind()
     {
         if (Stereotypes.Contains(UMLStereotype.Attribute))
@@ -154,7 +169,8 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
             return CimMetaPropertyKind.Attribute;
         }
         
-        if (Multiplicity == RdfSchema.Multiplicity.OneToOne)
+        if (Multiplicity == RdfSchema.Multiplicity.OneToOne
+            || Multiplicity == RdfSchema.Multiplicity.StrictlyOne)
         {
             return CimMetaPropertyKind.Assoc1To1;
         }
@@ -167,7 +183,7 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
         return CimMetaPropertyKind.NonStandard;
     }
 
-    private ICimMetaResource? GetDatatype()
+    private ICimMetaClass? GetDatatype()
     {
         if (PropertyKind == CimMetaPropertyKind.NonStandard)
         {
@@ -184,7 +200,15 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
         }
     }
 
-    public CimRdfsProperty(Uri baseUri) : base(baseUri) { }
+    private bool IsDomainExtension()
+    {
+        if (Domain == null)
+        {
+            return false;
+        }
+
+        return Domain.IsExtension;
+    }
 }
 
 [
@@ -202,7 +226,11 @@ public enum UMLStereotype
     [CimSchemaSerializable("http://langdale.com.au/2005/UML#enumeration")]
     Enumeration,
     [CimSchemaSerializable("http://langdale.com.au/2005/UML#compound")]
-    Compound
+    Compound,
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#cimextension")]
+    CIMExtension,
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#cimabstract")]
+    CIMAbstract,
 }
 
 [
