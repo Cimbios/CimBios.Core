@@ -43,6 +43,7 @@ public interface ICimMetaClass : ICimMetaResource
     public bool IsExtension { get; }
     public bool IsEnum { get; }
     public bool IsCompound { get; }
+    public bool IsDatatype { get; }
 }
 
 /// <summary>
