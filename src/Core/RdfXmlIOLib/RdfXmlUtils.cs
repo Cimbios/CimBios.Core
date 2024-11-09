@@ -84,11 +84,11 @@ public static class RdfXmlReaderUtils
     }
 
     /// <summary>
-    /// 
+    /// Get short string form of URI.
     /// </summary>
-    /// <param name="uri"></param>
-    /// <param name="identifier"></param>
-    /// <returns></returns>
+    /// <param name="uri">Resource identifier.</param>
+    /// <param name="identifier">Escaped identifier. Empty if conversion fails.</param>
+    /// <returns>True if identifier</returns>
     public static bool TryGetEscapedIdentifier(Uri uri, out string identifier)
     {
         identifier = string.Empty;
