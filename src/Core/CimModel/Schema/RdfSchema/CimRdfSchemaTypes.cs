@@ -39,6 +39,15 @@ public abstract class CimRdfDescriptionBase : ICimMetaResource
         BaseUri = baseUri;
     }
 
+    protected CimRdfDescriptionBase(CimRdfDescriptionBase rdfDescription)
+    {
+        BaseUri = rdfDescription.BaseUri;
+        Label = rdfDescription.Label;
+        Comment = rdfDescription.Comment;
+        Datatype = rdfDescription.Datatype;
+        _Stereotypes = rdfDescription.Stereotypes;
+    }
+
     private readonly List<object> _Stereotypes =
         new List<object>();
 }
@@ -61,26 +70,27 @@ public class CimRdfsDatatype : CimRdfsClass, ICimMetaDatatype
     {
         get
         {
-            // var type = SystemType;
-            // var nextDatatype = Datatype;
+            var type = SystemType;
+            var nextDatatype = Datatype as CimRdfsDatatype;
 
-            // while (type == null && nextDatatype != null)
-            // {
-            //     type = nextDatatype.SystemType;
-            //     nextDatatype = nextDatatype.Datatype;
-            // }
+            while (type == null && nextDatatype != null)
+            {
+                type = nextDatatype.SystemType;
+                nextDatatype = nextDatatype.Datatype as CimRdfsDatatype;
+            }
 
-            // if (type == null)
-            // {
-            //     return typeof(string);
-            // }
+            if (type == null)
+            {
+                return typeof(string);
+            }
 
-            // return type;
-            return typeof(string);
+            return type;
         }
     }
 
     public CimRdfsDatatype(Uri baseUri) : base(baseUri) { }
+
+    public CimRdfsDatatype(CimRdfsClass rdfsClass) : base(rdfsClass) { }
 }
 
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Class")]
@@ -93,6 +103,7 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
     public bool IsExtension => Stereotypes.Contains(UMLStereotype.CIMExtension);
     public bool IsEnum => Stereotypes.Contains(UMLStereotype.Enumeration);
     public bool IsCompound => Stereotypes.Contains(UMLStereotype.Compound);
+    public bool IsDatatype => Stereotypes.Contains(UMLStereotype.CIMDatatype);
 
     [
         CimSchemaSerializable(
@@ -102,6 +113,11 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
     public List<ICimMetaResource> SubClassOf => _SubClassOf;
 
     public CimRdfsClass(Uri baseUri) : base(baseUri) { }
+
+    public CimRdfsClass(CimRdfsClass rdfClass) : base(rdfClass)
+    {
+        _SubClassOf = rdfClass._SubClassOf;
+    }
 
     private ICimMetaClass? GetParentClass()
     {
@@ -231,6 +247,8 @@ public enum UMLStereotype
     CIMExtension,
     [CimSchemaSerializable("http://langdale.com.au/2005/UML#cimabstract")]
     CIMAbstract,
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#cimdatatype")]
+    CIMDatatype,
 }
 
 [
