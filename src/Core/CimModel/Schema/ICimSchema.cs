@@ -46,7 +46,7 @@ public interface ICimSchema : ICanLog
     /// </summary>
     /// <param name="uri">Identifier of instance.</param>
     /// <returns>CimRdfDescriptionBase inherits instance.</returns>
-    public T? TryGetDescription<T>(Uri uri) where T : ICimSchemaSerializable;
+    public T? TryGetDescription<T>(Uri uri) where T : ICimMetaResource;
 
     /// <summary>
     /// Check schema uri instance exists.
@@ -63,7 +63,8 @@ public interface ICimSchema : ICanLog
     /// <returns>Enumerable of CimMetaProperty.</returns>
     public IEnumerable<ICimMetaProperty> GetClassProperties(
         ICimMetaClass metaClass,
-        bool inherit = false);
+        bool inherit = false,
+        bool extensions = true);
 
     /// <summary>
     /// Get list of class individuals.
@@ -74,6 +75,13 @@ public interface ICimSchema : ICanLog
     public IEnumerable<ICimMetaIndividual> GetClassIndividuals(
         ICimMetaClass metaClass,
         bool inherit = false);
+
+    /// <summary>
+    /// Can meta class instance be created within schema.
+    /// </summary>
+    /// <param name="metaClass">Meta class object.</param>
+    /// <returns>Can create meta class instance bool.</returns>
+    public bool CanCreateClass(ICimMetaClass metaClass);
 
     /// <summary>
     /// Join this CIM schema with another one.
