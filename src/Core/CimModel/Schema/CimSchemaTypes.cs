@@ -8,6 +8,7 @@ internal static class XmlDatatypesMapping
     internal static readonly Dictionary<string, System.Type> UriSystemTypes
         = new Dictionary<string, System.Type>()
         {
+            { "http://www.w3.org/2001/XMLSchema#integer", typeof(int) },
             { "http://www.w3.org/2001/XMLSchema#string", typeof(string) },
             { "http://www.w3.org/2001/XMLSchema#boolean", typeof(bool) },
             { "http://www.w3.org/2001/XMLSchema#decimal", typeof(decimal) },
