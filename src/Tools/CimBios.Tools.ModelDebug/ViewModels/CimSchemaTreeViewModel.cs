@@ -166,7 +166,7 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
 
             var node = new CimSchemaEntityNodeModel(schemaClass)
             {
-                Title = $"[C] {classPrefix}:{schemaClass.ShortName} {classTraits}"
+                Title = $"[C] {classPrefix}:{schemaClass.ShortName} ({classTraits})"
             };
             uriVsNode.Add(schemaClass.BaseUri, node);
 
@@ -243,22 +243,14 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
 
     private string GetClassTraitsString(ICimMetaClass cimMetaClass)
     {
-        if (cimMetaClass.IsCompound && cimMetaClass.IsEnum)
-        {
-            return "(Compound, Enum)";
-        }
-        else if (cimMetaClass.IsCompound)
-        {
-            return "(Compound)";
-        }
-        else if (cimMetaClass.IsEnum)
-        {
-            return "(Enum)";
-        }
-        else
-        {
-            return string.Empty;
-        }
+        string traits = $"Compound={cimMetaClass.IsCompound}; "
+            + $"Enum={cimMetaClass.IsEnum}; "
+            + $"Datatype={cimMetaClass.IsDatatype}; "
+            + $"Abstract={cimMetaClass.IsAbstract}; "
+            + $"Extension={cimMetaClass.IsExtension}; "
+            + $"CanCreate={CimSchemaContext?.CanCreateClass(cimMetaClass)};";
+
+        return traits;
     }
 
     private string GetPropertyKindString(ICimMetaProperty property)
