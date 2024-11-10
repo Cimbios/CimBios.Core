@@ -167,7 +167,7 @@ public class RdfXmlSerializer : RdfSerializerBase
 
         if (attribute.PropertyDatatype is ICimMetaDatatype metaDatatype)
         {
-            simpleType = metaDatatype.SimpleType;
+            simpleType = metaDatatype.PrimitiveType;
         }
         else if (attribute.PropertyDatatype is ICimMetaClass metaClass)
         {
@@ -434,7 +434,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         if (property.PropertyDatatype is ICimMetaDatatype dataType)
         {
             var convertedValue = Convert.ChangeType(data,
-                dataType.SimpleType, CultureInfo.InvariantCulture);
+                dataType.PrimitiveType, CultureInfo.InvariantCulture);
 
             if (convertedValue != null)
             {

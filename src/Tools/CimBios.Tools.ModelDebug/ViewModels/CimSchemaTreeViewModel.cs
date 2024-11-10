@@ -285,10 +285,10 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
         {
             if (datatype.ShortName == string.Empty)
             {
-                return $"<{datatype.SimpleType.Name}>"; 
+                return $"<{datatype.PrimitiveType.Name}>"; 
             }
 
-            return $"<{datatype.ShortName}/{datatype.SimpleType.Name}>";
+            return $"<{datatype.ShortName}/{datatype.PrimitiveType.Name}>";
         }
 
         if (property.PropertyDatatype is ICimMetaClass metaClass)
