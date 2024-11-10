@@ -63,7 +63,8 @@ public interface ICimSchema : ICanLog
     /// <returns>Enumerable of CimMetaProperty.</returns>
     public IEnumerable<ICimMetaProperty> GetClassProperties(
         ICimMetaClass metaClass,
-        bool inherit = false);
+        bool inherit = false,
+        bool extensions = true);
 
     /// <summary>
     /// Get list of class individuals.

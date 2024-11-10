@@ -52,8 +52,11 @@ public class CimRdfSchema : ICimSchema
 
     public IEnumerable<ICimMetaProperty> GetClassProperties(
         ICimMetaClass metaClass,
-        bool inherit = false)
+        bool inherit = false,
+        bool extensions = true)
     {
+        var result = new List<ICimMetaProperty>();
+
         ICimMetaClass? nextClass = metaClass;
 
         do
@@ -63,12 +66,22 @@ public class CimRdfSchema : ICimSchema
                     RdfXmlReaderUtils.RdfUriEquals
                     (p.OwnerClass?.BaseUri, nextClass.BaseUri)))
             {
-                yield return prop;
+                result.Add(prop);
+            }
+
+            if (extensions == true)
+            {         
+                foreach (var extClass in nextClass.Extensions)
+                {
+                    result.AddRange(GetClassProperties(extClass, false, false));
+                }
             }
 
             nextClass = nextClass?.ParentClass;
         }
         while (inherit == true && nextClass != null);
+
+        return result;
     }
 
     public IEnumerable<ICimMetaIndividual> GetClassIndividuals(
