@@ -220,14 +220,14 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
             .OfType<CimRdfsClass>().Where(o => o.IsDatatype))
         {
             var uri = metaClass.BaseUri;
-            var classProperty = _ObjectsCache.Values.OfType<CimRdfsProperty>()
+            var valueProperty = _ObjectsCache.Values.OfType<CimRdfsProperty>()
                 .Where(p => RdfXmlReaderUtils.RdfUriEquals(
                     p.BaseUri, new Uri(uri.AbsoluteUri + ".value")))
                 .FirstOrDefault();
 
             System.Type type = typeof(string);
 
-            if (classProperty?.Datatype is CimRdfsDatatype cimRdfsDatatype
+            if (valueProperty?.Datatype is CimRdfsDatatype cimRdfsDatatype
                 && cimRdfsDatatype.SystemType != null)
             {
                 type = cimRdfsDatatype.SystemType;
@@ -237,7 +237,14 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
             {
                 SystemType = type
             };
-            
+
+            foreach (var targetProperty in _ObjectsCache.Values
+                .OfType<CimRdfsProperty>()
+                .Where(p => p.Datatype == metaClass))
+            {
+                targetProperty.Datatype = metaDatatype;
+            }
+
             _ObjectsCache[uri] = metaDatatype;
         }
     }

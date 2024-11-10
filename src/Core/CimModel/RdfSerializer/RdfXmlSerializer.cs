@@ -596,12 +596,8 @@ public class RdfXmlSerializer : RdfSerializerBase
             return false;
         }
 
-        var schemaPropClassUri = schemaProperty.OwnerClass.BaseUri.AbsoluteUri;
-        var instanceClassUri = instanceClass.BaseUri.AbsoluteUri;
-
-        if (schemaPropClassUri == instanceClassUri
-            || instanceClass.AllAncestors
-                .Any(a => a.BaseUri.AbsoluteUri == schemaPropClassUri))
+        var classProperties = Schema.GetClassProperties(instanceClass, true);
+        if (classProperties.Contains(schemaProperty))
         {
             return true;
         }

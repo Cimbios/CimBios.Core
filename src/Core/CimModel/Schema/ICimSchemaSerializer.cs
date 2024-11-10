@@ -39,6 +39,7 @@ public interface ICimMetaClass : ICimMetaResource
     public bool SuperClass { get; }
     public ICimMetaClass? ParentClass { get; }
     public ICimMetaClass[] AllAncestors { get; }
+    public ICimMetaClass[] Extensions { get; }
     public bool IsAbstract { get; }
     public bool IsExtension { get; }
     public bool IsEnum { get; }

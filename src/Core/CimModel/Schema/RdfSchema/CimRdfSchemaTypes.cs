@@ -99,6 +99,8 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
     public bool SuperClass => (SubClassOf == null);
     public ICimMetaClass? ParentClass => GetParentClass();
     public ICimMetaClass[] AllAncestors => GetAllAncestors().ToArray();
+    public ICimMetaClass[] Extensions => _SubClassOf.OfType<ICimMetaClass>()
+        .Where(c => c.IsExtension).ToArray();
     public bool IsAbstract => Stereotypes.Contains(UMLStereotype.CIMAbstract);
     public bool IsExtension => Stereotypes.Contains(UMLStereotype.CIMExtension);
     public bool IsEnum => Stereotypes.Contains(UMLStereotype.Enumeration);
