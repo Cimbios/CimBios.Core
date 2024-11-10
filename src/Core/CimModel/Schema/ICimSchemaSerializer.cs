@@ -65,7 +65,7 @@ public interface ICimMetaProperty : ICimMetaResource
 public interface ICimMetaDatatype : ICimMetaClass
 {
     public System.Type? SystemType { get; }
-    public System.Type SimpleType { get; }
+    public System.Type PrimitiveType { get; }
 }
 
 /// <summary>

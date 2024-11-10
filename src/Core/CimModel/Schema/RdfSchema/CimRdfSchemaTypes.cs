@@ -66,7 +66,7 @@ public class CimRdfsDatatype : CimRdfsClass, ICimMetaDatatype
 {
     public System.Type? SystemType { get; set; }
 
-    public System.Type SimpleType
+    public System.Type PrimitiveType
     {
         get
         {
