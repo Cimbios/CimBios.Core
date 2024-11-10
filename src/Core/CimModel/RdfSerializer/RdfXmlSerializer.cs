@@ -18,6 +18,7 @@ public class RdfXmlSerializer : RdfSerializerBase
     {
         _objectsCache = new Dictionary<string, IModelObject>();
         _waitingReferenceObjectUuids = new HashSet<string>();
+        _checkedPropsCache = new Dictionary<string, List<string>>();
     }
 
     public override IEnumerable<IModelObject> Deserialize()
@@ -28,7 +29,10 @@ public class RdfXmlSerializer : RdfSerializerBase
             _reader.Load(xDocument);
         }
 
-        return ReadObjects();
+        var objects = ReadObjects();
+        ResetCache();
+
+        return objects;
     }
 
     public override void Serialize(IEnumerable<IModelObject> modelObjects)
@@ -51,6 +55,15 @@ public class RdfXmlSerializer : RdfSerializerBase
         {
             Provider.Push(writtenObjects);
         }
+
+        ResetCache();
+    }
+
+    private void ResetCache()
+    {        
+        _objectsCache = new Dictionary<string, IModelObject>();
+        _waitingReferenceObjectUuids = new HashSet<string>();
+        _checkedPropsCache = new Dictionary<string, List<string>>();
     }
 
     /// <summary>
@@ -583,6 +596,12 @@ public class RdfXmlSerializer : RdfSerializerBase
     private bool IsPropertyAlignSchemaClass(ICimMetaProperty schemaProperty,
         IModelObject instance)
     {
+        if (IsPropertyChecked(instance.ObjectData.ClassType, 
+            schemaProperty.BaseUri))
+        {
+            return true;
+        }
+
         if (schemaProperty == null
             || schemaProperty.OwnerClass == null)
         {
@@ -599,10 +618,40 @@ public class RdfXmlSerializer : RdfSerializerBase
         var classProperties = Schema.GetClassProperties(instanceClass, true);
         if (classProperties.Contains(schemaProperty))
         {
+            CacheCheckedProperty(instanceClass.BaseUri, 
+                schemaProperty.BaseUri);
+
             return true;
         }
 
         return false;
+    }
+
+    private bool IsPropertyChecked(Uri classType, Uri classProperty)
+    {
+        var classTypeId = classType.AbsoluteUri;
+        var classPropertyId = classProperty.AbsoluteUri;
+
+        if (_checkedPropsCache.TryGetValue(classTypeId, out var props)
+            && props.Contains(classPropertyId))
+        {
+            return true;
+        } 
+
+        return false;
+    }
+
+    private void CacheCheckedProperty(Uri classType, Uri classProperty)
+    {
+        var classTypeId = classType.AbsoluteUri;
+        var classPropertyId = classProperty.AbsoluteUri;
+
+        if (_checkedPropsCache.ContainsKey(classTypeId) == false)
+        {
+            _checkedPropsCache.Add(classTypeId, new List<string>());
+        }
+        
+        _checkedPropsCache[classTypeId].Add(classPropertyId);
     }
 
     private RdfXmlReader? _reader;
@@ -610,4 +659,5 @@ public class RdfXmlSerializer : RdfSerializerBase
 
     private Dictionary<string, IModelObject> _objectsCache;
     private HashSet<string> _waitingReferenceObjectUuids;
+    private Dictionary<string, List<string>> _checkedPropsCache;
 }
