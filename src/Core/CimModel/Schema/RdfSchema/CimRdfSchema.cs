@@ -25,7 +25,7 @@ public class CimRdfSchema : ICimSchema
     {
         _Log = new PlainLogView(this);
 
-        _All = new Dictionary<Uri, ICimSchemaSerializable>(new RdfUriComparer());
+        _All = new Dictionary<Uri, ICimMetaResource>(new RdfUriComparer());
         _Namespaces = new Dictionary<string, Uri>();
     }
 
@@ -52,8 +52,11 @@ public class CimRdfSchema : ICimSchema
 
     public IEnumerable<ICimMetaProperty> GetClassProperties(
         ICimMetaClass metaClass,
-        bool inherit = false)
+        bool inherit = false,
+        bool extensions = true)
     {
+        var result = new List<ICimMetaProperty>();
+
         ICimMetaClass? nextClass = metaClass;
 
         do
@@ -63,12 +66,22 @@ public class CimRdfSchema : ICimSchema
                     RdfXmlReaderUtils.RdfUriEquals
                     (p.OwnerClass?.BaseUri, nextClass.BaseUri)))
             {
-                yield return prop;
+                result.Add(prop);
+            }
+
+            if (extensions == true)
+            {         
+                foreach (var extClass in nextClass.Extensions)
+                {
+                    result.AddRange(GetClassProperties(extClass, false, false));
+                }
             }
 
             nextClass = nextClass?.ParentClass;
         }
         while (inherit == true && nextClass != null);
+
+        return result;
     }
 
     public IEnumerable<ICimMetaIndividual> GetClassIndividuals(
@@ -102,7 +115,7 @@ public class CimRdfSchema : ICimSchema
         }
     }
 
-    public T? TryGetDescription<T>(Uri uri) where T : ICimSchemaSerializable
+    public T? TryGetDescription<T>(Uri uri) where T : ICimMetaResource
     {
         if (_All.TryGetValue(uri, out var metaDescription)
             && metaDescription is T meta)
@@ -116,6 +129,27 @@ public class CimRdfSchema : ICimSchema
     public bool HasUri(Uri uri)
     {
         return _All.ContainsKey(uri);
+    }
+
+    public bool CanCreateClass(ICimMetaClass metaClass)
+    {
+        if (metaClass.IsAbstract || metaClass.IsDatatype || metaClass.IsEnum)
+        {
+            return false;
+        }
+
+        if (metaClass.IsExtension)
+        {
+            var extendedBy = Classes.Where(
+                c => c.Extensions.Contains(metaClass));
+                
+            if (extendedBy.Any(c => c.BaseUri != metaClass.BaseUri))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public void Join(ICimSchema schema, bool rewriteNamespaces = false)
@@ -197,7 +231,7 @@ public class CimRdfSchema : ICimSchema
         }
     }
 
-    private Dictionary<Uri, ICimSchemaSerializable> _All;
+    private Dictionary<Uri, ICimMetaResource> _All;
 
     private Dictionary<string, Uri> _Namespaces;
 

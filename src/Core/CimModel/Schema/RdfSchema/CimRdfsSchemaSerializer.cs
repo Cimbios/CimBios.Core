@@ -13,7 +13,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         _Reader.Load(reader);
     }
 
-    public Dictionary<Uri, ICimSchemaSerializable> Deserialize()
+    public Dictionary<Uri, ICimMetaResource> Deserialize()
     {
         _Namespaces.Clear();
         _ObjectsCache.Clear();
@@ -24,6 +24,8 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
 
         ReadObjects(descriptionTypedNodes);
         ResolveReferences(descriptionTypedNodes);
+
+        BuildExternalDatatypes();
 
         ForwardReaderNamespaces();
 
@@ -126,7 +128,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         foreach (var node in descriptionTypedNodes)
         {
             if (_ObjectsCache.TryGetValue(node.Identifier, 
-                    out ICimSchemaSerializable? metaDescription) == false
+                    out ICimMetaResource? metaDescription) == false
                 || metaDescription is CimRdfDescriptionBase == false)
             {
                 continue;
@@ -196,12 +198,54 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         {
             var datatype = XmlDatatypesMapping.UriSystemTypes[typeUri];
 
-            var metaDatatype = new CimRdfsDatatype(new Uri(typeUri))
+            var uri = new Uri(typeUri);
+            RdfXmlReaderUtils.TryGetEscapedIdentifier(uri, out var label);
+            var metaDatatype = new CimRdfsDatatype(uri)
             {
-                SystemType = datatype
+                SystemType = datatype,
+                Label = label,
+                Comment = "Build-in xsd datatype."
             };
 
             _ObjectsCache.Add(metaDatatype.BaseUri, metaDatatype);
+        }
+    }
+
+    /// <summary>
+    /// Build external schema-in datatypes.
+    /// </summary>
+    private void BuildExternalDatatypes()
+    {
+        foreach (var metaClass in _ObjectsCache.Values
+            .OfType<CimRdfsClass>().Where(o => o.IsDatatype))
+        {
+            var uri = metaClass.BaseUri;
+            var valueProperty = _ObjectsCache.Values.OfType<CimRdfsProperty>()
+                .Where(p => RdfXmlReaderUtils.RdfUriEquals(
+                    p.BaseUri, new Uri(uri.AbsoluteUri + ".value")))
+                .FirstOrDefault();
+
+            System.Type type = typeof(string);
+
+            if (valueProperty?.Datatype is CimRdfsDatatype cimRdfsDatatype
+                && cimRdfsDatatype.SystemType != null)
+            {
+                type = cimRdfsDatatype.SystemType;
+            }
+
+            var metaDatatype = new CimRdfsDatatype(metaClass)
+            {
+                SystemType = type
+            };
+
+            foreach (var targetProperty in _ObjectsCache.Values
+                .OfType<CimRdfsProperty>()
+                .Where(p => p.Datatype == metaClass))
+            {
+                targetProperty.Datatype = metaDatatype;
+            }
+
+            _ObjectsCache[uri] = metaDatatype;
         }
     }
 
@@ -210,8 +254,8 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
 
     private RdfXmlReader _Reader = new RdfXmlReader();
 
-    private Dictionary<Uri, ICimSchemaSerializable> _ObjectsCache 
-        = new Dictionary<Uri, ICimSchemaSerializable>(new RdfUriComparer());
+    private Dictionary<Uri, ICimMetaResource> _ObjectsCache 
+        = new Dictionary<Uri, ICimMetaResource>(new RdfUriComparer());
 
     private Dictionary <string, Uri> _Namespaces
         = new Dictionary<string, Uri> ();

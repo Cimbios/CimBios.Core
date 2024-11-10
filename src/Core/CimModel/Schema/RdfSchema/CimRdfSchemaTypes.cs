@@ -7,7 +7,7 @@ namespace CimBios.Core.CimModel.Schema.RdfSchema;
     CimSchemaSerializable
     ("http://www.w3.org/1999/02/22-rdf-syntax-ns#description")
 ]
-public abstract class CimRdfDescriptionBase : ICimSchemaSerializable
+public abstract class CimRdfDescriptionBase : ICimMetaResource
 {
     public Uri BaseUri { get; }
     public string ShortName { get => Label; }
@@ -26,7 +26,7 @@ public abstract class CimRdfDescriptionBase : ICimSchemaSerializable
     [CimSchemaSerializable(
         "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#dataType",
         MetaFieldType.ByRef)]
-    public CimRdfsDatatype? Datatype { get; set; }
+    public CimRdfsClass? Datatype { get; set; }
 
     [CimSchemaSerializable(
        "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#stereotype",
@@ -37,6 +37,15 @@ public abstract class CimRdfDescriptionBase : ICimSchemaSerializable
     protected CimRdfDescriptionBase(Uri baseUri) 
     { 
         BaseUri = baseUri;
+    }
+
+    protected CimRdfDescriptionBase(CimRdfDescriptionBase rdfDescription)
+    {
+        BaseUri = rdfDescription.BaseUri;
+        Label = rdfDescription.Label;
+        Comment = rdfDescription.Comment;
+        Datatype = rdfDescription.Datatype;
+        _Stereotypes = rdfDescription.Stereotypes;
     }
 
     private readonly List<object> _Stereotypes =
@@ -53,21 +62,21 @@ public class CimRdfsIndividual : CimRdfDescriptionBase, ICimMetaIndividual
 }
 
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Datatype")]
-public class CimRdfsDatatype : CimRdfDescriptionBase, ICimMetaDatatype
+public class CimRdfsDatatype : CimRdfsClass, ICimMetaDatatype
 {
     public System.Type? SystemType { get; set; }
 
-    public System.Type SimpleType
+    public System.Type PrimitiveType
     {
         get
         {
             var type = SystemType;
-            var nextDatatype = Datatype;
+            var nextDatatype = Datatype as CimRdfsDatatype;
 
             while (type == null && nextDatatype != null)
             {
                 type = nextDatatype.SystemType;
-                nextDatatype = nextDatatype.Datatype;
+                nextDatatype = nextDatatype.Datatype as CimRdfsDatatype;
             }
 
             if (type == null)
@@ -80,25 +89,43 @@ public class CimRdfsDatatype : CimRdfDescriptionBase, ICimMetaDatatype
     }
 
     public CimRdfsDatatype(Uri baseUri) : base(baseUri) { }
+
+    public CimRdfsDatatype(CimRdfsClass rdfsClass) : base(rdfsClass) { }
 }
 
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Class")]
 public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
 {
-    public bool SuperClass { get => SubClassOf == null; }
-    public ICimMetaClass? ParentClass { get => SubClassOf; }
-    public ICimMetaClass[] AllAncestors { get => GetAllAncestors().ToArray(); }
-    public bool IsEnum { get => Stereotypes.Contains(UMLStereotype.Enumeration); }
-    public bool IsCompound { get => Stereotypes.Contains(UMLStereotype.Compound); }
+    public bool SuperClass => (SubClassOf == null);
+    public ICimMetaClass? ParentClass => GetParentClass();
+    public ICimMetaClass[] AllAncestors => GetAllAncestors().ToArray();
+    public ICimMetaClass[] Extensions => _SubClassOf.OfType<ICimMetaClass>()
+        .Where(c => c.IsExtension).ToArray();
+    public bool IsAbstract => Stereotypes.Contains(UMLStereotype.CIMAbstract);
+    public bool IsExtension => Stereotypes.Contains(UMLStereotype.CIMExtension);
+    public bool IsEnum => Stereotypes.Contains(UMLStereotype.Enumeration);
+    public bool IsCompound => Stereotypes.Contains(UMLStereotype.Compound);
+    public bool IsDatatype => Stereotypes.Contains(UMLStereotype.CIMDatatype);
 
     [
         CimSchemaSerializable(
         "http://www.w3.org/2000/01/rdf-schema#subClassOf",
-        MetaFieldType.ByRef)
+        MetaFieldType.ByRef, isCollection: true)
     ]
-    public CimRdfsClass? SubClassOf { get; set; }
+    public List<ICimMetaResource> SubClassOf => _SubClassOf;
 
     public CimRdfsClass(Uri baseUri) : base(baseUri) { }
+
+    public CimRdfsClass(CimRdfsClass rdfClass) : base(rdfClass)
+    {
+        _SubClassOf = rdfClass._SubClassOf;
+    }
+
+    private ICimMetaClass? GetParentClass()
+    {
+        return SubClassOf.OfType<ICimMetaClass>()
+            .FirstOrDefault(o => o.IsExtension == false);
+    }
 
     private IEnumerable<ICimMetaClass> GetAllAncestors()
     {
@@ -109,15 +136,19 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
             parent = parent.ParentClass;
         }
     }
+
+    private readonly List<ICimMetaResource> _SubClassOf =
+        new List<ICimMetaResource>();
 }
 
 [CimSchemaSerializable("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")]
 public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
 {
-    public ICimMetaClass? OwnerClass { get => Domain; }
-    public CimMetaPropertyKind PropertyKind { get => GetMetaPropertyKind(); }
-    public ICimMetaProperty? InverseProperty { get => InverseOf; }
-    public ICimSchemaSerializable? PropertyDatatype { get => GetDatatype(); }
+    public ICimMetaClass? OwnerClass => Domain;
+    public CimMetaPropertyKind PropertyKind => GetMetaPropertyKind();
+    public ICimMetaProperty? InverseProperty => InverseOf;
+    public ICimMetaClass? PropertyDatatype => GetDatatype();
+    public bool IsExtension => IsDomainExtension();
 
     [
         CimSchemaSerializable(
@@ -147,6 +178,8 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
     ]
     public Multiplicity? Multiplicity { get; set; }
 
+    public CimRdfsProperty(Uri baseUri) : base(baseUri) { }
+
     private CimMetaPropertyKind GetMetaPropertyKind()
     {
         if (Stereotypes.Contains(UMLStereotype.Attribute))
@@ -154,7 +187,8 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
             return CimMetaPropertyKind.Attribute;
         }
         
-        if (Multiplicity == RdfSchema.Multiplicity.OneToOne)
+        if (Multiplicity == RdfSchema.Multiplicity.OneToOne
+            || Multiplicity == RdfSchema.Multiplicity.StrictlyOne)
         {
             return CimMetaPropertyKind.Assoc1To1;
         }
@@ -167,7 +201,7 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
         return CimMetaPropertyKind.NonStandard;
     }
 
-    private ICimSchemaSerializable? GetDatatype()
+    private ICimMetaClass? GetDatatype()
     {
         if (PropertyKind == CimMetaPropertyKind.NonStandard)
         {
@@ -184,7 +218,15 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
         }
     }
 
-    public CimRdfsProperty(Uri baseUri) : base(baseUri) { }
+    private bool IsDomainExtension()
+    {
+        if (Domain == null)
+        {
+            return false;
+        }
+
+        return Domain.IsExtension;
+    }
 }
 
 [
@@ -193,16 +235,22 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
 ]
 public enum UMLStereotype
 {
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#attribute")]
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#attribute")]
     Attribute,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#aggregateOf")]
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#aggregateOf")]
     AggregateOf,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#ofAggregate")]
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#ofAggregate")]
     OfAggregate,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#enumeration")]
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#enumeration")]
     Enumeration,
-    [CimSchemaSerializable("http://iec.ch/TC57/NonStandard/UML#compound")]
-    Compound
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#compound")]
+    Compound,
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#cimextension")]
+    CIMExtension,
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#cimabstract")]
+    CIMAbstract,
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#cimdatatype")]
+    CIMDatatype,
 }
 
 [
@@ -220,5 +268,10 @@ public enum Multiplicity
         CimSchemaSerializable
         ("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n")
     ]
-    OneToN
+    OneToN,
+    [
+        CimSchemaSerializable
+        ("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1")
+    ]
+    StrictlyOne,
 }
