@@ -77,6 +77,13 @@ public interface ICimSchema : ICanLog
         bool inherit = false);
 
     /// <summary>
+    /// Can meta class instance be created within schema.
+    /// </summary>
+    /// <param name="metaClass">Meta class object.</param>
+    /// <returns>Can create meta class instance bool.</returns>
+    public bool CanCreateClass(ICimMetaClass metaClass);
+
+    /// <summary>
     /// Join this CIM schema with another one.
     /// </summary>
     /// <param name="schema">ICimSchema instance.</param>

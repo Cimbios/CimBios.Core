@@ -131,6 +131,27 @@ public class CimRdfSchema : ICimSchema
         return _All.ContainsKey(uri);
     }
 
+    public bool CanCreateClass(ICimMetaClass metaClass)
+    {
+        if (metaClass.IsAbstract || metaClass.IsDatatype || metaClass.IsEnum)
+        {
+            return false;
+        }
+
+        if (metaClass.IsExtension)
+        {
+            var extendedBy = Classes.Where(
+                c => c.Extensions.Contains(metaClass));
+                
+            if (extendedBy.Any(c => c.BaseUri != metaClass.BaseUri))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public void Join(ICimSchema schema, bool rewriteNamespaces = false)
     {
         var details = string.Empty;
