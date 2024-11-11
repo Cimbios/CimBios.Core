@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\RdfXmlIOLib\CimBios.Core.RdfXmlIOLib.csproj" />
+    <ProjectReference Include="..\..\RdfIOLib\CimBios.Core.RdfIOLib.csproj" />
     <ProjectReference Include="..\CimDatatypeLib\CimBios.Core.CimModel.CimDatatypeLib.csproj" />
     <ProjectReference Include="..\..\DataProvider\CimBios.Core.DataProvider.csproj" />
     <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj" />
