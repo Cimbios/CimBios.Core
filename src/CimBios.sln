@@ -6,7 +6,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.CimModel.Conte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.CimModel.Schema", "Core\CimModel\Schema\CimBios.Core.CimModel.Schema.csproj", "{58DE5C9F-5286-4047-94D9-CCEE51BC43B5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.RdfXmlIOLib", "Core\RdfXmlIOLib\CimBios.Core.RdfXmlIOLib.csproj", "{7CBC086A-63B3-4701-B243-623AAD9DF0EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.RdfIOLib", "Core\RdfIOLib\CimBios.Core.RdfIOLib.csproj", "{7CBC086A-63B3-4701-B243-623AAD9DF0EB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.CimModel.CimDatatypeLib", "Core\CimModel\CimDatatypeLib\CimBios.Core.CimModel.CimDatatypeLib.csproj", "{629F6163-A99E-45E5-A580-122F13459BC8}"
 EndProject
@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CimModel", "CimModel", "{25
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{29FD2110-4306-4F6F-AFAE-84A3B47A30AF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RdfXmlIOLib", "RdfXmlIOLib", "{FC81AB4D-0E26-4A7D-A6F2-CBDB290EB77D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RdfIOLib", "RdfIOLib", "{FC81AB4D-0E26-4A7D-A6F2-CBDB290EB77D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataProvider", "DataProvider", "{00D3E768-D13A-4EF9-823D-F07E5C4C85DB}"
 EndProject
