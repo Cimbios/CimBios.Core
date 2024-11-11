@@ -1,4 +1,4 @@
-using CimBios.Core.RdfXmlIOLib;
+using CimBios.Core.RdfIOLib;
 using CimBios.Utils.ClassTraits;
 using System.Reflection;
 

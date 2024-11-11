@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using CimBios.Core.CimModel.Context;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Core.RdfXmlIOLib;
+using CimBios.Core.RdfIOLib;
 using CimBios.Tools.ModelDebug.Models;
 using CommunityToolkit.Mvvm.Input;
 

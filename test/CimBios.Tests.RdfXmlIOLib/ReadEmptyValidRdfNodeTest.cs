@@ -1,5 +1,5 @@
 using System.Xml.Linq;
-using CimBios.Core.RdfXmlIOLib;
+using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Tests.RdfXmlIOLib;
 

@@ -1,7 +1,7 @@
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.DataProvider;
-using CimBios.Core.RdfXmlIOLib;
+using CimBios.Core.RdfIOLib;
 using System.Globalization;
 using System.Xml.Linq;
 
