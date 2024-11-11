@@ -60,7 +60,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
                 continue;
             }
 
-            var type = node.Triples.Where(t => RdfXmlReaderUtils
+            var type = node.Triples.Where(t => RdfUtils
                     .RdfUriEquals(t.Predicate, CimRdfSchemaStrings.RdfType))
                 .Single().Object as Uri;
 
@@ -96,7 +96,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
     {
         foreach (var node in nodes)
         {
-            var type = node.Triples.Where(t => RdfXmlReaderUtils
+            var type = node.Triples.Where(t => RdfUtils
                 .RdfUriEquals(t.Predicate, CimRdfSchemaStrings.RdfType))
             .Single().Object as Uri;
 
@@ -199,7 +199,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
             var datatype = XmlDatatypesMapping.UriSystemTypes[typeUri];
 
             var uri = new Uri(typeUri);
-            RdfXmlReaderUtils.TryGetEscapedIdentifier(uri, out var label);
+            RdfUtils.TryGetEscapedIdentifier(uri, out var label);
             var metaDatatype = new CimRdfsDatatype(uri)
             {
                 SystemType = datatype,
@@ -221,7 +221,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         {
             var uri = metaClass.BaseUri;
             var valueProperty = _ObjectsCache.Values.OfType<CimRdfsProperty>()
-                .Where(p => RdfXmlReaderUtils.RdfUriEquals(
+                .Where(p => RdfUtils.RdfUriEquals(
                     p.BaseUri, new Uri(uri.AbsoluteUri + ".value")))
                 .FirstOrDefault();
 

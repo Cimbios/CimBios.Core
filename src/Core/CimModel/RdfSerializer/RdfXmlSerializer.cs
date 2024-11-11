@@ -307,7 +307,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         // Second step - fill objects properties.
         foreach (var instanceNode in cimDocument)
         {
-            if (RdfXmlReaderUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
+            if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
                 out var instanceUuid) == false)
             {
                 continue;
@@ -339,7 +339,7 @@ public class RdfXmlSerializer : RdfSerializerBase
     private IModelObject? CreateInstance(RdfNode instanceNode,
         bool IsCompound = false)
     {
-        if (RdfXmlReaderUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
+        if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
             out var instanceUuid) == false)
         {
             return null;
@@ -513,7 +513,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         ICimMetaProperty property, Uri referenceUri)
     {
         string referenceUuid = string.Empty;
-        if (RdfXmlReaderUtils.TryGetEscapedIdentifier(referenceUri,
+        if (RdfUtils.TryGetEscapedIdentifier(referenceUri,
             out referenceUuid) == false)
         {
             return;

@@ -71,7 +71,7 @@ public class RdfXmlWriter
             throw new Exception("RdfXmlWriter.GetNameWithPrefix: no ns");
         }
 
-        if (RdfXmlReaderUtils.TryGetEscapedIdentifier(uri, out var identifier))
+        if (RdfUtils.TryGetEscapedIdentifier(uri, out var identifier))
         {
             XName result = ns + identifier;
             return result;
@@ -94,7 +94,7 @@ public class RdfXmlWriter
         {
             result = uri.AbsoluteUri[uri.AbsoluteUri.IndexOf('#')..];
         } 
-        else if (RdfXmlReaderUtils.TryGetEscapedIdentifier(uri, out var rid))
+        else if (RdfUtils.TryGetEscapedIdentifier(uri, out var rid))
         {
             if (Namespaces.ContainsValue(uri))
             {

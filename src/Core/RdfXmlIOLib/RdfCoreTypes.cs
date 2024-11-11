@@ -1,5 +1,3 @@
-using System.Xml.Linq;
-
 namespace CimBios.Core.RdfXmlIOLib;
 
 /// <summary>
@@ -48,7 +46,7 @@ public class RdfTriple
 /// <summary>
 /// Helper class for rdf entities.
 /// </summary>
-public static class RdfXmlReaderUtils
+public static class RdfUtils
 {
     public static T? ExtractPredicateValue<T>(RdfNode node,
         Uri predicate) where T : class
@@ -115,7 +113,7 @@ public class RdfUriComparer : EqualityComparer<Uri>
 {
     public override bool Equals(Uri? lUri, Uri? rUri)
     {
-        return RdfXmlReaderUtils.RdfUriEquals(lUri, rUri);
+        return RdfUtils.RdfUriEquals(lUri, rUri);
     }
 
     public override int GetHashCode(Uri uri)

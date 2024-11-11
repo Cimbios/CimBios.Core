@@ -63,7 +63,7 @@ public class CimRdfSchema : ICimSchema
         {
             foreach (var prop in Properties
                 .Where(p => 
-                    RdfXmlReaderUtils.RdfUriEquals
+                    RdfUtils.RdfUriEquals
                     (p.OwnerClass?.BaseUri, nextClass.BaseUri)))
             {
                 result.Add(prop);
@@ -95,7 +95,7 @@ public class CimRdfSchema : ICimSchema
                 continue;
             }
 
-            if (RdfXmlReaderUtils.RdfUriEquals(
+            if (RdfUtils.RdfUriEquals(
                 individual.InstanceOf.BaseUri,
                 metaClass.BaseUri))
             {
@@ -106,7 +106,7 @@ public class CimRdfSchema : ICimSchema
             {
                 if (individual.InstanceOf
                     .AllAncestors.Any(c => 
-                        RdfXmlReaderUtils.RdfUriEquals(c.BaseUri, 
+                        RdfUtils.RdfUriEquals(c.BaseUri, 
                         metaClass.BaseUri)))
                 {
                     yield return individual;
