@@ -1,6 +1,6 @@
 using System.Xml.Linq;
 
-namespace CimBios.Core.RdfXmlIOLib;
+namespace CimBios.Core.RdfIOLib;
 
 /// <summary>
 /// Reader for rdf/xml formatted data.

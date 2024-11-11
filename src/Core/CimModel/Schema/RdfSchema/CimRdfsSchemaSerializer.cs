@@ -1,5 +1,5 @@
 using System.Reflection;
-using CimBios.Core.RdfXmlIOLib;
+using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.Schema.RdfSchema;
 

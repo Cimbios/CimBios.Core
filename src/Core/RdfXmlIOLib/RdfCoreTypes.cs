@@ -1,4 +1,4 @@
-namespace CimBios.Core.RdfXmlIOLib;
+namespace CimBios.Core.RdfIOLib;
 
 /// <summary>
 /// Flat structured RDF node class.
