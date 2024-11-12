@@ -1,15 +1,21 @@
 using System.Reflection;
 
-namespace CimBios.Core.CimModel.Schema;
+namespace CimBios.Utils.MetaReflectionHelper;
 
 /// <summary>
 /// Collects serializable types, fields and provide read/write operations.
 /// </summary>
-internal class CimSchemaReflectionHelper
+public class MetaReflectionHelper
 {
-    public CimSchemaReflectionHelper()
+    public MetaReflectionHelper()
     {
-        CollectSerializableTypes();
+        var assembly = Assembly.GetExecutingAssembly();
+        CollectSerializableTypes(assembly);
+    }
+
+    public MetaReflectionHelper(Assembly assembly)
+    {
+        CollectSerializableTypes(assembly);
     }
 
     /// <summary>
@@ -37,25 +43,25 @@ internal class CimSchemaReflectionHelper
     /// <summary>
     /// Collects serializable types.
     /// </summary>
-    private void CollectSerializableTypes()
+    private void CollectSerializableTypes(Assembly assembly)
     {
         _Types.Clear();
         _Members.Clear();
 
-        foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
+        foreach (var type in assembly.GetTypes())
         {
             var typeInfo = type.GetTypeInfo();
-            if (typeInfo.IsDefined(typeof(CimSchemaSerializableAttribute), 
+            if (typeInfo.IsDefined(typeof(MetaTypeAttribute), 
                 true) == false)
             {
                 continue;
             }
 
             var attribute = typeInfo
-                .GetCustomAttribute<CimSchemaSerializableAttribute>(false);
+                .GetCustomAttribute<MetaTypeAttribute>(false);
             if (attribute != null)
             {
-                _Types.TryAdd(attribute.AbsoluteUri, type.GetTypeInfo());
+                _Types.TryAdd(attribute.Identifier, type.GetTypeInfo());
 
                 CollectSerializableMembers(type.GetTypeInfo());
             }
@@ -69,17 +75,17 @@ internal class CimSchemaReflectionHelper
     {
         foreach (var property in typeInfo.GetMembers())
         {
-            if (property.IsDefined(typeof(CimSchemaSerializableAttribute), 
+            if (property.IsDefined(typeof(MetaTypeAttribute), 
                 false) == false)
             {
                 continue;
             }
 
             var attribute = property
-                .GetCustomAttribute<CimSchemaSerializableAttribute>(false);
+                .GetCustomAttribute<MetaTypeAttribute>(false);
             if (attribute != null)
             {
-                _Members.TryAdd(attribute.AbsoluteUri, property);
+                _Members.TryAdd(attribute.Identifier, property);
             }
         }
     }
@@ -120,27 +126,3 @@ internal class CimSchemaReflectionHelper
         = new Dictionary<string, MemberInfo>();
 
 }
-
-/// <summary>
-/// Member serialization types.
-/// </summary>
-internal enum MetaFieldType
-{
-    /// <summary>
-    /// XML string node value.
-    /// </summary>
-    Value,
-    /// <summary>
-    /// Enumeration according schema individuals. 
-    /// </summary>
-    Enum,
-    /// <summary>
-    /// Schema RDF description based instance by URI reference.
-    /// </summary>
-    ByRef,
-    /// <summary>
-    /// Schema RDF datatype.
-    /// </summary>
-    Datatype,
-}
-

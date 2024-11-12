@@ -1,5 +1,6 @@
 using System.Reflection;
 using CimBios.Core.RdfIOLib;
+using CimBios.Utils.MetaReflectionHelper;
 
 namespace CimBios.Core.CimModel.Schema.RdfSchema;
 
@@ -175,7 +176,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
                 {
                     _SerializeHelper.TryGetMemberInfo(valueEnumUri.AbsoluteUri, 
                         out var field);
-                    _SerializeHelper.TryGetTypeInfo(attribute.AbsoluteUri, 
+                    _SerializeHelper.TryGetTypeInfo(attribute.Identifier, 
                         out var enumClass);
 
                     if (field != null && enumClass != null)
@@ -249,8 +250,8 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         }
     }
 
-    private CimSchemaReflectionHelper _SerializeHelper
-        = new CimSchemaReflectionHelper ();
+    private MetaReflectionHelper _SerializeHelper
+        = new MetaReflectionHelper(Assembly.GetExecutingAssembly());
 
     private RdfXmlReader _Reader = new RdfXmlReader();
 
@@ -258,7 +259,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         = new Dictionary<Uri, ICimMetaResource>(new RdfUriComparer());
 
     private Dictionary <string, Uri> _Namespaces
-        = new Dictionary<string, Uri> ();
+        = new Dictionary<string, Uri>();
 }
 
 /// <summary>
