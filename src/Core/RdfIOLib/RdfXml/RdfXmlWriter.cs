@@ -6,28 +6,14 @@ namespace CimBios.Core.RdfIOLib;
 /// Writer for rdf/xml formatted data.
 /// Converts data from RDF-Triple format to XDocument.
 /// </summary>
-public class RdfXmlWriter
+public class RdfXmlWriter : RdfWriterBase
 {
-    /// <summary>
-    /// RDF document namespaces dictionary.
-    /// </summary>
-    public Dictionary<string, Uri> Namespaces { get => _Namespaces; }
-
-    private Dictionary<string, Uri> _Namespaces { get; set; }
-        = new Dictionary<string, Uri>();
-
     /// <summary>
     /// Default constructor, needs namespaces from Schema to function properly
     /// </summary>
     public RdfXmlWriter() { }
 
-    /// <summary>
-    /// Writes RdfNodes to XxmlDocument
-    /// </summary>
-    /// <param name="rdfNodes"></param>
-    /// <param name="excludeBase"></param>
-    /// <returns>Serialized model XDocument</returns>
-    public XDocument Write(IEnumerable<RdfNode> rdfNodes,
+    public override XDocument Write(IEnumerable<RdfNode> rdfNodes,
         bool excludeBase = true)
     {
         var xDoc = new XDocument();
@@ -57,31 +43,7 @@ public class RdfXmlWriter
     }
 
     /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="uri"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
-    private XName UriToXName(Uri uri)
-    {        
-        XNamespace ns = uri.AbsoluteUri[..(uri.AbsoluteUri.IndexOf('#') + 1)];
-
-        if (Namespaces.Values.Contains(uri) == false)
-        {
-            throw new Exception("RdfXmlWriter.GetNameWithPrefix: no ns");
-        }
-
-        if (RdfUtils.TryGetEscapedIdentifier(uri, out var identifier))
-        {
-            XName result = ns + identifier;
-            return result;
-        }
-
-        throw new Exception("RdfXmlWriter.GetNameWithPrefix: invalid rid");
-    }
-
-    /// <summary>
-    /// 
+    /// Makes string identifier with escaped syms.
     /// </summary>
     /// <param name="uri"></param>
     /// <returns></returns>
@@ -96,7 +58,7 @@ public class RdfXmlWriter
         } 
         else if (RdfUtils.TryGetEscapedIdentifier(uri, out var rid))
         {
-            if (Namespaces.ContainsValue(uri))
+            if (Namespaces.Values.Contains(uri, new RdfUriComparer()))
             {
                 var prefix = Namespaces.FirstOrDefault(ns => ns.Value == uri).Key;
                 result = $"{prefix}:{rid}";
@@ -165,6 +127,4 @@ public class RdfXmlWriter
 
         return new XElement(rdf + "RDF", xNamespaces);
     }
-
-    private static XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 }

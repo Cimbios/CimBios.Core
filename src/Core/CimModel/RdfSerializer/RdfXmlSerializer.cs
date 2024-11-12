@@ -93,10 +93,10 @@ public class RdfXmlSerializer : RdfSerializerBase
                 continue;
             }
 
-            _writer.Namespaces.Add(ns.Key, ns.Value);
+            _writer.AddNamespace(ns.Key, ns.Value);
         }
 
-        _writer.Namespaces.Add("base", Provider.Source);
+        _writer.AddNamespace("base", Provider.Source);
     }
 
     /// <summary>

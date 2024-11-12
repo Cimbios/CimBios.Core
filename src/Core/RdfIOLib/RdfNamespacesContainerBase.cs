@@ -19,12 +19,36 @@ public abstract class RdfNamespacesContainerBase
 
     protected RdfNamespacesContainerBase() { }
 
+    /// <summary>
+    /// Add namespace.
+    /// </summary>
+    /// <param name="prefix">Namespace alias prefix.</param>
+    /// <param name="ns">Uri namespace representation</param>
+    /// <returns>True if namespace has not been exists and added.</returns>
     public bool AddNamespace(string prefix, Uri ns)
     {
+        if (_Namespaces.ContainsKey(prefix))
+        {
+            return false;
+        } 
+
         _Namespaces.Add(prefix, ns);
         return true;
     }
 
+    /// <summary>
+    /// Remove namespace.
+    /// </summary>
+    /// <param name="prefix">Namespace alias prefix.</param>
+    /// <returns>True if namespace found and removed.</returns>
+    public bool RemoveNamespace(string prefix)
+    {
+        return _Namespaces.Remove(prefix);
+    }
+
+    /// <summary>
+    /// Clear namespaces.
+    /// </summary>
     public void ClearNamespaces()
     {
         _Namespaces.Clear();
@@ -63,7 +87,7 @@ public abstract class RdfNamespacesContainerBase
     /// </summary>
     /// <param name="identifier">String local identifier.</param>
     /// <param name="ns">Namespace of identifier.</param>
-    public Uri NameToUri(string identifier, string ns = "base")
+    protected Uri NameToUri(string identifier, string ns = "base")
     {
         var splittedPrefix = identifier.Split(':');
         if (splittedPrefix.Count() == 2
@@ -81,28 +105,28 @@ public abstract class RdfNamespacesContainerBase
     }
 
     /// <summary>
-    /// 
+    /// Make string identifier from Uri.
     /// </summary>
     /// <param name="uri"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    // private XName UriToXName(Uri uri)
-    // {        
-    //     XNamespace ns = uri.AbsoluteUri[..(uri.AbsoluteUri.IndexOf('#') + 1)];
+    protected XName UriToXName(Uri uri)
+    {        
+        XNamespace ns = uri.AbsoluteUri[..(uri.AbsoluteUri.IndexOf('#') + 1)];
 
-    //     if (_Namespaces.Values.Contains(uri) == false)
-    //     {
-    //         throw new Exception("RdfXmlWriter.GetNameWithPrefix: no ns");
-    //     }
+        if (_Namespaces.Values.Contains(uri) == false)
+        {
+            throw new Exception("RdfXmlWriter.GetNameWithPrefix: no ns");
+        }
 
-    //     if (RdfUtils.TryGetEscapedIdentifier(uri, out var identifier))
-    //     {
-    //         XName result = ns + identifier;
-    //         return result;
-    //     }
+        if (RdfUtils.TryGetEscapedIdentifier(uri, out var identifier))
+        {
+            XName result = ns + identifier;
+            return result;
+        }
 
-    //     throw new Exception("RdfXmlWriter.GetNameWithPrefix: invalid rid");
-    // }
+        throw new Exception("RdfXmlWriter.GetNameWithPrefix: invalid rid");
+    }
 
     public static XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 }
