@@ -1,3 +1,5 @@
+using CimBios.Utils.MetaReflectionHelper;
+
 namespace CimBios.Core.CimModel.Schema;
 
 /// <summary>
@@ -24,16 +26,13 @@ internal static class XmlDatatypesMapping
 /// <summary>
 /// Custom attribute provides necessary serialization data. 
 /// </summary>
-internal class CimSchemaSerializableAttribute : Attribute
+internal class CimSchemaSerializableAttribute : MetaTypeAttribute
 {
-    public string AbsoluteUri { get; }
     public MetaFieldType FieldType { get; }
     public bool IsCollection { get; }
 
-    public CimSchemaSerializableAttribute(string uri)
-    {
-        AbsoluteUri = uri;
-    }
+    public CimSchemaSerializableAttribute(string uri) 
+        : base(uri) { }
 
     public CimSchemaSerializableAttribute(string uri,
         MetaFieldType fieldType,
@@ -42,6 +41,29 @@ internal class CimSchemaSerializableAttribute : Attribute
         FieldType = fieldType;
         IsCollection = isCollection;
     }
+}
+
+/// <summary>
+/// Member serialization types.
+/// </summary>
+internal enum MetaFieldType
+{
+    /// <summary>
+    /// XML string node value.
+    /// </summary>
+    Value,
+    /// <summary>
+    /// Enumeration according schema individuals. 
+    /// </summary>
+    Enum,
+    /// <summary>
+    /// Schema RDF description based instance by URI reference.
+    /// </summary>
+    ByRef,
+    /// <summary>
+    /// Schema RDF datatype.
+    /// </summary>
+    Datatype,
 }
 
 /// <summary>
