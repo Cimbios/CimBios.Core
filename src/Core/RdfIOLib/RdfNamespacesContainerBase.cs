@@ -11,8 +11,8 @@ public abstract class RdfNamespacesContainerBase
     /// <summary>
     /// RDF document namespaces dictionary.
     /// </summary>
-    public ReadOnlyDictionary<string, Uri> Namespaces 
-    { get => _Namespaces.AsReadOnly(); }
+    public IReadOnlyDictionary<string, Uri> Namespaces 
+        => _Namespaces.AsReadOnly();
 
     private Dictionary<string, Uri> _Namespaces { get; set; }
         = new Dictionary<string, Uri>();
