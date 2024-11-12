@@ -7,6 +7,18 @@ namespace CimBios.Utils.MetaReflectionHelper;
 /// </summary>
 public class MetaReflectionHelper
 {
+    /// <summary>
+    /// Collected types dictionary within MetaTypeAttribute mark.
+    /// </summary>
+    public IReadOnlyDictionary<string, TypeInfo> DefinedTypes 
+        => _Types.AsReadOnly();
+
+    /// <summary>
+    /// Collected members dictionary within MetaTypeAttribute mark.
+    /// </summary>
+    public IReadOnlyDictionary<string, MemberInfo> DefinedMembers 
+        => _Members.AsReadOnly();
+
     public MetaReflectionHelper()
     {
         var assembly = Assembly.GetExecutingAssembly();
