@@ -33,19 +33,12 @@ public sealed class RdfXmlReader : RdfReaderBase
         AddNamespace("base", baseNamespace);
     }
 
-    /// <summary>
-    /// Parse string rdf/xml content.
-    /// </summary>
-    /// <param name="content">String rdf/xml content.</param>
     public override void Parse(string content)
     {
         XDocument xDoc = XDocument.Parse(content);
         Load(xDoc);
     }
 
-    /// <summary>
-    /// Load rdf/xml content from TextReader.
-    /// </summary>
     public override void Load(TextReader textReader)
     {
         XDocument xDoc = XDocument.Load(textReader);
@@ -61,9 +54,6 @@ public sealed class RdfXmlReader : RdfReaderBase
         Reset();
     }
 
-    /// <summary>
-    /// Close reader.
-    /// </summary>
     public override void Close()
     {
         _RdfElement = null;
@@ -71,10 +61,6 @@ public sealed class RdfXmlReader : RdfReaderBase
         _ReadElementsStack.Clear();
     }
 
-    /// <summary>
-    /// Read RDF content of next element.
-    /// </summary>
-    /// <returns>RDF node of last read element.</returns>
     public override RdfNode? ReadNext()
     {
         if (_ReadElementsStack.Count() == 0)
@@ -143,10 +129,6 @@ public sealed class RdfXmlReader : RdfReaderBase
         return rdfNode;
     }
 
-    /// <summary>
-    /// Read all elements in document.
-    /// </summary>
-    /// <returns>Enumerable of RDF nodes</returns>
     public override IEnumerable<RdfNode> ReadAll()
     {
         if (_RdfElement == null)
@@ -164,10 +146,7 @@ public sealed class RdfXmlReader : RdfReaderBase
 
         Reset();
     }
-
-    /// <summary>
-    /// Resets current reading element to first.
-    /// </summary>
+    
     public override void Reset()
     {
         if (_RdfElement == null)
