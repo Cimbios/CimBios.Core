@@ -41,7 +41,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
     {
         foreach (var item in _Reader.Namespaces)
         {
-            _Namespaces.Add(item.Key, new Uri(item.Value.NamespaceName));
+            _Namespaces.Add(item.Key, item.Value);
         }
     }
 

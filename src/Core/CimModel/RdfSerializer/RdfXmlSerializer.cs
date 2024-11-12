@@ -23,7 +23,7 @@ public class RdfXmlSerializer : RdfSerializerBase
 
     public override IEnumerable<IModelObject> Deserialize()
     {
-        _reader = new RdfXmlReader(Provider.Source.AbsoluteUri);
+        _reader = new RdfXmlReader(Provider.Source);
         if (Provider.Get() is XDocument xDocument)
         {
             _reader.Load(xDocument);

@@ -6,16 +6,8 @@ namespace CimBios.Core.RdfIOLib;
 /// Reader for rdf/xml formatted data.
 /// Presents data in RDF-Triple format.
 /// </summary>
-public sealed class RdfXmlReader
+public sealed class RdfXmlReader : RdfReaderBase
 {
-    /// <summary>
-    /// RDF document namespaces dictionary.
-    /// </summary>
-    public Dictionary<string, XNamespace> Namespaces { get => _Namespaces; }
-
-    private Dictionary<string, XNamespace> _Namespaces { get; set; }
-        = new Dictionary<string, XNamespace>();
-
     /// <summary>
     /// Root RDF node.
     /// </summary>
@@ -36,16 +28,16 @@ public sealed class RdfXmlReader
     /// Constructor sets base namespace.
     /// </summary>
     /// <param name="baseNamespace">Base namespace for local identified objects.</param>
-    public RdfXmlReader(XNamespace baseNamespace)
+    public RdfXmlReader(Uri baseNamespace)
     {
-        Namespaces.Add("base", baseNamespace);
+        AddNamespace("base", baseNamespace);
     }
 
     /// <summary>
     /// Parse string rdf/xml content.
     /// </summary>
     /// <param name="content">String rdf/xml content.</param>
-    public void Parse(string content)
+    public override void Parse(string content)
     {
         XDocument xDoc = XDocument.Parse(content);
         Load(xDoc);
@@ -54,7 +46,7 @@ public sealed class RdfXmlReader
     /// <summary>
     /// Load rdf/xml content from TextReader.
     /// </summary>
-    public void Load(TextReader textReader)
+    public override void Load(TextReader textReader)
     {
         XDocument xDoc = XDocument.Load(textReader);
         Load(xDoc);
@@ -72,10 +64,10 @@ public sealed class RdfXmlReader
     /// <summary>
     /// Close reader.
     /// </summary>
-    public void Close()
+    public override void Close()
     {
         _RdfElement = null;
-        _Namespaces.Clear();
+        ClearNamespaces();
         _ReadElementsStack.Clear();
     }
 
@@ -83,7 +75,7 @@ public sealed class RdfXmlReader
     /// Read RDF content of next element.
     /// </summary>
     /// <returns>RDF node of last read element.</returns>
-    public RdfNode? ReadNext()
+    public override RdfNode? ReadNext()
     {
         if (_ReadElementsStack.Count() == 0)
         {
@@ -93,7 +85,7 @@ public sealed class RdfXmlReader
         XElement content = _ReadElementsStack.Pop();
 
         string subjectId = GetXElementIdentifier(content, out bool isAuto);
-        Uri subject = MakeUri(subjectId);
+        Uri subject = NameToUri(subjectId);
 
         Uri typeIdentifier = new Uri(content.Name.Namespace.NamespaceName
                 + content.Name.LocalName);
@@ -108,13 +100,13 @@ public sealed class RdfXmlReader
             if (child.HasElements == false)
             {
                 XAttribute? resource = child
-                    .Attribute(Namespaces["rdf"] + "resource");
+                    .Attribute(rdf + "resource");
 
                 object? @object;
                 // Blank node
                 if (resource != null)
                 {
-                    @object = MakeUri(resource.Value);
+                    @object = NameToUri(resource.Value);
                 }
                 // Literal node
                 else
@@ -152,25 +144,10 @@ public sealed class RdfXmlReader
     }
 
     /// <summary>
-    /// Resets current reading element to first.
-    /// </summary>
-    public void Reset()
-    {
-        if (_RdfElement == null)
-        {
-            throw new Exception("No rdf node");
-        }
-
-        _ReadElementsStack.Clear();
-        _RdfElement.Elements().Reverse().ToList()
-            .ForEach(el => _ReadElementsStack.Push(el));
-    }
-
-    /// <summary>
     /// Read all elements in document.
     /// </summary>
     /// <returns>Enumerable of RDF nodes</returns>
-    public IEnumerable<RdfNode> ReadAll()
+    public override IEnumerable<RdfNode> ReadAll()
     {
         if (_RdfElement == null)
         {
@@ -189,26 +166,18 @@ public sealed class RdfXmlReader
     }
 
     /// <summary>
-    /// Make Uri from string identifier.
+    /// Resets current reading element to first.
     /// </summary>
-    /// <param name="identifier">String local identifier.</param>
-    /// <param name="ns">Namespace of identifier.</param>
-    public Uri MakeUri(string identifier, string ns = "base")
+    public override void Reset()
     {
-        var splittedPrefix = identifier.Split(':');
-        if (splittedPrefix.Count() == 2
-            && Namespaces.ContainsKey(splittedPrefix.First()))
+        if (_RdfElement == null)
         {
-            return new Uri(Namespaces[splittedPrefix.First()]
-                .NamespaceName + splittedPrefix.Last());
+            throw new Exception("No rdf node");
         }
 
-        if (Uri.IsWellFormedUriString(identifier, UriKind.Absolute))
-        {
-            return new Uri(identifier);
-        }
-
-        return new Uri(Namespaces[ns].NamespaceName + identifier);
+        _ReadElementsStack.Clear();
+        _RdfElement.Elements().Reverse().ToList()
+            .ForEach(el => _ReadElementsStack.Push(el));
     }
 
     /// <summary>
@@ -217,8 +186,6 @@ public sealed class RdfXmlReader
     /// <param name="content">Linq Xml document.</param>
     private void ReadRdfRootNode(XDocument content)
     {
-        XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-
         XElement? rdfNode = content.Element(rdf + "RDF");
         if (rdfNode == null)
         {
@@ -233,34 +200,6 @@ public sealed class RdfXmlReader
     }
 
     /// <summary>
-    /// Parse all root namespaces.
-    /// </summary>
-    /// <param name="rdfNode">rdf:RDF root node.</param>
-    private void ParseXmlns(XElement rdfNode)
-    {
-        XNamespace xlmns = "http://www.w3.org/2000/xmlns/";
-        XNamespace ns = "http://www.w3.org/XML/1998/namespace";
-
-        foreach (XAttribute attr in rdfNode.Attributes())
-        {
-            if (attr.Name.Namespace != xlmns
-                && attr.Name != (ns + "base"))
-            {
-                continue;
-            }
-
-            if (_Namespaces.ContainsKey(attr.Name.LocalName))
-            {
-                _Namespaces[attr.Name.LocalName] = attr.Value;
-            }
-            else
-            {
-                _Namespaces.Add(attr.Name.LocalName, attr.Value);
-            }
-        }
-    }
-
-    /// <summary>
     /// Get element identifier from rdf:about/id. Makes auto identifier in case of undentified element.
     /// </summary>
     /// <param name="element">Xml identified element.</param>
@@ -268,10 +207,10 @@ public sealed class RdfXmlReader
     private string GetXElementIdentifier(XElement element, out bool isAuto)
     {
         isAuto = false;
-        XAttribute? about = element.Attribute(Namespaces["rdf"] + "about");
+        XAttribute? about = element.Attribute(rdf + "about");
         if (about == null)
         {
-            XAttribute? ID = element.Attribute(Namespaces["rdf"] + "id");
+            XAttribute? ID = element.Attribute(rdf + "ID");
 
             if (ID == null)
             {
