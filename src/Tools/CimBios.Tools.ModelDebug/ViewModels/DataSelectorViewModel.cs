@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using CimBios.Core.CimModel.Context;
 using CimBios.Core.CimModel.Schema;
+using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Tools.ModelDebug.Models;
 using CommunityToolkit.Mvvm.Input;
@@ -95,6 +96,10 @@ public class DataSelectorViewModel : ViewModelBase
                 new CimRdfSchemaFactory(),
                 new FileDialogSourceSelector() 
                     { OwnerWindow = OwnerView, MultiSelect = true }),
+            new SchemaSelectorModel("Auto",
+                new CimAutoSchemaFactory(),
+                new FileDialogSourceSelector() 
+                    { OwnerWindow = OwnerView, MultiSelect = false })
         };
         SelectedSchema = Schemas.FirstOrDefault();
 
