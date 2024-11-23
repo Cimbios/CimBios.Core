@@ -9,45 +9,69 @@ public class CimAutoResource : ICimMetaResource
     public required string Description { get; set; }
 }
 
+/// <summary>
+/// Schema auto class entity. Does not provide inheritance chain - only plain.
+/// </summary>
 public class CimAutoClass : CimAutoResource, ICimMetaClass
 {
     public bool SuperClass => (ParentClass == null);
 
     public ICimMetaClass? ParentClass => null;
 
-    public ICimMetaClass[] AllAncestors => _DummyAncestors;
+    public ICimMetaClass[] AllAncestors => [.. _PlainAncestors];
 
-    public ICimMetaClass[] Extensions => _DummyAncestors;
+    public ICimMetaClass[] Extensions => [.. _PlainAncestors];
 
     public bool IsAbstract => false;
 
     public bool IsExtension => false;
 
-    public bool IsEnum => false;
+    public bool IsEnum { get; set; }
 
     public bool IsCompound { get; set; }
 
     public bool IsDatatype => false;
 
-    private ICimMetaClass[] _DummyAncestors = [];
+    public bool AddAncestor(ICimMetaClass metaClass)
+    {
+        if (_PlainAncestors.Contains(metaClass))
+        {
+            return false;
+        }
+
+        _PlainAncestors.Add(metaClass);
+        return true;
+    }
+
+    public bool RemoveAncestor(ICimMetaClass metaClass)
+    {
+        return _PlainAncestors.Remove(metaClass);
+    }
+
+    private readonly List<ICimMetaClass> _PlainAncestors = [];
 }
 
-public class CimAutoProperty : ICimMetaProperty
+public class CimAutoProperty : CimAutoResource, ICimMetaProperty
 {
-    public ICimMetaClass? OwnerClass => throw new NotImplementedException();
+    public ICimMetaClass? OwnerClass { get; set; }
 
-    public CimMetaPropertyKind PropertyKind => throw new NotImplementedException();
+    public CimMetaPropertyKind PropertyKind { get; set; }
 
-    public ICimMetaProperty? InverseProperty => throw new NotImplementedException();
+    public ICimMetaProperty? InverseProperty { get; set; }
 
-    public ICimMetaClass? PropertyDatatype => throw new NotImplementedException();
+    public ICimMetaClass? PropertyDatatype { get; set; }
 
-    public bool IsExtension => throw new NotImplementedException();
+    public bool IsExtension => false; 
+}
 
-    public Uri BaseUri => throw new NotImplementedException();
+public class CimAutoDatatype : CimAutoClass, ICimMetaDatatype
+{
+    public Type? SystemType { get; set; }
 
-    public string ShortName => throw new NotImplementedException();
+    public Type PrimitiveType => SystemType ?? typeof(string);
+}
 
-    public string Description => throw new NotImplementedException();
-
+public class CimAutoIndividual : CimAutoResource, ICimMetaIndividual
+{
+    public ICimMetaClass? InstanceOf { get; set; }
 }
