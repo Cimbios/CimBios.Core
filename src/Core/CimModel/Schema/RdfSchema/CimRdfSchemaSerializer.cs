@@ -250,16 +250,15 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         }
     }
 
-    private MetaReflectionHelper _SerializeHelper
-        = new MetaReflectionHelper(Assembly.GetExecutingAssembly());
+    private readonly MetaReflectionHelper _SerializeHelper
+        = new(Assembly.GetExecutingAssembly());
 
-    private RdfXmlReader _Reader = new RdfXmlReader();
+    private readonly RdfXmlReader _Reader = new();
 
-    private Dictionary<Uri, ICimMetaResource> _ObjectsCache 
-        = new Dictionary<Uri, ICimMetaResource>(new RdfUriComparer());
+    private readonly Dictionary<Uri, ICimMetaResource> _ObjectsCache 
+        = new(new RdfUriComparer());
 
-    private Dictionary <string, Uri> _Namespaces
-        = new Dictionary<string, Uri>();
+    private readonly Dictionary <string, Uri> _Namespaces = [];
 }
 
 /// <summary>
@@ -268,11 +267,11 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
 public static class CimRdfSchemaStrings
 {
     public static Uri RdfDescription = 
-        new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Description");
+        new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Description");
     public static Uri RdfType = 
-        new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+        new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
     public static Uri RdfsClass = 
-        new Uri("http://www.w3.org/2000/01/rdf-schema#Class");
+        new("http://www.w3.org/2000/01/rdf-schema#Class");
     public static Uri RdfProperty = 
-        new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property");
+        new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property");
 }
