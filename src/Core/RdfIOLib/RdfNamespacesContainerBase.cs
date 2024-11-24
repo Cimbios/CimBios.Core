@@ -93,7 +93,8 @@ public abstract class RdfNamespacesContainerBase
         if (splittedPrefix.Count() == 2
             && Namespaces.ContainsKey(splittedPrefix.First()))
         {
-            return new Uri(Namespaces[splittedPrefix.First()], splittedPrefix.Last());
+            return 
+            new(Namespaces[splittedPrefix.First()] + splittedPrefix.Last());
         }
 
         if (Uri.IsWellFormedUriString(identifier, UriKind.Absolute))
@@ -101,7 +102,7 @@ public abstract class RdfNamespacesContainerBase
             return new Uri(identifier);
         }
 
-        return new Uri(Namespaces[ns], identifier);
+        return new Uri(Namespaces[ns] + identifier);
     }
 
     /// <summary>

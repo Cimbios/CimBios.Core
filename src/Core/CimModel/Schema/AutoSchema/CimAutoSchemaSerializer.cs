@@ -19,6 +19,8 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
 
         CreateSchemaEntitiesFromModel(objectsModel);
 
+        _Reader.Close();
+
         return _ObjectsCache;
     }
 
@@ -48,33 +50,41 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     }
 
     /// <summary>
-    /// 
+    /// Add meta properties for schema and fill necessary class links.
     /// </summary>
-    /// <param name="property"></param>
+    /// <param name="node">Class instance Rdf node with property triples.</param>
     private void HandleProperties(RdfNode node)
     {
         foreach (var property in node.Triples)
         {
-            if (TryGetClassUriFromProperty(property.Predicate, 
-                out var classUri) == false)
+            var classUri = MakeAncestorClassFromProperty(node.TypeIdentifier, 
+                property);
+
+            if (classUri == null)
             {
-                return;
+                continue;
             }
 
-            if (_ObjectsCache.ContainsKey(classUri) == false)
-            {
-                AddClass(classUri, false, false);
-            }
+            CimAutoClass? propertyDatatype = 
+                _ObjectsCache[new("http://www.w3.org/2001/XMLSchema#string")] as CimAutoClass;
 
-            if (RdfUtils.RdfUriEquals(classUri, node.TypeIdentifier) == false)
+            CimMetaPropertyKind propertyKind = CimMetaPropertyKind.NonStandard;
+            if (property.Object is Uri uriObject)
             {
-                AddAncestorToClass(node.TypeIdentifier, classUri);
-            }
+                // local link.
+                if (uriObject == Namespaces["base"])
+                {
+                    // The most generalized kind for assoc.
+                    propertyKind = CimMetaPropertyKind.Assoc1ToM;
+                }
+                else
+                {
+                    // individual a.k.a enum
+                    propertyKind = CimMetaPropertyKind.Attribute;
 
-            var propertyKind = CimMetaPropertyKind.NonStandard;
-            if (property.Object is Uri)
-            {
-                propertyKind = CimMetaPropertyKind.Assoc1ToM;
+                    var enumClass = CreateOrAugmentEnumClass(uriObject);
+                    propertyDatatype = enumClass;
+                }
             }
             else
             {
@@ -83,7 +93,8 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
 
             AddProperty(property.Predicate, 
                 _ObjectsCache[classUri] as CimAutoClass,
-                propertyKind);
+                propertyKind,
+                propertyDatatype);
             
         }
     }
@@ -95,11 +106,12 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     /// <param name="isEnum"></param>
     /// <param name="IsCompound"></param>
     /// <returns></returns>
-    private bool AddClass(Uri typeIdentifier, bool isEnum, bool IsCompound)
+    private CimAutoClass? AddClass(Uri typeIdentifier, 
+        bool isEnum, bool IsCompound)
     {
         if (_ObjectsCache.ContainsKey(typeIdentifier))
         {
-            return false;
+            return null;
         }
 
         if (RdfUtils.TryGetEscapedIdentifier(typeIdentifier, 
@@ -113,13 +125,13 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
             BaseUri = typeIdentifier,
             ShortName = shortName,
             Description = string.Empty,
-            IsEnum = false,
-            IsCompound = false
+            IsEnum = isEnum,
+            IsCompound = IsCompound
         };
 
         _ObjectsCache.Add(autoClass.BaseUri, autoClass);
 
-        return true;
+        return autoClass;
     }
 
     /// <summary>
@@ -129,7 +141,7 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     /// <param name="ownerClass"></param>
     /// <returns></returns>
     public bool AddProperty(Uri propertyUri, CimAutoClass? ownerClass,
-        CimMetaPropertyKind propertyKind)
+        CimMetaPropertyKind propertyKind, CimAutoClass? propertyDatatype)
     {
         if (_ObjectsCache.ContainsKey(propertyUri))
         {
@@ -153,7 +165,7 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
             Description = string.Empty,
             OwnerClass = ownerClass,
             PropertyKind = propertyKind,
-            PropertyDatatype = _ObjectsCache[new("http://www.w3.org/2001/XMLSchema#string")] as CimAutoClass
+            PropertyDatatype = propertyDatatype
         };
 
         _ObjectsCache.Add(propertyUri, autoProperty);
@@ -167,22 +179,78 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     /// <param name="classUri">Source class URI.</param>
     /// <param name="ancestorUri">Ancestor class URI.</param>
     /// <returns>True if link was been created.</returns>
-    private bool AddAncestorToClass(Uri classUri, Uri ancestorUri)
+    private bool AddAncestorToClass(Uri childClassUri, Uri ancestorUri)
     {
-        var thisClass = _ObjectsCache[classUri] 
-            as CimAutoClass;
-
-        var ancestorClass = _ObjectsCache[ancestorUri]  
-            as CimAutoClass;
-
-        if (thisClass == null || ancestorClass == null)
+        if (_ObjectsCache[childClassUri] is not CimAutoClass childClass 
+            || _ObjectsCache[ancestorUri] is not CimAutoClass ancestorClass)
         {
             return false;
         }
-        
-        thisClass.AddAncestor(ancestorClass);
+
+        childClass.AddAncestor(ancestorClass);
 
         return true;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="childClassUri"></param>
+    /// <param name="property"></param>
+    /// <returns></returns>
+    private Uri? MakeAncestorClassFromProperty(Uri childClassUri, 
+        RdfTriple property)
+    {
+        if (TryGetClassUriFromProperty(property.Predicate, 
+            out var ancestorClassUri) == false)
+        {
+            return null;
+        }
+
+        if (_ObjectsCache.ContainsKey(ancestorClassUri) == false)
+        {
+            AddClass(ancestorClassUri, false, false);
+        }
+
+        if (RdfUtils.RdfUriEquals(ancestorClassUri, childClassUri) == false)
+        {
+            AddAncestorToClass(childClassUri, ancestorClassUri);
+        }
+
+        return ancestorClassUri;
+    }
+
+    private CimAutoClass? CreateOrAugmentEnumClass(Uri enumValueUri)
+    {
+        if (TryGetClassUriFromProperty(enumValueUri, 
+            out var enumUri) == false)
+        {
+            return null;
+        }  
+
+        var enumClass = AddClass(enumUri, true, false);  
+
+        if (RdfUtils.TryGetEscapedIdentifier(enumValueUri, 
+            out var shortName) == false)
+        {
+            shortName = enumValueUri.AbsoluteUri;
+        }
+        else
+        {
+            shortName = shortName[(shortName.IndexOf('.') + 1) ..];
+        }
+
+        var enumValue = new CimAutoIndividual()
+        {
+            BaseUri = enumValueUri,
+            ShortName = shortName,
+            Description = string.Empty,
+            InstanceOf = enumClass
+        };
+
+        _ObjectsCache.Add(enumValueUri, enumValue);
+
+        return enumClass;
     }
 
     /// <summary>
@@ -191,7 +259,8 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     /// <param name="propertyUri"></param>
     /// <param name="classUri"></param>
     /// <returns></returns>
-    private bool TryGetClassUriFromProperty(Uri propertyUri, out Uri classUri)
+    private static bool TryGetClassUriFromProperty(Uri propertyUri, 
+        out Uri classUri)
     {
         classUri = propertyUri;
 
