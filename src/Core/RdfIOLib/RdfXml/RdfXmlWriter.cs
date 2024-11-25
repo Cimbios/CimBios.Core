@@ -49,27 +49,20 @@ public class RdfXmlWriter : RdfWriterBase
     /// <returns></returns>
     private string NormalizeIdentifier(Uri uri)
     {
-        string result = uri.AbsoluteUri;
-
         if (Namespaces.TryGetValue("base", out var baseUri)
             && baseUri == uri)
         {
-            result = uri.AbsoluteUri[uri.AbsoluteUri.IndexOf('#')..];
+            return uri.AbsoluteUri[uri.AbsoluteUri.IndexOf('#')..];
         } 
-        else if (RdfUtils.TryGetEscapedIdentifier(uri, out var rid))
+        
+        if (RdfUtils.TryGetEscapedIdentifier(uri, out var rid)
+            && Namespaces.Values.Contains(uri))
         {
-            if (Namespaces.Values.Contains(uri))
-            {
-                var prefix = Namespaces.FirstOrDefault(ns => ns.Value == uri).Key;
-                result = $"{prefix}:{rid}";
-            }
-            else
-            {
-                result = rid;
-            }
+            var prefix = Namespaces.FirstOrDefault(ns => ns.Value == uri).Key;
+            return $"{prefix}:{rid}";
         }
 
-        return result;
+        return uri.AbsoluteUri;
     }
 
     /// <summary>
