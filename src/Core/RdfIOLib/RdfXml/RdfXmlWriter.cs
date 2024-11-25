@@ -1,4 +1,4 @@
-﻿using System.Xml.Linq;
+using System.Xml.Linq;
 
 namespace CimBios.Core.RdfIOLib;
 
@@ -58,7 +58,7 @@ public class RdfXmlWriter : RdfWriterBase
         } 
         else if (RdfUtils.TryGetEscapedIdentifier(uri, out var rid))
         {
-            if (Namespaces.Values.Contains(uri, new RdfUriComparer()))
+            if (Namespaces.Values.Contains(uri))
             {
                 var prefix = Namespaces.FirstOrDefault(ns => ns.Value == uri).Key;
                 result = $"{prefix}:{rid}";
