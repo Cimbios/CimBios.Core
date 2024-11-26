@@ -31,6 +31,7 @@ public class RdfXmlSerializer : RdfSerializerBase
 
         var objects = ReadObjects();
         ResetCache();
+        _reader.Close();
 
         return objects;
     }
