@@ -36,7 +36,7 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     }
 
     /// <summary>
-    /// 
+    /// Rdf n-triples based schema convertation method.
     /// </summary>
     /// <param name="nodes"></param>
     private void CreateSchemaEntitiesFromModel(IEnumerable<RdfNode> nodes)
@@ -112,12 +112,12 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     }
 
     /// <summary>
-    /// 
+    /// Add new class to schema.
     /// </summary>
-    /// <param name="typeIdentifier"></param>
-    /// <param name="isEnum"></param>
-    /// <param name="IsCompound"></param>
-    /// <returns></returns>
+    /// <param name="typeIdentifier">Class uri.</param>
+    /// <param name="isEnum">Is class enum.</param>
+    /// <param name="IsCompound">Is class compound.</param>
+    /// <returns>New class instance or null if class already exists.</returns>
     private CimAutoClass? AddClass(Uri typeIdentifier, 
         bool isEnum, bool IsCompound)
     {
@@ -147,11 +147,11 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     }
 
     /// <summary>
-    /// 
+    /// Add new property to schema.
     /// </summary>
-    /// <param name="propertyUri"></param>
-    /// <param name="ownerClass"></param>
-    /// <returns></returns>
+    /// <param name="propertyUri">Property uri.</param>
+    /// <param name="ownerClass">The owner class of adding property.</param>
+    /// <returns>False if property already exists.</returns>
     public bool AddProperty(Uri propertyUri, CimAutoClass? ownerClass,
         CimMetaPropertyKind propertyKind, CimAutoClass? propertyDatatype)
     {
@@ -205,11 +205,13 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     }
 
     /// <summary>
-    /// 
+    /// Create new domain class of property (for abstract classes). Makes 
+    /// generalization (extension )link beetween model owner instance
+    /// class and ancestor.
     /// </summary>
-    /// <param name="childClassUri"></param>
-    /// <param name="property"></param>
-    /// <returns></returns>
+    /// <param name="childClassUri">Child domain class.</param>
+    /// <param name="property">Property triple.</param>
+    /// <returns>Uri of </returns>
     private Uri? MakeAncestorClassFromProperty(Uri childClassUri, 
         RdfTriple property)
     {
@@ -232,6 +234,11 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
         return ancestorClassUri;
     }
 
+    /// <summary>
+    /// Create new enum class or augment already exist with new enum value.
+    /// </summary>
+    /// <param name="enumValueUri"></param>
+    /// <returns>Enum class or null.</returns>
     private CimAutoClass? CreateOrAugmentEnumClass(Uri enumValueUri)
     {
         if (TryGetClassUriFromProperty(enumValueUri, 
@@ -275,11 +282,11 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     }
 
     /// <summary>
-    /// 
+    /// Try extract class uri from property uri. Format: "na://{Class}.{Property}"
     /// </summary>
-    /// <param name="propertyUri"></param>
-    /// <param name="classUri"></param>
-    /// <returns></returns>
+    /// <param name="propertyUri">Property URI.</param>
+    /// <param name="classUri">Result out class URI.</param>
+    /// <returns>True if extraction is successfully.</returns>
     private static bool TryGetClassUriFromProperty(Uri propertyUri, 
         out Uri classUri)
     {
