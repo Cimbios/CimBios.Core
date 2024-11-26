@@ -2,6 +2,11 @@ using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.Schema.AutoSchema;
 
+/// <summary>
+/// Use it only for debugging activities! The serializer does not guarantee 
+/// the consistency and completeness of the data being read and written 
+/// according to the generated schema.
+/// </summary>
 public class CimAutoSchemaSerializer : ICimSchemaSerializer
 {
     public const string BaseSchemaUri = "http://cim.bios/schemas/auto#";
@@ -38,12 +43,10 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     {
         foreach (var node in nodes)
         {
-            if (_ObjectsCache.ContainsKey(node.TypeIdentifier))
+            if (_ObjectsCache.ContainsKey(node.TypeIdentifier) == false)
             {
-                continue;
+                AddClass(node.TypeIdentifier, false, false);
             }
-
-            AddClass(node.TypeIdentifier, false, false);
 
             HandleProperties(node);
         }
@@ -85,6 +88,15 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
                     var enumClass = CreateOrAugmentEnumClass(uriObject);
                     propertyDatatype = enumClass;
                 }
+            }
+            else if (property.Object is RdfNode subRdfNode)
+            {
+                propertyKind = CimMetaPropertyKind.Attribute;
+                var compoundCLass = AddClass(subRdfNode.TypeIdentifier, 
+                    false, true);
+
+                HandleProperties(subRdfNode);
+                propertyDatatype = compoundCLass;
             }
             else
             {
@@ -129,7 +141,7 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
             IsCompound = IsCompound
         };
 
-        _ObjectsCache.Add(autoClass.BaseUri, autoClass);
+        _ObjectsCache.TryAdd(autoClass.BaseUri, autoClass);
 
         return autoClass;
     }
@@ -168,7 +180,7 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
             PropertyDatatype = propertyDatatype
         };
 
-        _ObjectsCache.Add(propertyUri, autoProperty);
+        _ObjectsCache.TryAdd(propertyUri, autoProperty);
 
         return true;
     }
@@ -228,7 +240,16 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
             return null;
         }  
 
-        var enumClass = AddClass(enumUri, true, false);  
+        CimAutoClass? enumClass; 
+        if (_ObjectsCache.TryGetValue(enumUri, out var enumResource)
+            && enumResource is CimAutoClass)
+        {
+            enumClass = enumResource as CimAutoClass;
+        }
+        else
+        {
+            enumClass = AddClass(enumUri, true, false);
+        }
 
         if (RdfUtils.TryGetEscapedIdentifier(enumValueUri, 
             out var shortName) == false)
@@ -248,7 +269,7 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
             InstanceOf = enumClass
         };
 
-        _ObjectsCache.Add(enumValueUri, enumValue);
+        _ObjectsCache.TryAdd(enumValueUri, enumValue);
 
         return enumClass;
     }
@@ -314,7 +335,7 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
         }
     }
 
-    private readonly RdfXmlReader _Reader = new();
+    private readonly RdfReaderBase _Reader = new RdfXmlReader();
 
     private readonly Dictionary<Uri, ICimMetaResource> _ObjectsCache 
         = new(new RdfUriComparer());
