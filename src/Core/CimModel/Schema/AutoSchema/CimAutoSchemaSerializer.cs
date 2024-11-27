@@ -203,7 +203,8 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     private void InvalidatePropertyDatatype(CimAutoProperty property,
         CimAutoDatatype propertyDatatype)
     {
-        if (property.PropertyDatatype == null)
+        if (property.PropertyDatatype == null
+            || property.PropertyDatatype is CimAutoClass)
         {
             property.PropertyDatatype = propertyDatatype;
             return;
@@ -241,7 +242,7 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
             return false;
         }
 
-        childClass.AddAncestor(ancestorClass);
+        childClass.AddExtension(ancestorClass);
 
         return true;
     }

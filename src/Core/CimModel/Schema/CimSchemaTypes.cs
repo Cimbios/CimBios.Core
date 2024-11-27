@@ -101,6 +101,9 @@ public interface ICimMetaClass : ICimMetaResource
     public bool IsEnum { get; }
     public bool IsCompound { get; }
     public bool IsDatatype { get; }
+
+    public bool AddExtension(ICimMetaClass extension);
+    public bool RemoveExtension(ICimMetaClass extension);
 }
 
 /// <summary>

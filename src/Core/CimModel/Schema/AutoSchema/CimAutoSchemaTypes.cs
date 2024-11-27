@@ -32,7 +32,7 @@ public class CimAutoClass : CimAutoResource, ICimMetaClass
 
     public bool IsDatatype => false;
 
-    public bool AddAncestor(ICimMetaClass metaClass)
+    public bool AddExtension(ICimMetaClass metaClass)
     {
         if (_PlainAncestors.Contains(metaClass))
         {
@@ -43,7 +43,7 @@ public class CimAutoClass : CimAutoResource, ICimMetaClass
         return true;
     }
 
-    public bool RemoveAncestor(ICimMetaClass metaClass)
+    public bool RemoveExtension(ICimMetaClass metaClass)
     {
         return _PlainAncestors.Remove(metaClass);
     }

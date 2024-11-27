@@ -121,6 +121,23 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
         _SubClassOf = rdfClass._SubClassOf;
     }
 
+    public bool AddExtension(ICimMetaClass extension)
+    {
+        if (extension.IsExtension == true
+            && _SubClassOf.Contains(extension) == false)
+        {
+            _SubClassOf.Add(extension);
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool RemoveExtension(ICimMetaClass extension)
+    {
+        return _SubClassOf.Remove(extension);
+    }
+
     private ICimMetaClass? GetParentClass()
     {
         return SubClassOf.OfType<ICimMetaClass>()
