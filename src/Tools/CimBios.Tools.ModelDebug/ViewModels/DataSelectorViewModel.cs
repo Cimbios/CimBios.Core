@@ -93,11 +93,11 @@ public class DataSelectorViewModel : ViewModelBase
         Schemas = new ObservableCollection<SchemaSelectorModel>()
         {
             new SchemaSelectorModel("RDFS",
-                new CimRdfSchemaFactory(),
+                new CimRdfSchemaXmlFactory(),
                 new FileDialogSourceSelector() 
                     { OwnerWindow = OwnerView, MultiSelect = true }),
             new SchemaSelectorModel("Auto",
-                new CimAutoSchemaFactory(),
+                new CimAutoSchemaXmlFactory(),
                 new FileDialogSourceSelector() 
                     { OwnerWindow = OwnerView, MultiSelect = false })
         };
