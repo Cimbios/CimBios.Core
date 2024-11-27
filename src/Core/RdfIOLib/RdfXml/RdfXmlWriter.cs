@@ -1,4 +1,4 @@
-﻿using System.Xml.Linq;
+using System.Xml.Linq;
 
 namespace CimBios.Core.RdfIOLib;
 
@@ -49,27 +49,20 @@ public class RdfXmlWriter : RdfWriterBase
     /// <returns></returns>
     private string NormalizeIdentifier(Uri uri)
     {
-        string result = uri.AbsoluteUri;
-
         if (Namespaces.TryGetValue("base", out var baseUri)
             && baseUri == uri)
         {
-            result = uri.AbsoluteUri[uri.AbsoluteUri.IndexOf('#')..];
+            return uri.AbsoluteUri[uri.AbsoluteUri.IndexOf('#')..];
         } 
-        else if (RdfUtils.TryGetEscapedIdentifier(uri, out var rid))
+        
+        if (RdfUtils.TryGetEscapedIdentifier(uri, out var rid)
+            && Namespaces.Values.Contains(uri))
         {
-            if (Namespaces.Values.Contains(uri, new RdfUriComparer()))
-            {
-                var prefix = Namespaces.FirstOrDefault(ns => ns.Value == uri).Key;
-                result = $"{prefix}:{rid}";
-            }
-            else
-            {
-                result = rid;
-            }
+            var prefix = Namespaces.FirstOrDefault(ns => ns.Value == uri).Key;
+            return $"{prefix}:{rid}";
         }
 
-        return result;
+        return uri.AbsoluteUri;
     }
 
     /// <summary>
@@ -112,7 +105,8 @@ public class RdfXmlWriter : RdfWriterBase
             // variable prop - literal
             else
             {
-                serializedNode.Add(new XElement(xPredicate, triple.Object));
+                serializedNode.Add(new XElement(xPredicate, 
+                    FormatLiteralValue(triple.Object)));
             }
         }
     }
