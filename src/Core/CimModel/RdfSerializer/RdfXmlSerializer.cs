@@ -542,6 +542,10 @@ public class RdfXmlSerializer : RdfSerializerBase
             {
                 referenceInstance = modelObject;
             }
+            else
+            {
+                return;
+            }
         }
 
         if (referenceInstance == null)
