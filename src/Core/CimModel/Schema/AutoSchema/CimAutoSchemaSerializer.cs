@@ -73,9 +73,7 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
                 continue;
             }
 
-            CimAutoClass? propertyDatatype = 
-                _ObjectsCache[new("http://www.w3.org/2001/XMLSchema#string")] as CimAutoClass;
-
+            CimAutoClass? propertyDatatype = null;
             CimMetaPropertyKind propertyKind = CimMetaPropertyKind.NonStandard;
             if (property.Object is Uri uriObject)
             {
@@ -103,8 +101,9 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
                 HandleProperties(subRdfNode);
                 propertyDatatype = compoundCLass;
             }
-            else
+            else if (property.Object is string literal)
             {
+                propertyDatatype = GetLiteralDatatype(literal);
                 propertyKind = CimMetaPropertyKind.Attribute;
             }
 
@@ -158,10 +157,16 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
     /// <param name="ownerClass">The owner class of adding property.</param>
     /// <returns>False if property already exists.</returns>
     public bool AddProperty(Uri propertyUri, CimAutoClass? ownerClass,
-        CimMetaPropertyKind propertyKind, CimAutoClass? propertyDatatype)
+        CimMetaPropertyKind propertyKind, CimAutoClass? propertyDatatypeClass)
     {
-        if (_ObjectsCache.ContainsKey(propertyUri))
+        if (_ObjectsCache.TryGetValue(propertyUri, out var existingPropertyRes))
         {
+            if (existingPropertyRes is CimAutoProperty existingProperty
+                && propertyDatatypeClass is CimAutoDatatype propertyDatatype)
+            {
+                InvalidatePropertyDatatype(existingProperty, propertyDatatype);
+            }
+
             return false;
         }
 
@@ -182,12 +187,44 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
             Description = string.Empty,
             OwnerClass = ownerClass,
             PropertyKind = propertyKind,
-            PropertyDatatype = propertyDatatype
+            PropertyDatatype = propertyDatatypeClass
         };
 
         _ObjectsCache.TryAdd(propertyUri, autoProperty);
 
         return true;
+    }
+
+    /// <summary>
+    /// Check and rebind property datatype in case of literal data format change.
+    /// </summary>
+    /// <param name="property">Schema property entity.</param>
+    /// <param name="propertyDatatype">New property datatype.</param>
+    private void InvalidatePropertyDatatype(CimAutoProperty property,
+        CimAutoDatatype propertyDatatype)
+    {
+        if (property.PropertyDatatype == null)
+        {
+            property.PropertyDatatype = propertyDatatype;
+            return;
+        }
+
+        if (RdfUtils.RdfUriEquals(property.PropertyDatatype?.BaseUri, 
+            propertyDatatype.BaseUri))
+        {
+            return;
+        }
+
+        var currentDatatypeOrder = LiteralValueTypeRecognizer
+            .GetTypeSetOrder(property.PropertyDatatype!.BaseUri.AbsoluteUri);
+
+        var newDatatypeOrder = LiteralValueTypeRecognizer
+            .GetTypeSetOrder(propertyDatatype.BaseUri.AbsoluteUri);
+
+        if (newDatatypeOrder > currentDatatypeOrder) 
+        {
+            property.PropertyDatatype = propertyDatatype;
+        }       
     }
 
     /// <summary>
@@ -321,6 +358,28 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
         foreach (var item in _RdfReader.Namespaces)
         {
             _Namespaces.Add(item.Key, item.Value);
+        }
+    }
+    
+    /// <summary>
+    /// Get literal datatype.
+    /// </summary>
+    /// <param name="literal">Literal string value.</param>
+    /// <returns>Schema meta datatype entity.</returns>
+    private CimAutoDatatype GetLiteralDatatype(string literal)
+    {
+        var typeUri = LiteralValueTypeRecognizer.Recognize(literal);
+
+        if (_ObjectsCache.TryGetValue(typeUri, out var typeResource)
+            && typeResource is CimAutoDatatype literalType)
+        {
+            return literalType;
+        }
+        else
+        {
+            throw new 
+                Exception("Internal datatype has not beein initialized: " +
+                    typeUri.AbsoluteUri);
         }
     }
 
