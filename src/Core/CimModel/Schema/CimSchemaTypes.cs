@@ -10,17 +10,28 @@ internal static class XmlDatatypesMapping
     internal static readonly Dictionary<string, System.Type> UriSystemTypes
         = new Dictionary<string, System.Type>()
         {
-            { "http://www.w3.org/2001/XMLSchema#integer", typeof(int) },
-            { "http://www.w3.org/2001/XMLSchema#string", typeof(string) },
-            { "http://www.w3.org/2001/XMLSchema#boolean", typeof(bool) },
-            { "http://www.w3.org/2001/XMLSchema#decimal", typeof(decimal) },
-            { "http://www.w3.org/2001/XMLSchema#float", typeof(float) },
-            { "http://www.w3.org/2001/XMLSchema#double", typeof(double) },
-            { "http://www.w3.org/2001/XMLSchema#dateTime", typeof(DateTime) },
-            { "http://www.w3.org/2001/XMLSchema#time", typeof(DateTime) },
-            { "http://www.w3.org/2001/XMLSchema#date", typeof(DateTime) },
-            { "http://www.w3.org/2001/XMLSchema#anyURI", typeof(Uri) },
+            { IntegerUri, typeof(int) },
+            { StringUri, typeof(string) },
+            { BooleanUri, typeof(bool) },
+            { DecimalUri, typeof(decimal) },
+            { FloatUri, typeof(float) },
+            { DoubleUri, typeof(double) },
+            { DateTimeUri, typeof(DateTime) },
+            { TimeUri, typeof(DateTime) },
+            { DateUri, typeof(DateTime) },
+            { AnyURIUri, typeof(Uri) },
         };
+
+    internal const string IntegerUri = "http://www.w3.org/2001/XMLSchema#integer";
+    internal const string StringUri = "http://www.w3.org/2001/XMLSchema#string";
+    internal const string BooleanUri = "http://www.w3.org/2001/XMLSchema#boolean";
+    internal const string DecimalUri = "http://www.w3.org/2001/XMLSchema#decimal";
+    internal const string FloatUri = "http://www.w3.org/2001/XMLSchema#float";
+    internal const string DoubleUri = "http://www.w3.org/2001/XMLSchema#double";
+    internal const string DateTimeUri = "http://www.w3.org/2001/XMLSchema#dateTime";
+    internal const string TimeUri = "http://www.w3.org/2001/XMLSchema#time";
+    internal const string DateUri = "http://www.w3.org/2001/XMLSchema#date";
+    internal const string AnyURIUri = "http://www.w3.org/2001/XMLSchema#anyURI";
 }
 
 /// <summary>
