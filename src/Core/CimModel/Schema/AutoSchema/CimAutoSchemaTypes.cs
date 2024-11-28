@@ -24,7 +24,7 @@ public class CimAutoClass : CimAutoResource, ICimMetaClass
 
     public bool IsAbstract => false;
 
-    public bool IsExtension => false;
+    public bool IsExtension { get; set; } = false;
 
     public bool IsEnum { get; set; }
 
@@ -40,6 +40,9 @@ public class CimAutoClass : CimAutoResource, ICimMetaClass
         }
 
         _PlainAncestors.Add(metaClass);
+
+        (metaClass as CimAutoClass)!.IsExtension = true;
+
         return true;
     }
 
