@@ -98,8 +98,10 @@ public class CimSchema : ICimSchema
 
     public IEnumerable<ICimMetaIndividual> GetClassIndividuals(
         ICimMetaClass metaClass,
-        bool inherit = false)
+        bool extensions = true)
     {
+        var result = new List<ICimMetaIndividual>();
+
         foreach (var individual in Individuals)
         {
             if (individual.InstanceOf == null)
@@ -111,20 +113,19 @@ public class CimSchema : ICimSchema
                 individual.InstanceOf.BaseUri,
                 metaClass.BaseUri))
             {
-                yield return individual;
-            }
-
-            if (inherit == true)
-            {
-                if (individual.InstanceOf
-                    .AllAncestors.Any(c => 
-                        RdfUtils.RdfUriEquals(c.BaseUri, 
-                        metaClass.BaseUri)))
-                {
-                    yield return individual;
-                }
+                result.Add(individual);
             }
         }
+
+        if (extensions == true)
+        {
+            foreach (var ext in metaClass.Extensions)
+            {
+                result.AddRange(GetClassIndividuals(ext, false));
+            }
+        }
+
+        return result;
     }
 
     public T? TryGetDescription<T>(Uri uri) where T : ICimMetaResource
