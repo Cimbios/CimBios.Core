@@ -36,6 +36,11 @@ public interface ICimSchema : ICanLog
     public IEnumerable<ICimMetaDatatype> Datatypes { get; }
 
     /// <summary>
+    /// Tie all same name enums in one via extension link.
+    /// </summary>
+    public bool TieSameNameEnums { get; set; }
+
+    /// <summary>
     /// Load RDFS schema content via text reader.
     /// </summary>
     public void Load(TextReader textReader);
