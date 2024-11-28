@@ -176,48 +176,42 @@ public class RdfXmlSerializer : RdfSerializerBase
     private RdfTriple WriteAttribute(IModelObject subject, 
         ICimMetaProperty attribute)
     {
-        Type? simpleType = null;
-
+        object? tripleObject = null;
         if (attribute.PropertyDatatype is ICimMetaDatatype metaDatatype)
         {
-            simpleType = metaDatatype.PrimitiveType;
+            tripleObject = subject.ObjectData
+                .GetAttribute(attribute.ShortName, metaDatatype.PrimitiveType);
         }
         else if (attribute.PropertyDatatype is ICimMetaClass metaClass)
         {
             if (TypeLib.RegisteredTypes.TryGetValue(metaClass.BaseUri, 
                 out var libType))
             {
-                simpleType = libType;
+                tripleObject = subject.ObjectData
+                    .GetAttribute(attribute.ShortName, libType);
             }
+
             if (metaClass.IsEnum)
             {
-                simpleType = typeof(Uri);
+                tripleObject = subject.ObjectData
+                    .GetAttribute(attribute.ShortName, typeof(Uri));
             }
-        }
 
-        if (simpleType != null)
-        {
-            if (attribute.PropertyDatatype is ICimMetaClass metaClass 
-                && metaClass.IsCompound)
+            if (metaClass.IsCompound)
             {
                 var compoundObject = subject.ObjectData
                     .GetAttribute<IModelObject>(attribute.ShortName);
-                
-                RdfNode? compoundNode;
-                if (compoundObject != null
-                    && (compoundNode = ModelObjectToRdfNode(compoundObject)) != null)
-                {
-                    return new RdfTriple(
-                        GetBasedIdentifier(subject.Uuid, "#_"),
-                        attribute.BaseUri,
-                        compoundNode);
-                }    
-            }
 
+                tripleObject = ModelObjectToRdfNode(compoundObject);
+            }
+        }
+
+        if (tripleObject != null)
+        {
             return new RdfTriple(
                 GetBasedIdentifier(subject.Uuid, "#_"),
                 attribute.BaseUri,
-                subject.ObjectData.GetAttribute(attribute.ShortName, simpleType));
+                tripleObject);
         }
         else
         {
@@ -473,8 +467,12 @@ public class RdfXmlSerializer : RdfSerializerBase
                 var schemaEnumValue = Schema
                     .TryGetDescription<ICimMetaIndividual>(enumValueUri);
 
-                bool isClassesMatches = schemaEnumValue?.InstanceOf?
-                    .BaseUri.AbsoluteUri == dataClass.BaseUri.AbsoluteUri;
+                bool isClassesMatches = Schema
+                    .GetClassIndividuals(dataClass, true)
+                    .Contains(schemaEnumValue);
+
+                var a = Schema
+                    .GetClassIndividuals(dataClass, true);
 
                 if (isClassesMatches)
                 {
