@@ -74,7 +74,7 @@ public interface ICimSchema : ICanLog
     /// <returns></returns>
     public IEnumerable<ICimMetaIndividual> GetClassIndividuals(
         ICimMetaClass metaClass,
-        bool inherit = false);
+        bool extensions = true);
 
     /// <summary>
     /// Can meta class instance be created within schema.
