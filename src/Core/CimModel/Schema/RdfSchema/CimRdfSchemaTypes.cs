@@ -1,3 +1,5 @@
+using CimBios.Core.RdfIOLib;
+
 namespace CimBios.Core.CimModel.Schema.RdfSchema;
 
 /// <summary>
@@ -123,10 +125,13 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
 
     public bool AddExtension(ICimMetaClass extension)
     {
-        if (extension.IsExtension == true
-            && _SubClassOf.Contains(extension) == false)
+        if (CanAddExtension(extension))
         {
             _SubClassOf.Add(extension);
+
+            (extension as CimRdfsClass)?.Stereotypes
+                .Add(UMLStereotype.CIMExtension);
+
             return true;
         }
 
@@ -136,6 +141,29 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
     public bool RemoveExtension(ICimMetaClass extension)
     {
         return _SubClassOf.Remove(extension);
+    }
+
+    private bool CanAddExtension(ICimMetaClass metaClass)
+    {
+        if (metaClass.IsCompound || metaClass.IsDatatype)
+        {
+            return false;
+        }
+
+        if (metaClass.IsExtension)
+        {
+            return true;
+        }
+
+        if (RdfUtils.TryGetEscapedIdentifier(this.BaseUri, out var thisName)
+            && RdfUtils.TryGetEscapedIdentifier(metaClass.BaseUri, 
+                out var className)
+            && thisName == className)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private ICimMetaClass? GetParentClass()
@@ -154,8 +182,7 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
         }
     }
 
-    private readonly List<ICimMetaResource> _SubClassOf =
-        new List<ICimMetaResource>();
+    private readonly List<ICimMetaResource> _SubClassOf = [];
 }
 
 [CimSchemaSerializable("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")]
