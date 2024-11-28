@@ -35,8 +35,6 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
 
         ForwardReaderNamespaces();
 
-        TieEnumExtensions();
-
         _RdfReader.Close();
 
         return _ObjectsCache;
@@ -193,50 +191,6 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
                             memberInfo, enumValue);
                     }
                 }
-            }
-        }
-    }
-
-    /// <summary>
-    /// Tie the same name enum instances through extension link.
-    /// </summary>
-    private void TieEnumExtensions()
-    {
-        var enumProperties = _ObjectsCache.Values.OfType<ICimMetaProperty>()
-            .Where(o => o.PropertyDatatype?.IsEnum == true);
-
-        var enumsMap = new Dictionary<string, ICimMetaClass>();
-        foreach (var property in enumProperties)
-        {
-            if (property.PropertyDatatype is not ICimMetaClass enumClass)
-            {
-                continue;
-            }
-
-             if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
-                out var enumName) == false)
-            {
-                continue;
-            }
-
-            enumsMap.TryAdd(enumName, enumClass);
-        }
-
-        var enums = _ObjectsCache.Values.OfType<ICimMetaClass>()
-            .Where(o => o.IsEnum == true);
-
-        foreach (var enumClass in enums)
-        {
-            if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
-                out var enumName) == false)
-            {
-                continue;
-            }
-
-            if (enumsMap.TryGetValue(enumName, out var baseEnum)
-                && baseEnum != enumClass)
-            {
-                baseEnum.AddExtension(enumClass);
             }
         }
     }
