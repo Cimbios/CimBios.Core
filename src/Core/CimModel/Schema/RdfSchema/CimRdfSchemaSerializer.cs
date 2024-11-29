@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Reflection;
 using CimBios.Core.RdfIOLib;
 using CimBios.Utils.MetaReflectionHelper;
@@ -6,8 +7,8 @@ namespace CimBios.Core.CimModel.Schema.RdfSchema;
 
 public class CimRdfSchemaSerializer : ICimSchemaSerializer
 {
-    public Dictionary <string, Uri> Namespaces 
-    { get => _Namespaces; }
+    public ReadOnlyDictionary <string, Uri> Namespaces 
+        => _Namespaces.AsReadOnly();
 
     public CimRdfSchemaSerializer(RdfReaderBase rdfReader)
     {

@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+
 namespace CimBios.Core.CimModel.Schema;
 
 /// <summary>
@@ -8,7 +10,7 @@ public interface ICimSchemaSerializer
     /// <summary>
     /// Prefix to namespace URI mapping for schema.
     /// </summary>
-    public Dictionary <string, Uri> Namespaces { get; }
+    public ReadOnlyDictionary <string, Uri> Namespaces { get; }
 
     /// <summary>
     /// Load raw schema text data.

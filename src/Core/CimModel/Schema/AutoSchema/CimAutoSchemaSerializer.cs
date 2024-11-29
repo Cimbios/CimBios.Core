@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.Schema.AutoSchema;
@@ -11,7 +12,8 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
 {
     public const string BaseSchemaUri = "http://cim.bios/schemas/auto";
 
-    public Dictionary<string, Uri> Namespaces => _Namespaces;
+    public ReadOnlyDictionary<string, Uri> Namespaces
+        => _Namespaces.AsReadOnly();
 
     public CimAutoSchemaSerializer(RdfReaderBase rdfReader)
     {
