@@ -27,7 +27,7 @@ public class CimSchema : ICimSchema
         _Log = new PlainLogView(this);
 
         _All = new Dictionary<Uri, ICimMetaResource>(new RdfUriComparer());
-        _Namespaces = new Dictionary<string, Uri>();
+        _Namespaces = [];
     }
 
     public CimSchema(ICimSchemaSerializer serializer)
@@ -49,7 +49,7 @@ public class CimSchema : ICimSchema
         Serializer.Load(textReader);
 
         _All = Serializer.Deserialize();
-        _Namespaces = Serializer.Namespaces;
+        _Namespaces = Serializer.Namespaces.ToDictionary();
 
         if (TieSameNameEnums)
         {
@@ -188,7 +188,7 @@ public class CimSchema : ICimSchema
                 continue;
             }
 
-             if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
+            if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
                 out var enumName) == false)
             {
                 continue;
