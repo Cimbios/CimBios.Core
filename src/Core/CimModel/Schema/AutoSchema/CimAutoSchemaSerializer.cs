@@ -8,16 +8,18 @@ namespace CimBios.Core.CimModel.Schema.AutoSchema;
 /// the consistency and completeness of the data being read and written 
 /// according to the generated schema.
 /// </summary>
-public class CimAutoSchemaSerializer : ICimSchemaSerializer
+public class CimAutoSchemaSerializer(RdfReaderBase rdfReader) 
+    : ICimSchemaSerializer
 {
     public const string BaseSchemaUri = "http://cim.bios/schemas/auto";
 
     public ReadOnlyDictionary<string, Uri> Namespaces
         => _Namespaces.AsReadOnly();
 
-    public CimAutoSchemaSerializer(RdfReaderBase rdfReader)
+    public void Load(TextReader reader)
     {
-        _RdfReader = rdfReader;
+        _RdfReader.AddNamespace("base", new(BaseSchemaUri));
+        _RdfReader.Load(reader);
     }
 
     public Dictionary<Uri, ICimMetaResource> Deserialize()
@@ -34,12 +36,6 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
         _RdfReader.Close();
 
         return _ObjectsCache;
-    }
-
-    public void Load(TextReader reader)
-    {
-        _RdfReader.AddNamespace("base", new(BaseSchemaUri));
-        _RdfReader.Load(reader);
     }
 
     /// <summary>
@@ -409,10 +405,19 @@ public class CimAutoSchemaSerializer : ICimSchemaSerializer
         }
     }
 
-    private readonly RdfReaderBase _RdfReader;
+    private readonly RdfReaderBase _RdfReader = rdfReader;
 
     private readonly Dictionary<Uri, ICimMetaResource> _ObjectsCache 
         = new(new RdfUriComparer());
 
     private Dictionary <string, Uri> _Namespaces = [];
+}
+
+public class CimAutoSchemaSerializerFactory(RdfReaderBase rdfReader)
+    : ICimSchemaSerializerFactory
+{
+    public ICimSchemaSerializer CreateSerializer()
+    {
+        return new CimAutoSchemaSerializer(rdfReader);
+    }
 }
