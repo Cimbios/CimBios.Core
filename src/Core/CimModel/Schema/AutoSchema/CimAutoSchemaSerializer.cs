@@ -201,8 +201,7 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
     private void InvalidatePropertyDatatype(CimAutoProperty property,
         CimAutoDatatype propertyDatatype)
     {
-        if (property.PropertyDatatype == null
-            || property.PropertyDatatype is CimAutoClass)
+        if (property.PropertyDatatype == null)
         {
             property.PropertyDatatype = propertyDatatype;
             return;
