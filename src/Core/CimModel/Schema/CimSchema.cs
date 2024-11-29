@@ -18,9 +18,9 @@ public class CimSchema : ICimSchema
     public IEnumerable<ICimMetaDatatype> Datatypes 
         => _All.Values.OfType<ICimMetaDatatype>();
 
-    public ICimSchemaSerializer? Serializer { get; set; }
-
     public bool TieSameNameEnums { get; set; } = true;
+
+    private ICimSchemaSerializer? _Serializer { get; set; }
 
     public CimSchema()
     {   
@@ -30,15 +30,15 @@ public class CimSchema : ICimSchema
         _Namespaces = [];
     }
 
-    public CimSchema(ICimSchemaSerializer serializer)
+    public CimSchema(ICimSchemaSerializerFactory serializerFactory)
         : this()
     {
-        Serializer = serializer;
+        _Serializer = serializerFactory.CreateSerializer();
     }
 
     public void Load(TextReader textReader)
     {
-        if (Serializer == null)
+        if (_Serializer == null)
         {
             _Log.NewMessage("Schema serializer has not been initialized", 
                 LogMessageSeverity.Error);
@@ -46,10 +46,10 @@ public class CimSchema : ICimSchema
             return;
         }
 
-        Serializer.Load(textReader);
+        _Serializer.Load(textReader);
 
-        _All = Serializer.Deserialize();
-        _Namespaces = Serializer.Namespaces.ToDictionary();
+        _All = _Serializer.Deserialize();
+        _Namespaces = _Serializer.Namespaces.ToDictionary();
 
         if (TieSameNameEnums)
         {
@@ -67,6 +67,13 @@ public class CimSchema : ICimSchema
             LogMessageSeverity.Info,
             details
         );
+    }
+
+    public void Load(TextReader textReader, 
+        ICimSchemaSerializerFactory serializerFactory)
+    {
+        _Serializer = serializerFactory.CreateSerializer();
+        Load(textReader);
     }
 
     public IEnumerable<ICimMetaProperty> GetClassProperties(
@@ -172,50 +179,6 @@ public class CimSchema : ICimSchema
         return true;
     }
 
-    /// <summary>
-    /// Tie the same name enum instances through extension link.
-    /// </summary>
-    private void TieEnumExtensions()
-    {
-        var enumProperties = _All.Values.OfType<ICimMetaProperty>()
-            .Where(o => o.PropertyDatatype?.IsEnum == true);
-
-        var enumsMap = new Dictionary<string, ICimMetaClass>();
-        foreach (var property in enumProperties)
-        {
-            if (property.PropertyDatatype is not ICimMetaClass enumClass)
-            {
-                continue;
-            }
-
-            if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
-                out var enumName) == false)
-            {
-                continue;
-            }
-
-            enumsMap.TryAdd(enumName, enumClass);
-        }
-
-        var enums = _All.Values.OfType<ICimMetaClass>()
-            .Where(o => o.IsEnum == true);
-
-        foreach (var enumClass in enums)
-        {
-            if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
-                out var enumName) == false)
-            {
-                continue;
-            }
-
-            if (enumsMap.TryGetValue(enumName, out var baseEnum)
-                && baseEnum != enumClass)
-            {
-                baseEnum.AddExtension(enumClass);
-            }
-        }
-    }
-
     public void Join(ICimSchema schema, bool rewriteNamespaces = false)
     {
         var details = string.Empty;
@@ -295,9 +258,53 @@ public class CimSchema : ICimSchema
         }
     }
 
+    /// <summary>
+    /// Tie the same name enum instances through extension link.
+    /// </summary>
+    private void TieEnumExtensions()
+    {
+        var enumProperties = _All.Values.OfType<ICimMetaProperty>()
+            .Where(o => o.PropertyDatatype?.IsEnum == true);
+
+        var enumsMap = new Dictionary<string, ICimMetaClass>();
+        foreach (var property in enumProperties)
+        {
+            if (property.PropertyDatatype is not ICimMetaClass enumClass)
+            {
+                continue;
+            }
+
+            if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
+                out var enumName) == false)
+            {
+                continue;
+            }
+
+            enumsMap.TryAdd(enumName, enumClass);
+        }
+
+        var enums = _All.Values.OfType<ICimMetaClass>()
+            .Where(o => o.IsEnum == true);
+
+        foreach (var enumClass in enums)
+        {
+            if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
+                out var enumName) == false)
+            {
+                continue;
+            }
+
+            if (enumsMap.TryGetValue(enumName, out var baseEnum)
+                && baseEnum != enumClass)
+            {
+                baseEnum.AddExtension(enumClass);
+            }
+        }
+    }
+
     private Dictionary<Uri, ICimMetaResource> _All;
 
     private Dictionary<string, Uri> _Namespaces;
 
-    private PlainLogView _Log;
+    private readonly PlainLogView _Log;
 }

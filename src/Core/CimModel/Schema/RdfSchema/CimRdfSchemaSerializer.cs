@@ -5,15 +5,11 @@ using CimBios.Utils.MetaReflectionHelper;
 
 namespace CimBios.Core.CimModel.Schema.RdfSchema;
 
-public class CimRdfSchemaSerializer : ICimSchemaSerializer
+public class CimRdfSchemaSerializer(RdfReaderBase rdfReader) 
+    : ICimSchemaSerializer
 {
     public ReadOnlyDictionary <string, Uri> Namespaces 
         => _Namespaces.AsReadOnly();
-
-    public CimRdfSchemaSerializer(RdfReaderBase rdfReader)
-    {
-        _RdfReader = rdfReader;
-    }
 
     public void Load(TextReader reader)
     {
@@ -259,7 +255,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
     private readonly MetaReflectionHelper _SerializeHelper
         = new(Assembly.GetExecutingAssembly());
 
-    private readonly RdfReaderBase _RdfReader;
+    private readonly RdfReaderBase _RdfReader = rdfReader;
 
     private readonly Dictionary<Uri, ICimMetaResource> _ObjectsCache 
         = new(new RdfUriComparer());
@@ -280,4 +276,13 @@ public static class CimRdfSchemaStrings
         new("http://www.w3.org/2000/01/rdf-schema#Class");
     public static Uri RdfProperty = 
         new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property");
+}
+
+public class CimRdfSchemaSerializerFactory(RdfReaderBase rdfReader)
+    : ICimSchemaSerializerFactory
+{
+    public ICimSchemaSerializer CreateSerializer()
+    {
+        return new CimRdfSchemaSerializer(rdfReader);
+    }
 }

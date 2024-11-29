@@ -43,8 +43,17 @@ public interface ICimSchema : ICanLog
     /// <summary>
     /// Load RDFS schema content via text reader.
     /// </summary>
+    /// <param name="textReader">Text reader provider.</param>
     public void Load(TextReader textReader);
     //public void Save(TextWriter textWriter);
+
+    /// <summary>
+    /// Load RDFS schema content via text reader with redefined serializer.
+    /// </summary>
+    /// <param name="textReader">Text reader provider.</param>
+    /// <param name="serializerFactory">Serializer factory.</param>
+    public void Load(TextReader textReader, 
+        ICimSchemaSerializerFactory serializerFactory);
 
     /// <summary>
     /// Get concrete serialized meta description instance.
