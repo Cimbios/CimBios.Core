@@ -201,7 +201,8 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             {
                  foreach (var compoundAttrName in compoundAttr.ObjectData.Attributes)
                 {
-                    var compoundAttrValue = compoundAttr.ObjectData.GetAttribute<object>(attrName);
+                    var compoundAttrValue = compoundAttr.ObjectData
+                        .GetAttribute<object>(compoundAttrName);
                     var compoundAttrValueStr = compoundAttrValue.ToString();
                     if (compoundAttrValueStr == null)
                     {
