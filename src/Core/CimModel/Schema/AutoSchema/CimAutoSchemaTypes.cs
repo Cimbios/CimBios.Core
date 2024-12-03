@@ -16,7 +16,29 @@ public class CimAutoClass : CimAutoResource, ICimMetaClass
 {
     public bool SuperClass => (ParentClass == null);
 
-    public ICimMetaClass? ParentClass => null;
+    public ICimMetaClass? ParentClass 
+    { 
+        get => _ParentClass;
+        set
+        {
+            if (_ParentClass == value)
+            {
+                return;
+            }
+
+            if (_ParentClass != null)
+            {
+                _PlainAncestors.Remove(_ParentClass);
+            }
+
+            _ParentClass = value as CimAutoClass;
+
+            if (_ParentClass != null)
+            {
+                _PlainAncestors.Add(_ParentClass);
+            }
+        }
+    }
 
     public ICimMetaClass[] AllAncestors => [.. _PlainAncestors];
 
@@ -52,6 +74,8 @@ public class CimAutoClass : CimAutoResource, ICimMetaClass
     }
 
     private readonly List<ICimMetaClass> _PlainAncestors = [];
+
+    private CimAutoClass? _ParentClass;
 }
 
 public class CimAutoProperty : CimAutoResource, ICimMetaProperty
