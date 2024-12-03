@@ -61,6 +61,10 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
     /// <param name="node">Class instance Rdf node with property triples.</param>
     private void HandleProperties(RdfNode node)
     {
+        _ObjectsCache.TryGetValue(
+            new(BaseSchemaUri + "#CimAutoClass"), 
+            out var autoSuperClassResource);
+
         foreach (var property in node.Triples)
         {
             var classUri = MakeAncestorClassFromProperty(node.TypeIdentifier, 
@@ -80,6 +84,7 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
                 {
                     // The most generalized kind for assoc.
                     propertyKind = CimMetaPropertyKind.Assoc1ToM;
+                    propertyDatatype = autoSuperClassResource as CimAutoClass;
                 }
                 else
                 {
@@ -134,11 +139,16 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
             shortName = typeIdentifier.AbsoluteUri;
         }
 
+        _ObjectsCache.TryGetValue(
+            new(BaseSchemaUri + "#CimAutoClass"), 
+            out var autoSuperClassResource);
+
         var autoClass = new CimAutoClass()
         {
             BaseUri = typeIdentifier,
             ShortName = shortName,
             Description = string.Empty,
+            ParentClass = autoSuperClassResource as CimAutoClass,
             IsEnum = isEnum,
             IsCompound = IsCompound
         };
@@ -402,6 +412,22 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
 
             _ObjectsCache.Add(metaDatatype.BaseUri, metaDatatype);
         }
+
+        CreateAutoSuperClass();
+    }
+
+    private void CreateAutoSuperClass()
+    {
+        var autoClass = new CimAutoClass()
+        {
+            BaseUri = new(BaseSchemaUri + "#CimAutoClass"),
+            ShortName = "CimAutoClass",
+            Description = string.Empty,
+            IsEnum = false,
+            IsCompound = false
+        };
+
+        _ObjectsCache.TryAdd(autoClass.BaseUri, autoClass);
     }
 
     private readonly RdfReaderBase _RdfReader = rdfReader;
