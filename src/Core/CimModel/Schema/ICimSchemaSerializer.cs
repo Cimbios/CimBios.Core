@@ -1,3 +1,6 @@
+using System.Collections.ObjectModel;
+using CimBios.Core.RdfIOLib;
+
 namespace CimBios.Core.CimModel.Schema;
 
 /// <summary>
@@ -8,7 +11,7 @@ public interface ICimSchemaSerializer
     /// <summary>
     /// Prefix to namespace URI mapping for schema.
     /// </summary>
-    public Dictionary <string, Uri> Namespaces { get; }
+    public ReadOnlyDictionary <string, Uri> Namespaces { get; }
 
     /// <summary>
     /// Load raw schema text data.
@@ -19,4 +22,14 @@ public interface ICimSchemaSerializer
     /// Deserialize data to CIM schema.
     /// </summary>
     public Dictionary<Uri, ICimMetaResource> Deserialize();
+}
+
+public interface ICimSchemaSerializerFactory
+{
+    /// <summary>
+    /// Factory method creates concrete serializer instance.
+    /// </summary>
+    /// <param name="rdfReader">Rdf reader provider.</param>
+    /// <returns>Serializer instance.</returns>
+    public ICimSchemaSerializer CreateSerializer();
 }

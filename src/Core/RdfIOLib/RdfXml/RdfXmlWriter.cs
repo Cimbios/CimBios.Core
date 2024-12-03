@@ -105,7 +105,8 @@ public class RdfXmlWriter : RdfWriterBase
             // variable prop - literal
             else
             {
-                serializedNode.Add(new XElement(xPredicate, triple.Object));
+                serializedNode.Add(new XElement(xPredicate, 
+                    FormatLiteralValue(triple.Object)));
             }
         }
     }

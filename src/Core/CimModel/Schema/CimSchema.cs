@@ -1,41 +1,60 @@
 using CimBios.Core.RdfIOLib;
 using CimBios.Utils.ClassTraits;
 
-namespace CimBios.Core.CimModel.Schema.RdfSchema;
+namespace CimBios.Core.CimModel.Schema;
 
-/// <summary>
-/// Cim schema supports RDFS format.
-/// </summary>
-public class CimRdfSchema : ICimSchema
+public class CimSchema : ICimSchema
 {
     public ILogView Log => _Log;
 
     public IReadOnlyDictionary<string, Uri> Namespaces 
-    {get => _Namespaces; }
+        => _Namespaces;
     public IEnumerable<ICimMetaClass> Classes 
-    { get => _All.Values.OfType<ICimMetaClass>(); }
+        => _All.Values.OfType<ICimMetaClass>();
     public IEnumerable<ICimMetaProperty> Properties 
-    { get => _All.Values.OfType<ICimMetaProperty>(); }
+        => _All.Values.OfType<ICimMetaProperty>();
     public IEnumerable<ICimMetaIndividual> Individuals 
-    { get => _All.Values.OfType<ICimMetaIndividual>(); }
+        => _All.Values.OfType<ICimMetaIndividual>(); 
     public IEnumerable<ICimMetaDatatype> Datatypes 
-    { get => _All.Values.OfType<ICimMetaDatatype>(); }
+        => _All.Values.OfType<ICimMetaDatatype>();
 
-    public CimRdfSchema()
-    {
+    public bool TieSameNameEnums { get; set; } = true;
+
+    private ICimSchemaSerializer? _Serializer { get; set; }
+
+    public CimSchema()
+    {   
         _Log = new PlainLogView(this);
 
         _All = new Dictionary<Uri, ICimMetaResource>(new RdfUriComparer());
-        _Namespaces = new Dictionary<string, Uri>();
+        _Namespaces = [];
+    }
+
+    public CimSchema(ICimSchemaSerializerFactory serializerFactory)
+        : this()
+    {
+        _Serializer = serializerFactory.CreateSerializer();
     }
 
     public void Load(TextReader textReader)
     {
-        var serizalizer = new CimRdfSchemaSerializer();
-        serizalizer.Load(textReader);
+        if (_Serializer == null)
+        {
+            _Log.NewMessage("Schema serializer has not been initialized", 
+                LogMessageSeverity.Error);
 
-        _All = serizalizer.Deserialize();
-        _Namespaces = serizalizer.Namespaces;
+            return;
+        }
+
+        _Serializer.Load(textReader);
+
+        _All = _Serializer.Deserialize();
+        _Namespaces = _Serializer.Namespaces.ToDictionary();
+
+        if (TieSameNameEnums)
+        {
+            TieEnumExtensions();
+        }
 
         var details = string.Empty;
         if (_Namespaces.TryGetValue("base", out var baseUri))
@@ -48,6 +67,13 @@ public class CimRdfSchema : ICimSchema
             LogMessageSeverity.Info,
             details
         );
+    }
+
+    public void Load(TextReader textReader, 
+        ICimSchemaSerializerFactory serializerFactory)
+    {
+        _Serializer = serializerFactory.CreateSerializer();
+        Load(textReader);
     }
 
     public IEnumerable<ICimMetaProperty> GetClassProperties(
@@ -86,8 +112,10 @@ public class CimRdfSchema : ICimSchema
 
     public IEnumerable<ICimMetaIndividual> GetClassIndividuals(
         ICimMetaClass metaClass,
-        bool inherit = false)
+        bool extensions = true)
     {
+        var result = new List<ICimMetaIndividual>();
+
         foreach (var individual in Individuals)
         {
             if (individual.InstanceOf == null)
@@ -99,20 +127,19 @@ public class CimRdfSchema : ICimSchema
                 individual.InstanceOf.BaseUri,
                 metaClass.BaseUri))
             {
-                yield return individual;
-            }
-
-            if (inherit == true)
-            {
-                if (individual.InstanceOf
-                    .AllAncestors.Any(c => 
-                        RdfUtils.RdfUriEquals(c.BaseUri, 
-                        metaClass.BaseUri)))
-                {
-                    yield return individual;
-                }
+                result.Add(individual);
             }
         }
+
+        if (extensions == true)
+        {
+            foreach (var ext in metaClass.Extensions)
+            {
+                result.AddRange(GetClassIndividuals(ext, false));
+            }
+        }
+
+        return result;
     }
 
     public T? TryGetDescription<T>(Uri uri) where T : ICimMetaResource
@@ -231,17 +258,53 @@ public class CimRdfSchema : ICimSchema
         }
     }
 
+    /// <summary>
+    /// Tie the same name enum instances through extension link.
+    /// </summary>
+    private void TieEnumExtensions()
+    {
+        var enumProperties = _All.Values.OfType<ICimMetaProperty>()
+            .Where(o => o.PropertyDatatype?.IsEnum == true);
+
+        var enumsMap = new Dictionary<string, ICimMetaClass>();
+        foreach (var property in enumProperties)
+        {
+            if (property.PropertyDatatype is not ICimMetaClass enumClass)
+            {
+                continue;
+            }
+
+            if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
+                out var enumName) == false)
+            {
+                continue;
+            }
+
+            enumsMap.TryAdd(enumName, enumClass);
+        }
+
+        var enums = _All.Values.OfType<ICimMetaClass>()
+            .Where(o => o.IsEnum == true);
+
+        foreach (var enumClass in enums)
+        {
+            if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
+                out var enumName) == false)
+            {
+                continue;
+            }
+
+            if (enumsMap.TryGetValue(enumName, out var baseEnum)
+                && baseEnum != enumClass)
+            {
+                baseEnum.AddExtension(enumClass);
+            }
+        }
+    }
+
     private Dictionary<Uri, ICimMetaResource> _All;
 
     private Dictionary<string, Uri> _Namespaces;
 
-    private PlainLogView _Log;
-}
-
-public class CimRdfSchemaFactory : ICimSchemaFactory
-{
-    public ICimSchema CreateSchema()
-    {
-        return new CimRdfSchema();
-    }
+    private readonly PlainLogView _Log;
 }
