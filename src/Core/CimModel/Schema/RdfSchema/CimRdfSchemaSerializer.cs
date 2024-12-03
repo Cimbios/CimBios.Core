@@ -1,17 +1,19 @@
+using System.Collections.ObjectModel;
 using System.Reflection;
 using CimBios.Core.RdfIOLib;
 using CimBios.Utils.MetaReflectionHelper;
 
 namespace CimBios.Core.CimModel.Schema.RdfSchema;
 
-public class CimRdfSchemaSerializer : ICimSchemaSerializer
+public class CimRdfSchemaSerializer(RdfReaderBase rdfReader) 
+    : ICimSchemaSerializer
 {
-    public Dictionary <string, Uri> Namespaces 
-    { get => _Namespaces; }
+    public ReadOnlyDictionary <string, Uri> Namespaces 
+        => _Namespaces.AsReadOnly();
 
     public void Load(TextReader reader)
     {
-        _Reader.Load(reader);
+        _RdfReader.Load(reader);
     }
 
     public Dictionary<Uri, ICimMetaResource> Deserialize()
@@ -21,7 +23,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
 
         BuildInternalDatatypes();
 
-        var descriptionTypedNodes = _Reader.ReadAll().ToArray();
+        var descriptionTypedNodes = _RdfReader.ReadAll().ToArray();
 
         ReadObjects(descriptionTypedNodes);
         ResolveReferences(descriptionTypedNodes);
@@ -30,7 +32,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
 
         ForwardReaderNamespaces();
 
-        _Reader.Close();
+        _RdfReader.Close();
 
         return _ObjectsCache;
     }
@@ -40,7 +42,7 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
     /// </summary>
     private void ForwardReaderNamespaces()
     {
-        foreach (var item in _Reader.Namespaces)
+        foreach (var item in _RdfReader.Namespaces)
         {
             _Namespaces.Add(item.Key, item.Value);
         }
@@ -250,16 +252,15 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
         }
     }
 
-    private MetaReflectionHelper _SerializeHelper
-        = new MetaReflectionHelper(Assembly.GetExecutingAssembly());
+    private readonly MetaReflectionHelper _SerializeHelper
+        = new(Assembly.GetExecutingAssembly());
 
-    private RdfXmlReader _Reader = new RdfXmlReader();
+    private readonly RdfReaderBase _RdfReader = rdfReader;
 
-    private Dictionary<Uri, ICimMetaResource> _ObjectsCache 
-        = new Dictionary<Uri, ICimMetaResource>(new RdfUriComparer());
+    private readonly Dictionary<Uri, ICimMetaResource> _ObjectsCache 
+        = new(new RdfUriComparer());
 
-    private Dictionary <string, Uri> _Namespaces
-        = new Dictionary<string, Uri>();
+    private readonly Dictionary <string, Uri> _Namespaces = [];
 }
 
 /// <summary>
@@ -268,11 +269,20 @@ public class CimRdfSchemaSerializer : ICimSchemaSerializer
 public static class CimRdfSchemaStrings
 {
     public static Uri RdfDescription = 
-        new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Description");
+        new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Description");
     public static Uri RdfType = 
-        new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+        new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
     public static Uri RdfsClass = 
-        new Uri("http://www.w3.org/2000/01/rdf-schema#Class");
+        new("http://www.w3.org/2000/01/rdf-schema#Class");
     public static Uri RdfProperty = 
-        new Uri("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property");
+        new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property");
+}
+
+public class CimRdfSchemaSerializerFactory(RdfReaderBase rdfReader)
+    : ICimSchemaSerializerFactory
+{
+    public ICimSchemaSerializer CreateSerializer()
+    {
+        return new CimRdfSchemaSerializer(rdfReader);
+    }
 }

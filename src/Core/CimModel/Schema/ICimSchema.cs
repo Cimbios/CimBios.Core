@@ -36,10 +36,24 @@ public interface ICimSchema : ICanLog
     public IEnumerable<ICimMetaDatatype> Datatypes { get; }
 
     /// <summary>
+    /// Tie all same name enums in one via extension link.
+    /// </summary>
+    public bool TieSameNameEnums { get; set; }
+
+    /// <summary>
     /// Load RDFS schema content via text reader.
     /// </summary>
+    /// <param name="textReader">Text reader provider.</param>
     public void Load(TextReader textReader);
     //public void Save(TextWriter textWriter);
+
+    /// <summary>
+    /// Load RDFS schema content via text reader with redefined serializer.
+    /// </summary>
+    /// <param name="textReader">Text reader provider.</param>
+    /// <param name="serializerFactory">Serializer factory.</param>
+    public void Load(TextReader textReader, 
+        ICimSchemaSerializerFactory serializerFactory);
 
     /// <summary>
     /// Get concrete serialized meta description instance.
@@ -74,7 +88,7 @@ public interface ICimSchema : ICanLog
     /// <returns></returns>
     public IEnumerable<ICimMetaIndividual> GetClassIndividuals(
         ICimMetaClass metaClass,
-        bool inherit = false);
+        bool extensions = true);
 
     /// <summary>
     /// Can meta class instance be created within schema.

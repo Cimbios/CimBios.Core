@@ -1,4 +1,4 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -35,8 +35,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Utils.ClassTraits", "Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj", "{6C600575-B8EC-48F1-8D7B-D0C3A61B023F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tests.ClassTraits", "..\test\CimBios.Tests.ClassTraits\CimBios.Tests.ClassTraits.csproj", "{D18ECC24-3EF0-4A8E-9ECF-7C6E70C86C29}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RdfXml", "RdfXml", "{C37BC960-28ED-437A-BEB8-153E90551801}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Utils.MetaReflectionHelper", "Utils\MetaReflectionHelper\CimBios.Utils.MetaReflectionHelper.csproj", "{8E299C0B-F47C-44D1-A938-F985D9083373}"
 EndProject
@@ -95,7 +93,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{C37BC960-28ED-437A-BEB8-153E90551801} = {FC81AB4D-0E26-4A7D-A6F2-CBDB290EB77D}
 		{16F17CAB-6D1A-4014-8FBA-270C310BC878} = {B2BF029E-0939-468F-BE76-7C67B7A485A8}
 		{CBCA217B-C786-41D1-8A3F-9E900BEFB19C} = {255F7368-4EE1-48A7-ACBF-3F87392FAF9E}
 		{58DE5C9F-5286-4047-94D9-CCEE51BC43B5} = {255F7368-4EE1-48A7-ACBF-3F87392FAF9E}
