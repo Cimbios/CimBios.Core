@@ -60,7 +60,7 @@ public interface ICimSchema : ICanLog
     /// </summary>
     /// <param name="uri">Identifier of instance.</param>
     /// <returns>CimRdfDescriptionBase inherits instance.</returns>
-    public T? TryGetDescription<T>(Uri uri) where T : ICimMetaResource;
+    public T? TryGetResource<T>(Uri uri) where T : ICimMetaResource;
 
     /// <summary>
     /// Check schema uri instance exists.
