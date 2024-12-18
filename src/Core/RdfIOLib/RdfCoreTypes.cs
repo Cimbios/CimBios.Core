@@ -10,14 +10,72 @@ public class RdfNode
     {
         Identifier = identifier;
         TypeIdentifier = typeIdentifier;
-        Triples = triples;
+        _Triples.AddRange(triples);
         IsAuto = isAuto;
     }
 
-    public Uri Identifier { get; set; }
-    public Uri TypeIdentifier { get; set; }
-    public RdfTriple[] Triples { get; set; }
-    public bool IsAuto { get; set; } = false;
+    public RdfNode(Uri identifier, Uri typeIdentifier, bool isAuto)
+    {
+        Identifier = identifier;
+        TypeIdentifier = typeIdentifier;
+        IsAuto = isAuto;
+    }
+
+    /// <summary>
+    /// Rdf resource identifier.
+    /// </summary>
+    public Uri Identifier { get; }
+
+    /// <summary>
+    /// Rdf resource node identifier.
+    /// </summary>
+    public Uri TypeIdentifier { get; }
+
+    /// <summary>
+    /// Rdf node's triples collection.
+    /// </summary>
+    public RdfTriple[] Triples => [.. _Triples];
+
+    /// <summary>
+    /// Is auto (not identified rdf node) flag.
+    /// </summary>
+    public bool IsAuto { get; } = false;
+
+    /// <summary>
+    /// Create and add RdfTriple triple with RdfNode subject
+    /// </summary>
+    /// <param name="predicate">Triple predicate URI.</param>
+    /// <param name="object">Triple generic object.</param>
+    /// <returns>Created rdf node.</returns>
+    public RdfTriple NewTriple(Uri predicate, object @object)
+    {
+        var triple = new RdfTriple(this, predicate, @object);
+        _Triples.Add(triple);
+
+        return triple;
+    }
+
+    /// <summary>
+    /// Remove all triples with predicate URI.
+    /// </summary>
+    /// <param name="predicate">Triple predicate URI.</param>
+    public void RemoveTriple(Uri predicate)
+    {
+        _Triples.RemoveAll(m => RdfUtils.RdfUriEquals(m.Predicate, predicate));
+    }
+
+    /// <summary>
+    /// Remove all triples with predicate URI and matched object.
+    /// </summary>
+    /// <param name="predicate">Triple predicate URI.</param>
+    /// <param name="object">Triple generic object.</param>
+    public void RemoveTriple(Uri predicate, object @object)
+    {
+        _Triples.RemoveAll(m => RdfUtils.RdfUriEquals(m.Predicate, predicate) 
+            && m.Object ==  @object);
+    }
+
+    private List<RdfTriple> _Triples = [];
 }
 
 /// <summary>
@@ -25,7 +83,7 @@ public class RdfNode
 /// </summary>
 public class RdfTriple
 {
-    public RdfTriple(Uri subject, Uri predicate,
+    public RdfTriple(RdfNode subject, Uri predicate,
         object @object)
     {
         Subject = subject;
@@ -33,7 +91,7 @@ public class RdfTriple
         Object = @object;
     }
 
-    public Uri Subject { get; set; }
+    public RdfNode Subject { get; set; }
 
     /// <summary>
     /// Uri type limited predicate.
