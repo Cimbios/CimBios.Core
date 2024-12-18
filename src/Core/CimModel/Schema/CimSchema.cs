@@ -142,7 +142,7 @@ public class CimSchema : ICimSchema
         return result;
     }
 
-    public T? TryGetDescription<T>(Uri uri) where T : ICimMetaResource
+    public T? TryGetResource<T>(Uri uri) where T : ICimMetaResource
     {
         if (_All.TryGetValue(uri, out var metaDescription)
             && metaDescription is T meta)
