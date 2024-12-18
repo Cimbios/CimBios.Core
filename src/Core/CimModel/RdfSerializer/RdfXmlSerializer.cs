@@ -16,9 +16,9 @@ public class RdfXmlSerializer : RdfSerializerBase
         ICimSchema schema, IDatatypeLib datatypeLib)
         : base(provider, schema, datatypeLib)
     {
-        _objectsCache = new Dictionary<string, IModelObject>();
-        _waitingReferenceObjectUuids = new HashSet<string>();
-        _checkedPropsCache = new Dictionary<string, List<string>>();
+        _objectsCache = [];
+        _waitingReferenceObjectUuids = [];
+        _checkedPropsCache = [];
     }
 
     public override IEnumerable<IModelObject> Deserialize()
@@ -29,16 +29,31 @@ public class RdfXmlSerializer : RdfSerializerBase
             _reader.Load(xDocument);
         }
 
-        var objects = ReadObjects();
+        var deserializedObjects = ReadObjects();
         ResetCache();
 
-        return objects;
+        return deserializedObjects;
     }
 
     public override void Serialize(IEnumerable<IModelObject> modelObjects)
     {
         _writer = new RdfXmlWriter();
         InitializeWriterNamespaces();
+
+        var serializedObjects = WriteObjects(modelObjects);
+        Provider.Push(serializedObjects);
+
+        ResetCache();
+    }
+
+    #region SerializerBlock
+
+    private XDocument WriteObjects(IEnumerable<IModelObject> modelObjects)
+    {
+        if (_writer == null)
+        {
+            throw new Exception("Writter was not initialized!");
+        }
 
         var objsToWrite = new List<RdfNode>();
         foreach (var modelObject in modelObjects)
@@ -51,52 +66,8 @@ public class RdfXmlSerializer : RdfSerializerBase
 
             objsToWrite.Add(moNode);
         }
-        if (_writer.Write(objsToWrite) is XDocument writtenObjects)
-        {
-            Provider.Push(writtenObjects);
-        }
 
-        ResetCache();
-    }
-
-    private void ResetCache()
-    {        
-        _objectsCache = new Dictionary<string, IModelObject>();
-        _waitingReferenceObjectUuids = new HashSet<string>();
-        _checkedPropsCache = new Dictionary<string, List<string>>();
-    }
-
-    /// <summary>
-    /// Make URI from uuid and provider source path.
-    /// </summary>
-    /// <param name="uuid">IModelObject uuid.</param>
-    /// <param name="prefix">Uuid prefix. 
-    /// '#_' for rdf:about, '_' for rdf:id.</param>
-    /// <returns></returns>
-    private Uri GetBasedIdentifier(string uuid, string prefix)
-        => new Uri(Provider.Source + $"{prefix}{uuid}");
-
-    /// <summary>
-    /// Fill writer namespaces from CimSchema.
-    /// </summary>
-    private void InitializeWriterNamespaces()
-    {
-        if (_writer == null)
-        {
-            return;
-        }
-
-        foreach (var ns in Schema.Namespaces)
-        {
-            if (ns.Key == "base")
-            {
-                continue;
-            }
-
-            _writer.AddNamespace(ns.Key, ns.Value);
-        }
-
-        _writer.AddNamespace("base", Provider.Source);
+        return _writer.Write(objsToWrite);
     }
 
     /// <summary>
@@ -107,7 +78,7 @@ public class RdfXmlSerializer : RdfSerializerBase
     /// <returns>Converted RdfNode or null.</returns>
     private RdfNode? ModelObjectToRdfNode(IModelObject modelObject)
     {
-        var metaClass = Schema.TryGetDescription<ICimMetaClass>(
+        var metaClass = Schema.TryGetResource<ICimMetaClass>(
             modelObject.ObjectData.ClassType);
 
         if (metaClass == null)
@@ -115,14 +86,19 @@ public class RdfXmlSerializer : RdfSerializerBase
             return null;
         }
 
-        var objProperties = Schema.GetClassProperties(metaClass, true);
-        var triples = WriteProperties(modelObject, objProperties);
-
-        return new RdfNode(
-            GetBasedIdentifier(modelObject.Uuid, "#_"),
+        var rdfNode = new RdfNode(GetBasedIdentifier(modelObject.Uuid, 
+            IdentifierPrefix),
             metaClass.BaseUri,
-            triples,
             modelObject.ObjectData.IsAuto);
+
+        var schemaProperties = Schema.GetClassProperties(metaClass, true);
+
+        foreach (var schemaProperty in schemaProperties)
+        {
+            WriteObjectProperty(rdfNode, modelObject, schemaProperty);
+        }
+
+        return rdfNode;
     }
 
     /// <summary>
@@ -131,37 +107,41 @@ public class RdfXmlSerializer : RdfSerializerBase
     /// <param name="modelObject">Rdf triple object - CIM object.</param>
     /// <param name="properties">CIM meta properties set.</param>
     /// <returns>Set of Rdf property triples.</returns>
-    private RdfTriple[] WriteProperties(IModelObject modelObject,
-        IEnumerable<ICimMetaProperty> properties)
+    private void WriteObjectProperty(RdfNode objectNode, 
+        IModelObject modelObject,
+        ICimMetaProperty property)
     {
-        var result = new List<RdfTriple>();
-        foreach (var property in properties)
+        if (modelObject.ObjectData.HasProperty(property.ShortName) == false)
         {
-            if (modelObject.ObjectData.HasProperty(property.ShortName) == false)
-            {
-                continue;
-            }
-
-            switch (property.PropertyKind)
-            {
-                case CimMetaPropertyKind.Attribute:
-                    var attributeResult = WriteAttribute(modelObject, property);
-                    if (attributeResult != null)
-                    {
-                        result.Add(attributeResult);
-                    }
-                    break;
-                case CimMetaPropertyKind.Assoc1To1:
-                    result.Add(WriteAssoc1To1(modelObject, property));
-                    break;
-                case CimMetaPropertyKind.Assoc1ToM:
-                    result.AddRange(WriteAssoc1ToM(modelObject, property));
-                    break;
-                default: //CimMetaPropertyKind.NonStandard
-                    break;
-            }
+            return;
         }
-        return result.ToArray();
+
+        object? objectData = null;
+        switch (property.PropertyKind)
+        {
+            case CimMetaPropertyKind.Attribute:
+                objectData = GetObjectAsAttribute(modelObject, property);
+                break;
+            case CimMetaPropertyKind.Assoc1To1:
+                objectData = GetObjectAsAssoc1To1(modelObject, property);
+                break;
+            case CimMetaPropertyKind.Assoc1ToM:
+                objectData = GetObjectAsAssoc1ToM(modelObject, property);
+                break;
+            //CimMetaPropertyKind.NonStandard
+            default: 
+                break;
+        }
+
+        if (objectData is IEnumerable<Uri> tripleObjects)
+        {
+            tripleObjects.ToList().ForEach(to => 
+                objectNode.NewTriple(property.BaseUri, to));
+        }
+        else if (objectData is not null)
+        {
+            objectNode.NewTriple(property.BaseUri, objectData);
+        }
     }
 
     /// TODO:   Extract type parsing in the other one method.
@@ -173,7 +153,7 @@ public class RdfXmlSerializer : RdfSerializerBase
     /// <param name="subject">Rdf triple subject - CIM object.</param>
     /// <param name="attribute"></param>
     /// <returns></returns>
-    private RdfTriple WriteAttribute(IModelObject subject, 
+    private object? GetObjectAsAttribute(IModelObject subject, 
         ICimMetaProperty attribute)
     {
         object? tripleObject = null;
@@ -206,17 +186,7 @@ public class RdfXmlSerializer : RdfSerializerBase
             }
         }
 
-        if (tripleObject != null)
-        {
-            return new RdfTriple(
-                GetBasedIdentifier(subject.Uuid, "#_"),
-                attribute.BaseUri,
-                tripleObject);
-        }
-        else
-        {
-            throw new Exception("attr");
-        }
+        return tripleObject;
     }
 
     /// <summary>
@@ -225,7 +195,7 @@ public class RdfXmlSerializer : RdfSerializerBase
     /// <param name="subject">Rdf triple subject - CIM object.</param>
     /// <param name="assoc1To1">CIM meta property - assoc.</param>
     /// <returns>Rdf property triple.</returns>
-    private RdfTriple WriteAssoc1To1(IModelObject subject, 
+    private object? GetObjectAsAssoc1To1(IModelObject subject, 
         ICimMetaProperty assoc1To1)
     {
         object resultAssocObject;
@@ -236,20 +206,18 @@ public class RdfXmlSerializer : RdfSerializerBase
             var compoundNode = ModelObjectToRdfNode(assocObj);
             if (compoundNode == null)
             {
-                throw new Exception("RdfXmlSerializer.WriteAssoc1To1 compound null");
+                throw new Exception("RdfXmlSerializer.GetObjectAsAssoc1To1 compound null");
             }
 
             resultAssocObject = compoundNode;
         }
         else
         {
-            resultAssocObject = GetBasedIdentifier(assocObj.Uuid, "#_");
+            resultAssocObject = GetBasedIdentifier(assocObj.Uuid,
+                IdentifierPrefix);
         }
 
-        return new RdfTriple(
-                GetBasedIdentifier(subject.Uuid, "#_"),
-                assoc1To1.BaseUri,
-                resultAssocObject);
+        return resultAssocObject;
     }
 
     /// <summary>
@@ -258,24 +226,64 @@ public class RdfXmlSerializer : RdfSerializerBase
     /// <param name="subject">Rdf triple subject - CIM object.</param>
     /// <param name="assoc1ToM">CIM meta property - assoc.</param>
     /// <returns>Set of Rdf property triples.</returns>
-    private IEnumerable<RdfTriple> WriteAssoc1ToM(IModelObject subject,
+    private IEnumerable<Uri> GetObjectAsAssoc1ToM(IModelObject subject,
         ICimMetaProperty assoc1ToM)
     {
         return subject.ObjectData.GetAssoc1ToM(assoc1ToM.ShortName)
-            .Select(assoc => 
-                new RdfTriple(
-                    GetBasedIdentifier(subject.Uuid, "#_"),
-                    assoc1ToM.BaseUri,
-                    GetBasedIdentifier(assoc.Uuid, "#_"))
-        );
+            .Select(mo => GetBasedIdentifier(mo.Uuid, IdentifierPrefix));
+    }
 
+    /// <summary>
+    /// Make URI from uuid and provider source path.
+    /// </summary>
+    /// <param name="uuid">IModelObject uuid.</param>
+    /// <param name="prefix">Uuid prefix. 
+    /// '#_' for rdf:about, '_' for rdf:id.</param>
+    /// <returns></returns>
+    private Uri GetBasedIdentifier(string uuid, string prefix)
+    {
+        return new(Provider.Source + $"{prefix}{uuid}");
+    }
+
+    /// <summary>
+    /// Fill writer namespaces from CimSchema.
+    /// </summary>
+    private void InitializeWriterNamespaces()
+    {
+        if (_writer == null)
+        {
+            return;
+        }
+
+        foreach (var ns in Schema.Namespaces)
+        {
+            if (ns.Key == "base")
+            {
+                continue;
+            }
+
+            _writer.AddNamespace(ns.Key, ns.Value);
+        }
+
+        _writer.AddNamespace("base", Provider.Source);
+    }
+
+    #endregion
+
+    #region DeserializerBlock
+
+    private void ResetCache()
+    {        
+        _objectsCache = [];
+        _waitingReferenceObjectUuids = [];
+        _checkedPropsCache = [];
     }
 
     /// <summary>
     /// Convert RdfNode objects to IModelObject collection.
     /// </summary>
     /// <returns>Collection of IModelObject instances.</returns>
-    private IEnumerable<IModelObject> ReadObjects()
+    private List<IModelObject> ReadObjects()
     {
         _objectsCache.Clear();
         _waitingReferenceObjectUuids.Clear();
@@ -289,7 +297,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         // First step - creating objects.
         foreach (var instanceNode in cimDocument)
         {
-            var instance = CreateInstance(instanceNode, false);
+            var instance = RdfNodeToModelObject(instanceNode, false);
             if (instance == null)
             {
                 continue;
@@ -315,13 +323,13 @@ public class RdfXmlSerializer : RdfSerializerBase
 
             foreach (var property in instanceNode.Triples)
             {
-                InitializeObjectProperty(instance, property);
+                ReadObjectProperty(instance, property);
             }
         }
 
         _reader.Close();
 
-        return _objectsCache.Values.ToList();
+        return [.. _objectsCache.Values];
     }
 
     /// <summary>
@@ -330,7 +338,7 @@ public class RdfXmlSerializer : RdfSerializerBase
     /// <param name="instanceNode">RdfNode CIM object presentation.</param>
     /// <param name="IsCompound">Is compound (inner child) node.</param>
     /// <returns>IModelObject instance or null.</returns>
-    private IModelObject? CreateInstance(RdfNode instanceNode,
+    private IModelObject? RdfNodeToModelObject(RdfNode instanceNode,
         bool IsCompound = false)
     {
         if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
@@ -339,7 +347,7 @@ public class RdfXmlSerializer : RdfSerializerBase
             return null;
         }
 
-        if (Schema.TryGetDescription<ICimMetaClass>
+        if (Schema.TryGetResource<ICimMetaClass>
             (instanceNode.TypeIdentifier) == null)
         {
             return null;
@@ -372,10 +380,10 @@ public class RdfXmlSerializer : RdfSerializerBase
     /// </summary>
     /// <param name="instance">IModelObject CIM class instance.</param>
     /// <param name="propertyTriple">RDF n-triple.</param>
-    private void InitializeObjectProperty(IModelObject instance,
+    private void ReadObjectProperty(IModelObject instance,
         RdfTriple propertyTriple)
     {
-        var schemaProperty = Schema.TryGetDescription<ICimMetaProperty>
+        var schemaProperty = Schema.TryGetResource<ICimMetaProperty>
             (propertyTriple.Predicate);
 
         if (schemaProperty == null
@@ -465,7 +473,7 @@ public class RdfXmlSerializer : RdfSerializerBase
                 && data is Uri enumValueUri)
             {
                 var schemaEnumValue = Schema
-                    .TryGetDescription<ICimMetaIndividual>(enumValueUri);
+                    .TryGetResource<ICimMetaIndividual>(enumValueUri);
 
                 bool isClassesMatches = Schema
                     .GetClassIndividuals(dataClass, true)
@@ -525,7 +533,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         IModelObject? referenceInstance = null;
         if (_objectsCache.TryGetValue(referenceUuid, out var modelObject))
         {
-            var referenceMetaClass = Schema.TryGetDescription<ICimMetaClass>
+            var referenceMetaClass = Schema.TryGetResource<ICimMetaClass>
                 (modelObject.ObjectData.ClassType);
 
             if (referenceMetaClass == null)
@@ -576,7 +584,7 @@ public class RdfXmlSerializer : RdfSerializerBase
     /// <returns>Auto IModelObject or null.</returns>
     private IModelObject? MakeCompoundPropertyObject(RdfNode objectRdfNode)
     {
-        var compoundPropertyObject = CreateInstance(objectRdfNode, true);
+        var compoundPropertyObject = RdfNodeToModelObject(objectRdfNode, true);
         if (compoundPropertyObject == null)
         {
             return null;
@@ -584,7 +592,7 @@ public class RdfXmlSerializer : RdfSerializerBase
 
         foreach (var property in objectRdfNode.Triples)
         {
-            InitializeObjectProperty(compoundPropertyObject, property);
+            ReadObjectProperty(compoundPropertyObject, property);
         }
 
         return compoundPropertyObject;
@@ -610,7 +618,7 @@ public class RdfXmlSerializer : RdfSerializerBase
             return false;
         }
 
-        var instanceClass = Schema.TryGetDescription<ICimMetaClass>
+        var instanceClass = Schema.TryGetResource<ICimMetaClass>
             (instance.ObjectData.ClassType);
         if (instanceClass == null)
         {
@@ -650,11 +658,13 @@ public class RdfXmlSerializer : RdfSerializerBase
 
         if (_checkedPropsCache.ContainsKey(classTypeId) == false)
         {
-            _checkedPropsCache.Add(classTypeId, new List<string>());
+            _checkedPropsCache.Add(classTypeId, []);
         }
         
         _checkedPropsCache[classTypeId].Add(classPropertyId);
     }
+
+    #endregion
 
     private RdfXmlReader? _reader;
     private RdfXmlWriter? _writer;
