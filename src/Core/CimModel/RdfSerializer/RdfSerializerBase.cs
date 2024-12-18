@@ -9,6 +9,8 @@ namespace CimBios.Core.CimModel.RdfSerializer;
 /// </summary>
 public abstract class RdfSerializerBase
 {
+    protected const string IdentifierPrefix = "#_";
+
     /// <summary>
     /// Cim schema rules.
     /// </summary>
