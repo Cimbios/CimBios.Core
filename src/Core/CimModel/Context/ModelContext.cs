@@ -68,9 +68,7 @@ public class ModelContext : ICanLog
         try
         {
             var serialized = _serializer.Deserialize();
-
-            _Objects = new Dictionary<string, IModelObject>(serialized
-                .Select(x => new KeyValuePair<string, IModelObject>(x.Uuid, x)));
+            _Objects = serialized.ToDictionary(k => k.Uuid, v => v);
         }
         catch (Exception ex)
         {
