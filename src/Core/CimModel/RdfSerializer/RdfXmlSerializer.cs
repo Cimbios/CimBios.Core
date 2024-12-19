@@ -181,8 +181,11 @@ public class RdfXmlSerializer : RdfSerializerBase
             {
                 var compoundObject = subject.ObjectData
                     .GetAttribute<IModelObject>(attribute.ShortName);
-
-                tripleObject = ModelObjectToRdfNode(compoundObject);
+                    
+                if (compoundObject != null)
+                {
+                    tripleObject = ModelObjectToRdfNode(compoundObject);
+                }   
             }
         }
 
@@ -201,6 +204,11 @@ public class RdfXmlSerializer : RdfSerializerBase
         object resultAssocObject;
 
         var assocObj = subject.ObjectData.GetAssoc1To1(assoc1To1.ShortName);
+        if (assocObj == null)
+        {
+            return null;
+        }
+
         if (assocObj.ObjectData.IsAuto)
         {
             var compoundNode = ModelObjectToRdfNode(assocObj);
