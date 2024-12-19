@@ -80,11 +80,12 @@ internal enum MetaFieldType
 /// <summary>
 /// Root interface for any schema entity.
 /// </summary>
-public interface ICimMetaResource
+public interface ICimMetaResource : IEquatable<ICimMetaResource>
 {
     public Uri BaseUri { get; }
     public string ShortName { get; }
     public string Description { get; }
+    public int GetHashCode();
 }
 
 /// <summary>
