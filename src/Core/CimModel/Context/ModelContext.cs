@@ -20,7 +20,7 @@ public class ModelContext : ICanLog
     /// <summary>
     /// Model description.
     /// </summary>
-    public IFullModel? Description { get; set; }
+    public FullModel? Description { get; set; }
 
     /// <summary>
     /// Applied schema to this context serializer.
@@ -236,7 +236,7 @@ public class ModelContext : ICanLog
     /// </summary>
     private void ReadModelDescription()
     {
-        var fullModel = _Objects.Values.OfType<IFullModel>()
+        var fullModel = _Objects.Values.OfType<FullModel>()
             .FirstOrDefault();
 
         if (fullModel != null)
