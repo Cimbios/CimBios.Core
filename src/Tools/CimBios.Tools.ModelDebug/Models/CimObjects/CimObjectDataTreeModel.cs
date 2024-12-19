@@ -16,7 +16,8 @@ public class CimObjectDataTreeModel : TreeViewNodeModel
         {
             if (ModelObject.ObjectData.Attributes.Contains("name"))
             {
-                return ModelObject.ObjectData.GetAttribute<string>("name");
+                return ModelObject.ObjectData
+                    .GetAttribute<string>("name") ?? "noname";
             }
 
             return "noname";
