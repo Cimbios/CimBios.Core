@@ -1,5 +1,4 @@
-using System;
-using System.ComponentModel;
+using System.Dynamic;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
@@ -17,12 +16,14 @@ public interface IModelObject
     /// Neccesary object identifier.
     /// </summary>
     public string Uuid { get; }
+
+    public dynamic? AsDynamic();
 }
 
 /// <summary>
-/// Model super type.
+/// Model super type. Dynamic object logic supports.
 /// </summary>
-public class ModelObject : IModelObject
+public class ModelObject : DynamicObject, IModelObject
 {
     public string Uuid { get => ObjectData.Uuid; }
 
@@ -31,6 +32,48 @@ public class ModelObject : IModelObject
     public ModelObject(DataFacade objectData)
     {
         ObjectData = objectData;
+    }
+
+    public dynamic? AsDynamic()
+    {
+        return this;
+    }
+
+    public override bool TryGetMember(GetMemberBinder binder, out object? result)
+    {
+        if (ObjectData.Attributes.Contains(binder.Name))
+        {
+            result = ObjectData.GetAttribute(binder.Name);
+            return true;
+        }
+        else if (ObjectData.Assocs1To1.Contains(binder.Name))
+        {
+            result = ObjectData.GetAssoc1To1(binder.Name);
+            return true;        
+        }
+        else if (ObjectData.Assocs1ToM.Contains(binder.Name))
+        {
+            result = ObjectData.GetAssoc1ToM(binder.Name);
+            return true;        
+        }
+
+        return base.TryGetMember(binder, out result);
+    }
+
+    public override bool TrySetMember(SetMemberBinder binder, object? value)
+    {
+        if (ObjectData.Attributes.Contains(binder.Name))
+        {
+            ObjectData.SetAttribute(binder.Name, value);
+            return true;
+        }
+        else if (ObjectData.Assocs1To1.Contains(binder.Name))
+        {
+            ObjectData.SetAssoc1To1(binder.Name, value as IModelObject);
+            return true;        
+        }
+
+        return base.TrySetMember(binder, value);
     }
 }
 
@@ -51,6 +94,11 @@ public sealed class ModelObjectUnresolvedReference
     {
         ObjectData = objectData;
     }
+
+    public dynamic? AsDynamic()
+    {
+        return null;
+    }
 }
 
 /// <summary>
@@ -67,6 +115,11 @@ public sealed class CimSchemaIndividualModelObject : IModelObject
     public CimSchemaIndividualModelObject(IDataFacade objectData)
     {
         ObjectData = objectData;
+    }
+
+    public dynamic? AsDynamic()
+    {
+        return null;
     }
 }
 
