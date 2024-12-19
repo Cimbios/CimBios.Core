@@ -52,7 +52,7 @@ public interface IDataFacade : INotifyPropertyChanged
     /// <param name="property"></param>
     /// <param name="type"></param>
     /// <returns>Value.</returns>
-    public object GetAttribute(string property);
+    public object? GetAttribute(string property);
 
     /// <summary>
     /// Get attribute typed value. Throws exception if property does not exists.
@@ -60,35 +60,35 @@ public interface IDataFacade : INotifyPropertyChanged
     /// <param name="property"></param>
     /// <param name="type"></param>
     /// <returns>Value.</returns>
-    public object GetAttribute(string property, Type type);
+    public object? GetAttribute(string property, Type type);
 
     /// <summary>
     /// Get attribute typed T value. Throws exception if property does not exists.
     /// </summary>
     /// <param name="attribute">Attribute name in format of 'Domain.Attribute'.</param>
     /// <returns>Typed value.</returns>
-    public T GetAttribute<T>(string attribute) where T : class;
+    public T? GetAttribute<T>(string attribute) where T : class;
 
     /// <summary>
     /// Set attribute typed T value.
     /// </summary>
     /// <param name="attribute">Attribute name in format of 'Domain.Attribute'.</param>
     /// <param name="value">Typed value.</param>
-    public void SetAttribute<T>(string attribute, T value) where T : class;
+    public void SetAttribute<T>(string attribute, T? value) where T : class;
 
     /// <summary>
     /// Get 1 to 1 assoc object. Throws exception if property does not exists.
     /// </summary>
     /// <param name="assoc">Assoc name in format of 'Domain.Assoc'.</param>
     /// <returns>IModelObject instance.</returns>
-    public IModelObject GetAssoc1To1(string assoc);
+    public IModelObject? GetAssoc1To1(string assoc);
 
     /// <summary>
     /// Set 1 to 1 assoc object.
     /// </summary>
     /// <param name="assoc">Assoc name in format of 'Domain.Assoc'.</param>
     /// <param name="obj">IModelObject instance.</param>
-    public void SetAssoc1To1(string assoc, IModelObject obj);
+    public void SetAssoc1To1(string assoc, IModelObject? obj);
 
     /// <summary>
     /// Remove 1 to 1 assoc beetween objects.
@@ -129,13 +129,13 @@ public interface IDataFacade : INotifyPropertyChanged
 /// </summary>
 public class DataFacade : IDataFacade
 {
-    public string Uuid { get => _uuid; }
-    public Uri ClassType { get => _classType; }
-    public bool IsAuto { get => _isAuto; }
-    public bool IsCompound { get => _isCompound; }
-    public string[] Attributes { get => _attributes.Keys.ToArray(); }
-    public string[] Assocs1To1 { get => _assocs1to1.Keys.ToArray(); }
-    public string[] Assocs1ToM { get => _assocs1toM.Keys.ToArray(); }
+    public string Uuid => _uuid;
+    public Uri ClassType => _classType;
+    public bool IsAuto => _isAuto;
+    public bool IsCompound => _isCompound;
+    public string[] Attributes => [.. _attributes.Keys];
+    public string[] Assocs1To1 => [.. _assocs1to1.Keys];
+    public string[] Assocs1ToM => [.. _assocs1toM.Keys];
 
     public DataFacade(string uuid, Uri classType,
         bool isAuto = false, bool isCompound = false)
@@ -145,9 +145,9 @@ public class DataFacade : IDataFacade
         _isAuto = isAuto;
         _isCompound = isCompound;
 
-        _attributes = new Dictionary<string, object>();
-        _assocs1to1 = new Dictionary<string, IModelObject>();
-        _assocs1toM = new Dictionary<string, List<IModelObject>>();
+        _attributes = [];
+        _assocs1to1 = [];
+        _assocs1toM = [];
     }
 
     public bool HasProperty(string property)
@@ -157,28 +157,28 @@ public class DataFacade : IDataFacade
             || _assocs1toM.ContainsKey(property);
     }
 
-    public object GetAttribute(string attribute)
+    public object? GetAttribute(string attribute)
     {
         if (_attributes.TryGetValue(attribute, out var value))
         {
             return value;
         }
 
-        throw new ArgumentException($"Attribute {attribute} does not exists!");
+        throw new ArgumentException($"Attribute {attribute} does not exist!");
     }
 
-    public object GetAttribute(string attribute, Type attributeType)
+    public object? GetAttribute(string attribute, Type attributeType)
     {
         if (_attributes.TryGetValue(attribute, out var value)
-            && value.GetType() == attributeType)
+            && value?.GetType() == attributeType)
         {
             return value;
         }
 
-        throw new ArgumentException($"Attribute {attribute} does not exists!");
+        throw new ArgumentException($"Attribute {attribute} does not exist!");
     }
 
-    public T GetAttribute<T>(string attribute) where T : class
+    public T? GetAttribute<T>(string attribute) where T : class
     {
         if (_attributes.TryGetValue(attribute, out var value)
             && value is T typedValue)
@@ -186,10 +186,10 @@ public class DataFacade : IDataFacade
             return typedValue;
         }
 
-        throw new ArgumentException($"Attribute {attribute} does not exists!");
+        throw new ArgumentException($"Attribute {attribute} does not exist!");
     }
 
-    public void SetAttribute<T>(string attribute, T value) where T : class
+    public void SetAttribute<T>(string attribute, T? value) where T : class
     {
         if (CanChangeProperty(attribute) == false)
         {
@@ -201,17 +201,17 @@ public class DataFacade : IDataFacade
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(attribute));
     }
 
-    public IModelObject GetAssoc1To1(string assoc)
+    public IModelObject? GetAssoc1To1(string assoc)
     {
         if (_assocs1to1.TryGetValue(assoc, out var assocRef))
         {
             return assocRef;
         }
 
-        throw new ArgumentException($"Association {assoc} does not exists!");
+        throw new ArgumentException($"Association {assoc} does not exist!");
     }
 
-    public void SetAssoc1To1(string assoc, IModelObject obj)
+    public void SetAssoc1To1(string assoc, IModelObject? obj)
     {
         if (CanChangeProperty(assoc) == false)
         {
@@ -242,7 +242,7 @@ public class DataFacade : IDataFacade
             return assocRef.ToArray();
         }
 
-        throw new ArgumentException($"Association {assoc} does not exists!");
+        throw new ArgumentException($"Association {assoc} does not exist!");
     }
 
     public void AddAssoc1ToM(string assoc, IModelObject obj)
@@ -255,7 +255,7 @@ public class DataFacade : IDataFacade
         if (_assocs1toM.ContainsKey(assoc) == false
             || _assocs1toM[assoc] == null)
         {
-            _assocs1toM[assoc] = new List<IModelObject>();
+            _assocs1toM[assoc] = [];
         }
 
         _assocs1toM[assoc].Add(obj);
@@ -272,7 +272,7 @@ public class DataFacade : IDataFacade
 
         if (_assocs1toM.ContainsKey(assoc) == false)
         {
-            throw new ArgumentException($"Assoc {assoc} does not exists!");
+            throw new ArgumentException($"Assoc {assoc} does not exist!");
         }
 
         _assocs1toM[assoc].Remove(obj);
@@ -289,7 +289,7 @@ public class DataFacade : IDataFacade
 
         if (_assocs1toM.ContainsKey(assoc) == false)
         {
-            throw new ArgumentException($"Assoc {assoc} does not exists!");
+            throw new ArgumentException($"Assoc {assoc} does not exist!");
         }
 
         _assocs1toM[assoc].Clear();
@@ -318,9 +318,9 @@ public class DataFacade : IDataFacade
     private Uri _classType;
     private bool _isAuto;
     private bool _isCompound;
-    private Dictionary<string, object> _attributes;
-    private Dictionary<string, IModelObject> _assocs1to1;
-    private Dictionary<string, List<IModelObject>> _assocs1toM;
+    private readonly Dictionary<string, object?> _attributes;
+    private readonly Dictionary<string, IModelObject?> _assocs1to1;
+    private readonly Dictionary<string, List<IModelObject>> _assocs1toM;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
