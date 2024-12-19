@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
@@ -184,14 +183,14 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         foreach (var attrName in dataFacade.Attributes)
         {
             var attrValue = dataFacade.GetAttribute<object>(attrName);
-            var attrValueStr = attrValue.ToString();
+            var attrValueStr = attrValue?.ToString();
             if (attrValueStr == null)
             {
                 attrValueStr = "null";
             }
             else
             {
-                attrValueStr += $" ({attrValue.GetType().Name})";
+                attrValueStr += $" ({attrValue?.GetType().Name})";
             }
 
             var attrNode = new CimObjectPropertyModel() 
@@ -203,14 +202,14 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
                 {
                     var compoundAttrValue = compoundAttr.ObjectData
                         .GetAttribute<object>(compoundAttrName);
-                    var compoundAttrValueStr = compoundAttrValue.ToString();
+                    var compoundAttrValueStr = compoundAttrValue?.ToString();
                     if (compoundAttrValueStr == null)
                     {
                         compoundAttrValueStr = "null";
                     }
                     else
                     {
-                        compoundAttrValueStr += $" ({compoundAttrValue.GetType().Name})";
+                        compoundAttrValueStr += $" ({compoundAttrValue?.GetType().Name})";
                     }
 
                     var compoundAttrNode = new CimObjectPropertyModel() 
