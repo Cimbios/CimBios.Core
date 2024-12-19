@@ -26,7 +26,7 @@ public class CimSchema : ICimSchema
     {   
         _Log = new PlainLogView(this);
 
-        _All = new Dictionary<Uri, ICimMetaResource>(new RdfUriComparer());
+        _All = [];
         _Namespaces = [];
     }
 
@@ -87,10 +87,8 @@ public class CimSchema : ICimSchema
 
         do
         {
-            foreach (var prop in Properties
-                .Where(p => 
-                    RdfUtils.RdfUriEquals
-                    (p.OwnerClass?.BaseUri, nextClass.BaseUri)))
+            foreach (var prop in Properties.Where(p => 
+                nextClass == p.OwnerClass))
             {
                 result.Add(prop);
             }
@@ -123,9 +121,7 @@ public class CimSchema : ICimSchema
                 continue;
             }
 
-            if (RdfUtils.RdfUriEquals(
-                individual.InstanceOf.BaseUri,
-                metaClass.BaseUri))
+            if (individual.InstanceOf == metaClass)
             {
                 result.Add(individual);
             }
