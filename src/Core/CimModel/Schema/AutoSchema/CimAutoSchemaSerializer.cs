@@ -217,8 +217,7 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
             return;
         }
 
-        if (RdfUtils.RdfUriEquals(property.PropertyDatatype?.BaseUri, 
-            propertyDatatype.BaseUri))
+        if (propertyDatatype == property.PropertyDatatype)
         {
             return;
         }
