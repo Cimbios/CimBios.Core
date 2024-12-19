@@ -1,3 +1,5 @@
+using CimBios.Core.RdfIOLib;
+
 namespace CimBios.Core.CimModel.Schema.AutoSchema;
 
 public class CimAutoResource : ICimMetaResource
@@ -7,6 +9,21 @@ public class CimAutoResource : ICimMetaResource
     public required string ShortName { get; set; }
 
     public required string Description { get; set; }
+
+    public bool Equals(ICimMetaResource? other)
+    {
+        if (other == null)
+        {
+            return false;
+        }
+
+        return RdfUtils.RdfUriEquals(BaseUri, other.BaseUri);
+    }
+
+    public override int GetHashCode()
+    {
+        return BaseUri.AbsoluteUri.GetHashCode();
+    }
 }
 
 /// <summary>
