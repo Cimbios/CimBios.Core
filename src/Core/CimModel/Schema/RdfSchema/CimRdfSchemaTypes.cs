@@ -50,8 +50,22 @@ public abstract class CimRdfDescriptionBase : ICimMetaResource
         _Stereotypes = rdfDescription.Stereotypes;
     }
 
-    private readonly List<object> _Stereotypes =
-        new List<object>();
+    public bool Equals(ICimMetaResource? other)
+    {
+        if (other == null)
+        {
+            return false;
+        }
+
+        return RdfUtils.RdfUriEquals(BaseUri, other.BaseUri);
+    }
+
+    public override int GetHashCode()
+    {
+        return BaseUri.AbsoluteUri.GetHashCode();
+    }
+
+    private readonly List<object> _Stereotypes = [];
 }
 
 public class CimRdfsIndividual : CimRdfDescriptionBase, ICimMetaIndividual
