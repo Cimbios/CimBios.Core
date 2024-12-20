@@ -166,10 +166,10 @@ public class ModelContext : ICanLog
     public IModelObject? GetObject(string uuid)
     {
         if (_Objects.TryGetValue(uuid, out var instance)
-            && !instance.ObjectData.IsAuto
-            && !instance.ObjectData.IsCompound)
+            && !instance.IsAuto
+            && !instance.MetaClass.IsCompound)
         {
-            instance.ObjectData.PropertyChanged 
+            instance.PropertyChanged 
                 += Notify_ModelObjectPropertyChanged;
 
             return instance;
