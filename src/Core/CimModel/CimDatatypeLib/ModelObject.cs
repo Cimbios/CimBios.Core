@@ -338,7 +338,6 @@ public class ModelObject : DynamicObject, IModelObject
                 return;
             }
             
-            //assocCollection.Remove(obj);
             SetAssociationWithInverse(metaProperty, obj, null);
                             
             PropertyChanged?.Invoke(this, 
@@ -407,21 +406,6 @@ public class ModelObject : DynamicObject, IModelObject
     private void SetAssociationWithInverse(ICimMetaProperty metaProperty, 
         IModelObject? oldObj, IModelObject? newObj)
     {
-        if (oldObj != null && metaProperty.InverseProperty != null 
-            && oldObj is not ModelObjectUnresolvedReference)
-        {
-            if (metaProperty.InverseProperty.PropertyKind
-                == CimMetaPropertyKind.Assoc1To1)
-            {
-                oldObj.SetAssoc1To1(metaProperty.InverseProperty, null);
-            }
-            else if(metaProperty.InverseProperty.PropertyKind
-                == CimMetaPropertyKind.Assoc1ToM)
-            {
-                oldObj.RemoveAssoc1ToM(metaProperty.InverseProperty, this);
-            }
-        }
-        
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
         {
             _PropertiesData[metaProperty] = newObj;
@@ -438,6 +422,21 @@ public class ModelObject : DynamicObject, IModelObject
             else if (oldObj != null)
             {
                 assocCollection.Remove(oldObj);
+            }
+        }
+
+        if (oldObj != null && metaProperty.InverseProperty != null 
+            && oldObj is not ModelObjectUnresolvedReference)
+        {
+            if (metaProperty.InverseProperty.PropertyKind
+                == CimMetaPropertyKind.Assoc1To1)
+            {
+                oldObj.SetAssoc1To1(metaProperty.InverseProperty, null);
+            }
+            else if(metaProperty.InverseProperty.PropertyKind
+                == CimMetaPropertyKind.Assoc1ToM)
+            {
+                oldObj.RemoveAssoc1ToM(metaProperty.InverseProperty, this);
             }
         }
 
