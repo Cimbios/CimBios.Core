@@ -354,22 +354,32 @@ public class RdfXmlSerializer : RdfSerializerBase
             return null;
         }
 
-        var metaProperties = Schema.GetClassProperties(metaClass, true, true);
+        
+        if (_tmp_cache.TryGetValue(metaClass, out var metaProperties) == false)
+        {
+            metaProperties = Schema.GetClassProperties(metaClass, true, true).ToArray();
+            _tmp_cache.Add(metaClass, metaProperties);
+        }
 
         IModelObject? instanceObject = null;
 
         if (TypeLib.RegisteredTypes.TryGetValue(instanceNode.TypeIdentifier,
-            out var type) == false)
+            out var type))
         {
-            type = typeof(ModelObject);
+            instanceObject = Activator.CreateInstance(type, 
+                instanceUuid, metaClass, 
+                metaProperties.ToArray(), instanceNode.IsAuto) as IModelObject;
         }
-
-        instanceObject = Activator.CreateInstance(type, 
-            instanceUuid, metaClass, 
-            metaProperties.ToArray(), instanceNode.IsAuto) as IModelObject;
+        else
+        {
+            instanceObject = new ModelObject(instanceUuid, metaClass, 
+                metaProperties.ToArray(), instanceNode.IsAuto);
+        }
 
         return instanceObject;
     }
+
+    private Dictionary<ICimMetaClass, ICimMetaProperty[]> _tmp_cache = [];
 
     /// <summary>
     /// Convert RDF n-triple to IModelObject CIM property.
