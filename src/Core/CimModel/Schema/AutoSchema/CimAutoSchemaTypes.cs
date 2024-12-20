@@ -10,6 +10,11 @@ public class CimAutoResource : ICimMetaResource
 
     public required string Description { get; set; }
 
+    public override string ToString()
+    {
+        return ShortName;
+    }
+
     public bool Equals(ICimMetaResource? other)
     {
         if (other == null)
