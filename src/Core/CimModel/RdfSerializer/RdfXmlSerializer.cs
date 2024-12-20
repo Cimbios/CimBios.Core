@@ -78,18 +78,12 @@ public class RdfXmlSerializer : RdfSerializerBase
     /// <returns>Converted RdfNode or null.</returns>
     private RdfNode? ModelObjectToRdfNode(IModelObject modelObject)
     {
-        var metaClass = Schema.TryGetResource<ICimMetaClass>(
-            modelObject.ObjectData.ClassType);
-
-        if (metaClass == null)
-        {
-            return null;
-        }
+        var metaClass = modelObject.MetaClass;
 
         var rdfNode = new RdfNode(GetBasedIdentifier(modelObject.Uuid, 
             IdentifierPrefix),
             metaClass.BaseUri,
-            modelObject.ObjectData.IsAuto);
+            modelObject.IsAuto);
 
         var schemaProperties = Schema.GetClassProperties(metaClass, true);
 
@@ -111,7 +105,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         IModelObject modelObject,
         ICimMetaProperty property)
     {
-        if (modelObject.ObjectData.HasProperty(property.ShortName) == false)
+        if (modelObject.HasProperty(property) == false)
         {
             return;
         }
@@ -159,28 +153,25 @@ public class RdfXmlSerializer : RdfSerializerBase
         object? tripleObject = null;
         if (attribute.PropertyDatatype is ICimMetaDatatype metaDatatype)
         {
-            tripleObject = subject.ObjectData
-                .GetAttribute(attribute.ShortName, metaDatatype.PrimitiveType);
+            tripleObject = subject
+                .GetAttribute(attribute);
         }
         else if (attribute.PropertyDatatype is ICimMetaClass metaClass)
         {
             if (TypeLib.RegisteredTypes.TryGetValue(metaClass.BaseUri, 
                 out var libType))
             {
-                tripleObject = subject.ObjectData
-                    .GetAttribute(attribute.ShortName, libType);
+                tripleObject = subject.GetAttribute(attribute);
             }
 
             if (metaClass.IsEnum)
             {
-                tripleObject = subject.ObjectData
-                    .GetAttribute(attribute.ShortName, typeof(Uri));
+                tripleObject = subject.GetAttribute<Uri>(attribute);
             }
 
             if (metaClass.IsCompound)
             {
-                var compoundObject = subject.ObjectData
-                    .GetAttribute<IModelObject>(attribute.ShortName);
+                var compoundObject = subject.GetAttribute<IModelObject>(attribute);
                     
                 if (compoundObject != null)
                 {
@@ -203,13 +194,13 @@ public class RdfXmlSerializer : RdfSerializerBase
     {
         object resultAssocObject;
 
-        var assocObj = subject.ObjectData.GetAssoc1To1(assoc1To1.ShortName);
+        var assocObj = subject.GetAssoc1To1(assoc1To1);
         if (assocObj == null)
         {
             return null;
         }
 
-        if (assocObj.ObjectData.IsAuto)
+        if (assocObj.MetaClass.IsCompound)
         {
             var compoundNode = ModelObjectToRdfNode(assocObj);
             if (compoundNode == null)
@@ -237,7 +228,7 @@ public class RdfXmlSerializer : RdfSerializerBase
     private IEnumerable<Uri> GetObjectAsAssoc1ToM(IModelObject subject,
         ICimMetaProperty assoc1ToM)
     {
-        return subject.ObjectData.GetAssoc1ToM(assoc1ToM.ShortName)
+        return subject.GetAssoc1ToM(assoc1ToM)
             .Select(mo => GetBasedIdentifier(mo.Uuid, IdentifierPrefix));
     }
 
@@ -355,30 +346,27 @@ public class RdfXmlSerializer : RdfSerializerBase
             return null;
         }
 
-        if (Schema.TryGetResource<ICimMetaClass>
-            (instanceNode.TypeIdentifier) == null)
+        var metaClass = Schema.TryGetResource<ICimMetaClass>
+            (instanceNode.TypeIdentifier);
+
+        if (metaClass == null)
         {
             return null;
         }
 
-        DataFacade objectData = new DataFacade(
-            instanceUuid,
-            instanceNode.TypeIdentifier,
-            instanceNode.IsAuto,
-            IsCompound);
+        var metaProperties = Schema.GetClassProperties(metaClass, true, true);
 
         IModelObject? instanceObject = null;
 
         if (TypeLib.RegisteredTypes.TryGetValue(instanceNode.TypeIdentifier,
-            out var type))
+            out var type) == false)
         {
-            instanceObject = Activator.CreateInstance(type, objectData)
-                as IModelObject;
+            type = typeof(ModelObject);
         }
-        else
-        {
-            instanceObject = new ModelObject(objectData);
-        }
+
+        instanceObject = Activator.CreateInstance(type, 
+            instanceUuid, metaClass, 
+            metaProperties.ToArray(), instanceNode.IsAuto) as IModelObject;
 
         return instanceObject;
     }
@@ -469,10 +457,7 @@ public class RdfXmlSerializer : RdfSerializerBase
             if (dataClass.IsCompound
                 && data is IModelObject dataObject)
             {
-                bool isClassesMatches = dataClass.BaseUri.AbsoluteUri
-                    == dataObject.ObjectData.ClassType.AbsoluteUri;
-
-                if (isClassesMatches)
+                if (dataClass == dataObject.MetaClass)
                 {
                     endData = dataObject;
                 }
@@ -509,12 +494,8 @@ public class RdfXmlSerializer : RdfSerializerBase
             }
         }
 
-        if (endData != null)
-        {
-            instance.ObjectData.SetAttribute(
-                property.ShortName,
-                endData);
-        }
+        instance.SetAttribute(property, endData);
+
     }
 
     /// <summary>
@@ -533,7 +514,7 @@ public class RdfXmlSerializer : RdfSerializerBase
             return;
         }
 
-        if (property.PropertyDatatype is ICimMetaClass assocClassType == false)
+        if (property.PropertyDatatype is not ICimMetaClass assocClassType)
         {
             return;
         }
@@ -541,17 +522,10 @@ public class RdfXmlSerializer : RdfSerializerBase
         IModelObject? referenceInstance = null;
         if (_objectsCache.TryGetValue(referenceUuid, out var modelObject))
         {
-            var referenceMetaClass = Schema.TryGetResource<ICimMetaClass>
-                (modelObject.ObjectData.ClassType);
-
-            if (referenceMetaClass == null)
-            {
-                return;
-            }
+            var referenceMetaClass = modelObject.MetaClass;
 
             if (referenceMetaClass == assocClassType
-                || referenceMetaClass.AllAncestors.Any(a =>
-                    a.BaseUri.AbsoluteUri == assocClassType.BaseUri.AbsoluteUri)
+                || referenceMetaClass.AllAncestors.Any(a => a == assocClassType)
             )
             {
                 referenceInstance = modelObject;
@@ -564,23 +538,20 @@ public class RdfXmlSerializer : RdfSerializerBase
 
         if (referenceInstance == null)
         {
-            referenceInstance =
-                new ModelObjectUnresolvedReference(
-                    new DataFacade(referenceUuid,
-                        property.BaseUri)
-                );
+            referenceInstance = new ModelObjectUnresolvedReference
+                (referenceUuid, instance.MetaClass);
 
             _waitingReferenceObjectUuids.Add(instance.Uuid);
         }
 
         if (property.PropertyKind == CimMetaPropertyKind.Assoc1To1)
         {
-            instance.ObjectData.SetAssoc1To1(property.ShortName,
+            instance.SetAssoc1To1(property,
                 referenceInstance);
         }
         else if (property.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
         {
-            instance.ObjectData.AddAssoc1ToM(property.ShortName,
+            instance.AddAssoc1ToM(property,
                 referenceInstance);
         }
     }
@@ -614,7 +585,7 @@ public class RdfXmlSerializer : RdfSerializerBase
     private bool IsPropertyAlignSchemaClass(ICimMetaProperty schemaProperty,
         IModelObject instance)
     {
-        if (IsPropertyChecked(instance.ObjectData.ClassType, 
+        if (IsPropertyChecked(instance.MetaClass.BaseUri, 
             schemaProperty.BaseUri))
         {
             return true;
@@ -626,12 +597,7 @@ public class RdfXmlSerializer : RdfSerializerBase
             return false;
         }
 
-        var instanceClass = Schema.TryGetResource<ICimMetaClass>
-            (instance.ObjectData.ClassType);
-        if (instanceClass == null)
-        {
-            return false;
-        }
+        var instanceClass = instance.MetaClass;
 
         var classProperties = Schema.GetClassProperties(instanceClass, true);
         if (classProperties.Contains(schemaProperty))
