@@ -50,6 +50,11 @@ public abstract class CimRdfDescriptionBase : ICimMetaResource
         _Stereotypes = rdfDescription.Stereotypes;
     }
 
+    public override string ToString()
+    {
+        return ShortName;
+    }
+
     public bool Equals(ICimMetaResource? other)
     {
         if (other == null)
