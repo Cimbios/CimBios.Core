@@ -76,7 +76,9 @@ public sealed class RdfXmlReader : RdfReaderBase
         Uri typeIdentifier = new Uri(content.Name.Namespace.NamespaceName
                 + content.Name.LocalName);
 
-        var triples = new List<RdfTriple>(content.Elements().Count());
+        var rdfNode = new RdfNode(subject, typeIdentifier, isAuto);
+
+        ///var triples = new List<RdfTriple>(content.Elements().Count());
         foreach (var child in content.Elements())
         {
             Uri predicate = new Uri(child.Name.Namespace.NamespaceName
@@ -100,7 +102,7 @@ public sealed class RdfXmlReader : RdfReaderBase
                     @object = child.Value;
                 }
 
-                triples.Add(new RdfTriple(subject, predicate, @object));
+                rdfNode.NewTriple(predicate, @object);
             }
             // Element node
             else if (child.HasElements == true)
@@ -114,7 +116,7 @@ public sealed class RdfXmlReader : RdfReaderBase
                         continue;
                     }
 
-                    triples.Add(new RdfTriple(subject, predicate, subObject));
+                    rdfNode.NewTriple(predicate, subObject);
                 }
             }
             else
@@ -122,9 +124,6 @@ public sealed class RdfXmlReader : RdfReaderBase
                 throw new Exception("Cannot parse rdf node");
             }
         }
-
-        var rdfNode = new RdfNode(subject, typeIdentifier, 
-            triples.ToArray(), isAuto);
 
         return rdfNode;
     }

@@ -1,206 +1,182 @@
-using System.Xml.Linq;
-
 namespace CimBios.Core.RdfIOLib;
 
 /// <summary>
-/// Reader for rdf/xml formatted data.
-/// Presents data in RDF-Triple format.
+/// Flat structured RDF node class.
 /// </summary>
-public sealed class RdfXmlReader : RdfReaderBase
+public class RdfNode
 {
-    /// <summary>
-    /// Root RDF node.
-    /// </summary>
-    private XElement? _RdfElement { get; set; }
-
-    /// <summary>
-    /// Stack of read waiting elements.
-    /// </summary>
-    private Stack<XElement> _ReadElementsStack { get; set; }
-        = new Stack<XElement>();
-
-    /// <summary>
-    /// Default constructor.
-    /// </summary>
-    public RdfXmlReader() { }
-
-    /// <summary>
-    /// Constructor sets base namespace.
-    /// </summary>
-    /// <param name="baseNamespace">Base namespace for local identified objects.</param>
-    public RdfXmlReader(Uri baseNamespace)
+    public RdfNode(Uri identifier, Uri typeIdentifier,
+        RdfTriple[] triples, bool isAuto)
     {
-        AddNamespace("base", baseNamespace);
+        Identifier = identifier;
+        TypeIdentifier = typeIdentifier;
+        _Triples.AddRange(triples);
+        IsAuto = isAuto;
     }
 
-    public override void Parse(string content)
+    public RdfNode(Uri identifier, Uri typeIdentifier, bool isAuto)
     {
-        XDocument xDoc = XDocument.Parse(content);
-        Load(xDoc);
-    }
-
-    public override void Load(TextReader textReader)
-    {
-        XDocument xDoc = XDocument.Load(textReader);
-        Load(xDoc);
+        Identifier = identifier;
+        TypeIdentifier = typeIdentifier;
+        IsAuto = isAuto;
     }
 
     /// <summary>
-    /// Load rdf/xml content from XDocument.
+    /// Rdf resource identifier.
     /// </summary>
-    public void Load(XDocument xDoc)
+    public Uri Identifier { get; }
+
+    /// <summary>
+    /// Rdf resource node identifier.
+    /// </summary>
+    public Uri TypeIdentifier { get; }
+
+    /// <summary>
+    /// Rdf node's triples collection.
+    /// </summary>
+    public RdfTriple[] Triples => [.. _Triples];
+
+    /// <summary>
+    /// Is auto (not identified rdf node) flag.
+    /// </summary>
+    public bool IsAuto { get; } = false;
+
+    /// <summary>
+    /// Create and add RdfTriple triple with RdfNode subject
+    /// </summary>
+    /// <param name="predicate">Triple predicate URI.</param>
+    /// <param name="object">Triple generic object.</param>
+    /// <returns>Created rdf node.</returns>
+    public RdfTriple NewTriple(Uri predicate, object @object)
     {
-        ReadRdfRootNode(xDoc);
-        Reset();
-    }
+        var triple = new RdfTriple(this, predicate, @object);
+        _Triples.Add(triple);
 
-    public override void Close()
-    {
-        _RdfElement = null;
-        ClearNamespaces();
-        _ReadElementsStack.Clear();
-    }
-
-    public override RdfNode? ReadNext()
-    {
-        if (_ReadElementsStack.Count() == 0)
-        {
-            return null;
-        }
-
-        XElement content = _ReadElementsStack.Pop();
-
-        string subjectId = GetXElementIdentifier(content, out bool isAuto);
-        Uri subject = NameToUri(subjectId);
-
-        Uri typeIdentifier = new Uri(content.Name.Namespace.NamespaceName
-                + content.Name.LocalName);
-
-        var rdfNode = new RdfNode(subject, typeIdentifier, isAuto);
-
-        ///var triples = new List<RdfTriple>(content.Elements().Count());
-        foreach (var child in content.Elements())
-        {
-            Uri predicate = new Uri(child.Name.Namespace.NamespaceName
-                + child.Name.LocalName);
-
-            // Blank node
-            if (child.HasElements == false)
-            {
-                XAttribute? resource = child
-                    .Attribute(rdf + "resource");
-
-                object? @object;
-                // Blank node
-                if (resource != null)
-                {
-                    @object = NameToUri(resource.Value);
-                }
-                // Literal node
-                else
-                {
-                    @object = child.Value;
-                }
-
-                rdfNode.NewTriple(predicate, @object);
-            }
-            // Element node
-            else if (child.HasElements == true)
-            {
-                foreach (var el in child.Elements())
-                {
-                    _ReadElementsStack.Push(el);
-                    var subObject = ReadNext();
-                    if (subObject == null)
-                    {
-                        continue;
-                    }
-
-                    rdfNode.NewTriple(predicate, subObject);
-                }
-            }
-            else
-            {
-                throw new Exception("Cannot parse rdf node");
-            }
-        }
-
-        return rdfNode;
-    }
-
-    public override IEnumerable<RdfNode> ReadAll()
-    {
-        if (_RdfElement == null)
-        {
-            throw new Exception("No rdf node");
-        }
-
-        Reset();
-
-        RdfNode? rdfNode;
-        while ((rdfNode = ReadNext()) != null)
-        {
-            yield return rdfNode;
-        }
-
-        Reset();
-    }
-    
-    public override void Reset()
-    {
-        if (_RdfElement == null)
-        {
-            throw new Exception("No rdf node");
-        }
-
-        _ReadElementsStack.Clear();
-        _RdfElement.Elements().Reverse().ToList()
-            .ForEach(el => _ReadElementsStack.Push(el));
+        return triple;
     }
 
     /// <summary>
-    /// Get rdf:RDF root node.
+    /// Remove all triples with predicate URI.
     /// </summary>
-    /// <param name="content">Linq Xml document.</param>
-    private void ReadRdfRootNode(XDocument content)
+    /// <param name="predicate">Triple predicate URI.</param>
+    public void RemoveTriple(Uri predicate)
     {
-        XElement? rdfNode = content.Element(rdf + "RDF");
-        if (rdfNode == null)
-        {
-            throw new Exception("No RDF Node");
-        }
-
-        _RdfElement = rdfNode;
-        rdfNode.Elements().Reverse().ToList()
-            .ForEach(el => _ReadElementsStack.Push(el));
-
-        ParseXmlns(rdfNode);
+        _Triples.RemoveAll(m => RdfUtils.RdfUriEquals(m.Predicate, predicate));
     }
 
     /// <summary>
-    /// Get element identifier from rdf:about/id. Makes auto identifier in case of undentified element.
+    /// Remove all triples with predicate URI and matched object.
     /// </summary>
-    /// <param name="element">Xml identified element.</param>
-    /// <param name="isAuto">Set is auto identifier assigned.</param>
-    private string GetXElementIdentifier(XElement element, out bool isAuto)
+    /// <param name="predicate">Triple predicate URI.</param>
+    /// <param name="object">Triple generic object.</param>
+    public void RemoveTriple(Uri predicate, object @object)
     {
-        isAuto = false;
-        XAttribute? about = element.Attribute(rdf + "about");
-        if (about == null)
+        _Triples.RemoveAll(m => RdfUtils.RdfUriEquals(m.Predicate, predicate) 
+            && m.Object ==  @object);
+    }
+
+    private List<RdfTriple> _Triples = [];
+}
+
+/// <summary>
+/// RDF-Triple class.
+/// </summary>
+public class RdfTriple
+{
+    public RdfTriple(RdfNode subject, Uri predicate,
+        object @object)
+    {
+        Subject = subject;
+        Predicate = predicate;
+        Object = @object;
+    }
+
+    public RdfNode Subject { get; set; }
+
+    /// <summary>
+    /// Uri type limited predicate.
+    /// </summary>
+    public Uri Predicate { get; set; }
+
+    public object Object { get; set; }
+}
+
+/// <summary>
+/// Helper class for rdf entities.
+/// </summary>
+public static class RdfUtils
+{
+    public static T? ExtractPredicateValue<T>(RdfNode node,
+        Uri predicate) where T : class
+    {
+        var triples = node.Triples
+            .Where(t => RdfUriEquals(t.Predicate, predicate));
+        if (triples.Count() > 0 && triples.First().Object is T value)
         {
-            XAttribute? ID = element.Attribute(rdf + "ID");
-
-            if (ID == null)
-            {
-                isAuto = true;
-                return $"#_auto{element.GetHashCode()}";
-            }
-
-            return ID.Value;
+            return value;
         }
         else
         {
-            return about.Value;
+            return null;
         }
     }
+
+    /// <summary>
+    /// Equality respects URI fragments comparision.
+    /// </summary>
+    public static bool RdfUriEquals(Uri? lUri, Uri? rUri)
+    {
+        if (lUri == null && rUri == null)
+        {
+            return true;
+        }
+
+         if (lUri != null && rUri != null)
+        {
+            return lUri.AbsoluteUri == rUri.AbsoluteUri;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Get short string form of URI.
+    /// </summary>
+    /// <param name="uri">Resource identifier.</param>
+    /// <param name="identifier">Escaped identifier. Empty if conversion fails.</param>
+    /// <returns>True if identifier</returns>
+    public static bool TryGetEscapedIdentifier(Uri uri, out string identifier)
+    {
+        identifier = string.Empty;
+
+        if (uri.Fragment != string.Empty)
+        {
+            identifier = uri.Fragment
+                .Replace("#", "")
+                .Replace("_", "");
+
+            return true;
+        }
+        else if (uri.LocalPath != string.Empty)
+        {
+            identifier = uri.LocalPath.Replace("/", "");
+            return true;
+        }
+
+        return false;
+    }
 }
+
+public class RdfUriComparer : EqualityComparer<Uri>
+{
+    public override bool Equals(Uri? lUri, Uri? rUri)
+    {
+        return RdfUtils.RdfUriEquals(lUri, rUri);
+    }
+
+    public override int GetHashCode(Uri uri)
+    {
+        return uri.AbsoluteUri.GetHashCode();
+    }
+}
+
