@@ -13,10 +13,9 @@ public class ModelObject : DynamicObject, IModelObject
     public string Uuid => _uuid;
     public bool IsAuto => _isAuto;
     public ICimMetaClass MetaClass => _MetaClass;
-    public ICimMetaProperty[] MetaProperties => [.. _PropertiesData.Keys];
 
     public ModelObject(string uuid, ICimMetaClass metaClass, 
-        ICimMetaProperty[] metaProperties, bool isAuto = false)
+        bool isAuto = false)
     {
         _uuid = uuid;
         _isAuto = isAuto;
@@ -24,12 +23,7 @@ public class ModelObject : DynamicObject, IModelObject
         _MetaClass = metaClass;
         _PropertiesData = [];
 
-        InitializePropertiesData(metaProperties);
-    }
-
-    public bool HasProperty(ICimMetaProperty metaProperty)
-    {
-        return _PropertiesData.ContainsKey(metaProperty);
+        InitializePropertiesData();
     }
 
     public bool HasProperty(string propertyName)
@@ -37,7 +31,7 @@ public class ModelObject : DynamicObject, IModelObject
         var metaProperty = TryGetMetaPropertyByName(propertyName);
         if (metaProperty != null)
         {
-            return HasProperty(metaProperty);
+            return _PropertiesData.ContainsKey(metaProperty);
         }
 
         return false;
@@ -456,9 +450,9 @@ public class ModelObject : DynamicObject, IModelObject
         }
     }
 
-    private void InitializePropertiesData(ICimMetaProperty[] metaProperties)
+    private void InitializePropertiesData()
     {
-        foreach (var property in metaProperties)
+        foreach (var property in _MetaClass.AllProperties)
         {
             if (property.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
             {
@@ -532,7 +526,7 @@ public sealed class ModelObjectUnresolvedReference
     public Uri Predicate => MetaClass.BaseUri;
 
     public ModelObjectUnresolvedReference(string uuid, ICimMetaClass metaClass)
-        : base(uuid, metaClass, [], true)
+        : base(uuid, metaClass, true)
     {
     }
 }
@@ -546,7 +540,7 @@ public sealed class CimSchemaIndividualModelObject
     public Uri ClassType => MetaClass.BaseUri;
 
     public CimSchemaIndividualModelObject(string uuid, ICimMetaClass metaClass)
-        : base(uuid, metaClass, [], false)
+        : base(uuid, metaClass, false)
     {
     }
 }
