@@ -170,8 +170,7 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
             };
             uriVsNode.Add(schemaClass.BaseUri, node);
 
-            HandleClassPropertiesNodes(node, 
-                CimSchemaContext.GetClassProperties(schemaClass));
+            HandleClassPropertiesNodes(node, schemaClass.AllProperties);
 
             HandleClassIndividualsNodes(node, 
                 CimSchemaContext.GetClassIndividuals(schemaClass));
