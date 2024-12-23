@@ -97,14 +97,35 @@ public interface ICimMetaClass : ICimMetaResource
     public ICimMetaClass? ParentClass { get; }
     public ICimMetaClass[] AllAncestors { get; }
     public ICimMetaClass[] Extensions { get; }
+    public ICimMetaProperty[] AllProperties { get; }
+    public ICimMetaProperty[] SelfProperties { get; }
     public bool IsAbstract { get; }
     public bool IsExtension { get; }
     public bool IsEnum { get; }
     public bool IsCompound { get; }
     public bool IsDatatype { get; }
 
+    public bool HasProperty(ICimMetaProperty metaProperty, bool inherit = true);
+}
+
+/// <summary>
+/// Provides schema extensibility for meta resource.
+/// </summary>
+internal interface ICimMetaExtensible
+{
+    /// <summary>
+    /// Add extension class to meta resource.
+    /// </summary>
+    /// <param name="extension">Meta extension class</param>
+    /// <returns>True if added.</returns>
     public bool AddExtension(ICimMetaClass extension);
-    public bool RemoveExtension(ICimMetaClass extension);
+
+    /// <summary>
+    /// Remove extension class from meta resource.
+    /// </summary>
+    /// <param name="extension"Meta extension class></param>
+    /// <returns>True if removed.</returns>
+    public bool RemoveExtension(ICimMetaClass extension);   
 }
 
 /// <summary>
