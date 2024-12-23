@@ -115,13 +115,16 @@ public class CimRdfsDatatype : CimRdfsClass, ICimMetaDatatype
 }
 
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Class")]
-public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
+public class CimRdfsClass : CimRdfDescriptionBase, 
+    ICimMetaClass, ICimMetaExtensible
 {
     public bool SuperClass => (SubClassOf == null);
     public ICimMetaClass? ParentClass => GetParentClass();
     public ICimMetaClass[] AllAncestors => GetAllAncestors().ToArray();
     public ICimMetaClass[] Extensions => _SubClassOf.OfType<ICimMetaClass>()
         .Where(c => c.IsExtension).ToArray();
+    public ICimMetaProperty[] AllProperties => GetAllProperties().ToArray();
+    public ICimMetaProperty[] SelfProperties => [.. _Properties];
     public bool IsAbstract => Stereotypes.Contains(UMLStereotype.CIMAbstract);
     public bool IsExtension => Stereotypes.Contains(UMLStereotype.CIMExtension);
     public bool IsEnum => Stereotypes.Contains(UMLStereotype.Enumeration);
@@ -140,6 +143,31 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
     public CimRdfsClass(CimRdfsClass rdfClass) : base(rdfClass)
     {
         _SubClassOf = rdfClass._SubClassOf;
+    }
+
+    public bool HasProperty(ICimMetaProperty metaProperty, bool inherit = true)
+    {
+        return GetAllProperties().Contains(metaProperty)
+            && (inherit == true || metaProperty.OwnerClass == this);
+    }
+
+    public void AddProperty(ICimMetaProperty metaProperty)
+    {
+        if (metaProperty.OwnerClass == this
+            && metaProperty is CimRdfsProperty cimRdfsProperty
+            && HasProperty(metaProperty, false) == false)
+        {
+            _Properties.Add(cimRdfsProperty);
+        }
+    }
+
+    public void RemoveProperty(ICimMetaProperty metaProperty)
+    {
+        if (metaProperty is CimRdfsProperty cimRdfsProperty
+            && HasProperty(metaProperty, false) == true)
+        {
+            _Properties.Remove(cimRdfsProperty);
+        }        
     }
 
     public bool AddExtension(ICimMetaClass extension)
@@ -201,7 +229,46 @@ public class CimRdfsClass : CimRdfDescriptionBase, ICimMetaClass
         }
     }
 
+    private HashSet<CimRdfsProperty> GetAllProperties()
+    {
+        HashSet<CimRdfsProperty> properties = [];
+
+        ICimMetaClass? nextClass = this;
+        while (nextClass != null)
+        {
+            foreach (var p in nextClass.SelfProperties
+                .OfType<CimRdfsProperty>())
+            {
+                if (properties.Contains(p) == true)
+                {
+                    continue;
+                }
+
+                properties.Add(p);
+            }
+
+            foreach (var ext in nextClass.Extensions)
+            {
+                foreach (var extp in ext.SelfProperties
+                    .OfType<CimRdfsProperty>())
+                {
+                    if (properties.Contains(extp) == true)
+                    {
+                        continue;
+                    }
+
+                    properties.Add(extp);
+                }              
+            }
+
+            nextClass = nextClass.ParentClass;
+        }
+
+        return properties;
+    }
+
     private readonly List<ICimMetaResource> _SubClassOf = [];
+    private readonly HashSet<CimRdfsProperty> _Properties = [];
 }
 
 [CimSchemaSerializable("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")]
@@ -218,7 +285,25 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
          "http://www.w3.org/2000/01/rdf-schema#domain",
          MetaFieldType.ByRef)
     ]
-    public CimRdfsClass? Domain { get; set; }
+    public CimRdfsClass? Domain
+    { 
+        get => _Domain; 
+        set 
+        {
+            if (_Domain == value)
+            {
+                return;
+            }
+
+            if (value == null)
+            {
+                _Domain?.RemoveProperty(this); 
+            }
+
+            _Domain = value;
+            _Domain?.AddProperty(this); 
+        } 
+    }
 
     [
         CimSchemaSerializable(
@@ -290,6 +375,8 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
 
         return Domain.IsExtension;
     }
+
+    private CimRdfsClass? _Domain = null;
 }
 
 [
