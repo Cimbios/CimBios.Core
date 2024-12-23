@@ -34,7 +34,8 @@ public class CimAutoResource : ICimMetaResource
 /// <summary>
 /// Schema auto class entity. Does not provide inheritance chain - only plain.
 /// </summary>
-public class CimAutoClass : CimAutoResource, ICimMetaClass
+public class CimAutoClass : CimAutoResource, 
+    ICimMetaClass, ICimMetaExtensible
 {
     public bool SuperClass => (ParentClass == null);
 
@@ -76,6 +77,10 @@ public class CimAutoClass : CimAutoResource, ICimMetaClass
 
     public bool IsDatatype => false;
 
+    public ICimMetaProperty[] AllProperties => GetAllProperties().ToArray();
+
+    public ICimMetaProperty[] SelfProperties => [.. _Properties];
+
     public bool AddExtension(ICimMetaClass metaClass)
     {
         if (_PlainAncestors.Contains(metaClass))
@@ -95,14 +100,97 @@ public class CimAutoClass : CimAutoResource, ICimMetaClass
         return _PlainAncestors.Remove(metaClass);
     }
 
+    public bool HasProperty(ICimMetaProperty metaProperty, bool inherit = true)
+    {
+        return GetAllProperties().Contains(metaProperty)
+            && (inherit == true || metaProperty.OwnerClass == this);
+    }
+
+    public void AddProperty(ICimMetaProperty metaProperty)
+    {
+        if (metaProperty.OwnerClass == this
+            && metaProperty is CimAutoProperty cimAutoProperty
+            && HasProperty(metaProperty, false) == false)
+        {
+            _Properties.Add(cimAutoProperty);
+        }
+    }
+
+    public void RemoveProperty(ICimMetaProperty metaProperty)
+    {
+        if (metaProperty is CimAutoProperty cimAutoProperty
+            && HasProperty(metaProperty, false) == true)
+        {
+            _Properties.Remove(cimAutoProperty);
+        }        
+    }
+
+    private HashSet<CimAutoProperty> GetAllProperties()
+    {
+        HashSet<CimAutoProperty> properties = [];
+
+        ICimMetaClass? nextClass = this;
+        while (nextClass != null)
+        {
+            foreach (var p in nextClass.SelfProperties
+                .OfType<CimAutoProperty>())
+            {
+                if (properties.Contains(p) == true)
+                {
+                    continue;
+                }
+
+                properties.Add(p);
+            }
+
+            foreach (var ext in nextClass.Extensions)
+            {
+                foreach (var extp in ext.SelfProperties
+                    .OfType<CimAutoProperty>())
+                {
+                    if (properties.Contains(extp) == true)
+                    {
+                        continue;
+                    }
+
+                    properties.Add(extp);
+                }              
+            }
+
+            nextClass = nextClass.ParentClass;
+        }
+
+        return properties;
+    }
+
     private readonly List<ICimMetaClass> _PlainAncestors = [];
 
     private CimAutoClass? _ParentClass;
+
+    private readonly HashSet<CimAutoProperty> _Properties = [];
 }
 
 public class CimAutoProperty : CimAutoResource, ICimMetaProperty
 {
-    public ICimMetaClass? OwnerClass { get; set; }
+    public ICimMetaClass? OwnerClass 
+    { 
+        get => _OwnerClass; 
+        set
+        {
+            if (_OwnerClass == value)
+            {
+                return;
+            }
+
+            if (value == null)
+            {
+                _OwnerClass?.RemoveProperty(this); 
+            }
+
+            _OwnerClass = value as CimAutoClass;
+            _OwnerClass?.AddProperty(this); 
+        }
+    }
 
     public CimMetaPropertyKind PropertyKind { get; set; }
 
@@ -111,6 +199,8 @@ public class CimAutoProperty : CimAutoResource, ICimMetaProperty
     public ICimMetaClass? PropertyDatatype { get; set; }
 
     public bool IsExtension => false; 
+
+    private CimAutoClass? _OwnerClass = null;
 }
 
 public class CimAutoDatatype : CimAutoClass, ICimMetaDatatype
