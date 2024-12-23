@@ -10,8 +10,8 @@ public interface IFullModel
 
 [CimClass("http://iec.ch/TC57/61970-552/ModelDescription/1#FullModel")]
 public class FullModel(string uuid, ICimMetaClass metaClass, 
-        ICimMetaProperty[] metaProperties, bool isAuto = false) 
-    : ModelObject(uuid, metaClass, metaProperties, isAuto), IFullModel
+    bool isAuto = false) 
+    : ModelObject(uuid, metaClass, isAuto), IFullModel
 {
     public string? Created 
     { 
