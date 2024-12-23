@@ -291,9 +291,10 @@ public class CimSchema : ICimSchema
             }
 
             if (enumsMap.TryGetValue(enumName, out var baseEnum)
-                && baseEnum != enumClass)
+                && baseEnum != enumClass
+                && baseEnum is ICimMetaExtensible extensibleEnum)
             {
-                baseEnum.AddExtension(enumClass);
+                extensibleEnum.AddExtension(enumClass);
             }
         }
     }
