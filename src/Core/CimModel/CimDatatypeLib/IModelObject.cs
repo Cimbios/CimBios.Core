@@ -16,21 +16,9 @@ public interface IModelObject : INotifyPropertyChanged
     public ICimMetaClass MetaClass { get; }
 
     /// <summary>
-    /// Schema meta properties collection meta class owns.
-    /// </summary>
-    public ICimMetaProperty[] MetaProperties { get; }
-
-    /// <summary>
     /// Unidentified object status
     /// </summary>
     public bool IsAuto { get; }
-
-    /// <summary>
-    /// Check is property exists method.
-    /// </summary>
-    /// <param name="metaProperty">Meta property instance.</param>
-    /// <returns>True if exists like attribute or assoc.</returns>
-    public bool HasProperty(ICimMetaProperty metaProperty);
 
     /// <summary>
     /// Check is property exists method.
