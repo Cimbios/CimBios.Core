@@ -85,9 +85,7 @@ public class RdfXmlSerializer : RdfSerializerBase
             metaClass.BaseUri,
             modelObject.IsAuto);
 
-        var schemaProperties = Schema.GetClassProperties(metaClass, true);
-
-        foreach (var schemaProperty in schemaProperties)
+        foreach (var schemaProperty in metaClass.AllProperties)
         {
             WriteObjectProperty(rdfNode, modelObject, schemaProperty);
         }
@@ -105,7 +103,7 @@ public class RdfXmlSerializer : RdfSerializerBase
         IModelObject modelObject,
         ICimMetaProperty property)
     {
-        if (modelObject.HasProperty(property) == false)
+        if (modelObject.MetaClass.HasProperty(property) == false)
         {
             return;
         }
@@ -354,32 +352,22 @@ public class RdfXmlSerializer : RdfSerializerBase
             return null;
         }
 
-        
-        if (_tmp_cache.TryGetValue(metaClass, out var metaProperties) == false)
-        {
-            metaProperties = Schema.GetClassProperties(metaClass, true, true).ToArray();
-            _tmp_cache.Add(metaClass, metaProperties);
-        }
-
         IModelObject? instanceObject = null;
 
         if (TypeLib.RegisteredTypes.TryGetValue(instanceNode.TypeIdentifier,
             out var type))
         {
             instanceObject = Activator.CreateInstance(type, 
-                instanceUuid, metaClass, 
-                metaProperties.ToArray(), instanceNode.IsAuto) as IModelObject;
+                instanceUuid, metaClass, instanceNode.IsAuto) as IModelObject;
         }
         else
         {
-            instanceObject = new ModelObject(instanceUuid, metaClass, 
-                metaProperties.ToArray(), instanceNode.IsAuto);
+            instanceObject = new ModelObject(instanceUuid, 
+                metaClass, instanceNode.IsAuto);
         }
 
         return instanceObject;
     }
-
-    private Dictionary<ICimMetaClass, ICimMetaProperty[]> _tmp_cache = [];
 
     /// <summary>
     /// Convert RDF n-triple to IModelObject CIM property.
@@ -607,12 +595,9 @@ public class RdfXmlSerializer : RdfSerializerBase
             return false;
         }
 
-        var instanceClass = instance.MetaClass;
-
-        var classProperties = Schema.GetClassProperties(instanceClass, true);
-        if (classProperties.Contains(schemaProperty))
+        if (instance.MetaClass.HasProperty(schemaProperty))
         {
-            CacheCheckedProperty(instanceClass.BaseUri, 
+            CacheCheckedProperty(instance.MetaClass.BaseUri, 
                 schemaProperty.BaseUri);
 
             return true;
