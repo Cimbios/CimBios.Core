@@ -120,11 +120,11 @@ public class CimRdfsClass : CimRdfDescriptionBase,
 {
     public bool SuperClass => (SubClassOf == null);
     public ICimMetaClass? ParentClass => GetParentClass();
-    public ICimMetaClass[] AllAncestors => GetAllAncestors().ToArray();
-    public ICimMetaClass[] Extensions => _SubClassOf.OfType<ICimMetaClass>()
-        .Where(c => c.IsExtension).ToArray();
-    public ICimMetaProperty[] AllProperties => GetAllProperties().ToArray();
-    public ICimMetaProperty[] SelfProperties => [.. _Properties];
+    public IEnumerable<ICimMetaClass> AllAncestors => GetAllAncestors();
+    public IEnumerable<ICimMetaClass> Extensions => _SubClassOf
+        .OfType<ICimMetaClass>().Where(c => c.IsExtension);
+    public IEnumerable<ICimMetaProperty> AllProperties => GetAllProperties();
+    public IEnumerable<ICimMetaProperty> SelfProperties => _Properties;
     public bool IsAbstract => Stereotypes.Contains(UMLStereotype.CIMAbstract);
     public bool IsExtension => Stereotypes.Contains(UMLStereotype.CIMExtension);
     public bool IsEnum => Stereotypes.Contains(UMLStereotype.Enumeration);
