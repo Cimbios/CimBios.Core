@@ -95,10 +95,10 @@ public interface ICimMetaClass : ICimMetaResource
 {
     public bool SuperClass { get; }
     public ICimMetaClass? ParentClass { get; }
-    public ICimMetaClass[] AllAncestors { get; }
-    public ICimMetaClass[] Extensions { get; }
-    public ICimMetaProperty[] AllProperties { get; }
-    public ICimMetaProperty[] SelfProperties { get; }
+    public IEnumerable<ICimMetaClass> AllAncestors { get; }
+    public IEnumerable<ICimMetaClass> Extensions { get; }
+    public IEnumerable<ICimMetaProperty> AllProperties { get; }
+    public IEnumerable<ICimMetaProperty> SelfProperties { get; }
     public bool IsAbstract { get; }
     public bool IsExtension { get; }
     public bool IsEnum { get; }
