@@ -22,8 +22,6 @@ public class ModelObject : DynamicObject, IModelObject
 
         _MetaClass = metaClass;
         _PropertiesData = [];
-
-        InitializePropertiesData();
     }
 
     public bool HasProperty(string propertyName)
@@ -31,7 +29,7 @@ public class ModelObject : DynamicObject, IModelObject
         var metaProperty = TryGetMetaPropertyByName(propertyName);
         if (metaProperty != null)
         {
-            return _PropertiesData.ContainsKey(metaProperty);
+            return MetaClass.AllProperties.Contains(metaProperty);
         }
 
         return false;
@@ -91,14 +89,7 @@ public class ModelObject : DynamicObject, IModelObject
 
     public object? GetAttribute(ICimMetaProperty metaProperty)
     {
-        if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
-            && _PropertiesData.TryGetValue(metaProperty, out var value))
-        {
-            return value;
-        }
-
-        throw new ArgumentException(
-            $"Attribute {metaProperty.ShortName} does not exist!");
+        return GetDataByProperty(metaProperty, CimMetaPropertyKind.Attribute);
     }
 
     public object? GetAttribute(string attributeName)
@@ -110,7 +101,7 @@ public class ModelObject : DynamicObject, IModelObject
         }
 
         throw new ArgumentException(
-            $"Attribute {attributeName} does not exist!");
+            $"No such meta property with name {attributeName}!");
     }
 
     public T? GetAttribute<T>(ICimMetaProperty metaProperty) where T : class
@@ -126,7 +117,8 @@ public class ModelObject : DynamicObject, IModelObject
             return GetAttribute<T>(metaProperty);
         }
 
-        throw new ArgumentException($"Attribute {attributeName} does not exist!");
+        throw new ArgumentException(
+            $"No such meta property with name {attributeName}!");
     }
 
     public void SetAttribute<T>(ICimMetaProperty metaProperty, T? value) 
@@ -135,6 +127,11 @@ public class ModelObject : DynamicObject, IModelObject
         if (CanChangeProperty(metaProperty) == false)
         {
             return;
+        }
+
+        if (_PropertiesData.ContainsKey(metaProperty) == false)
+        {
+            _PropertiesData.Add(metaProperty, null);
         }
 
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
@@ -151,8 +148,14 @@ public class ModelObject : DynamicObject, IModelObject
                 primitiveType = datatype.PrimitiveType;
             }
 
-            if (value == null
-                || value is IModelObject
+            if (value == null)
+            {
+                _PropertiesData.Remove(metaProperty);
+
+                PropertyChanged?.Invoke(this, 
+                    new CimMetaPropertyChangedEventArgs(metaProperty));
+            }
+            else if (value is IModelObject
                 || value is Uri
                 || value.GetType().IsAssignableTo(primitiveType))
             {
@@ -182,7 +185,8 @@ public class ModelObject : DynamicObject, IModelObject
             SetAttribute<T>(metaProperty, value);
         }
 
-        throw new ArgumentException($"Attribute {attributeName} does not exist!");
+        throw new ArgumentException(
+            $"No such meta property with name {attributeName}!");
     }
 
     #endregion AttributesLogic
@@ -191,14 +195,8 @@ public class ModelObject : DynamicObject, IModelObject
 
     public IModelObject? GetAssoc1To1(ICimMetaProperty metaProperty)
     {
-        if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
-            && _PropertiesData.TryGetValue(metaProperty, out var value))
-        {
-            return value as IModelObject;
-        }
-
-        throw new ArgumentException(
-            $"Association {metaProperty.ShortName} does not exist!"); 
+        return GetDataByProperty(metaProperty, CimMetaPropertyKind.Assoc1To1)
+            as IModelObject;
     }
 
     public IModelObject? GetAssoc1To1(string assocName)
@@ -210,7 +208,7 @@ public class ModelObject : DynamicObject, IModelObject
         }
 
         throw new ArgumentException(
-            $"Attribute {assocName} does not exist!");
+            $"No such meta property with name {assocName}!");
     }
 
      public void SetAssoc1To1(ICimMetaProperty metaProperty, IModelObject? obj)
@@ -218,6 +216,11 @@ public class ModelObject : DynamicObject, IModelObject
         if (CanChangeProperty(metaProperty) == false)
         {
             return;
+        }
+
+        if (obj != null && _PropertiesData.ContainsKey(metaProperty) == false)
+        {
+            _PropertiesData.Add(metaProperty, null);
         }
 
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
@@ -231,6 +234,11 @@ public class ModelObject : DynamicObject, IModelObject
             var assocObj = _PropertiesData[metaProperty] as IModelObject;
 
             SetAssociationWithInverse(metaProperty, assocObj, obj);
+
+            if (_PropertiesData[metaProperty] == null)
+            {
+                _PropertiesData.Remove(metaProperty);
+            }
 
             PropertyChanged?.Invoke(this, 
                 new CimMetaPropertyChangedEventArgs(metaProperty));
@@ -249,11 +257,9 @@ public class ModelObject : DynamicObject, IModelObject
         {
             SetAssoc1To1(metaProperty, obj);
         }
-        else
-        {
-            throw new ArgumentException
-                ($"Association {assocName} does not exist!");  
-        }  
+
+        throw new ArgumentException(
+            $"No such meta property with name {assocName}!");
     }
 
     #endregion Assocs11Logic
@@ -262,15 +268,15 @@ public class ModelObject : DynamicObject, IModelObject
 
     public IModelObject[] GetAssoc1ToM(ICimMetaProperty metaProperty)
     {
-        if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
-            && _PropertiesData.TryGetValue(metaProperty, out var value)
-            && value is ICollection<IModelObject> assocCollection)
+        var data = GetDataByProperty(metaProperty, 
+            CimMetaPropertyKind.Assoc1ToM) as ICollection<IModelObject>;
+
+        if (data != null)
         {
-            return assocCollection.ToArray();
+            return data.ToArray();
         }
 
-        throw new ArgumentException(
-            $"Association 1 to M {metaProperty.ShortName} does not exist!"); 
+        return [];
     }
 
     public IModelObject[] GetAssoc1ToM(string assocName)
@@ -281,11 +287,17 @@ public class ModelObject : DynamicObject, IModelObject
             return GetAssoc1ToM(metaProperty);
         }
 
-        throw new ArgumentException($"Association 1 to M {assocName} does not exist!");    
+        throw new ArgumentException(
+            $"No such meta property with name {assocName}!");
     }
 
     public void AddAssoc1ToM(ICimMetaProperty metaProperty, IModelObject obj)
     {
+        if (_PropertiesData.ContainsKey(metaProperty) == false)
+        {
+            _PropertiesData.Add(metaProperty, new HashSet<IModelObject>());
+        }
+
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
             && _PropertiesData.TryGetValue(metaProperty, out var value)
             && value is ICollection<IModelObject> assocCollection)
@@ -317,7 +329,7 @@ public class ModelObject : DynamicObject, IModelObject
         else
         {
             throw new ArgumentException(
-                $"Association 1 to M {assocName} does not exist!"); 
+                $"No such meta property with name {assocName}!");
         }
     }
 
@@ -354,7 +366,7 @@ public class ModelObject : DynamicObject, IModelObject
         else
         {
             throw new ArgumentException(
-                $"Association 1 to M {assocName} does not exist!"); 
+                $"No such meta property with name {assocName}!");
         }
     }
 
@@ -389,13 +401,34 @@ public class ModelObject : DynamicObject, IModelObject
         else
         {
             throw new ArgumentException(
-                $"Association 1 to M {assocName} does not exist!"); 
+                $"No such meta property with name {assocName}!");
         }
     }
 
     #endregion Assocs1MLogic
 
     #region UtilsPrivate
+
+    private object? GetDataByProperty(ICimMetaProperty metaProperty,
+        CimMetaPropertyKind? expectableKind = null)
+    {
+        if (_PropertiesData.TryGetValue(metaProperty, out var value)
+            && (metaProperty.PropertyKind == expectableKind
+                || expectableKind == null))
+        {
+            return value;
+        }
+
+        if (MetaClass.AllProperties.Contains(metaProperty)
+            && (metaProperty.PropertyKind == expectableKind
+                || expectableKind == null))
+        {
+            return null;
+        }
+
+        throw new ArgumentException(
+            $"Property {metaProperty.ShortName} does not exist!");        
+    }
     
     private void SetAssociationWithInverse(ICimMetaProperty metaProperty, 
         IModelObject? oldObj, IModelObject? newObj)
@@ -450,21 +483,6 @@ public class ModelObject : DynamicObject, IModelObject
         }
     }
 
-    private void InitializePropertiesData()
-    {
-        foreach (var property in _MetaClass.AllProperties)
-        {
-            if (property.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
-            {
-                _PropertiesData.TryAdd(property, new HashSet<IModelObject>());
-            }
-            else
-            {
-                _PropertiesData.TryAdd(property, null);
-            }    
-        }
-    }
-
     private bool CanChangeProperty(ICimMetaProperty metaProperty)
     {
         if (PropertyChanging != null)
@@ -487,7 +505,7 @@ public class ModelObject : DynamicObject, IModelObject
         var splitted = name.Split('.');
         var isClassPropForm = splitted.Length.Equals(2);
 
-        foreach (var property in _PropertiesData.Keys)
+        foreach (var property in MetaClass.AllProperties)
         {
             var propCPForm = $"{property.OwnerClass?.ShortName}.{property.ShortName}";
 
