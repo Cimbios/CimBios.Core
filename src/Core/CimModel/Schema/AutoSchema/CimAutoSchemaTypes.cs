@@ -63,9 +63,9 @@ public class CimAutoClass : CimAutoResource,
         }
     }
 
-    public ICimMetaClass[] AllAncestors => [.. _PlainAncestors];
+    public IEnumerable<ICimMetaClass> AllAncestors => _PlainAncestors;
 
-    public ICimMetaClass[] Extensions => [.. _PlainAncestors];
+    public IEnumerable<ICimMetaClass> Extensions => _PlainAncestors;
 
     public bool IsAbstract => false;
 
@@ -77,9 +77,9 @@ public class CimAutoClass : CimAutoResource,
 
     public bool IsDatatype => false;
 
-    public ICimMetaProperty[] AllProperties => GetAllProperties().ToArray();
+    public IEnumerable<ICimMetaProperty> AllProperties => GetAllProperties();
 
-    public ICimMetaProperty[] SelfProperties => [.. _Properties];
+    public IEnumerable<ICimMetaProperty> SelfProperties => _Properties;
 
     public bool AddExtension(ICimMetaClass metaClass)
     {
