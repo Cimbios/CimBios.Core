@@ -492,8 +492,10 @@ public class RdfXmlSerializer : RdfSerializerBase
             }
         }
 
-        instance.SetAttribute(property, endData);
-
+        if (endData != null)
+        {
+            instance.SetAttribute(property, endData);
+        }
     }
 
     /// <summary>
