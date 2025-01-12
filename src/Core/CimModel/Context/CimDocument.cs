@@ -7,13 +7,13 @@ using CimBios.Core.CimModel.Schema;
 using CimBios.Core.DataProvider;
 using CimBios.Utils.ClassTraits;
 
-namespace CimBios.Core.CimModel.Context;
+namespace CimBios.Core.CimModel.Document;
 
 /// <summary>
 /// Instance of CIM model in Rdf/* format.
 /// Supports input and output operations for CIM objects.
 /// </summary>
-public class ModelContext : ICanLog
+public class CimDocument : ICanLog
 {
     public ILogView Log => _Log;
 
@@ -32,14 +32,14 @@ public class ModelContext : ICanLog
     /// </summary>
     private Dictionary<string, IModelObject> _Objects { get; set; }
 
-    public ModelContext()
+    public CimDocument()
     {
         _Log = new PlainLogView(this);
 
         _Objects = new Dictionary<string, IModelObject>();
     }
 
-    public ModelContext(IModelObjectsProvider modelObjectsProvider) : this()
+    public CimDocument(IModelObjectsProvider modelObjectsProvider) : this()
     {
         InitContextDataConfig(modelObjectsProvider);
     }
@@ -52,7 +52,7 @@ public class ModelContext : ICanLog
         if (_provider == null || _serializer == null)
         {
             _Log.NewMessage(
-                "ModelContext: Object data provider has not been initialized!",
+                "CimDocument: Object data provider has not been initialized!",
                 LogMessageSeverity.Error
             );            
 
@@ -60,7 +60,7 @@ public class ModelContext : ICanLog
         }
 
         _Log.NewMessage(
-            "ModelContext: Loading model context.",
+            "CimDocument: Loading model context.",
             LogMessageSeverity.Info,
             _provider.Source.AbsoluteUri
         );
@@ -73,7 +73,7 @@ public class ModelContext : ICanLog
         catch (Exception ex)
         {
             _Log.NewMessage(
-                "ModelContext: Deserialization failed.",
+                "CimDocument: Deserialization failed.",
                 LogMessageSeverity.Critical,
                 ex.Message
             );
@@ -105,7 +105,7 @@ public class ModelContext : ICanLog
         if (_provider == null || _serializer == null)
         {
             _Log.NewMessage(
-                "ModelContext: Object data provider has not been initialized!",
+                "CimDocument: Object data provider has not been initialized!",
                 LogMessageSeverity.Error
             );  
 
@@ -113,7 +113,7 @@ public class ModelContext : ICanLog
         }  
 
         _Log.NewMessage(
-            "ModelContext: Saving model context.",
+            "CimDocument: Saving model context.",
             LogMessageSeverity.Info,
             _provider.Source.AbsoluteUri
         ); 
@@ -131,7 +131,7 @@ public class ModelContext : ICanLog
         catch (Exception ex)
         {
             _Log.NewMessage(
-                "ModelContext: Serialization failed.",
+                "CimDocument: Serialization failed.",
                 LogMessageSeverity.Critical,
                 ex.Message
             );
@@ -247,7 +247,7 @@ public class ModelContext : ICanLog
         else
         {
             _Log.NewMessage(
-                "ModelContext: FullModel description node not found.",
+                "CimDocument: FullModel description node not found.",
                 LogMessageSeverity.Warning
             );  
 

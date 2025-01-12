@@ -20,7 +20,7 @@ public abstract class RdfSerializerBase
     /// <summary>
     /// CIM data types library for contrete typed instances creating.
     /// </summary>
-    public IDatatypeLib TypeLib
+    public ICimDatatypeLib TypeLib
     { get => _typeLib; set => _typeLib = value; }
 
     /// <summary>
@@ -30,7 +30,7 @@ public abstract class RdfSerializerBase
     { get => _provider; }
 
     protected RdfSerializerBase(IDataProvider provider,
-        ICimSchema schema, IDatatypeLib datatypeLib) 
+        ICimSchema schema, ICimDatatypeLib datatypeLib) 
     {
         _provider = provider;
         _schema = schema;
@@ -52,6 +52,6 @@ public abstract class RdfSerializerBase
     public abstract void Serialize(IEnumerable<IModelObject> modelObjects);
 
     private ICimSchema _schema;
-    private IDatatypeLib _typeLib;
+    private ICimDatatypeLib _typeLib;
     private IDataProvider _provider;
 }

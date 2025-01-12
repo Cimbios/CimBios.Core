@@ -3,7 +3,7 @@ using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.DataProvider;
 
-namespace CimBios.Core.CimModel.Context;
+namespace CimBios.Core.CimModel.Document;
 
 /// <summary>
 /// Factory provides abstract dataprovider and serializer for model context.
@@ -28,13 +28,13 @@ public interface IModelObjectsProvider
     /// <summary>
     /// Library of CIM class types.
     /// </summary>
-    public IDatatypeLib TypeLib { get; }
+    public ICimDatatypeLib TypeLib { get; }
 }
 
 public interface IModelObjectsProviderFactory
 {
     public IModelObjectsProvider Create(Uri source, 
-        ICimSchema schema, IDatatypeLib? typeLib = null);
+        ICimSchema schema, ICimDatatypeLib? typeLib = null);
 }
 
 public class RdfXmlFileModelObjectsProvider : IModelObjectsProvider
@@ -45,11 +45,11 @@ public class RdfXmlFileModelObjectsProvider : IModelObjectsProvider
 
     public ICimSchema CimSchema { get; }
 
-    public IDatatypeLib TypeLib { get; }
+    public ICimDatatypeLib TypeLib { get; }
 
     public RdfXmlFileModelObjectsProvider(Uri source, 
         ICimSchema schema, 
-        IDatatypeLib? typeLib = null)
+        ICimDatatypeLib? typeLib = null)
     {
         var provider = new FileStreamDataProvider(source);
         DataProvider = provider;
@@ -57,7 +57,7 @@ public class RdfXmlFileModelObjectsProvider : IModelObjectsProvider
         
         if (typeLib == null)
         {
-            TypeLib = new DatatypeLib();
+            TypeLib = new CimDatatypeLib.CimDatatypeLib();
         }
         else
         {
@@ -72,7 +72,7 @@ public class RdfXmlFileModelObjectsProviderFactory
     : IModelObjectsProviderFactory
 {
     public IModelObjectsProvider Create(Uri source, 
-        ICimSchema schema, IDatatypeLib? typeLib = null)
+        ICimSchema schema, ICimDatatypeLib? typeLib = null)
     {
         return new RdfXmlFileModelObjectsProvider(source, schema, typeLib);
     }

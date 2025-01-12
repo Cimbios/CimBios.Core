@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\CimModel\Context\CimBios.Core.CimModel.Context.csproj" />
+    <ProjectReference Include="../../Core/CimModel/Context/CimBios.Core.CimModel.Document.csproj" />
     <ProjectReference Include="..\..\Core\DataProvider\CimBios.Core.DataProvider.csproj" />
   </ItemGroup>
 
