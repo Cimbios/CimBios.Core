@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using CimBios.Core.CimModel.Context;
+using CimBios.Core.CimModel.Document;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
@@ -139,7 +139,7 @@ public class DataSelectorViewModel : ViewModelBase
     private void Push()
     {
         if (Services.ServiceLocator.GetInstance()
-            .TryGetService<ModelContext>(out var modelContext) == false
+            .TryGetService<CimDocument>(out var modelContext) == false
             || modelContext == null)
         {
             ResultMessage += "Model context service has not registered!\n";
@@ -248,7 +248,7 @@ public class DataSelectorViewModel : ViewModelBase
     private bool CreateModelContext(ICimSchema cimSchema)
     {
         if (Services.ServiceLocator.GetInstance()
-            .TryGetService<ModelContext>(out var modelContext) == false
+            .TryGetService<CimDocument>(out var modelContext) == false
             || modelContext == null)
         {
             ResultMessage += "Model context service has not registered!\n";

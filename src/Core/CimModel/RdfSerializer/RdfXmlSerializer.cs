@@ -13,13 +13,13 @@ namespace CimBios.Core.CimModel.RdfSerializer;
 public class RdfXmlSerializer : RdfSerializerBase
 {
     public RdfXmlSerializer(IDataProvider provider,
-        ICimSchema schema, IDatatypeLib datatypeLib)
+        ICimSchema schema, ICimDatatypeLib datatypeLib)
         : base(provider, schema, datatypeLib)
     {
     }
 
     public RdfXmlSerializer(string path, ICimSchema schema, 
-        IDatatypeLib datatypeLib)
+        ICimDatatypeLib datatypeLib)
         : base(new FileStreamDataProvider(new Uri(path)), schema, datatypeLib)
     {
     }

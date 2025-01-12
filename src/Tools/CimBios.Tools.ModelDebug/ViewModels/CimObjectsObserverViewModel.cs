@@ -7,7 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
 using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.Context;
+using CimBios.Core.CimModel.Document;
 using CimBios.Core.RdfIOLib;
 using CimBios.Tools.ModelDebug.Models;
 using CommunityToolkit.Mvvm.Input;
@@ -28,7 +28,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
     public AsyncRelayCommand ExpandAllNodesCommand { get; }
     public AsyncRelayCommand UnexpandAllNodesCommand { get; }
     
-    private ModelContext? _CimModelContext { get; set; }
+    private CimDocument? _CimModelDocument { get; set; }
 
     public string SearchString 
     { 
@@ -139,7 +139,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             return;
         }
 
-        var mObj = _CimModelContext?.GetObject(selectedProp.Value);
+        var mObj = _CimModelDocument?.GetObject(selectedProp.Value);
         if (mObj != null)
         {
             var tmpSearchString = SearchString;
@@ -258,7 +258,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
     private void SubscribeModelContextLoad()
     {
         if (Services.ServiceLocator.GetInstance()
-            .TryGetService<ModelContext>(out var modelContext) == false
+            .TryGetService<CimDocument>(out var modelContext) == false
             || modelContext == null)
         {
             return;
@@ -269,12 +269,12 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
 
     private void ModelContext_ModelLoaded(object? sender, EventArgs e)
     {
-        if (sender is ModelContext modelContext == false)
+        if (sender is CimDocument modelContext == false)
         {
             return;
         }
 
-        _CimModelContext = modelContext;
+        _CimModelDocument = modelContext;
         FillData();
     }
 
@@ -282,7 +282,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
     {
         _NodesCache.Clear();
 
-        if (_CimModelContext == null)
+        if (_CimModelDocument == null)
         {
             return;
         }
@@ -290,7 +290,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         var schemaClassesUri = 
             new Dictionary<Uri, TreeViewNodeModel>(new RdfUriComparer());
 
-        foreach (var cimObj in _CimModelContext.GetAllObjects())
+        foreach (var cimObj in _CimModelDocument.GetAllObjects())
         {
             var cimObjNode = new CimObjectDataTreeModel(cimObj);
 

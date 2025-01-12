@@ -1,4 +1,4 @@
-using CimBios.Core.CimModel.Context;
+using CimBios.Core.CimModel.Document;
 
 namespace CimBios.Tools.ModelDebug.Models;
 

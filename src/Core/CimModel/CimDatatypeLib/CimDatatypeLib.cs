@@ -7,7 +7,7 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 /// <summary>
 /// Structure interface for datatype lib.
 /// </summary>
-public interface IDatatypeLib : ICanLog
+public interface ICimDatatypeLib : ICanLog
 {
     /// <summary>
     /// Dictionary Uri to Type of IModelObject concrete classes.
@@ -38,7 +38,7 @@ public interface IDatatypeLib : ICanLog
 /// <summary>
 /// Concrete model objects types library class.
 /// </summary>
-public class DatatypeLib : IDatatypeLib
+public class CimDatatypeLib : ICimDatatypeLib
 {
     /// <summary>
     /// Runtime attached typelib assemblies.
@@ -48,14 +48,14 @@ public class DatatypeLib : IDatatypeLib
 
     public ILogView Log => _Log;
 
-    public DatatypeLib()
+    public CimDatatypeLib()
     {
         _Log = new PlainLogView(this);
 
         LoadAssembly(Assembly.GetExecutingAssembly());
     }
 
-    public DatatypeLib(string typesAssemblyPath) : this()
+    public CimDatatypeLib(string typesAssemblyPath) : this()
     {
         LoadAssembly(typesAssemblyPath);
     }
