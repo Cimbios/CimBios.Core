@@ -443,18 +443,18 @@ public abstract class RdfSerializerBase
         switch (schemaProperty.PropertyKind)
         {
             case CimMetaPropertyKind.Attribute:
-                {
-                    SetObjectDataAsAttribute(instance,
-                        schemaProperty, data);
-                    break;
-                }
+            {
+                SetObjectDataAsAttribute(instance,
+                    schemaProperty, data);
+                break;
+            }
             case CimMetaPropertyKind.Assoc1To1:
             case CimMetaPropertyKind.Assoc1ToM:
-                {
-                    SetObjectDataAsAssociation(instance,
-                        schemaProperty, (Uri)data);
-                    break;
-                }
+            {
+                SetObjectDataAsAssociation(instance,
+                    schemaProperty, (Uri)data);
+                break;
+            }
         }
     }
 
