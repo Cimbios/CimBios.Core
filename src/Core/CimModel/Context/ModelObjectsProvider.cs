@@ -51,7 +51,7 @@ public class RdfXmlFileModelObjectsProvider : IModelObjectsProvider
         ICimSchema schema, 
         IDatatypeLib? typeLib = null)
     {
-        var provider = new RdfXmlFileDataProvider(source);
+        var provider = new FileStreamDataProvider(source);
         DataProvider = provider;
         CimSchema = schema;
         

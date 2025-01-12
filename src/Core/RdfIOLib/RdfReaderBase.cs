@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace CimBios.Core.RdfIOLib;
 
 public abstract class RdfReaderBase : RdfNamespacesContainerBase
@@ -8,7 +10,7 @@ public abstract class RdfReaderBase : RdfNamespacesContainerBase
     /// Parse string rdf/xml content.
     /// </summary>
     /// <param name="content">String rdf/xml content.</param>
-    public abstract void Parse(string content);
+    public abstract void Parse(string content, Encoding? encoding = null);
 
     /// <summary>
     /// Load rdf/xml content from TextReader.
@@ -19,11 +21,6 @@ public abstract class RdfReaderBase : RdfNamespacesContainerBase
     /// Close reader.
     /// </summary>
     public abstract void Close();
-
-    /// <summary>
-    /// Resets current reading element to first.
-    /// </summary>
-    public abstract void Reset();
 
     /// <summary>
     /// Read RDF content of next element.

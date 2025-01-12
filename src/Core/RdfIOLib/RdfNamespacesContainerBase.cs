@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Xml.Linq;
 
 namespace CimBios.Core.RdfIOLib;
@@ -14,8 +13,7 @@ public abstract class RdfNamespacesContainerBase
     public IReadOnlyDictionary<string, Uri> Namespaces 
         => _Namespaces.AsReadOnly();
 
-    private Dictionary<string, Uri> _Namespaces { get; set; }
-        = new Dictionary<string, Uri>();
+    private Dictionary<string, Uri> _Namespaces { get; set; } = [];
 
     protected RdfNamespacesContainerBase() { }
 
@@ -55,34 +53,6 @@ public abstract class RdfNamespacesContainerBase
     }
 
     /// <summary>
-    /// Parse all root namespaces.
-    /// </summary>
-    /// <param name="rdfNode">rdf:RDF root node.</param>
-    protected void ParseXmlns(XElement rdfNode)
-    {
-        XNamespace xlmns = "http://www.w3.org/2000/xmlns/";
-        XNamespace ns = "http://www.w3.org/XML/1998/namespace";
-
-        foreach (XAttribute attr in rdfNode.Attributes())
-        {
-            if (attr.Name.Namespace != xlmns
-                && attr.Name != (ns + "base"))
-            {
-                continue;
-            }
-
-            if (Namespaces.ContainsKey(attr.Name.LocalName))
-            {
-                _Namespaces[attr.Name.LocalName] = new Uri(attr.Value);
-            }
-            else
-            {
-                _Namespaces.Add(attr.Name.LocalName, new Uri(attr.Value));
-            }
-        }
-    }
-
-    /// <summary>
     /// Make Uri from string identifier.
     /// </summary>
     /// <param name="identifier">String local identifier.</param>
@@ -113,21 +83,22 @@ public abstract class RdfNamespacesContainerBase
     /// <exception cref="Exception"></exception>
     protected XName UriToXName(Uri uri)
     {        
-        XNamespace ns = uri.AbsoluteUri[..(uri.AbsoluteUri.IndexOf('#') + 1)];
+        // XNamespace ns = uri.AbsoluteUri[..(uri.AbsoluteUri.IndexOf('#') + 1)];
 
-        if (_Namespaces.Values.Contains(uri) == false)
-        {
-            throw new Exception("RdfXmlWriter.GetNameWithPrefix: no ns");
-        }
+        // if (_Namespaces.Values.Contains(uri) == false)
+        // {
+        //     throw new Exception("RdfXmlWriter.GetNameWithPrefix: no ns");
+        // }
 
-        if (RdfUtils.TryGetEscapedIdentifier(uri, out var identifier))
-        {
-            XName result = ns + identifier;
-            return result;
-        }
+        // if (RdfUtils.TryGetEscapedIdentifier(uri, out var identifier))
+        // {
+        //     XName result = ns + identifier;
+        //     return result;
+        // }
 
         throw new Exception("RdfXmlWriter.GetNameWithPrefix: invalid rid");
     }
 
-    public static XNamespace rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    protected const string xmlns = "http://www.w3.org/2000/xmlns/";
+    protected const string rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 }

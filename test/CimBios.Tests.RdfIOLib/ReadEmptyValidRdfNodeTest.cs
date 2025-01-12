@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using System.Xml;
 using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Tests.RdfXmlIOLib;
@@ -61,13 +61,13 @@ public class ReadEmptyValidRdfNodeTest
         return new StreamReader("../../../assets/EmptyRdfNode.xml"); 
     }
 
-    private static XDocument GetLoadXDocAsset()
+    private static XmlReader GetLoadXDocAsset()
     {
         TextReader reader = GetLoadAsset();
-        XDocument xDocument = XDocument.Load(reader);
+        //XDocument xDocument = XDocument.Load(reader);
+        var xDocument = XmlReader.Create(reader);
         
         return xDocument;
-
     }
 
     private static string GetParseAsset()

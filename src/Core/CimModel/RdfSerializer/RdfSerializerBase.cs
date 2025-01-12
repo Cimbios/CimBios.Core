@@ -29,16 +29,12 @@ public abstract class RdfSerializerBase
     public IDataProvider Provider
     { get => _provider; }
 
-    public RdfSerializerSettings Settings 
-    { get => _settings; set => _settings = value; }
-
     protected RdfSerializerBase(IDataProvider provider,
         ICimSchema schema, IDatatypeLib datatypeLib) 
     {
         _provider = provider;
         _schema = schema;
         _typeLib = datatypeLib;
-        _settings = new RdfSerializerSettings();
     }
 
     /// <summary>
@@ -58,26 +54,4 @@ public abstract class RdfSerializerBase
     private ICimSchema _schema;
     private IDatatypeLib _typeLib;
     private IDataProvider _provider;
-    private RdfSerializerSettings _settings;
-}
-
-/// <summary>
-/// Serialization settings.
-/// </summary>
-public class RdfSerializerSettings
-{
-    /// <summary>
-    /// Allow for missed in schema class types.
-    /// </summary>
-    public bool AllowUnkownClassTypes { get; set; } = true;
-
-    /// <summary>
-    /// Allow for missed in schema class properties.
-    /// </summary>
-    public bool AllowUnkownClassProperties { get; set; } = true;
-
-    /// <summary>
-    /// Allow for objects URI path mismatches with schema.
-    /// </summary>
-    public bool AllowUriPathMismatches { get; set; } = true;
 }

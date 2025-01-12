@@ -12,21 +12,25 @@ namespace CimBios.Core.CimModel.RdfSerializer;
 /// </summary>
 public class RdfXmlSerializer : RdfSerializerBase
 {
-    public RdfXmlSerializer(RdfXmlFileDataProvider provider,
+    public RdfXmlSerializer(IDataProvider provider,
         ICimSchema schema, IDatatypeLib datatypeLib)
         : base(provider, schema, datatypeLib)
     {
-        _objectsCache = [];
-        _waitingReferenceObjectUuids = [];
-        _checkedPropsCache = [];
+    }
+
+    public RdfXmlSerializer(string path, ICimSchema schema, 
+        IDatatypeLib datatypeLib)
+        : base(new FileStreamDataProvider(new Uri(path)), schema, datatypeLib)
+    {
     }
 
     public override IEnumerable<IModelObject> Deserialize()
     {
         _reader = new RdfXmlReader(Provider.Source);
-        if (Provider.Get() is XDocument xDocument)
+        if (Provider.DataStream != null)
         {
-            _reader.Load(xDocument);
+            var streamReader = new StreamReader(Provider.DataStream);
+            _reader.Load(streamReader); 
         }
 
         var deserializedObjects = ReadObjects();
@@ -290,7 +294,7 @@ public class RdfXmlSerializer : RdfSerializerBase
             throw new Exception("Reader was not initialized!");
         }
 
-        var cimDocument = _reader.ReadAll();
+        var cimDocument = _reader.ReadAll().ToList();
         // First step - creating objects.
         foreach (var instanceNode in cimDocument)
         {
@@ -640,7 +644,7 @@ public class RdfXmlSerializer : RdfSerializerBase
     private RdfXmlReader? _reader;
     private RdfXmlWriter? _writer;
 
-    private Dictionary<string, IModelObject> _objectsCache;
-    private HashSet<string> _waitingReferenceObjectUuids;
-    private Dictionary<string, List<string>> _checkedPropsCache;
+    private Dictionary<string, IModelObject> _objectsCache = [];
+    private HashSet<string> _waitingReferenceObjectUuids = [];
+    private Dictionary<string, List<string>> _checkedPropsCache = [];
 }
