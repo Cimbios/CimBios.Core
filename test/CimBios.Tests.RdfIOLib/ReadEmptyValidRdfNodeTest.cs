@@ -21,7 +21,7 @@ public class ReadEmptyValidRdfNodeTest
     [Fact]
     public void LoadXDoc()
     {
-        var xDoc = GetLoadXDocAsset();
+        var xDoc = GetXmlReaderAsset();
         var rdfReader = new RdfXmlReader();
 
         rdfReader.Load(xDoc);
@@ -61,13 +61,12 @@ public class ReadEmptyValidRdfNodeTest
         return new StreamReader("../../../assets/EmptyRdfNode.xml"); 
     }
 
-    private static XmlReader GetLoadXDocAsset()
+    private static XmlReader GetXmlReaderAsset()
     {
         TextReader reader = GetLoadAsset();
-        //XDocument xDocument = XDocument.Load(reader);
-        var xDocument = XmlReader.Create(reader);
+        var xmlReader = XmlReader.Create(reader);
         
-        return xDocument;
+        return xmlReader;
     }
 
     private static string GetParseAsset()
