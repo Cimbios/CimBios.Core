@@ -57,12 +57,6 @@ public abstract class RdfSerializerBase
     /// </summary>
     public IEnumerable<IModelObject> Deserialize()
     {
-        if (Provider.DataStream != null)
-        {
-            var streamReader = new StreamReader(Provider.DataStream);
-            _RdfReader.Load(streamReader); 
-        }
-
         var deserializedObjects = ReadObjects();
         ResetCache();
 
@@ -307,6 +301,21 @@ public abstract class RdfSerializerBase
 
     #region DeserializerBlock
 
+    private void InitializeRdfReader()
+    {
+        if (Provider.DataStream == null
+            || Provider.DataStream.CanRead == false
+            || Provider.DataStream.CanSeek == false)
+        {
+            throw new Exception("No data stream for read!");
+        }
+
+        Provider.DataStream.Position = 0;
+        var streamReader = new StreamReader(Provider.DataStream);
+        _RdfReader.Load(streamReader);
+        _RdfReader.AddNamespace("base", Provider.Source);
+    }
+
     private void ResetCache()
     {        
         _objectsCache = [];
@@ -328,9 +337,9 @@ public abstract class RdfSerializerBase
             throw new Exception("Reader was not initialized!");
         }
 
-        var cimDocument = _RdfReader.ReadAll().ToList();
         // First step - creating objects.
-        foreach (var instanceNode in cimDocument)
+        InitializeRdfReader();
+        foreach (var instanceNode in _RdfReader.ReadAll())
         {
             var instance = RdfNodeToModelObject(instanceNode, false);
             if (instance == null)
@@ -342,7 +351,8 @@ public abstract class RdfSerializerBase
         }
 
         // Second step - fill objects properties.
-        foreach (var instanceNode in cimDocument)
+        InitializeRdfReader();
+        foreach (var instanceNode in _RdfReader.ReadAll())
         {
             if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
                 out var instanceUuid) == false)
