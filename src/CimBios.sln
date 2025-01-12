@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.CimModel.Schem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.RdfIOLib", "Core\RdfIOLib\CimBios.Core.RdfIOLib.csproj", "{7CBC086A-63B3-4701-B243-623AAD9DF0EB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.CimModel.DatatypeLib", "Core\CimModel\CimDatatypeLib\CimBios.Core.CimModel.DatatypeLib.csproj", "{629F6163-A99E-45E5-A580-122F13459BC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.CimModel.DatatypeLib", "Core\CimModel\DatatypeLib\CimBios.Core.CimModel.DatatypeLib.csproj", "{629F6163-A99E-45E5-A580-122F13459BC8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.CimModel.RdfSerializer", "Core\CimModel\RdfSerializer\CimBios.Core.CimModel.RdfSerializer.csproj", "{2797C019-57A1-4EED-B39A-F18FBB3D87C9}"
 EndProject
