@@ -66,6 +66,7 @@ public sealed class RdfXmlReader : RdfReaderBase
     /// </summary>
     public void Load(XmlReader xmlReader)
     {
+        ClearNamespaces();
         _xmlReader = xmlReader;
 
         if (_XmlReader.ReadState != ReadState.Initial
