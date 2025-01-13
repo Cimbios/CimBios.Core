@@ -109,9 +109,23 @@ public class CimRdfsDatatype : CimRdfsClass, ICimMetaDatatype
         }
     }
 
-    public CimRdfsDatatype(Uri baseUri) : base(baseUri) { }
+    public CimRdfsDatatype(Uri baseUri) : base(baseUri)
+    { 
+        MakeStereotype();
+    }
 
-    public CimRdfsDatatype(CimRdfsClass rdfsClass) : base(rdfsClass) { }
+    public CimRdfsDatatype(CimRdfsClass rdfsClass) : base(rdfsClass) 
+    { 
+        MakeStereotype();
+    }
+
+    private void MakeStereotype()
+    {
+        if (Stereotypes.Contains(UMLStereotype.CIMDatatype) == false)
+        {
+            Stereotypes.Add(UMLStereotype.CIMDatatype);
+        }
+    }
 }
 
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Class")]
