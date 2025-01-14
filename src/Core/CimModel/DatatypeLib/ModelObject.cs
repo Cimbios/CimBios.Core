@@ -52,7 +52,7 @@ public class ModelObject : DynamicObject, IModelObject
             }
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
             {
-                result = GetAssoc1To1(metaProperty);
+                result = GetAssoc1To1<IModelObject>(metaProperty);
                 return true;        
             }
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
@@ -104,12 +104,17 @@ public class ModelObject : DynamicObject, IModelObject
             $"No such meta property with name {attributeName}!");
     }
 
-    public T? GetAttribute<T>(ICimMetaProperty metaProperty) where T : class
+    public T? GetAttribute<T>(ICimMetaProperty metaProperty)
     {
-        return GetAttribute(metaProperty) as T;
+        if (GetAttribute(metaProperty) is T typedValue)
+        {
+            return typedValue;
+        }
+
+        return default;
     }
 
-    public T? GetAttribute<T>(string attributeName) where T : class
+    public T? GetAttribute<T>(string attributeName)
     {
         var metaProperty = TryGetMetaPropertyByName(attributeName);
         if (metaProperty != null)
@@ -122,7 +127,6 @@ public class ModelObject : DynamicObject, IModelObject
     }
 
     public void SetAttribute<T>(ICimMetaProperty metaProperty, T? value) 
-        where T : class
     {
         if (CanChangeProperty(metaProperty) == false)
         {
@@ -137,7 +141,8 @@ public class ModelObject : DynamicObject, IModelObject
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
             && _PropertiesData.ContainsKey(metaProperty))
         {
-            if (value == _PropertiesData[metaProperty])
+            if ((value == null && _PropertiesData[metaProperty] == null)
+                || value!.Equals(_PropertiesData[metaProperty]))
             {
                 return;
             }
@@ -177,7 +182,7 @@ public class ModelObject : DynamicObject, IModelObject
         }
     }
 
-    public void SetAttribute<T>(string attributeName, T? value) where T : class
+    public void SetAttribute<T>(string attributeName, T? value)
     {
         var metaProperty = TryGetMetaPropertyByName(attributeName);
         if (metaProperty != null)
@@ -193,18 +198,23 @@ public class ModelObject : DynamicObject, IModelObject
 
     #region Assocs11Logic
 
-    public IModelObject? GetAssoc1To1(ICimMetaProperty metaProperty)
+    public T? GetAssoc1To1<T>(ICimMetaProperty metaProperty) where T: IModelObject
     {
-        return GetDataByProperty(metaProperty, CimMetaPropertyKind.Assoc1To1)
-            as IModelObject;
+        if (GetDataByProperty(metaProperty, CimMetaPropertyKind.Assoc1To1)
+            is T typedObject)
+        {
+            return typedObject;
+        }
+
+        return default;
     }
 
-    public IModelObject? GetAssoc1To1(string assocName)
+    public T? GetAssoc1To1<T>(string assocName) where T: IModelObject
     {
         var metaProperty = TryGetMetaPropertyByName(assocName);
         if (metaProperty != null)
         {
-            return GetAssoc1To1(metaProperty);
+            return GetAssoc1To1<T>(metaProperty);
         }
 
         throw new ArgumentException(
@@ -289,6 +299,18 @@ public class ModelObject : DynamicObject, IModelObject
 
         throw new ArgumentException(
             $"No such meta property with name {assocName}!");
+    }
+
+    public T[] GetAssoc1ToM<T>(ICimMetaProperty metaProperty) 
+        where T: IModelObject
+    {
+        return GetAssoc1ToM(metaProperty).Cast<T>().ToArray();
+    }
+
+    public T[] GetAssoc1ToM<T>(string assocName)
+        where T: IModelObject
+    {
+        return GetAssoc1ToM(assocName).Cast<T>().ToArray();
     }
 
     public void AddAssoc1ToM(ICimMetaProperty metaProperty, IModelObject obj)
