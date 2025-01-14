@@ -223,7 +223,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
 
         foreach (var assoc11Name in dataFacade.MetaClass.AllProperties.Where(p => p.PropertyKind == Core.CimModel.Schema.CimMetaPropertyKind.Assoc1To1).Select(p => p.ShortName))
         {
-            var assoc11Ref = dataFacade.GetAssoc1To1(assoc11Name);
+            var assoc11Ref = dataFacade.GetAssoc1To1<IModelObject>(assoc11Name);
             string assoc11RefStr = "null";
             if (assoc11Ref != null)
             {
