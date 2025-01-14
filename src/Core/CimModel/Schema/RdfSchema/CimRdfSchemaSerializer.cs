@@ -223,6 +223,11 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
             .OfType<CimRdfsClass>().Where(o => o.IsDatatype))
         {
             var uri = metaClass.BaseUri;
+            if (XmlDatatypesMapping.UriSystemTypes.ContainsKey(uri.AbsoluteUri))
+            {
+                continue;
+            }
+
             var valueProperty = _ObjectsCache.Values.OfType<CimRdfsProperty>()
                 .Where(p => RdfUtils.RdfUriEquals(
                     p.BaseUri, new Uri(uri.AbsoluteUri + ".value")))
