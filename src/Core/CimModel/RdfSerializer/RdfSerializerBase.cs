@@ -224,7 +224,7 @@ public abstract class RdfSerializerBase
     {
         object resultAssocObject;
 
-        var assocObj = subject.GetAssoc1To1(assoc1To1);
+        var assocObj = subject.GetAssoc1To1<IModelObject>(assoc1To1);
         if (assocObj == null)
         {
             return null;
