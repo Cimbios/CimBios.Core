@@ -20,7 +20,7 @@ public $:datatype:? $:property_name:
 &:annotation:
 public $:datatype:? $:property_name:
 {
-	get => GetAssoc1To1(nameof($:property_name:));
+	get => GetAssoc1To1<$:datatype:?>(nameof($:property_name:));
 	set => SetAssoc1To1(nameof($:property_name:), value);
 }
 @:property1:
