@@ -11,6 +11,8 @@ public class CimSchema : ICimSchema
         => _Namespaces;
     public IEnumerable<ICimMetaClass> Classes 
         => _All.Values.OfType<ICimMetaClass>();
+    public IEnumerable<ICimMetaClass> Extensions 
+        => GetExtensions();
     public IEnumerable<ICimMetaProperty> Properties 
         => _All.Values.OfType<ICimMetaProperty>();
     public IEnumerable<ICimMetaIndividual> Individuals 
@@ -235,6 +237,25 @@ public class CimSchema : ICimSchema
         }
 
         return "_";
+    }
+
+    private HashSet<ICimMetaClass> GetExtensions()
+    {
+        var extensions = new HashSet<ICimMetaClass>();
+        foreach (var metaClass in Classes)
+        {
+            foreach (var extension in metaClass.Extensions)
+            {
+                if (extensions.Contains(extension))
+                {
+                    continue;
+                }
+                
+                extensions.Add(extension);
+            }
+        }
+
+        return extensions;
     }
 
     private void JoinNamespaces(IReadOnlyDictionary<string, Uri> namespaces, 
