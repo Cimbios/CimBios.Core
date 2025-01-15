@@ -136,7 +136,7 @@ public class CimRdfsClass : CimRdfDescriptionBase,
     public ICimMetaClass? ParentClass => GetParentClass();
     public IEnumerable<ICimMetaClass> AllAncestors => GetAllAncestors();
     public IEnumerable<ICimMetaClass> Extensions => _SubClassOf
-        .OfType<ICimMetaClass>().Where(c => c.IsExtension);
+        .OfType<ICimMetaClass>().Where(c => c.IsExtension && c.ParentClass == null);
     public IEnumerable<ICimMetaProperty> AllProperties => GetAllProperties();
     public IEnumerable<ICimMetaProperty> SelfProperties => _Properties;
     public bool IsAbstract => Stereotypes.Contains(UMLStereotype.CIMAbstract);
@@ -231,7 +231,7 @@ public class CimRdfsClass : CimRdfDescriptionBase,
     {
         return SubClassOf.OfType<ICimMetaClass>()
             .FirstOrDefault(o => o.IsExtension == false 
-                || (o.IsExtension && o.ParentClass != null));
+                || this.BaseUri == o.BaseUri);
     }
 
     private IEnumerable<ICimMetaClass> GetAllAncestors()
