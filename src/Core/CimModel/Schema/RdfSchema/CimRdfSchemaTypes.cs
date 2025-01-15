@@ -230,7 +230,8 @@ public class CimRdfsClass : CimRdfDescriptionBase,
     private ICimMetaClass? GetParentClass()
     {
         return SubClassOf.OfType<ICimMetaClass>()
-            .FirstOrDefault(o => o.IsExtension == false);
+            .FirstOrDefault(o => o.IsExtension == false 
+                || (o.IsExtension && o.ParentClass != null));
     }
 
     private IEnumerable<ICimMetaClass> GetAllAncestors()
