@@ -42,9 +42,9 @@ internal class CodeBuilder (ICimSchema cimSchema,
 
         if (namespaceSyntax.References.Contains(ClassBlock))
         {
+            var extensions = _cimSchema.Extensions;
             var classes = _cimSchema.Classes.Where(
-                c => !c.IsEnum && !c.IsDatatype 
-                && (!c.IsExtension || c.ParentClass != null));
+                c => !c.IsEnum && !c.IsDatatype && !extensions.Contains(c));
 
             var compiledClasses = CompileClasses(classes);
             compliedNamespace = compliedNamespace
@@ -53,7 +53,7 @@ internal class CodeBuilder (ICimSchema cimSchema,
 
         if (namespaceSyntax.References.Contains(EnumBlock))
         {
-            var enums = _cimSchema.Classes.Where(c => c.IsEnum);
+            var enums = _cimSchema.Classes.Where(c => c.IsEnum && !c.IsExtension);
 
             var compiledEnums = CompileEnums(enums);
             compliedNamespace = compliedNamespace
@@ -63,7 +63,7 @@ internal class CodeBuilder (ICimSchema cimSchema,
         return compliedNamespace;
     }
 
-    private string CompileAnotation(ICimMetaResource cimMetaResource)
+    private string CompileAnnotation(ICimMetaResource cimMetaResource)
     {
         if (_syntaxBlocks.TryGetValue(AnnotationBlock, 
             out var annotationSyntax) == false)
@@ -93,7 +93,7 @@ internal class CodeBuilder (ICimSchema cimSchema,
             if (classSyntax.References.Contains(AnnotationBlock))
             {
                 compiledClass = compiledClass.Replace(
-                    $"&:{AnnotationBlock}:", CompileAnotation(metaClass));
+                    $"&:{AnnotationBlock}:", CompileAnnotation(metaClass));
             }
 
             if (classSyntax.References.Contains(AttributeBlock))
@@ -141,7 +141,7 @@ internal class CodeBuilder (ICimSchema cimSchema,
             if (enumSyntax.References.Contains(AnnotationBlock))
             {
                 compiledEnum = compiledEnum.Replace(
-                    $"&:{AnnotationBlock}:", CompileAnotation(metaClass));
+                    $"&:{AnnotationBlock}:", CompileAnnotation(metaClass));
             }
 
             if (enumSyntax.References.Contains(EnumValueBlock))
@@ -176,7 +176,7 @@ internal class CodeBuilder (ICimSchema cimSchema,
             if (propSyntax.References.Contains(AnnotationBlock))
             {
                 compiledValue = compiledValue.Replace(
-                    $"&:{AnnotationBlock}:", CompileAnotation(metaIndividual));
+                    $"&:{AnnotationBlock}:", CompileAnnotation(metaIndividual));
             }
 
             compiledEnumValues += compiledValue;
@@ -209,7 +209,7 @@ internal class CodeBuilder (ICimSchema cimSchema,
             if (propSyntax.References.Contains(AnnotationBlock))
             {
                 compiledProp = compiledProp.Replace(
-                    $"&:{AnnotationBlock}:", CompileAnotation(metaProp));
+                    $"&:{AnnotationBlock}:", CompileAnnotation(metaProp));
             }
 
             compiledProps += compiledProp;
