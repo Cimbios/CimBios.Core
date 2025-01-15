@@ -50,8 +50,6 @@ var codeBuilder = new CodeBuilder(cimSchema, templateCodeBlocks.ToArray(),
 codeBuilder.Compile(codePath);
 #endregion Typelib compilation
 
-Console.ReadLine();
-
 // ----------------------------------------------------------------------------
 public enum SerializerTypeInfo
 {
