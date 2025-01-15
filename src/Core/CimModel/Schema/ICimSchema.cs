@@ -19,6 +19,12 @@ public interface ICimSchema : ICanLog
     public IEnumerable<ICimMetaClass> Classes { get; }
 
     /// <summary>
+    /// All CimMetaClass instances - RDF description instances 
+    /// of RDF type Class.
+    /// </summary>
+    public IEnumerable<ICimMetaClass> Extensions { get; }
+
+    /// <summary>
     /// All CimMetaProperty instances - RDF description instances 
     /// of RDF type Property.
     /// </summary>
