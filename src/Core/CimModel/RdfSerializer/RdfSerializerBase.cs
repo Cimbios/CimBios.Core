@@ -81,6 +81,8 @@ public abstract class RdfSerializerBase
 
         _streamWriter = streamWriter;
 
+        InitializeWriterNamespaces();
+
         _RdfWriter.Open(streamWriter);
     }
 
