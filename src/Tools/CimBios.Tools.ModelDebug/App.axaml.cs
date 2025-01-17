@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using CimBios.Tools.ModelDebug.Services;
 using CimBios.Tools.ModelDebug.Views;
 
 namespace CimBios.Tools.ModelDebug;
@@ -10,8 +11,8 @@ public partial class App : Application
 {
     public override void Initialize()
     {
-        Services.ServiceLocator.GetInstance()
-            .RegisterService(new Core.CimModel.Document.CimDocument());
+         Services.ServiceLocator.GetInstance()
+            .RegisterService(new NotifierService()); 
 
         AvaloniaXamlLoader.Load(this);
     }

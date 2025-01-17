@@ -1,4 +1,4 @@
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.Builder;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Tools.CimTypeLibBuilder.CodeBuilder;

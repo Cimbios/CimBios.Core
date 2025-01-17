@@ -13,19 +13,10 @@ public class RdfXmlSerializer : RdfSerializerBase
     protected override RdfReaderBase _RdfReader => _rdfReader;
     protected override RdfWriterBase _RdfWriter => _rdfWriter;
 
-    public RdfXmlSerializer(IDataProvider provider,
-        ICimSchema schema, ICimDatatypeLib datatypeLib)
-        : base(provider, schema, datatypeLib)
+    public RdfXmlSerializer(ICimSchema schema, ICimDatatypeLib datatypeLib)
+        : base(schema, datatypeLib)
     {
-        _rdfReader = new RdfXmlReader(provider.Source);
-        _rdfWriter = new RdfXmlWriter();
-    }
-
-    public RdfXmlSerializer(string path, ICimSchema schema, 
-        ICimDatatypeLib datatypeLib)
-        : base(new FileStreamDataProvider(new Uri(path)), schema, datatypeLib)
-    {
-        _rdfReader = new RdfXmlReader(new Uri(path));
+        _rdfReader = new RdfXmlReader();
         _rdfWriter = new RdfXmlWriter();
     }
 
