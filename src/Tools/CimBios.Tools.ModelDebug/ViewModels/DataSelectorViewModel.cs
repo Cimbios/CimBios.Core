@@ -273,6 +273,9 @@ public class DataSelectorViewModel : ViewModelBase
 
         ResultMessage += "Model successfully loaded!\n";
 
+        Services.ServiceLocator.GetInstance()
+            .RegisterService(modelContext);      
+
         if (Services.ServiceLocator.GetInstance()
             .TryGetService<NotifierService>(out var notifier))
         {
