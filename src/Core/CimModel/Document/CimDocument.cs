@@ -1,10 +1,11 @@
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Data;
+using System.Text;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Core.DataProvider;
+using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Utils.ClassTraits;
 
 namespace CimBios.Core.CimModel.Document;
@@ -35,39 +36,39 @@ public class CimDocument : ICanLog
     public CimDocument()
     {
         _Log = new PlainLogView(this);
+        _Objects = [];
 
-        _Objects = new Dictionary<string, IModelObject>();
+        _serializer = new RdfXmlSerializer(
+            new CimAutoSchemaXmlFactory().CreateSchema(), 
+            new CimDatatypeLib.CimDatatypeLib());
     }
 
-    public CimDocument(IModelObjectsProvider modelObjectsProvider) : this()
+    public CimDocument(RdfSerializerBase rdfSerializer)
     {
-        InitContextDataConfig(modelObjectsProvider);
+        _Log = new PlainLogView(this);
+        _Objects = [];
+
+        _serializer = rdfSerializer;
     }
 
     /// <summary>
-    /// Load CIM model to context via config.
+    /// Load CIM model to context via stream reader.
     /// </summary>
-    public void Load()
+    public void Load(StreamReader streamReader)
     {
-        if (_provider == null || _serializer == null)
+        if (streamReader == null || _serializer == null)
         {
             _Log.NewMessage(
-                "CimDocument: Object data provider has not been initialized!",
+                "CimDocument: Stream reader or serializer has not been initialized!",
                 LogMessageSeverity.Error
             );            
 
             return;
         }
 
-        _Log.NewMessage(
-            "CimDocument: Loading model context.",
-            LogMessageSeverity.Info,
-            _provider.Source.AbsoluteUri
-        );
-
         try
         {
-            var serialized = _serializer.Deserialize();
+            var serialized = _serializer.Deserialize(streamReader);
             _Objects = serialized.ToDictionary(k => k.Uuid, v => v);
         }
         catch (Exception ex)
@@ -81,42 +82,42 @@ public class CimDocument : ICanLog
         finally
         {        
             ReadModelDescription();
-
-            ModelLoaded?.Invoke(this, EventArgs.Empty);
         }
     }
 
     /// <summary>
-    /// Load CIM model to context via config.
+    /// Load CIM model to context by path.
     /// </summary>
-    /// <param name="contextDataConfig">Context configuration.</param>
-    public void Load(IModelObjectsProvider modelObjectsProvider)
+    public void Load(string path)
     {
-        InitContextDataConfig(modelObjectsProvider);
-
-        Load();
+        Load(new StreamReader(File.Open(path, FileMode.Open)));
     }
 
     /// <summary>
-    /// Save CIM model to context via config.
+    /// Parse CIM model to context from string.
     /// </summary>
-    public void Save()
+    public void Parse(string content, Encoding? encoding = null)
     {
-        if (_provider == null || _serializer == null)
+        encoding ??= Encoding.Default;
+        var memoryStream = new MemoryStream(encoding.GetBytes(content));
+        var stringReader = new StreamReader(memoryStream);
+        Load(stringReader);
+    }
+
+    /// <summary>
+    /// Write CIM model to stream writer.
+    /// </summary>
+    public void Save(StreamWriter streamWriter)
+    {
+        if (streamWriter == null || _serializer == null)
         {
             _Log.NewMessage(
-                "CimDocument: Object data provider has not been initialized!",
+                "CimDocument: Stream writer provider has not been initialized!",
                 LogMessageSeverity.Error
             );  
 
             return;
         }  
-
-        _Log.NewMessage(
-            "CimDocument: Saving model context.",
-            LogMessageSeverity.Info,
-            _provider.Source.AbsoluteUri
-        ); 
 
         var forSerializeObjects = _Objects.Values.ToImmutableList();
         if (Description != null)
@@ -126,7 +127,7 @@ public class CimDocument : ICanLog
 
         try
         {
-            _serializer.Serialize(forSerializeObjects);
+            _serializer.Serialize(streamWriter, forSerializeObjects);
         }
         catch (Exception ex)
         {
@@ -139,14 +140,11 @@ public class CimDocument : ICanLog
     }
 
     /// <summary>
-    /// Save CIM model to context via config.
+    /// Save CIM model to file.
     /// </summary>
-    /// <param name="contextDataConfig">Context configuration.</param>
-    public void Save(IModelObjectsProvider modelObjectsProvider)
+    public void Save(string path)
     {
-        InitContextDataConfig(modelObjectsProvider);
-
-        Save();        
+        Save(new StreamWriter(path));        
     }
 
     /// <summary>
@@ -155,7 +153,25 @@ public class CimDocument : ICanLog
     /// <returns>IModelObject instance collection.</returns>
     public IEnumerable<IModelObject> GetAllObjects()
     {
-        return _Objects.ToList().Select(kvp => kvp.Value);
+        return _Objects.Values;
+    }
+
+    /// <summary>
+    /// Get all typed model objects.
+    /// </summary>
+    /// <returns>IModelObject instance collection.</returns>
+    public IEnumerable<T> GetObjects<T>() where T : IModelObject
+    {
+        return _Objects.Values.OfType<T>();
+    }
+
+    /// <summary>
+    /// Get all meta typed model objects.
+    /// </summary>
+    /// <returns>IModelObject instance collection.</returns>
+    public IEnumerable<IModelObject> GetObjects(ICimMetaClass metaClass)
+    {
+        return _Objects.Values.Where(o => o.MetaClass == metaClass);
     }
 
     /// <summary>
@@ -219,19 +235,6 @@ public class CimDocument : ICanLog
     }
 
     /// <summary>
-    /// Initialize read/write model stategy.
-    /// </summary>
-    /// <param name="modelObjectsProvider">Context configuration.</param>
-    private void InitContextDataConfig(
-        IModelObjectsProvider modelObjectsProvider)
-    {
-        _provider = modelObjectsProvider.DataProvider;
-        _serializer = modelObjectsProvider.Serializer;
-        _serializer.TypeLib = modelObjectsProvider.TypeLib;
-        _serializer.Schema = modelObjectsProvider.CimSchema;
-    }
-
-    /// <summary>
     /// Find and extract IFullModel description from _objects cache.
     /// </summary>
     private void ReadModelDescription()
@@ -255,13 +258,7 @@ public class CimDocument : ICanLog
         }
     }
 
-    /// <summary>
-    /// On model load finish firing event.
-    /// </summary>
-    public event EventHandler? ModelLoaded;
-
-    private IDataProvider? _provider;
-    private RdfSerializerBase? _serializer;
+    private RdfSerializerBase _serializer;
 
     private PlainLogView _Log;
 }

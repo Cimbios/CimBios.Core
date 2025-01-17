@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using System.Xml;
 
 namespace CimBios.Core.RdfIOLib;
 
@@ -8,38 +8,95 @@ namespace CimBios.Core.RdfIOLib;
 /// </summary>
 public class RdfXmlWriter : RdfWriterBase
 {
+    private XmlWriter _XmlWriter
+    {
+        get
+        {
+            if (_xmlWriter == null)
+            {
+                throw new InvalidOperationException("XmlWriter has not been initialized!");
+            }
+
+            return _xmlWriter;
+        }
+    }
+
     /// <summary>
     /// Default constructor, needs namespaces from Schema to function properly
     /// </summary>
     public RdfXmlWriter() { }
 
-    public override XDocument Write(IEnumerable<RdfNode> rdfNodes,
+    public override void Open(TextWriter textWriter,
         bool excludeBase = true)
     {
-        var xDoc = new XDocument();
+        var xmlWriter = XmlWriter.Create(textWriter,
+            new XmlWriterSettings()
+            {
+                Indent = true
+            }
+        );
 
-        var header = CreateRootRdfNode();
-        xDoc.Add(header);
+        Open(xmlWriter);
+    }
 
-        foreach (RdfNode rdfNode in rdfNodes)
+    public override void Open(XmlWriter xmlWriter,
+        bool excludeBase = true)
+    {
+        _xmlWriter = xmlWriter;
+
+        if (_xmlWriter.WriteState == WriteState.Closed
+            || _xmlWriter.WriteState == WriteState.Error)
         {
-            var resouceIdentifier = NormalizeIdentifier(rdfNode.Identifier);
-
-            var nodeIdentifier = UriToXName(rdfNode.TypeIdentifier);
-            var serializedNode = new XElement(nodeIdentifier,
-                                 new XAttribute(rdf + "about", resouceIdentifier));
-
-            WriteTriples(ref serializedNode, rdfNode.Triples);
-
-            header.Add(serializedNode);
+            throw new Exception("XmlWriter has not been initialized!");
         }
 
-        if (excludeBase == true)
+        if (WriteRdfRootNode() == false)
         {
-            header.Attribute(XNamespace.Xmlns + "base")?.Remove();
+            throw new Exception("Failed to write rdf:RDF root node!");
         }
-        
-        return xDoc;
+    }
+
+    public override void Write(RdfNode rdfNode)
+    {
+
+    }
+
+    public override void WriteAll(IEnumerable<RdfNode> rdfNodes)
+    {
+        foreach (var rdfNode in rdfNodes)
+        {
+            Write(rdfNode);
+        }
+    }
+
+    /// <summary>
+    /// Creates header-node with all on XML-RDF namespaces
+    /// </summary>
+    private bool WriteRdfRootNode()
+    {
+        if (CanWriteNext() == false)
+        {
+            return false;
+        }
+
+        _XmlWriter.WriteStartDocument();
+        _XmlWriter.WriteStartElement("rdf", "RDF", rdf);
+        _XmlWriter.WriteEndElement();
+        _XmlWriter.WriteEndDocument();
+        _XmlWriter.Close();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Get writing ability status.
+    /// </summary>
+    /// <returns>True if writing is available.</returns>
+    private bool CanWriteNext()
+    {
+        return _xmlWriter != null
+            && _xmlWriter.WriteState != WriteState.Closed
+            && _xmlWriter.WriteState != WriteState.Error;
     }
 
     /// <summary>
@@ -65,60 +122,5 @@ public class RdfXmlWriter : RdfWriterBase
         return uri.AbsoluteUri;
     }
 
-    /// <summary>
-    /// Converts RdfTriples into XElements for the node that was given as ref object
-    /// </summary>
-    /// <param name="serializedNode"></param>
-    /// <param name="triples"></param>
-    private void WriteTriples(ref XElement serializedNode, 
-        IEnumerable<RdfTriple> triples)
-    {
-        foreach (var triple in triples)
-        {
-            var xPredicate = UriToXName(triple.Predicate);
-
-            // resource reference - blank
-            if (triple.Object is Uri refIdentifier)
-            {
-                serializedNode.Add(
-                    new XElement(
-                        xPredicate,
-                        new XAttribute(
-                            rdf + "resource", 
-                            NormalizeIdentifier(refIdentifier)))
-                );
-            }
-            // compound prop - anonymous
-            else if (triple.Object is RdfNode compound)
-            {
-                var xType = UriToXName(compound.TypeIdentifier);
-
-                var headCompound = new XElement(xType);
-                var compoundNode = new XElement(xPredicate, headCompound);
-                WriteTriples(ref compoundNode, compound.Triples);
-
-                headCompound.Add(compoundNode.LastNode);
-                compoundNode.LastNode?.Remove();
-
-                serializedNode.Add(compoundNode);
-            }
-            // variable prop - literal
-            else
-            {
-                serializedNode.Add(new XElement(xPredicate, 
-                    FormatLiteralValue(triple.Object)));
-            }
-        }
-    }
-
-    /// <summary>
-    /// Creates header-node with all on XML-RDF namespaces
-    /// </summary>
-    private XElement CreateRootRdfNode()
-    {
-        var xNamespaces = Namespaces.Select(
-            n =>  new XAttribute(XNamespace.Xmlns + n.Key, n.Value));
-
-        return new XElement(rdf + "RDF", xNamespaces);
-    }
+    private XmlWriter? _xmlWriter = null;
 }

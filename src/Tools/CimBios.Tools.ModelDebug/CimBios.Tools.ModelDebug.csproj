@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,12 +7,10 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
-
   <ItemGroup>
     <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.1.0" />
     <PackageReference Include="Avalonia.Desktop" Version="11.1.0" />
@@ -24,12 +22,10 @@
     <PackageReference Include="Semi.Avalonia" Version="11.1.0" />
     <PackageReference Include="Semi.Avalonia.TreeDataGrid" Version="11.0.10" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="../../Core/CimModel/Document/CimBios.Core.CimModel.Document.csproj" />
     <ProjectReference Include="..\..\Core\DataProvider\CimBios.Core.DataProvider.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Update="Views/DataSelectorWindow.axaml.cs">
       <DependentUpon>DataSelectorWindow.axaml</DependentUpon>

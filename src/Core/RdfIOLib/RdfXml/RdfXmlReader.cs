@@ -61,10 +61,7 @@ public sealed class RdfXmlReader : RdfReaderBase
         Load(xmlReader);
     }
 
-    /// <summary>
-    /// Load rdf/xml content from XDocument.
-    /// </summary>
-    public void Load(XmlReader xmlReader)
+    public override void Load(XmlReader xmlReader)
     {
         ClearNamespaces();
         _xmlReader = xmlReader;

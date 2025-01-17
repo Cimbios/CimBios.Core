@@ -1,8 +1,6 @@
 using System.Globalization;
-using System.Xml.Linq;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Core.DataProvider;
 using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.RdfSerializer;
@@ -26,11 +24,8 @@ public abstract class RdfSerializerBase
     public ICimDatatypeLib TypeLib
     { get => _typeLib; set => _typeLib = value; }
 
-    /// <summary>
-    /// Data provider with source.
-    /// </summary>
-    public IDataProvider Provider
-    { get => _provider; }
+    public Uri BaseUri { get; set; } = 
+        new Uri("http://cim.bios/serialization/model/rdfxml");
 
     /// <summary>
     /// Rdf reader abstract entity.
@@ -42,10 +37,8 @@ public abstract class RdfSerializerBase
     /// </summary>
     protected abstract RdfWriterBase _RdfWriter { get; }
 
-    protected RdfSerializerBase(IDataProvider provider,
-        ICimSchema schema, ICimDatatypeLib datatypeLib) 
+    protected RdfSerializerBase(ICimSchema schema, ICimDatatypeLib datatypeLib) 
     {
-        _provider = provider;
         _schema = schema;
         _typeLib = datatypeLib;
     }
@@ -55,8 +48,9 @@ public abstract class RdfSerializerBase
     /// <param name="settings">Serializer settings.</param>
     /// <returns>Deserializer IModelObject collection.</returns>
     /// </summary>
-    public IEnumerable<IModelObject> Deserialize()
+    public IEnumerable<IModelObject> Deserialize(StreamReader streamReader)
     {
+        InitializeRdfReader(streamReader);
         var deserializedObjects = ReadObjects();
         ResetCache();
 
@@ -68,23 +62,33 @@ public abstract class RdfSerializerBase
     /// <param name="modelObjects">IModelObject collection for serialization.</param>
     /// <param name="settings">Serializer settings.</param>
     /// </summary>
-    public void Serialize(IEnumerable<IModelObject> modelObjects)
+    public void Serialize(StreamWriter streamWriter, 
+        IEnumerable<IModelObject> modelObjects)
     {
-        InitializeWriterNamespaces();
-
-        var serializedObjects = WriteObjects(modelObjects);
-        Provider.Push(serializedObjects);
-
+        InitializeRdfWriter(streamWriter);
+        WriteObjects(modelObjects);
         ResetCache();
     }
 
     #region SerializerBlock
 
-    private XDocument WriteObjects(IEnumerable<IModelObject> modelObjects)
+    private void InitializeRdfWriter(StreamWriter streamWriter)
     {
-        if (_RdfWriter == null)
+        if (streamWriter == null)
         {
-            throw new Exception("Writter was not initialized!");
+            throw new Exception("No data stream for write!");
+        }
+
+        _streamWriter = streamWriter;
+
+        _RdfWriter.Open(streamWriter);
+    }
+
+    private void WriteObjects(IEnumerable<IModelObject> modelObjects)
+    {
+        if (_streamWriter == null)
+        {
+            throw new Exception("Serializer writer has not been intialized!");
         }
 
         var objsToWrite = new List<RdfNode>();
@@ -99,7 +103,8 @@ public abstract class RdfSerializerBase
             objsToWrite.Add(moNode);
         }
 
-        return _RdfWriter.Write(objsToWrite);
+        _RdfWriter.WriteAll(objsToWrite);
+        _streamWriter.Close();
     }
 
     /// <summary>
@@ -271,7 +276,7 @@ public abstract class RdfSerializerBase
     /// <returns></returns>
     private Uri GetBasedIdentifier(string uuid, string prefix)
     {
-        return new(Provider.Source + $"{prefix}{uuid}");
+        return new(_RdfWriter.Namespaces["base"] + $"{prefix}{uuid}");
     }
 
     /// <summary>
@@ -294,26 +299,24 @@ public abstract class RdfSerializerBase
             _RdfWriter.AddNamespace(ns.Key, ns.Value);
         }
 
-        _RdfWriter.AddNamespace("base", Provider.Source);
+        _RdfWriter.AddNamespace("base", BaseUri);
     }
 
     #endregion
 
     #region DeserializerBlock
 
-    private void InitializeRdfReader()
+    private void InitializeRdfReader(StreamReader streamReader)
     {
-        if (Provider.DataStream == null
-            || Provider.DataStream.CanRead == false
-            || Provider.DataStream.CanSeek == false)
+        if (streamReader == null
+            || streamReader.BaseStream.CanSeek == false)
         {
             throw new Exception("No data stream for read!");
         }
 
-        Provider.DataStream.Position = 0;
-        var streamReader = new StreamReader(Provider.DataStream);
+        _streamReader = streamReader;
         _RdfReader.Load(streamReader);
-        _RdfReader.AddNamespace("base", Provider.Source);
+        _RdfReader.AddNamespace("base", BaseUri);
     }
 
     private void ResetCache()
@@ -329,16 +332,14 @@ public abstract class RdfSerializerBase
     /// <returns>Collection of IModelObject instances.</returns>
     private List<IModelObject> ReadObjects()
     {
-        _objectsCache.Clear();
-        _waitingReferenceObjectUuids.Clear();
+        ResetCache();
 
-        if (_RdfReader == null)
+        if (_streamReader == null)
         {
-            throw new Exception("Reader was not initialized!");
+            throw new Exception("Serializer reader has not been intialized!");
         }
 
         // First step - creating objects.
-        InitializeRdfReader();
         foreach (var instanceNode in _RdfReader.ReadAll())
         {
             var instance = RdfNodeToModelObject(instanceNode, false);
@@ -351,7 +352,9 @@ public abstract class RdfSerializerBase
         }
 
         // Second step - fill objects properties.
-        InitializeRdfReader();
+        _streamReader.BaseStream.Position = 0;
+        _streamReader.DiscardBufferedData();    
+        InitializeRdfReader(_streamReader);
         foreach (var instanceNode in _RdfReader.ReadAll())
         {
             if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
@@ -373,6 +376,7 @@ public abstract class RdfSerializerBase
         }
 
         _RdfReader.Close();
+        _streamReader.Close();
 
         return [.. _objectsCache.Values];
     }
@@ -687,9 +691,11 @@ public abstract class RdfSerializerBase
 
     private ICimSchema _schema;
     private ICimDatatypeLib _typeLib;
-    private IDataProvider _provider;
 
     private Dictionary<string, IModelObject> _objectsCache = [];
     private HashSet<string> _waitingReferenceObjectUuids = [];
     private Dictionary<string, List<string>> _checkedPropsCache = [];
+
+    private StreamReader? _streamReader;
+    private StreamWriter? _streamWriter;
 }

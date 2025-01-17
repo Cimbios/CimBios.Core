@@ -6,11 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Document;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Tools.ModelDebug.Models;
+using CimBios.Tools.ModelDebug.Services;
 using CommunityToolkit.Mvvm.Input;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
@@ -85,7 +87,7 @@ public class DataSelectorViewModel : ViewModelBase
         DataContexties = new ObservableCollection<ModelDataContextModel>()
         {
             new ModelDataContextModel("CIMXML File", 
-                new RdfXmlFileModelObjectsProviderFactory(),
+                new RdfXmlSerializerFactory(),
                 new FileDialogSourceSelector() { OwnerWindow = OwnerView }),
         };
         SelectedDataContext = DataContexties.FirstOrDefault();
@@ -158,10 +160,7 @@ public class DataSelectorViewModel : ViewModelBase
 
         try
         {
-            var dataContext = SelectedDataContext.ModelDataContextFactory
-                .Create(SourceUri, modelContext.Schema);
-
-            modelContext.Save(dataContext);
+            modelContext.Save(SourceUri.LocalPath);
         }
         catch (Exception ex)
         {
@@ -248,9 +247,12 @@ public class DataSelectorViewModel : ViewModelBase
     private bool CreateModelContext(ICimSchema cimSchema)
     {
         if (Services.ServiceLocator.GetInstance()
-            .TryGetService<CimDocument>(out var modelContext) == false
-            || modelContext == null)
+            .TryGetService<CimDocument>(out var modelContext)
+            && modelContext != null)
         {
+            Services.ServiceLocator.GetInstance()
+                .UnregisterService(modelContext);     
+
             ResultMessage += "Model context service has not registered!\n";
             return false;
         }
@@ -262,12 +264,20 @@ public class DataSelectorViewModel : ViewModelBase
             return false;
         }
 
-        var dataContext = SelectedDataContext.ModelDataContextFactory
-            .Create(SourceUri, cimSchema);
+        
+        var serializer = SelectedDataContext.RdfSerializerFactory
+            .Create(cimSchema, new CimDatatypeLib());
+        modelContext = new CimDocument(serializer);
 
-        modelContext.Load(dataContext);
+        modelContext.Load(SourceUri.LocalPath);
 
         ResultMessage += "Model successfully loaded!\n";
+
+        if (Services.ServiceLocator.GetInstance()
+            .TryGetService<NotifierService>(out var notifier))
+        {
+            notifier?.Fire(modelContext, EventArgs.Empty);
+        }
 
         return true;
     }

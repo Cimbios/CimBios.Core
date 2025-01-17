@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+using System.Xml;
 
 namespace CimBios.Core.RdfIOLib;
 
@@ -7,13 +7,32 @@ public abstract class RdfWriterBase : RdfNamespacesContainerBase
     protected RdfWriterBase() { }
 
     /// <summary>
-    /// Writes RdfNodes to XxmlDocument
+    /// Open rdf/xml content from TextWriter.
+    /// </summary>
+    public abstract void Open(TextWriter textWriter,
+        bool excludeBase = true);
+
+    /// <summary>
+    /// Open rdf/xml content from XmlWriter.
+    /// </summary>
+    public abstract void Open(XmlWriter xmlWriter,
+        bool excludeBase = true);
+
+    /// <summary>
+    /// Write RdfNode to XmlWriter stream
+    /// </summary>
+    /// <param name="rdfNode"></param>
+    /// <param name="excludeBase"></param>
+    /// <returns>Serialized model XDocument</returns>
+    public abstract void Write(RdfNode rdfNode);
+
+    /// <summary>
+    /// Writes RdfNodes list to XmlWriter stream
     /// </summary>
     /// <param name="rdfNodes"></param>
     /// <param name="excludeBase"></param>
     /// <returns>Serialized model XDocument</returns>
-    public abstract XDocument Write(IEnumerable<RdfNode> rdfNodes, 
-        bool excludeBase = true);
+    public abstract void WriteAll(IEnumerable<RdfNode> rdfNodes);
 
     /// <summary>
     /// Re-format literal values for specific types.

@@ -7,6 +7,7 @@ using CimBios.Core.CimModel.Document;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
 using CimBios.Tools.ModelDebug.Models;
+using CimBios.Tools.ModelDebug.Services;
 using CommunityToolkit.Mvvm.Input;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
@@ -115,13 +116,13 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
     private void SubscribeModelContextLoad()
     {
         if (Services.ServiceLocator.GetInstance()
-            .TryGetService<CimDocument>(out var modelContext) == false
-            || modelContext == null)
+            .TryGetService<NotifierService>(out var notifier) == false
+            || notifier == null)
         {
             return;
         }
 
-        modelContext.ModelLoaded += ModelContext_ModelLoaded;
+        notifier.Fired += ModelContext_ModelLoaded;
     }
 
     private void ModelContext_ModelLoaded(object? sender, EventArgs e)

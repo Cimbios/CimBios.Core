@@ -1,4 +1,5 @@
 using System.Text;
+using System.Xml;
 
 namespace CimBios.Core.RdfIOLib;
 
@@ -16,6 +17,11 @@ public abstract class RdfReaderBase : RdfNamespacesContainerBase
     /// Load rdf/xml content from TextReader.
     /// </summary>
     public abstract void Load(TextReader textReader);
+
+    /// <summary>
+    /// Load rdf/xml content from XmlReader.
+    /// </summary>
+    public abstract void Load(XmlReader xmlReader);
 
     /// <summary>
     /// Close reader.
