@@ -105,12 +105,11 @@ public class CimDatatypeLib : ICimDatatypeLib
             );
         }
 
-        var iface = type.GetInterface(nameof(IModelObject));
-
-        if (iface == null)
+        var attribute = type.GetCustomAttribute<CimClassAttribute>();
+        if (attribute == null)
         {
             _Log.NewMessage(
-                "Type does not implement IModelObject interface!",
+                "Type does not have CimClass attribute!",
                 LogMessageSeverity.Warning,
                 type.FullName ?? string.Empty
             );
@@ -118,12 +117,17 @@ public class CimDatatypeLib : ICimDatatypeLib
             return;
         }
 
-        var attribute = type.GetCustomAttribute<CimClassAttribute>();
+        if (type.IsEnum)
+        {
+            _RegisteredTypes.Add(new Uri(attribute.AbsoluteUri), type);
+            return;
+        }
 
-        if (attribute == null)
+        var iface = type.GetInterface(nameof(IModelObject));
+        if (iface == null)
         {
             _Log.NewMessage(
-                "Type does not have CimClass attribute!",
+                "Type does not implement IModelObject interface!",
                 LogMessageSeverity.Warning,
                 type.FullName ?? string.Empty
             );
