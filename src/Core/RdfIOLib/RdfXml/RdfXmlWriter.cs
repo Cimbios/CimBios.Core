@@ -103,7 +103,8 @@ public class RdfXmlWriter : RdfWriterBase
             }
             else
             {
-                _XmlWriter.WriteString(triple.Object.ToString());
+                var formatedValue = FormatLiteralValue(triple.Object);
+                _XmlWriter.WriteString(formatedValue.ToString());
             }
 
             _XmlWriter.WriteEndElement();
