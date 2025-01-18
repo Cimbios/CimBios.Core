@@ -185,7 +185,7 @@ public abstract class RdfSerializerBase
         ICimMetaProperty attribute)
     {
         object? tripleObject = null;
-        if (attribute.PropertyDatatype is ICimMetaDatatype)
+        if (attribute.PropertyDatatype is ICimMetaDatatype datatype)
         {
             tripleObject = subject.GetAttribute(attribute);
         }
@@ -193,8 +193,18 @@ public abstract class RdfSerializerBase
         {
             if (metaClass.IsEnum)
             {
-
-                tripleObject = subject.GetAttribute<Uri>(attribute);
+                var enumObject = subject.GetAttribute(attribute);
+                if (enumObject is Uri)
+                {
+                    tripleObject = enumObject as Uri;
+                }
+                else if (enumObject is Enum typedEnum)
+                {   
+                    tripleObject = Schema.GetClassIndividuals(metaClass)
+                        .Where(i => i.ShortName == typedEnum.ToString())
+                        .Select(i => i.BaseUri)
+                        .FirstOrDefault();
+                }
             }
 
             if (metaClass.IsCompound)
@@ -335,7 +345,7 @@ public abstract class RdfSerializerBase
         // First step - creating objects.
         foreach (var instanceNode in _RdfReader.ReadAll())
         {
-            var instance = RdfNodeToModelObject(instanceNode, false);
+            var instance = RdfNodeToModelObject(instanceNode);
             if (instance == null)
             {
                 continue;
@@ -380,8 +390,7 @@ public abstract class RdfSerializerBase
     /// <param name="instanceNode">RdfNode CIM object presentation.</param>
     /// <param name="IsCompound">Is compound (inner child) node.</param>
     /// <returns>IModelObject instance or null.</returns>
-    private IModelObject? RdfNodeToModelObject(RdfNode instanceNode,
-        bool IsCompound = false)
+    private IModelObject? RdfNodeToModelObject(RdfNode instanceNode)
     {
         if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
             out var instanceUuid) == false)
@@ -604,7 +613,7 @@ public abstract class RdfSerializerBase
     /// <returns>Auto IModelObject or null.</returns>
     private IModelObject? MakeCompoundPropertyObject(RdfNode objectRdfNode)
     {
-        var compoundPropertyObject = RdfNodeToModelObject(objectRdfNode, true);
+        var compoundPropertyObject = RdfNodeToModelObject(objectRdfNode);
         if (compoundPropertyObject == null)
         {
             return null;
