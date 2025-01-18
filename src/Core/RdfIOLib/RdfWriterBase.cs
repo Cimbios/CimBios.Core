@@ -6,6 +6,8 @@ public abstract class RdfWriterBase : RdfNamespacesContainerBase
 {
     protected RdfWriterBase() { }
 
+    public RdfIRIModeKind RdfIRIMode { get; set; } = RdfIRIModeKind.About;
+
     /// <summary>
     /// Open rdf/xml content from TextWriter.
     /// </summary>
@@ -17,6 +19,11 @@ public abstract class RdfWriterBase : RdfNamespacesContainerBase
     /// </summary>
     public abstract void Open(XmlWriter xmlWriter,
         bool excludeBase = true);
+
+    /// <summary>
+    /// End of rdf document writing.
+    /// </summary>
+    public abstract void Close();
 
     /// <summary>
     /// Write RdfNode to XmlWriter stream
@@ -48,4 +55,10 @@ public abstract class RdfWriterBase : RdfNamespacesContainerBase
 
         return value;
     }
+}
+
+public enum RdfIRIModeKind
+{
+    About,
+    ID
 }

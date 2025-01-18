@@ -106,7 +106,7 @@ public abstract class RdfSerializerBase
         }
 
         _RdfWriter.WriteAll(objsToWrite);
-        _streamWriter.Close();
+        _RdfWriter.Close();
     }
 
     /// <summary>
@@ -175,9 +175,6 @@ public abstract class RdfSerializerBase
         }
     }
 
-    /// TODO:   Extract type parsing in the other one method.
-    ///         Fix datatypelib enum handling - need parse uri from schema by enum value.
-    ///         + code style %)
     /// <summary>
     /// Converts attribute property to RdfTriple.
     /// </summary>
@@ -188,21 +185,15 @@ public abstract class RdfSerializerBase
         ICimMetaProperty attribute)
     {
         object? tripleObject = null;
-        if (attribute.PropertyDatatype is ICimMetaDatatype metaDatatype)
+        if (attribute.PropertyDatatype is ICimMetaDatatype)
         {
-            tripleObject = subject
-                .GetAttribute(attribute);
+            tripleObject = subject.GetAttribute(attribute);
         }
         else if (attribute.PropertyDatatype is ICimMetaClass metaClass)
         {
-            if (TypeLib.RegisteredTypes.TryGetValue(metaClass.BaseUri, 
-                out var libType))
-            {
-                tripleObject = subject.GetAttribute(attribute);
-            }
-
             if (metaClass.IsEnum)
             {
+
                 tripleObject = subject.GetAttribute<Uri>(attribute);
             }
 
