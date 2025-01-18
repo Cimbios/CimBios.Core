@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Xml;
 
 namespace CimBios.Core.RdfIOLib;
@@ -50,7 +51,13 @@ public abstract class RdfWriterBase : RdfNamespacesContainerBase
     {
         if (value is DateTime dateTimeValue)
         {
-            return dateTimeValue.ToUniversalTime();
+            return dateTimeValue.ToUniversalTime()
+                .ToString("yyyy-MM-ddTHH:mm:ssZ");
+        }
+        else if (value is double || value is float)
+        {
+            return Convert.ChangeType(value,
+                typeof(string), CultureInfo.InvariantCulture);
         }
 
         return value;
