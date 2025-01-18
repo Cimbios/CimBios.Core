@@ -524,17 +524,13 @@ public abstract class RdfSerializerBase
                     .GetClassIndividuals(dataClass, true)
                     .Contains(schemaEnumValue);
 
-                var a = Schema
-                    .GetClassIndividuals(dataClass, true);
-
                 if (isClassesMatches)
                 {
                     if (TypeLib.RegisteredTypes.TryGetValue(
-                            schemaEnumValue!.InstanceOf!.BaseUri,
-                            out var typeEnum))
+                        property.PropertyDatatype.BaseUri, out var typeEnum))
                     {
                         var enumValue = Enum.Parse(typeEnum,
-                            schemaEnumValue.ShortName);
+                            schemaEnumValue!.ShortName);
 
                         endData = enumValue;
                     }
