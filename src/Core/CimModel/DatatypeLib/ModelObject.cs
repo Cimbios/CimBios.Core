@@ -162,6 +162,7 @@ public class ModelObject : DynamicObject, IModelObject
             }
             else if (value is IModelObject
                 || value is Uri
+                || metaProperty.PropertyDatatype!.IsEnum
                 || value.GetType().IsAssignableTo(primitiveType))
             {
                 _PropertiesData[metaProperty] = value;
