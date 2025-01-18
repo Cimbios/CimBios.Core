@@ -81,20 +81,22 @@ public abstract class RdfNamespacesContainerBase
     /// <param name="uri"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    protected XName UriToXName(Uri uri)
+    protected (string prefix, string name) UriToName(Uri uri)
     {        
-        // XNamespace ns = uri.AbsoluteUri[..(uri.AbsoluteUri.IndexOf('#') + 1)];
+        string ns = uri.AbsoluteUri[..(uri.AbsoluteUri.IndexOf('#') + 1)];
 
-        // if (_Namespaces.Values.Contains(uri) == false)
-        // {
-        //     throw new Exception("RdfXmlWriter.GetNameWithPrefix: no ns");
-        // }
+        var prefix = _Namespaces.Where(ns => ns.Value == uri)
+            .Select(p => p.Key).FirstOrDefault();
+            
+        if (prefix == null)
+        {
+            throw new Exception("RdfXmlWriter.GetNameWithPrefix: no ns");
+        }
 
-        // if (RdfUtils.TryGetEscapedIdentifier(uri, out var identifier))
-        // {
-        //     XName result = ns + identifier;
-        //     return result;
-        // }
+        if (RdfUtils.TryGetEscapedIdentifier(uri, out var identifier))
+        {
+            return (prefix, identifier);
+        }
 
         throw new Exception("RdfXmlWriter.GetNameWithPrefix: invalid rid");
     }

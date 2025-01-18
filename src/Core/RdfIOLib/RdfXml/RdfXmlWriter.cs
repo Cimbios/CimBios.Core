@@ -32,7 +32,8 @@ public class RdfXmlWriter : RdfWriterBase
         var xmlWriter = XmlWriter.Create(textWriter,
             new XmlWriterSettings()
             {
-                Indent = true
+                Indent = true,
+                CloseOutput = true,
             }
         );
 
@@ -56,9 +57,59 @@ public class RdfXmlWriter : RdfWriterBase
         }
     }
 
+    public override void Close()
+    {
+        if (_XmlWriter.WriteState == WriteState.Closed
+            || _XmlWriter.WriteState == WriteState.Error)
+        {
+            return;
+        }
+
+        _XmlWriter.WriteEndElement();
+        _XmlWriter.WriteEndDocument();
+        _XmlWriter.Close();
+    }
+
     public override void Write(RdfNode rdfNode)
     {
+        var nodeName = UriToName(rdfNode.TypeIdentifier);
+        _XmlWriter.WriteStartElement(nodeName.prefix, nodeName.name, 
+            Namespaces[nodeName.prefix].AbsoluteUri);
 
+        var iri = NormalizeIdentifier(rdfNode.Identifier);
+
+        if (rdfNode.IsAuto == false)
+        {
+            _XmlWriter.WriteAttributeString(
+                "rdf", 
+                RdfIRIMode == RdfIRIModeKind.About ? "about" : "ID", 
+                rdf, iri);
+        }
+
+        foreach (var triple in rdfNode.Triples)
+        {
+            var (prefix, name) = UriToName(triple.Predicate);
+            _XmlWriter.WriteStartElement(prefix, 
+                name, Namespaces[prefix].AbsoluteUri);
+            
+            if (triple.Object is Uri uriObject)
+            {
+                _XmlWriter.WriteAttributeString(
+                    "rdf", "resource", rdf, NormalizeIdentifier(uriObject));
+            }
+            else if (triple.Object is RdfNode compoundNode)
+            {
+                Write(compoundNode);
+            }
+            else
+            {
+                _XmlWriter.WriteString(triple.Object.ToString());
+            }
+
+            _XmlWriter.WriteEndElement();
+        }
+        
+        _XmlWriter.WriteEndElement();
     }
 
     public override void WriteAll(IEnumerable<RdfNode> rdfNodes)
@@ -67,6 +118,8 @@ public class RdfXmlWriter : RdfWriterBase
         {
             Write(rdfNode);
         }
+
+        Close();
     }
 
     /// <summary>
@@ -81,9 +134,12 @@ public class RdfXmlWriter : RdfWriterBase
 
         _XmlWriter.WriteStartDocument();
         _XmlWriter.WriteStartElement("rdf", "RDF", rdf);
-        _XmlWriter.WriteEndElement();
-        _XmlWriter.WriteEndDocument();
-        _XmlWriter.Close();
+
+        foreach (var ns in Namespaces)
+        {
+            _XmlWriter.WriteAttributeString("xmlns", ns.Key, 
+                xmlns, ns.Value.AbsoluteUri);
+        }
 
         return true;
     }
