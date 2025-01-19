@@ -2,15 +2,18 @@ using System.Globalization;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
+using CimBios.Utils.ClassTraits;
 
 namespace CimBios.Core.CimModel.RdfSerializer;
 
 /// <summary>
 /// Base serializer class provides (de)serialization functions.
 /// </summary>
-public abstract class RdfSerializerBase
+public abstract class RdfSerializerBase : ICanLog
 {
     protected const string IdentifierPrefix = "#_";
+
+    public ILogView Log => _Log;
 
     /// <summary>
     /// Cim schema rules.
@@ -41,6 +44,7 @@ public abstract class RdfSerializerBase
     {
         _schema = schema;
         _typeLib = datatypeLib;
+        _Log = new PlainLogView(this);
     }
 
     /// <summary>
@@ -326,7 +330,6 @@ public abstract class RdfSerializerBase
     {        
         _objectsCache = [];
         _waitingReferenceObjectUuids = [];
-        _checkedPropsCache = [];
     }
 
     /// <summary>
@@ -434,8 +437,7 @@ public abstract class RdfSerializerBase
         var schemaProperty = Schema.TryGetResource<ICimMetaProperty>
             (propertyTriple.Predicate);
 
-        if (schemaProperty == null
-            || IsPropertyAlignSchemaClass(schemaProperty, instance) == false)
+        if (schemaProperty == null)
         {
             return;
         }
@@ -506,13 +508,9 @@ public abstract class RdfSerializerBase
         }
         else if (property.PropertyDatatype is ICimMetaClass dataClass)
         {
-            if (dataClass.IsCompound
-                && data is IModelObject dataObject)
+            if (dataClass.IsCompound && data is IModelObject dataObject)
             {
-                if (dataClass == dataObject.MetaClass)
-                {
-                    endData = dataObject;
-                }
+                endData = dataObject;
             }
             else if (dataClass.IsEnum
                 && data is Uri enumValueUri)
@@ -520,11 +518,7 @@ public abstract class RdfSerializerBase
                 var schemaEnumValue = Schema
                     .TryGetResource<ICimMetaIndividual>(enumValueUri);
 
-                bool isClassesMatches = Schema
-                    .GetClassIndividuals(dataClass, true)
-                    .Contains(schemaEnumValue);
-
-                if (isClassesMatches)
+                if (schemaEnumValue != null)
                 {
                     if (TypeLib.RegisteredTypes.TryGetValue(
                         property.PropertyDatatype.BaseUri, out var typeEnum))
@@ -539,12 +533,24 @@ public abstract class RdfSerializerBase
                         endData = enumValueUri;
                     }
                 }
+                else
+                {
+                    throw new Exception($"Enum value {enumValueUri} does not exist in schema!");
+                }
             }
         }
 
-        if (endData != null)
+        try
+        { 
+            if (endData != null)
+            {
+                instance.SetAttribute(property, endData);
+            }
+        }
+        catch (Exception ex)
         {
-            instance.SetAttribute(property, endData);
+            _Log.NewMessage($"Failed set attribute to instance {instance.Uuid}", 
+                LogMessageSeverity.Error, ex.Message);
         }
     }
 
@@ -564,27 +570,7 @@ public abstract class RdfSerializerBase
             return;
         }
 
-        if (property.PropertyDatatype is not ICimMetaClass assocClassType)
-        {
-            return;
-        }
-
-        IModelObject? referenceInstance = null;
-        if (_objectsCache.TryGetValue(referenceUuid, out var modelObject))
-        {
-            var referenceMetaClass = modelObject.MetaClass;
-
-            if (referenceMetaClass == assocClassType
-                || referenceMetaClass.AllAncestors.Any(a => a == assocClassType)
-            )
-            {
-                referenceInstance = modelObject;
-            }
-            else
-            {
-                return;
-            }
-        }
+        _objectsCache.TryGetValue(referenceUuid, out var referenceInstance);
 
         if (referenceInstance == null)
         {
@@ -594,15 +580,23 @@ public abstract class RdfSerializerBase
             _waitingReferenceObjectUuids.Add(instance.Uuid);
         }
 
-        if (property.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+        try
         {
-            instance.SetAssoc1To1(property,
-                referenceInstance);
+            if (property.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+            {
+                instance.SetAssoc1To1(property,
+                    referenceInstance);
+            }
+            else if (property.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+            {
+                instance.AddAssoc1ToM(property,
+                    referenceInstance);
+            }
         }
-        else if (property.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+        catch (Exception ex)
         {
-            instance.AddAssoc1ToM(property,
-                referenceInstance);
+            _Log.NewMessage($"Failed set association to instance {instance.Uuid}", 
+                LogMessageSeverity.Error, ex.Message);
         }
     }
 
@@ -627,64 +621,6 @@ public abstract class RdfSerializerBase
         return compoundPropertyObject;
     }
 
-    /// <summary>
-    /// Check is property consider schema.
-    /// </summary>
-    /// <param name="schemaProperty">CIM meta property.</param>
-    /// <param name="instance">IModelObject instance.</param>
-    private bool IsPropertyAlignSchemaClass(ICimMetaProperty schemaProperty,
-        IModelObject instance)
-    {
-        if (IsPropertyChecked(instance.MetaClass.BaseUri, 
-            schemaProperty.BaseUri))
-        {
-            return true;
-        }
-
-        if (schemaProperty == null
-            || schemaProperty.OwnerClass == null)
-        {
-            return false;
-        }
-
-        if (instance.MetaClass.HasProperty(schemaProperty))
-        {
-            CacheCheckedProperty(instance.MetaClass.BaseUri, 
-                schemaProperty.BaseUri);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool IsPropertyChecked(Uri classType, Uri classProperty)
-    {
-        var classTypeId = classType.AbsoluteUri;
-        var classPropertyId = classProperty.AbsoluteUri;
-
-        if (_checkedPropsCache.TryGetValue(classTypeId, out var props)
-            && props.Contains(classPropertyId))
-        {
-            return true;
-        } 
-
-        return false;
-    }
-
-    private void CacheCheckedProperty(Uri classType, Uri classProperty)
-    {
-        var classTypeId = classType.AbsoluteUri;
-        var classPropertyId = classProperty.AbsoluteUri;
-
-        if (_checkedPropsCache.ContainsKey(classTypeId) == false)
-        {
-            _checkedPropsCache.Add(classTypeId, []);
-        }
-        
-        _checkedPropsCache[classTypeId].Add(classPropertyId);
-    }
-
     #endregion
 
     private ICimSchema _schema;
@@ -692,8 +628,9 @@ public abstract class RdfSerializerBase
 
     private Dictionary<string, IModelObject> _objectsCache = [];
     private HashSet<string> _waitingReferenceObjectUuids = [];
-    private Dictionary<string, List<string>> _checkedPropsCache = [];
 
     private StreamReader? _streamReader;
     private StreamWriter? _streamWriter;
+
+    private PlainLogView _Log;
 }
