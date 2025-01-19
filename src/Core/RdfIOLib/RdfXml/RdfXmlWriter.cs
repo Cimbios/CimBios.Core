@@ -37,13 +37,14 @@ public class RdfXmlWriter : RdfWriterBase
             }
         );
 
-        Open(xmlWriter);
+        Open(xmlWriter, excludeBase);
     }
 
     public override void Open(XmlWriter xmlWriter,
         bool excludeBase = true)
     {
         _xmlWriter = xmlWriter;
+        _excludeBase = excludeBase;
 
         if (_xmlWriter.WriteState == WriteState.Closed
             || _xmlWriter.WriteState == WriteState.Error)
@@ -138,6 +139,11 @@ public class RdfXmlWriter : RdfWriterBase
 
         foreach (var ns in Namespaces)
         {
+            if (_excludeBase && ns.Key == "base")
+            {
+                continue;
+            }
+
             _XmlWriter.WriteAttributeString("xmlns", ns.Key, 
                 xmlns, ns.Value.AbsoluteUri);
         }
@@ -180,4 +186,6 @@ public class RdfXmlWriter : RdfWriterBase
     }
 
     private XmlWriter? _xmlWriter = null;
+
+    private bool _excludeBase;
 }
