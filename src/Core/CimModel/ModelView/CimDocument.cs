@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.ComponentModel;
 using System.Data;
 using System.Text;
 using CimBios.Core.CimModel.CimDatatypeLib;
@@ -8,7 +7,7 @@ using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Utils.ClassTraits;
 
-namespace CimBios.Core.CimModel.Document;
+namespace CimBios.Core.CimModel.ModelView;
 
 /// <summary>
 /// Instance of CIM model in Rdf/* format.
@@ -185,9 +184,6 @@ public class CimDocument : ICanLog
             && !instance.IsAuto
             && !instance.MetaClass.IsCompound)
         {
-            instance.PropertyChanged 
-                += Notify_ModelObjectPropertyChanged;
-
             return instance;
         }
         else
@@ -221,17 +217,6 @@ public class CimDocument : ICanLog
     public bool RemoveObject(string uuid)
     {
         return _Objects.Remove(uuid);
-    }
-
-    /// <summary>
-    /// Fires on IModelObject property changed.
-    /// </summary>
-    /// <param name="sender">Firing IModelObject instance.</param>
-    /// <param name="e">Changed property info.</param>
-    private void Notify_ModelObjectPropertyChanged(object? sender, 
-        PropertyChangedEventArgs e)
-    {
-    //    throw new NotImplementedException();
     }
 
     /// <summary>

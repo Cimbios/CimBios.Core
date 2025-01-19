@@ -23,7 +23,7 @@
     <PackageReference Include="Semi.Avalonia.TreeDataGrid" Version="11.0.10" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../Core/CimModel/Document/CimBios.Core.CimModel.Document.csproj" />
+    <ProjectReference Include="../../Core/CimModel/ModelView/CimBios.Core.CimModel.ModelView.csproj" />
     <ProjectReference Include="..\..\Core\DataProvider\CimBios.Core.DataProvider.csproj" />
   </ItemGroup>
   <ItemGroup>
