@@ -1,14 +1,10 @@
 using System.ComponentModel;
 using System.Dynamic;
-using System.Security.Cryptography.X509Certificates;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
-/// <summary>
-/// Facade for data operations incapsulation.
-/// </summary>
 public class ModelObject : DynamicObject, IModelObject
 {
     public IModelObject? Owner { get; }

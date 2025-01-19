@@ -3,6 +3,10 @@ using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
+/// <summary>
+/// CIM object abstaction view. 
+/// Provides read and modification logic with data validation.
+/// </summary>
 public interface IModelObject : INotifyPropertyChanged
 {
     /// <summary>
