@@ -99,6 +99,8 @@ public interface ICimMetaClass : ICimMetaResource
     public IEnumerable<ICimMetaClass> Extensions { get; }
     public IEnumerable<ICimMetaProperty> AllProperties { get; }
     public IEnumerable<ICimMetaProperty> SelfProperties { get; }
+    public IEnumerable<ICimMetaIndividual> AllIndividuals { get; }
+    public IEnumerable<ICimMetaIndividual> SelfIndividuals { get; }
     public bool IsAbstract { get; }
     public bool IsExtension { get; }
     public bool IsEnum { get; }
