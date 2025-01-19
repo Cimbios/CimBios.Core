@@ -81,6 +81,10 @@ public class CimAutoClass : CimAutoResource,
 
     public IEnumerable<ICimMetaProperty> SelfProperties => _Properties;
 
+    public IEnumerable<ICimMetaIndividual> AllIndividuals => GetAllIndividuals();
+
+    public IEnumerable<ICimMetaIndividual> SelfIndividuals => _Individuals;
+
     public bool AddExtension(ICimMetaClass metaClass)
     {
         if (_PlainAncestors.Contains(metaClass))
@@ -125,6 +129,25 @@ public class CimAutoClass : CimAutoResource,
         }        
     }
 
+    public void AddIndividual(ICimMetaIndividual metaIndividual)
+    {
+        if (metaIndividual.InstanceOf == this
+            && metaIndividual is CimAutoIndividual cimAutoIndividual
+            && _Individuals.Contains(cimAutoIndividual) == false)
+        {
+            _Individuals.Add(cimAutoIndividual);
+        }
+    }
+
+    public void RemoveIndividual(ICimMetaIndividual metaIndividual)
+    {
+        if (metaIndividual is CimAutoIndividual cimAutoIndividual
+            && _Individuals.Contains(metaIndividual) == true)
+        {
+            _Individuals.Remove(cimAutoIndividual);
+        }        
+    }
+
     private HashSet<CimAutoProperty> GetAllProperties()
     {
         HashSet<CimAutoProperty> properties = [];
@@ -163,11 +186,50 @@ public class CimAutoClass : CimAutoResource,
         return properties;
     }
 
+    private HashSet<CimAutoIndividual> GetAllIndividuals()
+    {
+        HashSet<CimAutoIndividual> individuals = [];
+
+        ICimMetaClass? nextClass = this;
+        while (nextClass != null)
+        {
+            foreach (var ind in nextClass.SelfIndividuals
+                .OfType<CimAutoIndividual>())
+            {
+                if (individuals.Contains(ind) == true)
+                {
+                    continue;
+                }
+
+                individuals.Add(ind);
+            }
+
+            foreach (var ext in nextClass.Extensions)
+            {
+                foreach (var extind in ext.SelfIndividuals
+                    .OfType<CimAutoIndividual>())
+                {
+                    if (individuals.Contains(extind) == true)
+                    {
+                        continue;
+                    }
+
+                    individuals.Add(extind);
+                }              
+            }
+
+            nextClass = nextClass.ParentClass;
+        }
+
+        return individuals;
+    }
+
     private readonly List<ICimMetaClass> _PlainAncestors = [];
 
     private CimAutoClass? _ParentClass;
 
     private readonly HashSet<CimAutoProperty> _Properties = [];
+    private readonly HashSet<CimAutoIndividual> _Individuals = [];
 }
 
 public class CimAutoProperty : CimAutoResource, ICimMetaProperty
@@ -212,5 +274,25 @@ public class CimAutoDatatype : CimAutoClass, ICimMetaDatatype
 
 public class CimAutoIndividual : CimAutoResource, ICimMetaIndividual
 {
-    public ICimMetaClass? InstanceOf { get; set; }
+    public ICimMetaClass? InstanceOf 
+    {
+        get => _InstanceOf; 
+        set
+        {
+            if (_InstanceOf == value)
+            {
+                return;
+            }
+
+            if (value == null)
+            {
+                _InstanceOf?.RemoveIndividual(this); 
+            }
+
+            _InstanceOf = value as CimAutoClass;
+            _InstanceOf?.AddIndividual(this); 
+        }
+    }
+
+    private CimAutoClass? _InstanceOf = null;
 }

@@ -77,9 +77,29 @@ public class CimRdfsIndividual : CimRdfDescriptionBase, ICimMetaIndividual
 {
     public ICimMetaClass? InstanceOf { get => EquivalentClass; }
 
-    public CimRdfsClass? EquivalentClass { get; set; }
+    public CimRdfsClass? EquivalentClass
+    {
+        get => _EquivalentClass; 
+        set 
+        {
+            if (_EquivalentClass == value)
+            {
+                return;
+            }
+
+            if (value == null)
+            {
+                _EquivalentClass?.RemoveIndividual(this); 
+            }
+
+            _EquivalentClass = value;
+            _EquivalentClass?.AddIndividual(this); 
+        } 
+    }
 
     public CimRdfsIndividual(Uri baseUri) : base(baseUri) { }
+
+    private CimRdfsClass? _EquivalentClass = null;
 }
 
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Datatype")]
@@ -139,6 +159,8 @@ public class CimRdfsClass : CimRdfDescriptionBase,
         .OfType<ICimMetaClass>().Where(c => c.IsExtension && c.ParentClass == null);
     public IEnumerable<ICimMetaProperty> AllProperties => GetAllProperties();
     public IEnumerable<ICimMetaProperty> SelfProperties => _Properties;
+    public IEnumerable<ICimMetaIndividual> AllIndividuals => GetAllIndividuals();
+    public IEnumerable<ICimMetaIndividual> SelfIndividuals => _Individuals;
     public bool IsAbstract => Stereotypes.Contains(UMLStereotype.CIMAbstract);
     public bool IsExtension => Stereotypes.Contains(UMLStereotype.CIMExtension);
     public bool IsEnum => Stereotypes.Contains(UMLStereotype.Enumeration);
@@ -181,6 +203,25 @@ public class CimRdfsClass : CimRdfDescriptionBase,
             && HasProperty(metaProperty, false) == true)
         {
             _Properties.Remove(cimRdfsProperty);
+        }        
+    }
+
+    public void AddIndividual(ICimMetaIndividual metaIndividual)
+    {
+        if (metaIndividual.InstanceOf == this
+            && metaIndividual is CimRdfsIndividual cimRdfsInd
+            && _Individuals.Contains(metaIndividual) == false)
+        {
+            _Individuals.Add(cimRdfsInd);
+        }
+    }
+
+    public void RemoveIndividual(ICimMetaIndividual metaIndividual)
+    {
+        if (metaIndividual is CimRdfsIndividual cimRdfsInd
+            && _Individuals.Contains(metaIndividual) == true)
+        {
+            _Individuals.Remove(cimRdfsInd);
         }        
     }
 
@@ -282,8 +323,47 @@ public class CimRdfsClass : CimRdfDescriptionBase,
         return properties;
     }
 
+    private HashSet<CimRdfsIndividual> GetAllIndividuals()
+    {
+        HashSet<CimRdfsIndividual> individuals = [];
+
+        ICimMetaClass? nextClass = this;
+        while (nextClass != null)
+        {
+            foreach (var ind in nextClass.SelfIndividuals
+                .OfType<CimRdfsIndividual>())
+            {
+                if (individuals.Contains(ind) == true)
+                {
+                    continue;
+                }
+
+                individuals.Add(ind);
+            }
+
+            foreach (var ext in nextClass.Extensions)
+            {
+                foreach (var extind in ext.SelfIndividuals
+                    .OfType<CimRdfsIndividual>())
+                {
+                    if (individuals.Contains(extind) == true)
+                    {
+                        continue;
+                    }
+
+                    individuals.Add(extind);
+                }              
+            }
+
+            nextClass = nextClass.ParentClass;
+        }
+
+        return individuals;
+    }
+
     private readonly List<ICimMetaResource> _SubClassOf = [];
     private readonly HashSet<CimRdfsProperty> _Properties = [];
+    private readonly HashSet<CimRdfsIndividual> _Individuals = [];
 }
 
 [CimSchemaSerializable("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")]
