@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.Dynamic;
+using System.Security.Cryptography.X509Certificates;
 using CimBios.Core.CimModel.Schema;
+using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
@@ -128,6 +130,9 @@ public class ModelObject : DynamicObject, IModelObject
 
     public void SetAttribute<T>(ICimMetaProperty metaProperty, T? value) 
     {
+        ValidatePropertyValueAssignition(metaProperty, 
+            value, CimMetaPropertyKind.Attribute);
+
         if (CanChangeProperty(metaProperty) == false)
         {
             return;
@@ -138,19 +143,12 @@ public class ModelObject : DynamicObject, IModelObject
             _PropertiesData.Add(metaProperty, null);
         }
 
-        if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
-            && _PropertiesData.ContainsKey(metaProperty))
+        if (_PropertiesData.ContainsKey(metaProperty))
         {
             if ((value == null && _PropertiesData[metaProperty] == null)
                 || value!.Equals(_PropertiesData[metaProperty]))
             {
                 return;
-            }
-
-            System.Type primitiveType = typeof(string);
-            if (metaProperty.PropertyDatatype is ICimMetaDatatype datatype)
-            {
-                primitiveType = datatype.PrimitiveType;
             }
 
             if (value == null)
@@ -160,20 +158,12 @@ public class ModelObject : DynamicObject, IModelObject
                 PropertyChanged?.Invoke(this, 
                     new CimMetaPropertyChangedEventArgs(metaProperty));
             }
-            else if (value is IModelObject
-                || value is Uri
-                || metaProperty.PropertyDatatype!.IsEnum
-                || value.GetType().IsAssignableTo(primitiveType))
+            else
             {
                 _PropertiesData[metaProperty] = value;
 
                 PropertyChanged?.Invoke(this, 
                     new CimMetaPropertyChangedEventArgs(metaProperty));
-            }
-            else
-            {
-                throw new ArgumentException(
-                    $"Attribute {metaProperty.ShortName} can not be assigned by {value}!");
             }
         }
         else
@@ -224,6 +214,9 @@ public class ModelObject : DynamicObject, IModelObject
 
      public void SetAssoc1To1(ICimMetaProperty metaProperty, IModelObject? obj)
      {
+        ValidatePropertyValueAssignition(metaProperty, 
+            obj, CimMetaPropertyKind.Assoc1To1);
+
         if (CanChangeProperty(metaProperty) == false)
         {
             return;
@@ -234,8 +227,7 @@ public class ModelObject : DynamicObject, IModelObject
             _PropertiesData.Add(metaProperty, null);
         }
 
-        if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
-            && _PropertiesData.ContainsKey(metaProperty))
+        if (_PropertiesData.ContainsKey(metaProperty))
         {
             if (_PropertiesData[metaProperty] == obj)
             {
@@ -316,13 +308,15 @@ public class ModelObject : DynamicObject, IModelObject
 
     public void AddAssoc1ToM(ICimMetaProperty metaProperty, IModelObject obj)
     {
+        ValidatePropertyValueAssignition(metaProperty, 
+            obj, CimMetaPropertyKind.Assoc1ToM);
+
         if (_PropertiesData.ContainsKey(metaProperty) == false)
         {
             _PropertiesData.Add(metaProperty, new HashSet<IModelObject>());
         }
 
-        if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
-            && _PropertiesData.TryGetValue(metaProperty, out var value)
+        if (_PropertiesData.TryGetValue(metaProperty, out var value)
             && value is ICollection<IModelObject> assocCollection)
         {
             if (assocCollection.Contains(obj))
@@ -431,6 +425,140 @@ public class ModelObject : DynamicObject, IModelObject
     #endregion Assocs1MLogic
 
     #region UtilsPrivate
+
+    /// <summary>
+    /// Validation of meta property assigning with value according schema.
+    /// </summary>
+    /// <param name="metaProperty">Meta property.</param>
+    /// <param name="value">Value to assigning.</param>
+    /// <param name="callerPropertyKind">Property kind.</param>
+    /// <exception cref="Exception"></exception>
+    /// <exception cref="ArgumentException"></exception>
+    private void ValidatePropertyValueAssignition(ICimMetaProperty metaProperty, 
+        object? value, CimMetaPropertyKind callerPropertyKind)
+    {
+        if (metaProperty.PropertyKind != callerPropertyKind)
+        {
+            throw new Exception(
+                $"Invalid {metaProperty.ShortName} property kind {callerPropertyKind}");
+        }
+
+        if (MetaClass.AllProperties.Contains(metaProperty) == false)
+        {
+            throw new ArgumentException(
+                $"Property {metaProperty.ShortName} is not in {MetaClass.ShortName} class domain");
+        }
+
+        if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
+            && CanAssignAttributeValue(metaProperty, value) == false)
+        {
+            throw new ArgumentException(
+                $"Unable assign {value} to {metaProperty.ShortName} property of {MetaClass.ShortName} class domain");
+        }
+        else if ((metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
+            || metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+            && value is IModelObject modelObject
+            && CanAssignAssociationObject(metaProperty, modelObject) == false)
+        {
+            throw new ArgumentException(
+                $"Unable set association {metaProperty.ShortName} of {MetaClass.ShortName} class domain with {modelObject.MetaClass.ShortName} type");
+        }
+    }
+
+    /// <summary>
+    /// Check attribute data complience to set.
+    /// </summary>
+    /// <param name="metaProperty">Meta property.</param>
+    /// <param name="value">Value to assigning.</param>
+    /// <returns></returns>
+    private static bool CanAssignAttributeValue(ICimMetaProperty metaProperty, 
+        object? value)
+    {
+        if (metaProperty.PropertyDatatype == null)
+        {
+            return false;
+        }
+
+        if (value == null)
+        {
+            return true;
+        }
+
+        System.Type primitiveType = typeof(string);
+        if (metaProperty.PropertyDatatype is ICimMetaDatatype datatype)
+        {
+            primitiveType = datatype.PrimitiveType;
+        }
+
+        if (value is IModelObject modelObject
+            && metaProperty.PropertyDatatype.IsCompound
+            && metaProperty.PropertyDatatype == modelObject.MetaClass)
+        {
+            return true;
+        }
+        else if (value is Uri uriValue
+            && metaProperty.PropertyDatatype.IsEnum)
+        {
+            if (metaProperty.PropertyDatatype.AllIndividuals.Any(
+                ind => RdfUtils.RdfUriEquals(ind.BaseUri, uriValue)))
+            {
+                return true;
+            }
+        }
+        else if (value is Enum enumValue
+            && metaProperty.PropertyDatatype.IsEnum)
+        {
+            if (metaProperty.PropertyDatatype.ShortName == enumValue.GetType().Name
+                && metaProperty.PropertyDatatype.AllIndividuals.Any(
+                ind => ind.ShortName == enumValue.ToString()))
+            {
+                return true;
+            }
+        }
+        else if (value.GetType().IsAssignableTo(primitiveType))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Check association data complience to set.
+    /// </summary>
+    /// <param name="metaProperty">Meta property.</param>
+    /// <param name="modelObject">Association object to assigning.</param>
+    /// <returns></returns>
+    private static bool CanAssignAssociationObject(ICimMetaProperty metaProperty, 
+        IModelObject? modelObject)
+    {
+        if (metaProperty.PropertyDatatype == null)
+        {
+            return false;
+        }
+
+        if (modelObject == null 
+            || modelObject is ModelObjectUnresolvedReference)
+        {
+            return true;
+        }
+
+        if (metaProperty.PropertyDatatype == modelObject.MetaClass
+            || modelObject.MetaClass.Extensions
+                .Any(a => a == metaProperty.PropertyDatatype))
+        {
+            return true;
+        }
+
+        var allAncestors = modelObject.MetaClass.AllAncestors;
+        if (allAncestors.Any(a => a == metaProperty.PropertyDatatype 
+            || a.Extensions.Any(a => a == metaProperty.PropertyDatatype)))
+        {
+            return true;
+        }
+
+        return false;
+    }
 
     private object? GetDataByProperty(ICimMetaProperty metaProperty,
         CimMetaPropertyKind? expectableKind = null)
