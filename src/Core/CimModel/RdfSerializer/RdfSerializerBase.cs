@@ -498,12 +498,16 @@ public abstract class RdfSerializerBase : ICanLog
         object? endData = null;
         if (property.PropertyDatatype is ICimMetaDatatype dataType)
         {
-            var convertedValue = Convert.ChangeType(data,
-                dataType.PrimitiveType, CultureInfo.InvariantCulture);
-
-            if (convertedValue != null)
+            if (TryConvertValue(data, dataType.PrimitiveType,
+                out var convertedValue))
             {
                 endData = convertedValue;
+            }
+            else
+            {
+                _Log.NewMessage(
+                    $"Unnable to convert {data} value to {dataType.PrimitiveType.Name} for {property.ShortName} of instance {instance.Uuid}!", 
+                    LogMessageSeverity.Error, string.Empty);
             }
         }
         else if (property.PropertyDatatype is ICimMetaClass dataClass)
@@ -535,7 +539,9 @@ public abstract class RdfSerializerBase : ICanLog
                 }
                 else
                 {
-                    throw new Exception($"Enum value {enumValueUri} does not exist in schema!");
+                    _Log.NewMessage(
+                        $"Enum value {enumValueUri} of instance {instance.Uuid} does not exist in schema!", 
+                        LogMessageSeverity.Error, string.Empty);
                 }
             }
         }
@@ -551,6 +557,30 @@ public abstract class RdfSerializerBase : ICanLog
         {
             _Log.NewMessage($"Failed set attribute to instance {instance.Uuid}", 
                 LogMessageSeverity.Error, ex.Message);
+        }
+    }
+
+    private static bool TryConvertValue(object? value, System.Type type,
+        out object? converted)
+    {
+        converted = null;
+
+        try
+        {
+            var convertedValue = Convert.ChangeType(value,
+                type, CultureInfo.InvariantCulture);
+
+            if (convertedValue != null)
+            {
+                converted = convertedValue;
+                return true;
+            }
+
+            return false;
+        }
+        catch (Exception)
+        {
+            return false;
         }
     }
 
