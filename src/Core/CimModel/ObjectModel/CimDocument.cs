@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Data;
 using System.Text;
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.ObjectModel;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
@@ -13,18 +14,12 @@ namespace CimBios.Core.CimModel.ModelView;
 /// Instance of CIM model in Rdf/* format.
 /// Supports input and output operations for CIM objects.
 /// </summary>
-public class CimDocument : ICanLog
+public class CimDocument : IObjectModel
 {
     public ILogView Log => _Log;
 
-    /// <summary>
-    /// Model description.
-    /// </summary>
     public FullModel? Description { get; set; }
 
-    /// <summary>
-    /// Applied schema to this context serializer.
-    /// </summary>
     public ICimSchema? Schema => _serializer?.Schema;
 
     /// <summary>
@@ -146,38 +141,21 @@ public class CimDocument : ICanLog
         Save(new StreamWriter(path));        
     }
 
-    /// <summary>
-    /// Get all model objects.
-    /// </summary>
-    /// <returns>IModelObject instance collection.</returns>
     public IEnumerable<IModelObject> GetAllObjects()
     {
         return _Objects.Values;
     }
 
-    /// <summary>
-    /// Get all typed model objects.
-    /// </summary>
-    /// <returns>IModelObject instance collection.</returns>
     public IEnumerable<T> GetObjects<T>() where T : IModelObject
     {
         return _Objects.Values.OfType<T>();
     }
 
-    /// <summary>
-    /// Get all meta typed model objects.
-    /// </summary>
-    /// <returns>IModelObject instance collection.</returns>
     public IEnumerable<IModelObject> GetObjects(ICimMetaClass metaClass)
     {
         return _Objects.Values.Where(o => o.MetaClass == metaClass);
     }
 
-    /// <summary>
-    /// Get generalized model object by uuid.
-    /// </summary>
-    /// <param name="uuid"></param>
-    /// <returns>IModelObject instance or null.</returns>
     public IModelObject? GetObject(string uuid)
     {
         if (_Objects.TryGetValue(uuid, out var instance)
@@ -192,12 +170,6 @@ public class CimDocument : ICanLog
         }
     }
 
-    /// <summary>
-    /// Get typed model object by uuid.
-    /// </summary>
-    /// <typeparam name="T">IModelObject generalized class.</typeparam>
-    /// <param name="uuid">Model object string identifier.</param>
-    /// <returns>T casted IModelObject instance or null.</returns>
     public T? GetObject<T>(string uuid) where T : IModelObject
     {
         IModelObject? modelObject = GetObject(uuid);
@@ -209,11 +181,6 @@ public class CimDocument : ICanLog
         return default;
     }
 
-    /// <summary>
-    /// Remove object from model context.
-    /// </summary>
-    /// <param name="uuid">Model object string identifier.</param>
-    /// <returns>True if object found and removed.</returns>
     public bool RemoveObject(string uuid)
     {
         return _Objects.Remove(uuid);
