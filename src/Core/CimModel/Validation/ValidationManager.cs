@@ -13,10 +13,10 @@ namespace CimBios.Core.CimModel.Validation
         private IEnumerable<SchemaValidationRuleBase>? _validationRules;
 
         /// <summary>
-        /// Результаты проверки при чтении фрагмента
+        /// Создание экземпляров проверок
         /// </summary>
-        /// <param name="modelObject">Объект CIM из фрагмента</param>
-        /// <returns>Список результатов проверки</returns>
+        /// <param name="schema">Каноническая схема CIM</param>
+        /// <returns>Список проверок</returns>
         /// <exception cref="ArgumentNullException">ArgumentNullException</exception>
         public IEnumerable<SchemaValidationRuleBase>? Validate(ICimSchema schema)
         {
@@ -39,6 +39,10 @@ namespace CimBios.Core.CimModel.Validation
             return _validationRules;
         }
 
+        /// <summary>
+        /// Загрузка типов валидации из сборки
+        /// </summary>
+        /// <returns>Типы валидации</returns>
         private IEnumerable<Type> LoadValidAssembly()
         {
             var assembly = Assembly.GetExecutingAssembly();

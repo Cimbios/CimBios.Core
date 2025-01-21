@@ -32,7 +32,7 @@ namespace CimBios.Core.CimModel.Validation
         /// <summary>
         /// Конструктор EnumValidation
         /// </summary>
-        /// <param name="schema">Каноническая схема для проверки</param>
+        /// <param name="schema">Каноническая схема CIM</param>
         public CompaundValidation(ICimSchema schema) : base(schema)
         {
 

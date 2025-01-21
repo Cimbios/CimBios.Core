@@ -40,8 +40,7 @@ namespace CimBios.Core.CimModel.Validation
         /// <summary>
         /// Конструктор InverseValidation
         /// </summary>
-        /// <param name="modelObject">Объект CIM из фрагмента</param>
-        /// <param name="schema">Каноническая схема для проверки</param>
+        /// <param name="schema">Каноническая схема CIM</param>
         public InverseValidation(ICimSchema schema) : base(schema)
         {
 
