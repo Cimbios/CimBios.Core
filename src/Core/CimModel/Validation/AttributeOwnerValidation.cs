@@ -41,8 +41,7 @@ namespace CimBios.Core.CimModel.Validation
         /// <summary>
         /// Конструктор AttributeOwnerValidation
         /// </summary>
-        /// <param name="modelObject">Объект CIM из фрагмента</param>
-        /// <param name="schema">Каноническая схема для проверки</param>
+        /// <param name="schema">Каноническая схема CIM</param>
         public AttributeOwnerValidation(ICimSchema schema) : base(schema)
         {
 

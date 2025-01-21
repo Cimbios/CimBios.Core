@@ -9,10 +9,19 @@ namespace CimBios.Core.CimModel.Validation
 {
     public class ValidationResult
     {
+        /// <summary>
+        /// Тип результата валидации
+        /// </summary>
         public ValidationResultType ResultType;
 
+        /// <summary>
+        /// Сообщение после проверки
+        /// </summary>
         public string? Message;
 
+        /// <summary>
+        /// Объект CIM
+        /// </summary>
         public IModelObject? ModelObject;
     }
 
