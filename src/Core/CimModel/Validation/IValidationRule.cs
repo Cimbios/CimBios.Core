@@ -13,6 +13,7 @@ namespace CimBios.Core.CimModel.Validation
         /// <summary>
         /// Метод для получения списка результатов проверки объекта CIM
         /// </summary>
+        /// <param name="modelObject">Объект CIM из фрагмента</param>
         /// <returns>Список результатов проверки объекта CIM</returns>
         IEnumerable<ValidationResult> Execute(IModelObject modelObject);
     }

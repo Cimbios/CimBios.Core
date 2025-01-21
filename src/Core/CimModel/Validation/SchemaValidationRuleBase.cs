@@ -14,7 +14,8 @@ namespace CimBios.Core.CimModel.Validation
         public ICimSchema Schema { get; }
 
         /// <inheritdoc/>
-        public abstract IEnumerable<ValidationResult> Execute(IModelObject modelObject);
+        public abstract IEnumerable<ValidationResult> Execute(
+            IModelObject modelObject);
 
         protected SchemaValidationRuleBase(ICimSchema schema)
         {

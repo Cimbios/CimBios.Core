@@ -1,11 +1,16 @@
 ﻿using CimBios.Core.CimModel.CimDatatypeLib;
 using System;
 using System.Reflection;
+using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.Validation
 {
     public class ValidationManager
     {
+        /// <summary>
+        /// Список правил проверок
+        /// </summary>
+        private IEnumerable<SchemaValidationRuleBase>? _validationRules;
 
         /// <summary>
         /// Результаты проверки при чтении фрагмента
@@ -13,56 +18,25 @@ namespace CimBios.Core.CimModel.Validation
         /// <param name="modelObject">Объект CIM из фрагмента</param>
         /// <returns>Список результатов проверки</returns>
         /// <exception cref="ArgumentNullException">ArgumentNullException</exception>
-        public List<(string? Uuid, ValidationResultType ResultType, string? Message)> Validate(
-            IModelObject modelObject)
+        public IEnumerable<SchemaValidationRuleBase>? Validate(ICimSchema schema)
         {
-            var validationResults = new List<Validation.ValidationResult>();
-
             var typeValidationAttributes = new ValidationManager(
                 ).LoadValidAssembly();
 
-            try
-            {
-                validationResults = typeValidationAttributes.Select(
-                    va =>
-                    {
-                        var validInstance = Activator.CreateInstance(
-                            va, modelObject, Schema);
+            _validationRules = typeValidationAttributes.Select(
+                vr =>
+                {
+                    var validInstance = Activator.CreateInstance(
+                        vr, schema);
 
-                        if (validInstance == null)
-                            throw new ArgumentNullException();
+                    if (validInstance == null)
+                        throw new ArgumentNullException();
 
-                        return ((SchemaValidationRuleBase)validInstance).Execute();
-                    }
-                ).First().
-                  ToList();
-            }
-            catch (Exception ex)
-            {
-                return new List<(
-                    string? Uuid,
-                    ValidationResultType ResultType,
-                    string? Message)>()
-            {
-                (modelObject.Uuid,
-                ValidationResultType.fail,
-                ex.Message)
-            };
-            }
+                    return ((SchemaValidationRuleBase)validInstance);
+                }
+            );
 
-            var validMessage = new List<(
-                string? Uuid,
-                ValidationResultType ResultType,
-                string? Message)>();
-
-            foreach (var vr in validationResults)
-            {
-                validMessage.Add(
-                    (vr.ModelObject?.Uuid, vr.ResultType, vr.Message)
-                    );
-            }
-
-            return validMessage;
+            return _validationRules;
         }
 
         private IEnumerable<Type> LoadValidAssembly()

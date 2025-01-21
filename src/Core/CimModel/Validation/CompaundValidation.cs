@@ -15,11 +15,14 @@ namespace CimBios.Core.CimModel.Validation
         /// <summary>
         /// Объект из фрагмента
         /// </summary>
-        private IModelObject _modelObject;
+        private IModelObject? _modelObject;
 
         /// <inheritdoc/>
-        public override IEnumerable<ValidationResult> Execute(IModelObject modelObject)
+        public override IEnumerable<ValidationResult> Execute(
+            IModelObject modelObject)
         {
+            _modelObject = modelObject;
+
             return new List<ValidationResult>()
             {
                 GetValidationResults()
@@ -29,12 +32,10 @@ namespace CimBios.Core.CimModel.Validation
         /// <summary>
         /// Конструктор EnumValidation
         /// </summary>
-        /// <param name="modelObject">Объект CIM из фрагмента</param>
         /// <param name="schema">Каноническая схема для проверки</param>
-        public CompaundValidation(IModelObject modelObject,
-            ICimSchema schema) : base(schema)
+        public CompaundValidation(ICimSchema schema) : base(schema)
         {
-            _modelObject = modelObject;
+
         }
 
         /// <summary>
@@ -43,15 +44,16 @@ namespace CimBios.Core.CimModel.Validation
         /// <returns>Результат проверки</returns>
         private ValidationResult GetValidationResults()
         {
-            var cimMetaClass = _modelObject.MetaClass;
+            var cimMetaClass = _modelObject?.MetaClass;
 
-            if (cimMetaClass.IsCompound) return new ValidationResult()
+            if (cimMetaClass != null && cimMetaClass.IsCompound) 
+                return new ValidationResult()
             {
                 ResultType = ValidationResultType.pass,
             };
             else return new ValidationResult()
             {
-                Message = $"Класс \"{cimMetaClass.ShortName}\" " +
+                Message = $"Класс \"{cimMetaClass?.ShortName}\" " +
                 $"не является вложенным классом",
                 ResultType = ValidationResultType.fail,
                 ModelObject = _modelObject

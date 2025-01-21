@@ -15,11 +15,14 @@ namespace CimBios.Core.CimModel.Validation
         /// <summary>
         /// Объект из фрагмента
         /// </summary>
-        private IModelObject _modelObject;
+        private IModelObject? _modelObject;
 
         /// <inheritdoc/>
-        public override IEnumerable<ValidationResult> Execute(IModelObject modelObject)
+        public override IEnumerable<ValidationResult> Execute(
+            IModelObject modelObject)
         {
+            _modelObject = modelObject;
+
             return new List<ValidationResult>()
             {
                 GetValidationResults()
@@ -29,12 +32,10 @@ namespace CimBios.Core.CimModel.Validation
         /// <summary>
         /// Конструктор DataTypeValidation
         /// </summary>
-        /// <param name="modelObject">Объект CIM из фрагмента</param>
         /// <param name="schema">Каноническая схема для проверки</param>
-        public DataTypeValidation(IModelObject modelObject,
-            ICimSchema schema) : base(schema)
+        public DataTypeValidation(ICimSchema schema) : base(schema)
         {
-            _modelObject = modelObject;
+
         }
 
         /// <summary>
@@ -43,19 +44,20 @@ namespace CimBios.Core.CimModel.Validation
         /// <returns>Результат проверки</returns>
         private ValidationResult GetValidationResults()
         {
-            var cimMetaClass = _modelObject.MetaClass;
+            var cimMetaClass = _modelObject?.MetaClass;
 
             var schemaClass = Schema.Classes.Where(
-                x => x == _modelObject.MetaClass).FirstOrDefault();
+                x => x == _modelObject?.MetaClass).FirstOrDefault();
 
-            if (cimMetaClass.BaseUri == schemaClass?.BaseUri) 
+            if (cimMetaClass != null && 
+                cimMetaClass.BaseUri == schemaClass?.BaseUri) 
                 return new ValidationResult()
             {
                 ResultType = ValidationResultType.pass,
             };
             else return new ValidationResult()
             {
-                Message = $"Тип класса \"{cimMetaClass.ShortName}\" " +
+                Message = $"Тип класса \"{cimMetaClass?.ShortName}\" " +
                 $"не совпадает со схемой",
                 ResultType = ValidationResultType.fail,
                 ModelObject = _modelObject

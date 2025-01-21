@@ -9,18 +9,20 @@ using System.Threading.Tasks;
 
 namespace CimBios.Core.CimModel.Validation
 {
-    // Почему OwnerClass у всех свойств, а не только у атрибутов!!!
     [AttributeValidation]
     public class AttributeOwnerValidation : SchemaValidationRuleBase
     {
         /// <summary>
         /// Объект из фрагмента
         /// </summary>
-        private IModelObject _modelObject;
+        private IModelObject? _modelObject;
 
         /// <inheritdoc/>
-        public override ICollection<ValidationResult> Execute(IModelObject modelObject)
+        public override ICollection<ValidationResult> Execute(
+            IModelObject modelObject)
         {
+            _modelObject = modelObject;
+
             var schemaClass = Schema.Classes.Where(
                 x => x == _modelObject.MetaClass).FirstOrDefault();
 
@@ -41,10 +43,9 @@ namespace CimBios.Core.CimModel.Validation
         /// </summary>
         /// <param name="modelObject">Объект CIM из фрагмента</param>
         /// <param name="schema">Каноническая схема для проверки</param>
-        public AttributeOwnerValidation(IModelObject modelObject,
-            ICimSchema schema) : base(schema)
+        public AttributeOwnerValidation(ICimSchema schema) : base(schema)
         {
-            _modelObject = modelObject;
+
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace CimBios.Core.CimModel.Validation
             };
             else return new ValidationResult()
             {
-                Message = $"Класс \"{_modelObject.MetaClass.ShortName}\" " +
+                Message = $"Класс \"{_modelObject?.MetaClass?.ShortName}\" " +
                 $"содержит следующие атрибуты, у которых владелец атрибута " +
                 $"не совпадает со схемой (RDFS): " +
                 $"{string.Join(", ", failPropertyOwner)}",
