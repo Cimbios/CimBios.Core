@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 namespace CimBios.Core.CimModel.Validation
 {
     [AttributeValidation]
-    public class BacklinkValidation : SchemaValidationRuleBase
+    public class InverseValidation : SchemaValidationRuleBase
     {
         /// <summary>
         /// Объект из фрагмента
         /// </summary>
-        private IModelObject _modelObject;
+        private IModelObject? _modelObject;
 
         /// <summary>
         /// Ассоциации объекта из схемы (RDFS)
@@ -24,8 +24,11 @@ namespace CimBios.Core.CimModel.Validation
             new List<CimMetaPropertyKind>();
 
         /// <inheritdoc/>
-        public override IEnumerable<ValidationResult> Execute(IModelObject modelObject)
+        public override IEnumerable<ValidationResult> Execute(
+            IModelObject modelObject)
         {
+            _modelObject = modelObject;
+
             var allProperties = _modelObject.MetaClass.AllProperties;
 
             return new List<ValidationResult>()
@@ -35,14 +38,13 @@ namespace CimBios.Core.CimModel.Validation
         }
 
         /// <summary>
-        /// Конструктор BacklinkValidation
+        /// Конструктор InverseValidation
         /// </summary>
         /// <param name="modelObject">Объект CIM из фрагмента</param>
         /// <param name="schema">Каноническая схема для проверки</param>
-        public BacklinkValidation(IModelObject modelObject,
-            ICimSchema schema) : base(schema)
+        public InverseValidation(ICimSchema schema) : base(schema)
         {
-            _modelObject = modelObject;
+
         }
 
         /// <summary>
@@ -51,7 +53,7 @@ namespace CimBios.Core.CimModel.Validation
         /// <param name="cimMetaProperties">Свойства объекта CIM</param>
         /// <returns>Ассоциации без обратной связи объекта CIM</returns>
         private IEnumerable<ICimMetaProperty> GetNonValidAssoc(
-            ICimMetaProperty[] cimMetaProperties)
+            IEnumerable<ICimMetaProperty> cimMetaProperties)
         {
             var assoc = cimMetaProperties.Where(
                 x => x.PropertyKind == CimMetaPropertyKind.Assoc1To1 || 
@@ -66,7 +68,7 @@ namespace CimBios.Core.CimModel.Validation
         /// </summary>
         /// <returns>Результат проверки</returns>
         private ValidationResult GetValidationResults(
-            ICimMetaProperty[] allProperties)
+            IEnumerable<ICimMetaProperty> allProperties)
         {
             var assoc = GetNonValidAssoc(allProperties);
 
@@ -78,7 +80,7 @@ namespace CimBios.Core.CimModel.Validation
 
             return new ValidationResult()
             {
-                Message = $"Класс \"{_modelObject.MetaClass.ShortName}\" " +
+                Message = $"Класс \"{_modelObject?.MetaClass?.ShortName}\" " +
                 $"содержит следующие ассоциации без двусторонней связи: " +
                 $"{string.Join(", ", assoc)}",
                 ResultType = ValidationResultType.fail,

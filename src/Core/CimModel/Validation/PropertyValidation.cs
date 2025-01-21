@@ -16,17 +16,17 @@ namespace CimBios.Core.CimModel.Validation
         /// <summary>
         /// Объект из фрагмента
         /// </summary>
-        private IModelObject _modelObject;
+        private IModelObject? _modelObject;
 
         /// <summary>
         /// Свойства объекта из схемы (RDFS)
         /// </summary>
-        private IEnumerable<CimMetaPropertyKind> _propertiesSchemaObject;
+        private IEnumerable<CimMetaPropertyKind>? _propertiesSchemaObject;
 
         /// <summary>
         /// Свойства объекта из фрагмента
         /// </summary>
-        private ICimMetaProperty[] _cimMetaProperties;
+        private IEnumerable<ICimMetaProperty>? _cimMetaProperties;
 
         /// <summary>
         /// Атрибуты объекта из схемы (RDFS)
@@ -41,8 +41,21 @@ namespace CimBios.Core.CimModel.Validation
             new List<CimMetaPropertyKind>();
 
         /// <inheritdoc/>
-        public override IEnumerable<ValidationResult> Execute(IModelObject modelObject)
+        public override IEnumerable<ValidationResult> Execute(
+            IModelObject modelObject)
         {
+            _modelObject = modelObject;
+
+            var schemaClass = Schema.Classes.Where(
+                x => x == modelObject.MetaClass).FirstOrDefault();
+
+            _propertiesSchemaObject = Schema.Properties.Where(
+                x => x.OwnerClass == schemaClass).Select(x => x.PropertyKind);
+
+            _cimMetaProperties = modelObject.MetaClass.AllProperties;
+
+            GetValidProperties();
+
             var validationResult = TupleResults();
 
             foreach (var tuple in validationResult)
@@ -57,22 +70,10 @@ namespace CimBios.Core.CimModel.Validation
         /// <summary>
         /// Конструктор PropertyValidation
         /// </summary>
-        /// <param name="modelObject">Объект CIM из фрагмента</param>
         /// <param name="schema">Каноническая схема для проверки</param>
-        public PropertyValidation(IModelObject modelObject, 
-            ICimSchema schema) : base(schema)
+        public PropertyValidation(ICimSchema schema) : base(schema)
         {
-            _modelObject = modelObject;
 
-            var schemaClass = Schema.Classes.Where(
-                x => x == modelObject.MetaClass).FirstOrDefault();
-
-            _propertiesSchemaObject = Schema.Properties.Where(
-                x => x.OwnerClass == schemaClass).Select(x => x.PropertyKind);
-
-            _cimMetaProperties = modelObject.MetaClass.AllProperties;
-
-            GetValidProperties();
         }
 
         /// <summary>
@@ -81,6 +82,8 @@ namespace CimBios.Core.CimModel.Validation
         /// </summary>
         private void GetValidProperties()
         {
+            if (_cimMetaProperties == null) return;
+
             foreach (var prop in _cimMetaProperties)
             {
                 var validProperty = prop.PropertyKind;
@@ -109,6 +112,8 @@ namespace CimBios.Core.CimModel.Validation
         {
             foreach (var nonValidProp in validProperties)
             {
+                if (_propertiesSchemaObject == null) continue;
+
                 if (!_propertiesSchemaObject.Any(x => x == nonValidProp))
                 {
                     yield return nonValidProp;
