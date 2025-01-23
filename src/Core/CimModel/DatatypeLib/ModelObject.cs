@@ -1,16 +1,15 @@
 using System.ComponentModel;
-using System.Dynamic;
+using CimBios.Core.CimModel.DatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
-public class ModelObject : DynamicObject, IModelObject
+public class ModelObject : DynamicModelObjectBase, IModelObject
 {
-    public IModelObject? Owner { get; }
-    public string Uuid => _uuid;
-    public bool IsAuto => _isAuto;
-    public ICimMetaClass MetaClass => _MetaClass;
+    public override string Uuid => _uuid;
+    public override bool IsAuto => _isAuto;
+    public override ICimMetaClass MetaClass => _MetaClass;
 
     public ModelObject(string uuid, ICimMetaClass metaClass, 
         bool isAuto = false)
@@ -22,7 +21,7 @@ public class ModelObject : DynamicObject, IModelObject
         _PropertiesData = [];
     }
 
-    public bool HasProperty(string propertyName)
+    public override bool HasProperty(string propertyName)
     {
         var metaProperty = TryGetMetaPropertyByName(propertyName);
         if (metaProperty != null)
@@ -33,64 +32,14 @@ public class ModelObject : DynamicObject, IModelObject
         return false;
     }
 
-    public dynamic? AsDynamic()
-    {
-        return this;
-    }
-
-    public override bool TryGetMember(GetMemberBinder binder, out object? result)
-    {
-        var metaProperty = TryGetMetaPropertyByName(binder.Name);
-        if (metaProperty != null)
-        {
-            if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
-            {
-                result = GetAttribute(metaProperty);
-                return true;
-            }
-            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
-            {
-                result = GetAssoc1To1<IModelObject>(metaProperty);
-                return true;        
-            }
-            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
-            {
-                result = GetAssoc1ToM(metaProperty);
-                return true;        
-            }         
-        }
-
-        return base.TryGetMember(binder, out result);
-    }
-
-    public override bool TrySetMember(SetMemberBinder binder, object? value)
-    {
-        var metaProperty = TryGetMetaPropertyByName(binder.Name);
-        if (metaProperty != null)
-        {
-            if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
-            {
-                SetAttribute(metaProperty, value);
-                return true;
-            }
-            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
-            {
-                SetAssoc1To1(metaProperty, value as IModelObject);
-                return true;        
-            }      
-        }
-
-        return base.TrySetMember(binder, value);
-    }
-
     #region AttributesLogic
 
-    public object? GetAttribute(ICimMetaProperty metaProperty)
+    public override object? GetAttribute(ICimMetaProperty metaProperty)
     {
         return GetDataByProperty(metaProperty, CimMetaPropertyKind.Attribute);
     }
 
-    public object? GetAttribute(string attributeName)
+    public override object? GetAttribute(string attributeName)
     {
         var metaProperty = TryGetMetaPropertyByName(attributeName);
         if (metaProperty != null)
@@ -102,7 +51,8 @@ public class ModelObject : DynamicObject, IModelObject
             $"No such meta property with name {attributeName}!");
     }
 
-    public T? GetAttribute<T>(ICimMetaProperty metaProperty)
+    public override T? GetAttribute<T>(ICimMetaProperty metaProperty) 
+        where T: default
     {
         if (GetAttribute(metaProperty) is T typedValue)
         {
@@ -112,7 +62,8 @@ public class ModelObject : DynamicObject, IModelObject
         return default;
     }
 
-    public T? GetAttribute<T>(string attributeName)
+    public override T? GetAttribute<T>(string attributeName) 
+        where T: default
     {
         var metaProperty = TryGetMetaPropertyByName(attributeName);
         if (metaProperty != null)
@@ -124,7 +75,8 @@ public class ModelObject : DynamicObject, IModelObject
             $"No such meta property with name {attributeName}!");
     }
 
-    public void SetAttribute<T>(ICimMetaProperty metaProperty, T? value) 
+    public override void SetAttribute<T>(ICimMetaProperty metaProperty, T? value) 
+        where T: default
     {
         ValidatePropertyValueAssignition(metaProperty, 
             value, CimMetaPropertyKind.Attribute);
@@ -169,7 +121,8 @@ public class ModelObject : DynamicObject, IModelObject
         }
     }
 
-    public void SetAttribute<T>(string attributeName, T? value)
+    public override void SetAttribute<T>(string attributeName, T? value)
+        where T: default
     {
         var metaProperty = TryGetMetaPropertyByName(attributeName);
         if (metaProperty != null)
@@ -185,7 +138,8 @@ public class ModelObject : DynamicObject, IModelObject
 
     #region Assocs11Logic
 
-    public T? GetAssoc1To1<T>(ICimMetaProperty metaProperty) where T: IModelObject
+    public override T? GetAssoc1To1<T>(ICimMetaProperty metaProperty)
+        where T: default
     {
         if (GetDataByProperty(metaProperty, CimMetaPropertyKind.Assoc1To1)
             is T typedObject)
@@ -196,7 +150,8 @@ public class ModelObject : DynamicObject, IModelObject
         return default;
     }
 
-    public T? GetAssoc1To1<T>(string assocName) where T: IModelObject
+    public override T? GetAssoc1To1<T>(string assocName)
+        where T: default
     {
         var metaProperty = TryGetMetaPropertyByName(assocName);
         if (metaProperty != null)
@@ -208,7 +163,8 @@ public class ModelObject : DynamicObject, IModelObject
             $"No such meta property with name {assocName}!");
     }
 
-     public void SetAssoc1To1(ICimMetaProperty metaProperty, IModelObject? obj)
+     public override void SetAssoc1To1(ICimMetaProperty metaProperty, 
+        IModelObject? obj)
      {
         ValidatePropertyValueAssignition(metaProperty, 
             obj, CimMetaPropertyKind.Assoc1To1);
@@ -249,7 +205,7 @@ public class ModelObject : DynamicObject, IModelObject
         }
      }
 
-    public void SetAssoc1To1(string assocName, IModelObject? obj)
+    public  override void SetAssoc1To1(string assocName, IModelObject? obj)
     {
         var metaProperty = TryGetMetaPropertyByName(assocName);
         if (metaProperty != null)
@@ -265,7 +221,7 @@ public class ModelObject : DynamicObject, IModelObject
 
     #region Assocs1MLogic
 
-    public IModelObject[] GetAssoc1ToM(ICimMetaProperty metaProperty)
+    public override IModelObject[] GetAssoc1ToM(ICimMetaProperty metaProperty)
     {
         var data = GetDataByProperty(metaProperty, 
             CimMetaPropertyKind.Assoc1ToM) as ICollection<IModelObject>;
@@ -278,7 +234,7 @@ public class ModelObject : DynamicObject, IModelObject
         return [];
     }
 
-    public IModelObject[] GetAssoc1ToM(string assocName)
+    public override IModelObject[] GetAssoc1ToM(string assocName)
     {
         var metaProperty = TryGetMetaPropertyByName(assocName);
         if (metaProperty != null)
@@ -290,19 +246,18 @@ public class ModelObject : DynamicObject, IModelObject
             $"No such meta property with name {assocName}!");
     }
 
-    public T[] GetAssoc1ToM<T>(ICimMetaProperty metaProperty) 
-        where T: IModelObject
+    public override T[] GetAssoc1ToM<T>(ICimMetaProperty metaProperty)
     {
         return GetAssoc1ToM(metaProperty).Cast<T>().ToArray();
     }
 
-    public T[] GetAssoc1ToM<T>(string assocName)
-        where T: IModelObject
+    public override T[] GetAssoc1ToM<T>(string assocName)
     {
         return GetAssoc1ToM(assocName).Cast<T>().ToArray();
     }
 
-    public void AddAssoc1ToM(ICimMetaProperty metaProperty, IModelObject obj)
+    public override void AddAssoc1ToM(ICimMetaProperty metaProperty, 
+        IModelObject obj)
     {
         ValidatePropertyValueAssignition(metaProperty, 
             obj, CimMetaPropertyKind.Assoc1ToM);
@@ -332,7 +287,7 @@ public class ModelObject : DynamicObject, IModelObject
         }
     }
 
-    public void AddAssoc1ToM(string assocName, IModelObject obj)
+    public override void AddAssoc1ToM(string assocName, IModelObject obj)
     {
         var metaProperty = TryGetMetaPropertyByName(assocName);
         if (metaProperty != null)
@@ -346,7 +301,8 @@ public class ModelObject : DynamicObject, IModelObject
         }
     }
 
-    public void RemoveAssoc1ToM(ICimMetaProperty metaProperty, IModelObject obj)
+    public override void RemoveAssoc1ToM(ICimMetaProperty metaProperty, 
+        IModelObject obj)
     {
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
             && _PropertiesData.TryGetValue(metaProperty, out var value)
@@ -369,7 +325,7 @@ public class ModelObject : DynamicObject, IModelObject
         }
     }
 
-    public void RemoveAssoc1ToM(string assocName, IModelObject obj)
+    public override void RemoveAssoc1ToM(string assocName, IModelObject obj)
     {
         var metaProperty = TryGetMetaPropertyByName(assocName);
         if (metaProperty != null)
@@ -383,7 +339,7 @@ public class ModelObject : DynamicObject, IModelObject
         }
     }
 
-    public void RemoveAllAssocs1ToM(ICimMetaProperty metaProperty)
+    public override void RemoveAllAssocs1ToM(ICimMetaProperty metaProperty)
     {
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
             && _PropertiesData.TryGetValue(metaProperty, out var value)
@@ -404,7 +360,7 @@ public class ModelObject : DynamicObject, IModelObject
         }
     }
 
-    public void RemoveAllAssocs1ToM(string assocName)
+    public override void RemoveAllAssocs1ToM(string assocName)
     {
         var metaProperty = TryGetMetaPropertyByName(assocName);
         if (metaProperty != null)
@@ -647,25 +603,6 @@ public class ModelObject : DynamicObject, IModelObject
         return true;
     }
 
-    private ICimMetaProperty? TryGetMetaPropertyByName(string name)
-    {
-        var splitted = name.Split('.');
-        var isClassPropForm = splitted.Length.Equals(2);
-
-        foreach (var property in MetaClass.AllProperties)
-        {
-            var propCPForm = $"{property.OwnerClass?.ShortName}.{property.ShortName}";
-
-            if ((isClassPropForm && propCPForm == name)
-                || (property.ShortName == name))
-            {
-                return property;
-            }
-        }
-
-        return null;
-    }
-
     #endregion UtilsPrivate
 
     private string _uuid = string.Empty;
@@ -674,7 +611,7 @@ public class ModelObject : DynamicObject, IModelObject
     private ICimMetaClass _MetaClass;
     private Dictionary<ICimMetaProperty, object?> _PropertiesData;
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public override event PropertyChangedEventHandler? PropertyChanged;
 
     public delegate void CanCancelPropertyChangingEventHandler(object? sender, 
         CanCancelPropertyChangingEventArgs e);
@@ -692,20 +629,6 @@ public sealed class ModelObjectUnresolvedReference
 
     public ModelObjectUnresolvedReference(string uuid, ICimMetaClass metaClass)
         : base(uuid, metaClass, true)
-    {
-    }
-}
-
-/// <summary>
-/// Class for class instance from schema.
-/// </summary>
-public sealed class CimSchemaIndividualModelObject 
-    : ModelObject, IModelObject
-{
-    public Uri ClassType => MetaClass.BaseUri;
-
-    public CimSchemaIndividualModelObject(string uuid, ICimMetaClass metaClass)
-        : base(uuid, metaClass, false)
     {
     }
 }
