@@ -436,7 +436,8 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
             return CimMetaPropertyKind.Assoc1To1;
         }
 
-        if (Multiplicity == RdfSchema.Multiplicity.OneToN)
+        if (Multiplicity == RdfSchema.Multiplicity.ZeroToN
+            || Multiplicity == RdfSchema.Multiplicity.OneToN)
         {
             return CimMetaPropertyKind.Assoc1ToM;
         }
@@ -512,6 +513,11 @@ public enum Multiplicity
     [
         CimSchemaSerializable
         ("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n")
+    ]
+    ZeroToN,
+    [
+        CimSchemaSerializable
+        ("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n")
     ]
     OneToN,
     [
