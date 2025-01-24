@@ -5755,7 +5755,6 @@ Item, as used by the OAG, refers to the basic information about an item, includi
 		<rdfs:label>ExcitationControl</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_rf_58651_4"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
-		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Equipment"/>
 		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#Equipment"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ExcitationControl.ExcitationSystem">
@@ -5898,7 +5897,6 @@ Item, as used by the OAG, refers to the basic information about an item, includi
 		<rdfs:label>ExcitationSystem</rdfs:label>
 		<cims:belongsToCategory rdf:resource="#Package_rf_58651_4"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
-		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Equipment"/>
 		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#Equipment"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#ExcitationSystem.ExcitationControl">
