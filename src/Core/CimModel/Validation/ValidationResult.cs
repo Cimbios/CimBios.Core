@@ -12,12 +12,12 @@ namespace CimBios.Core.CimModel.Validation
         /// <summary>
         /// Тип результата валидации
         /// </summary>
-        public ValidationResultType ResultType;
+        public ValidationResultKind ResultType;
 
         /// <summary>
         /// Сообщение после проверки
         /// </summary>
-        public string? Message;
+        public string Message = string.Empty;
 
         /// <summary>
         /// Объект CIM
@@ -25,10 +25,10 @@ namespace CimBios.Core.CimModel.Validation
         public IModelObject? ModelObject;
     }
 
-    public enum ValidationResultType
+    public enum ValidationResultKind
     {
-        pass,
-        fail,
-        warning
+        Pass,
+        Fail,
+        Warning
     }
 }
