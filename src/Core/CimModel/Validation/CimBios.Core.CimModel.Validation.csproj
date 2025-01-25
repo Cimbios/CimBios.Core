@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DatatypeLib\CimBios.Core.CimModel.DatatypeLib.csproj" />
+    <ProjectReference Include="..\ObjectModel\CimBios.Core.CimModel.ObjectModel.csproj" />
     <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj" />
   </ItemGroup>
 
