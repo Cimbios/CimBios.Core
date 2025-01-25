@@ -140,6 +140,7 @@ public interface ICimMetaProperty : ICimMetaResource
     public ICimMetaProperty? InverseProperty { get; }
     public ICimMetaClass? PropertyDatatype { get; }
     public bool IsExtension { get; }
+    public bool IsValueRequired { get; }
 }
 
 /// <summary>
