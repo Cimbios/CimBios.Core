@@ -13,6 +13,11 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../src/Core/CimModel/DatatypeLib/CimBios.Core.CimModel.DatatypeLib.csproj" />
+    <ProjectReference Include="../../src/Core/CimModel/ObjectModel/CimBios.Core.CimModel.ObjectModel.csproj" />
+    <ProjectReference Include="../../src/Core/CimModel/RdfSerializer/CimBios.Core.CimModel.RdfSerializer.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 </Project>
