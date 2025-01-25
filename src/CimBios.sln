@@ -42,6 +42,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Tools.CimTypeLibBui
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CimBios.Core.CimModel.Validation", "Core\CimModel\Validation\CimBios.Core.CimModel.Validation.csproj", "{1DF2B4E9-C0CF-421F-A769-B9D70C01E00C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tests.Validation", "..\test\CimBios.Tests.Validation\CimBios.Tests.Validation.csproj", "{86DE6960-87DB-40A2-B48A-1C3D7C04AC21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,6 +102,10 @@ Global
 		{1DF2B4E9-C0CF-421F-A769-B9D70C01E00C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DF2B4E9-C0CF-421F-A769-B9D70C01E00C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DF2B4E9-C0CF-421F-A769-B9D70C01E00C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86DE6960-87DB-40A2-B48A-1C3D7C04AC21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86DE6960-87DB-40A2-B48A-1C3D7C04AC21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86DE6960-87DB-40A2-B48A-1C3D7C04AC21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86DE6960-87DB-40A2-B48A-1C3D7C04AC21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -121,6 +127,7 @@ Global
 		{8E299C0B-F47C-44D1-A938-F985D9083373} = {FAC6A4DE-5702-4BB8-B407-F244C2D987FB}
 		{441E95ED-F15C-428D-93EA-E23ABA455DA8} = {29FD2110-4306-4F6F-AFAE-84A3B47A30AF}
 		{1DF2B4E9-C0CF-421F-A769-B9D70C01E00C} = {255F7368-4EE1-48A7-ACBF-3F87392FAF9E}
+		{86DE6960-87DB-40A2-B48A-1C3D7C04AC21} = {B2BF029E-0939-468F-BE76-7C67B7A485A8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E063B80A-4158-4C3F-A567-BFB2B929BA33}
