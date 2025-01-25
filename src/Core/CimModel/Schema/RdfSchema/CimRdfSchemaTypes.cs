@@ -374,6 +374,7 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
     public ICimMetaProperty? InverseProperty => InverseOf;
     public ICimMetaClass? PropertyDatatype => GetDatatype();
     public bool IsExtension => IsDomainExtension();
+    public bool IsValueRequired => ValueRequired();
 
     [
         CimSchemaSerializable(
@@ -471,6 +472,22 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
         return Domain.IsExtension;
     }
 
+    private bool ValueRequired()
+    {
+        if (Multiplicity == null)
+        {
+            return false;
+        }
+
+        if (Multiplicity == RdfSchema.Multiplicity.OneToN
+            || Multiplicity == RdfSchema.Multiplicity.StrictlyOne)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private CimRdfsClass? _Domain = null;
 }
 
@@ -498,10 +515,6 @@ public enum UMLStereotype
     CIMDatatype,
 }
 
-[
-    CimSchemaSerializable
-    ("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#multiplicity")
-]
 public enum Multiplicity
 {
     [
@@ -512,6 +525,11 @@ public enum Multiplicity
     [
         CimSchemaSerializable
         ("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n")
+    ]
+    ZeroToN,
+    [
+        CimSchemaSerializable
+        ("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n")
     ]
     OneToN,
     [
