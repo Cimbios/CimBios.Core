@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CimBios.Core.CimModel.Validation
 {
-    public abstract class ValidationRuleBase : IValidationRule
+    public abstract class ValidationRuleBase : IValidationRule //PropertyMultiplisityValidationRule
     {
         /// <inheritdoc/>
         public abstract IEnumerable<ValidationResult> Execute(
