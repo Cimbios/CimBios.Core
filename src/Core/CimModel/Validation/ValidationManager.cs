@@ -7,10 +7,21 @@ namespace CimBios.Core.CimModel.Validation
 {
     public class ValidationManager
     {
-        /// <summary>
-        /// Список правил проверок
-        /// </summary>
-        private IEnumerable<SchemaValidationRuleBase>? _validationRules;
+        public IEnumerable<SchemaValidationRuleBase> ValidationRules 
+        {
+            get 
+            {
+                if (_validationRules == null)
+                {
+                    throw new ArgumentNullException();
+                }
+                return _validationRules;
+            }
+            private set 
+            {
+                _validationRules = value;
+            }
+        }
 
         /// <summary>
         /// Создание экземпляров проверок
@@ -18,16 +29,34 @@ namespace CimBios.Core.CimModel.Validation
         /// <param name="schema">Каноническая схема CIM</param>
         /// <returns>Список проверок</returns>
         /// <exception cref="ArgumentNullException">ArgumentNullException</exception>
-        public IEnumerable<SchemaValidationRuleBase>? Validate(ICimSchema schema)
+        public IEnumerable<IEnumerable<ValidationResult>> Validate(IModelObject modelObject)
         {
-            var typeValidationAttributes = new ValidationManager(
-                ).LoadValidAssembly();
+            LoadAssembly();
 
-            _validationRules = typeValidationAttributes.Select(
+            foreach (var rule in ValidationRules)
+            {
+                yield return rule.Execute(modelObject);
+            }
+        }
+
+        /// <summary>
+        /// Загрузка типов валидации из сборки
+        /// </summary>
+        /// <returns>Типы валидации</returns>
+        private void LoadAssembly()
+        {
+            if (_validationRules != null) return;
+
+            var assembly = Assembly.GetExecutingAssembly();
+
+            var validationTypes = assembly.GetTypes()
+                .Where(t => t.IsDefined(typeof(AttributeValidation), true));
+
+            _validationRules = validationTypes.Select(
                 vr =>
                 {
                     var validInstance = Activator.CreateInstance(
-                        vr, schema);
+                        vr);
 
                     if (validInstance == null)
                         throw new ArgumentNullException();
@@ -35,22 +64,11 @@ namespace CimBios.Core.CimModel.Validation
                     return ((SchemaValidationRuleBase)validInstance);
                 }
             );
-
-            return _validationRules;
         }
 
         /// <summary>
-        /// Загрузка типов валидации из сборки
+        /// Список правил проверок
         /// </summary>
-        /// <returns>Типы валидации</returns>
-        private IEnumerable<Type> LoadValidAssembly()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-
-            var validationTypes = assembly.GetTypes()
-                .Where(t => t.IsDefined(typeof(AttributeValidation), true));
-
-            return validationTypes;
-        }
+        private IEnumerable<SchemaValidationRuleBase>? _validationRules;
     }
 }
