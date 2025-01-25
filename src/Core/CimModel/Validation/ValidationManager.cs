@@ -2,41 +2,45 @@
 using System;
 using System.Reflection;
 using CimBios.Core.CimModel.Schema;
+using CimBios.Core.CimModel.ObjectModel;
 
 namespace CimBios.Core.CimModel.Validation
 {
     public class ValidationManager
     {
-        public IEnumerable<SchemaValidationRuleBase> ValidationRules 
+        /// <summary>
+        /// Список правил проверок
+        /// </summary>
+        private IEnumerable<IValidationRule> _validationRules = [];
+
+        /// <summary>
+        /// Конструктор класса ValidationManager
+        /// </summary>
+        public ValidationManager()
         {
-            get 
-            {
-                if (_validationRules == null)
-                {
-                    throw new ArgumentNullException();
-                }
-                return _validationRules;
-            }
-            private set 
-            {
-                _validationRules = value;
-            }
+            LoadAssembly();
         }
 
         /// <summary>
-        /// Создание экземпляров проверок
+        /// Проверяет контекст модели
         /// </summary>
-        /// <param name="schema">Каноническая схема CIM</param>
-        /// <returns>Список проверок</returns>
-        /// <exception cref="ArgumentNullException">ArgumentNullException</exception>
-        public IEnumerable<IEnumerable<ValidationResult>> Validate(IModelObject modelObject)
+        /// <param name="objectModel">Контекст модели</param>
+        /// <returns>Массив результатов проверки</returns>
+        public ValidationResult[] Validate(IObjectModel objectModel)
         {
-            LoadAssembly();
+            List<ValidationResult> listRule = new List<ValidationResult>();
 
-            foreach (var rule in ValidationRules)
+            var objects = objectModel.GetAllObjects();
+
+            foreach (var rule in _validationRules)
             {
-                yield return rule.Execute(modelObject);
+                foreach (var obj in objects)
+                {
+                    rule.Execute(obj);
+                }
             }
+
+            return listRule.ToArray();
         }
 
         /// <summary>
@@ -61,14 +65,9 @@ namespace CimBios.Core.CimModel.Validation
                     if (validInstance == null)
                         throw new ArgumentNullException();
 
-                    return ((SchemaValidationRuleBase)validInstance);
+                    return ((ValidationRuleBase)validInstance);
                 }
             );
         }
-
-        /// <summary>
-        /// Список правил проверок
-        /// </summary>
-        private IEnumerable<SchemaValidationRuleBase>? _validationRules;
     }
 }
