@@ -309,7 +309,10 @@ public class CimSchema : ICimSchema
                     var parentLeftClass = TryGetResource<ICimMetaClass>
                         (metaClass.ParentClass.BaseUri);
                         
-                    metaClass.ParentClass = parentLeftClass;
+                    if (parentLeftClass != null)
+                    {
+                        metaClass.ParentClass = parentLeftClass;
+                    }
                 }
                 
                 _All.Add(metaClass.BaseUri, metaClass);
@@ -330,9 +333,7 @@ public class CimSchema : ICimSchema
                     && metaClass.ParentClass != null)
                 {
                     addClassDelegate(metaClass.ParentClass);
-                    var copiedClass = TryGetResource<ICimMetaClass>
-                        (metaClass.ParentClass.BaseUri);
-                    thisMetaClass.ParentClass = copiedClass;
+                    thisMetaClass.ParentClass = metaClass.ParentClass;                    
                 }
 
                 foreach (var ext in metaClass.Extensions)
@@ -370,6 +371,7 @@ public class CimSchema : ICimSchema
 
                     if (ownerLeftClass is ICimMetaExtensible extClass)
                     {
+                        extClass.RemoveProperty(metaProperty);
                         extClass.AddProperty(metaProperty);
                     }
                 }   
