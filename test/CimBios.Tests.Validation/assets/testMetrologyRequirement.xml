@@ -16,5 +16,6 @@
 
 	<cim:MetrologyRequirement rdf:about="#_id1">
         <cim:IdentifiedObject.name>Test object 1 MetrologyRequirement</cim:IdentifiedObject.name>
+		<cim:ReadingTypes>aaa</cim:ReadingTypes>
     </cim:MetrologyRequirement>
 </rdf:RDF>

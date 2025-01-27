@@ -10,11 +10,13 @@
     xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#"
     xmlns:me="http://monitel.com/2014/schema-cim16#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns:cim="http://iec.ch/TC57/CIM100#"
+    xmlns:cim="http://gost.ru/2019/schema-cim01#"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xml:base="https://cim.test.ru" > 
 
     <rf:ACLineSeriesSection rdf:about="#_id1">
-        <cim:IdentifiedObject.name>Test object 1 ACLineSeriesSection</cim:IdentifiedObject.name>
+		<cim:ACLineSeriesSection.b0ch>15</cim:ACLineSeriesSection.b0ch>
+		<cim:ACLineSeriesSection.bch></cim:ACLineSeriesSection.bch>
+		<cim:IdentifiedObject.name>Test object 1 ACLineSeriesSection</cim:IdentifiedObject.name>
     </rf:ACLineSeriesSection>
 </rdf:RDF>
