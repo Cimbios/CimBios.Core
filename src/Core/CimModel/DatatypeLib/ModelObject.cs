@@ -539,9 +539,9 @@ public class ModelObject : DynamicObject, IModelObject
             return true;
         }
 
-        if (metaProperty.PropertyDatatype == modelObject.MetaClass
+        if (metaProperty.PropertyDatatype.Equals(modelObject.MetaClass)
             || modelObject.MetaClass.Extensions
-                .Any(a => a == metaProperty.PropertyDatatype))
+                .Any(a => a.Equals(metaProperty.PropertyDatatype)))
         {
             return true;
         }
