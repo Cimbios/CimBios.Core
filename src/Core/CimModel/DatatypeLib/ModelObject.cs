@@ -547,8 +547,8 @@ public class ModelObject : DynamicObject, IModelObject
         }
 
         var allAncestors = modelObject.MetaClass.AllAncestors;
-        if (allAncestors.Any(a => a == metaProperty.PropertyDatatype 
-            || a.Extensions.Any(a => a == metaProperty.PropertyDatatype)))
+        if (allAncestors.Any(a => a.Equals(metaProperty.PropertyDatatype) 
+            || a.Extensions.Any(a => a.Equals(metaProperty.PropertyDatatype))))
         {
             return true;
         }
