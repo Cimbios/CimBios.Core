@@ -94,7 +94,7 @@ public interface ICimMetaResource : IEquatable<ICimMetaResource>
 public interface ICimMetaClass : ICimMetaResource
 {
     public bool SuperClass { get; }
-    public ICimMetaClass? ParentClass { get; }
+    public ICimMetaClass? ParentClass { get; set; }
     public IEnumerable<ICimMetaClass> AllAncestors { get; }
     public IEnumerable<ICimMetaClass> Extensions { get; }
     public IEnumerable<ICimMetaProperty> AllProperties { get; }
@@ -127,7 +127,31 @@ internal interface ICimMetaExtensible
     /// </summary>
     /// <param name="extension"Meta extension class></param>
     /// <returns>True if removed.</returns>
-    public bool RemoveExtension(ICimMetaClass extension);   
+    public bool RemoveExtension(ICimMetaClass extension);  
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="metaProperty"></param>
+    public void AddProperty(ICimMetaProperty metaProperty);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="metaProperty"></param>
+    public void RemoveProperty(ICimMetaProperty metaProperty);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="metaIndividual"></param>
+    public void AddIndividual(ICimMetaIndividual metaIndividual);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="metaIndividual"></param>
+    public void RemoveIndividual(ICimMetaIndividual metaIndividual);
 }
 
 /// <summary>
@@ -135,7 +159,7 @@ internal interface ICimMetaExtensible
 /// </summary>
 public interface ICimMetaProperty : ICimMetaResource
 {   
-    public ICimMetaClass? OwnerClass { get;  }
+    public ICimMetaClass? OwnerClass { get; }
     public CimMetaPropertyKind PropertyKind { get; }
     public ICimMetaProperty? InverseProperty { get; }
     public ICimMetaClass? PropertyDatatype { get; }
