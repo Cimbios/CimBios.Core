@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF 
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+	xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" 
+	xmlns:uml="http://langdale.com.au/2005/UML#" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xml:base="http://cim.bios/Profiles/TestAssets">
+	
+	<rdf:Description rdf:about="#ClassA">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>ClassA</rdfs:label>
+		<rdfs:comment>Test base class A</rdfs:comment>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
+	</rdf:Description>	
+	<rdf:Description rdf:about="#ClassB">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>ClassB</rdfs:label>
+		<rdfs:comment>Test class B</rdfs:comment>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
+		<rdfs:subClassOf rdf:resource="#ClassA"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ClassU">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>ClassU</rdfs:label>
+		<rdfs:comment>Test class U from R schema</rdfs:comment>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
+	</rdf:Description>	
+	<rdf:Description rdf:about="#ClassC">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>ClassC</rdfs:label>
+		<rdfs:comment>Test class C</rdfs:comment>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
+		<rdfs:subClassOf rdf:resource="#ClassU"/>
+	</rdf:Description>	
+	
+	<rdf:Description rdf:about="#ClassA.AProp1">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>AProp1</rdfs:label>
+		<rdfs:comment>Test Class A property.</rdfs:comment>
+		<rdfs:domain rdf:resource="#ClassA"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ClassB.BProp1">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>BProp1</rdfs:label>
+		<rdfs:comment>Test Class B property.</rdfs:comment>
+		<rdfs:domain rdf:resource="#ClassB"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#ClassC.CProp1">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>CProp1</rdfs:label>
+		<rdfs:comment>Test Class C property.</rdfs:comment>
+		<rdfs:domain rdf:resource="#ClassC"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	
+	<rdf:Description rdf:about="#Enum0">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Enum0</rdfs:label>
+		<rdfs:comment>Enum0</rdfs:comment>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Enum0.Val1">
+		<rdf:type rdf:resource="#Enum0"/>
+		<rdfs:label>Val1</rdfs:label>
+		<rdfs:comment>Enum0.Val1</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Enum0.Val2">
+		<rdf:type rdf:resource="#Enum0"/>
+		<rdfs:label>Val2</rdfs:label>
+		<rdfs:comment>Enum0.Val2</rdfs:comment>
+	</rdf:Description>
+</rdf:RDF>
