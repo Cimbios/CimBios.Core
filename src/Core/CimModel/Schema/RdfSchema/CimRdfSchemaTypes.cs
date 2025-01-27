@@ -395,6 +395,7 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
     public CimMetaPropertyKind PropertyKind => GetMetaPropertyKind();
     public ICimMetaProperty? InverseProperty => InverseOf;
     public ICimMetaClass? PropertyDatatype => GetDatatype();
+
     public bool IsExtension => IsDomainExtension();
 
     [
