@@ -105,6 +105,8 @@ public interface ICimSchema : ICanLog
 
     /// <summary>
     /// Join this CIM schema with another one.
+    /// NOTE: Joining schema objects grabs as refs 
+    /// and still can affect on this schema!
     /// </summary>
     /// <param name="schema">ICimSchema instance.</param>
     /// <param name="rewriteNamespaces">Rewrite namespaces URI.</param>
