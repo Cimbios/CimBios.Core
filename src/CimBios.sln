@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Utils.MetaReflectio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tools.CimTypeLibBuilder", "Tools\CimBios.Tools.CimTypeLibBuilder\CimBios.Tools.CimTypeLibBuilder.csproj", "{441E95ED-F15C-428D-93EA-E23ABA455DA8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tests.CimSchema", "..\test\CimBios.Tests.CimSchema\CimBios.Tests.CimSchema.csproj", "{B990F81D-CAB7-49BA-9D6B-64B6302E101B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,10 @@ Global
 		{441E95ED-F15C-428D-93EA-E23ABA455DA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{441E95ED-F15C-428D-93EA-E23ABA455DA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{441E95ED-F15C-428D-93EA-E23ABA455DA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B990F81D-CAB7-49BA-9D6B-64B6302E101B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B990F81D-CAB7-49BA-9D6B-64B6302E101B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B990F81D-CAB7-49BA-9D6B-64B6302E101B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B990F81D-CAB7-49BA-9D6B-64B6302E101B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -115,6 +121,7 @@ Global
 		{D18ECC24-3EF0-4A8E-9ECF-7C6E70C86C29} = {B2BF029E-0939-468F-BE76-7C67B7A485A8}
 		{8E299C0B-F47C-44D1-A938-F985D9083373} = {FAC6A4DE-5702-4BB8-B407-F244C2D987FB}
 		{441E95ED-F15C-428D-93EA-E23ABA455DA8} = {29FD2110-4306-4F6F-AFAE-84A3B47A30AF}
+		{B990F81D-CAB7-49BA-9D6B-64B6302E101B} = {B2BF029E-0939-468F-BE76-7C67B7A485A8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E063B80A-4158-4C3F-A567-BFB2B929BA33}
