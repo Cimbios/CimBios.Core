@@ -9,75 +9,54 @@ using System.Threading.Tasks;
 
 namespace CimBios.Core.CimModel.Validation
 {
+    [AttributeValidation]
     public class PropertyMultiplisityValidationRule : ValidationRuleBase
     {
         /// <inheritdoc/>
         public override IEnumerable<ValidationResult> Execute(
             IModelObject modelObject)
         {
-            var propertiesRequied = MultiplisityRequired(modelObject);
+            var multiplisityRequied = MultiplisityRequired(modelObject).ToList();
 
-            var objectsRequired = GetObjectsRequired(
-                propertiesRequied, modelObject);
-
-            foreach (var or in objectsRequired)
+            foreach (var or in multiplisityRequied)
             {
                 yield return ValidationResults(or, modelObject);
             }
         }
 
-        public object?[] GetObjectsRequired(
-            IEnumerable<ICimMetaProperty> propertiesRequied, 
-            IModelObject modelObject)
+        private ValidationResult ValidationResults(
+            ICimMetaProperty property, IModelObject modelObject)
         {
-            var objectsRequied = new List<object?>();
-
-            foreach (var pq in propertiesRequied)
-            {
-                switch (pq.PropertyKind)
-                {
-                    case CimMetaPropertyKind.Attribute:
-                        var att = modelObject.GetAttribute(pq);
-                        objectsRequied.Add(att);
-                        break;
-                    case CimMetaPropertyKind.Assoc1To1:
-                        var as1To1 = modelObject.GetAssoc1To1<IModelObject>(pq);
-                        objectsRequied.Add(as1To1);
-                        break;
-                    case CimMetaPropertyKind.Assoc1ToM:
-                        var as1ToM = modelObject.GetAssoc1ToM(pq);
-                        objectsRequied.Add(as1ToM);
-                        break;
-                }
-            }
-            return objectsRequied.ToArray();
-        }
-
-        private ValidationResult ValidationResults(object? obj,
-            IModelObject modelObject)
-        {
-            //if (obj == null)
-            //{
-            //    yield return new ValidationResult()
-            //    { 
-            //        Message = "",
-            //        ResultType = ValidationResultKind.Fail,
-            //        ModelObject = modelObject
-            //    };
-            //}
-            return obj == null 
+            return GetPropertiesValue(property, modelObject) == null
                 ? new ValidationResult()
                 {
-                    Message = "Ошибка",
+                    Message = $"Атрибут / ассоцияция: {property} " +
+                    "не удовлетворяет требованиям множественности",
                     ResultType = ValidationResultKind.Fail,
                     ModelObject = modelObject
-                } 
+                }
                 : new ValidationResult()
                 {
-                    Message = "Всё норм",
+                    Message = "Ошибки отсутствуют",
                     ResultType = ValidationResultKind.Pass,
                     ModelObject = modelObject
                 };
+        }
+
+        public object? GetPropertiesValue(
+            ICimMetaProperty propertiesRequied, 
+            IModelObject modelObject)
+        {
+            switch (propertiesRequied.PropertyKind)
+            {
+                case CimMetaPropertyKind.Attribute:
+                    return modelObject.
+                        GetAttribute(propertiesRequied);
+                case CimMetaPropertyKind.Assoc1ToM:
+                    return modelObject.
+                        GetAssoc1ToM(propertiesRequied);
+            }
+            return null;
         }
 
         private IEnumerable<ICimMetaProperty> MultiplisityRequired(

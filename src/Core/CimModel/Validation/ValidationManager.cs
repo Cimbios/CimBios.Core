@@ -14,6 +14,12 @@ namespace CimBios.Core.CimModel.Validation
         private IEnumerable<IValidationRule> _validationRules = [];
 
         /// <summary>
+        /// Список правил праверок
+        /// </summary>
+        public IValidationRule[] GetValidationRules => 
+            _validationRules.ToArray();
+
+        /// <summary>
         /// Конструктор класса ValidationManager
         /// </summary>
         public ValidationManager()
@@ -49,7 +55,7 @@ namespace CimBios.Core.CimModel.Validation
         /// <returns>Типы валидации</returns>
         private void LoadAssembly()
         {
-            if (_validationRules != null) return;
+            if (_validationRules.Count() != 0) return;
 
             var assembly = Assembly.GetExecutingAssembly();
 
