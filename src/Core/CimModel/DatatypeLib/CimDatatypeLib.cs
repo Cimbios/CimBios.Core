@@ -1,3 +1,4 @@
+using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
 using CimBios.Utils.ClassTraits;
 using System.Reflection;
@@ -33,6 +34,16 @@ public interface ICimDatatypeLib : ICanLog
     /// </summary>
     /// <param name="type">Type for register.</param>
     public void RegisterType(System.Type type);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="uuid"></param>
+    /// <param name="metaClass"></param>
+    /// <param name="isAuto"></param>
+    /// <returns></returns>
+    public IModelObject? CreateInstance(IModelObjectFactory modelObjectFactory,
+        string uuid, ICimMetaClass metaClass, bool isAuto);
 }
 
 /// <summary>
@@ -138,11 +149,25 @@ public class CimDatatypeLib : ICimDatatypeLib
         _RegisteredTypes.Add(new Uri(attribute.AbsoluteUri), type);
     }
 
-    private HashSet<Assembly> _LoadedAssemblies
-        = new HashSet<Assembly>();
+    public IModelObject? CreateInstance(IModelObjectFactory modelObjectFactory,
+        string uuid, ICimMetaClass metaClass, bool isAuto)
+    {
+        if (RegisteredTypes.TryGetValue(metaClass.BaseUri, out var type)
+            && type.IsAssignableFrom(modelObjectFactory.ProduceType))
+        {
+            return Activator.CreateInstance(type, uuid, 
+                metaClass, isAuto) as IModelObject;
+        }
+        else
+        {
+            return modelObjectFactory.Create(uuid, metaClass, isAuto);
+        }
+    }
 
-    private Dictionary<Uri, System.Type> _RegisteredTypes
-        = new Dictionary<Uri, Type>(new RdfUriComparer());
+    private HashSet<Assembly> _LoadedAssemblies = [];
+
+    private Dictionary<Uri, System.Type> _RegisteredTypes 
+        = new(new RdfUriComparer());
 
     private PlainLogView _Log;
 }

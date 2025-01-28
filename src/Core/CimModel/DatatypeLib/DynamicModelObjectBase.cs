@@ -7,6 +7,8 @@ namespace CimBios.Core.CimModel.DatatypeLib;
 
 public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
 {
+    protected DynamicModelObjectBase() : base() {}
+
     public dynamic? AsDynamic()
     {
         return this;

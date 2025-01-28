@@ -11,7 +11,7 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
     public override bool IsAuto => _isAuto;
     public override ICimMetaClass MetaClass => _MetaClass;
 
-    public ModelObject(string uuid, ICimMetaClass metaClass, 
+    internal ModelObject(string uuid, ICimMetaClass metaClass, 
         bool isAuto = false)
     {
         _uuid = uuid;
@@ -609,13 +609,24 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
     private bool _isAuto;
 
     private ICimMetaClass _MetaClass;
-    private Dictionary<ICimMetaProperty, object?> _PropertiesData;
+    private readonly Dictionary<ICimMetaProperty, object?> _PropertiesData;
 
     public override event PropertyChangedEventHandler? PropertyChanged;
 
     public delegate void CanCancelPropertyChangingEventHandler(object? sender, 
         CanCancelPropertyChangingEventArgs e);
     public event CanCancelPropertyChangingEventHandler? PropertyChanging;
+}
+
+public class ModelObjectFactory : IModelObjectFactory
+{
+    public System.Type ProduceType => typeof(ModelObject);
+
+    public IModelObject Create(string uuid, 
+        ICimMetaClass metaClass, bool isAuto)
+    {
+        return new ModelObject(uuid, metaClass, isAuto);
+    }
 }
 
 /// <summary>
