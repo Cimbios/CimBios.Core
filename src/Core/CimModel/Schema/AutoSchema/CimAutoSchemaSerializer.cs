@@ -77,10 +77,10 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
 
             CimAutoClass? propertyDatatype = null;
             CimMetaPropertyKind propertyKind = CimMetaPropertyKind.NonStandard;
-            if (property.Object is Uri uriObject)
+            if (property.Object is RdfTripleObjectUriContainer uriContainer)
             {
                 // local link.
-                if (uriObject == Namespaces["base"])
+                if (uriContainer.UriObject == Namespaces["base"])
                 {
                     // The most generalized kind for assoc.
                     propertyKind = CimMetaPropertyKind.Assoc1ToM;
@@ -91,12 +91,17 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
                     // individual a.k.a enum
                     propertyKind = CimMetaPropertyKind.Attribute;
 
-                    var enumClass = CreateOrAugmentEnumClass(uriObject);
+                    var enumClass = CreateOrAugmentEnumClass(
+                        uriContainer.UriObject);
                     propertyDatatype = enumClass;
                 }
             }
-            else if (property.Object is RdfNode subRdfNode)
+            else if (property.Object is
+                    RdfTripleObjectStatementsContainer statements
+                 && statements.RdfNodesObject.Count == 1)
             {
+                var subRdfNode = statements.RdfNodesObject.First();
+
                 propertyKind = CimMetaPropertyKind.Attribute;
                 var compoundCLass = AddClass(subRdfNode.TypeIdentifier, 
                     false, true);
@@ -104,9 +109,9 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
                 HandleProperties(subRdfNode);
                 propertyDatatype = compoundCLass;
             }
-            else if (property.Object is string literal)
+            else if (property.Object is RdfTripleObjectLiteralContainer literal)
             {
-                propertyDatatype = GetLiteralDatatype(literal);
+                propertyDatatype = GetLiteralDatatype(literal.LiteralObject);
                 propertyKind = CimMetaPropertyKind.Attribute;
             }
 
