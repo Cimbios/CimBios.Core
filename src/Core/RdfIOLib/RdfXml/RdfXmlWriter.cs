@@ -1,3 +1,4 @@
+using System.Text;
 using System.Xml;
 
 namespace CimBios.Core.RdfIOLib;
@@ -27,13 +28,16 @@ public class RdfXmlWriter : RdfWriterBase
     public RdfXmlWriter() { }
 
     public override void Open(TextWriter textWriter,
-        bool excludeBase = true)
+        bool excludeBase = true, Encoding? encoding = null)
     {
+        encoding ??= Encoding.Default;
+
         var xmlWriter = XmlWriter.Create(textWriter,
             new XmlWriterSettings()
             {
                 Indent = true,
-                CloseOutput = true,
+                CloseOutput = true, 
+                Encoding = encoding
             }
         );
 
@@ -74,7 +78,9 @@ public class RdfXmlWriter : RdfWriterBase
     public override void Write(RdfNode rdfNode)
     {
         var nodeName = UriToName(rdfNode.TypeIdentifier);
-        _XmlWriter.WriteStartElement(nodeName.prefix, nodeName.name, 
+        WriteElementHeader(
+            nodeName.prefix, 
+            nodeName.name, 
             Namespaces[nodeName.prefix].AbsoluteUri);
 
         var iri = NormalizeIdentifier(rdfNode.Identifier);
@@ -90,22 +96,25 @@ public class RdfXmlWriter : RdfWriterBase
         foreach (var triple in rdfNode.Triples)
         {
             var (prefix, name) = UriToName(triple.Predicate);
-            _XmlWriter.WriteStartElement(prefix, 
+            WriteElementHeader(prefix, 
                 name, Namespaces[prefix].AbsoluteUri);
             
-            if (triple.Object is Uri uriObject)
+            if (triple.Object is RdfTripleObjectUriContainer uriContainer)
             {
                 _XmlWriter.WriteAttributeString(
-                    "rdf", "resource", rdf, NormalizeIdentifier(uriObject));
+                    "rdf", "resource", rdf, 
+                    NormalizeIdentifier(uriContainer.UriObject));
             }
-            else if (triple.Object is RdfNode compoundNode)
+            else if (triple.Object is RdfTripleObjectStatementsContainer statements)
             {
-                Write(compoundNode);
+                foreach (var statement in statements.RdfNodesObject)
+                {
+                    Write(statement);
+                }
             }
-            else
+            else if (triple.Object is RdfTripleObjectLiteralContainer literal)
             {
-                var formatedValue = FormatLiteralValue(triple.Object);
-                _XmlWriter.WriteString(formatedValue.ToString());
+                _XmlWriter.WriteString(literal.LiteralObject);
             }
 
             _XmlWriter.WriteEndElement();
@@ -122,6 +131,27 @@ public class RdfXmlWriter : RdfWriterBase
         }
 
         Close();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="prefix"></param>
+    /// <param name="name"></param>
+    /// <param name="ns"></param>
+    private void WriteElementHeader(string prefix, string name, string ns)
+    {
+        if (prefix == "base")
+        {
+            _XmlWriter.WriteStartElement(name);
+        }
+        else
+        {
+            _XmlWriter.WriteStartElement(
+                prefix, 
+                name, 
+                Namespaces[prefix].AbsoluteUri);
+        }
     }
 
     /// <summary>
@@ -144,8 +174,11 @@ public class RdfXmlWriter : RdfWriterBase
                 continue;
             }
 
-            _XmlWriter.WriteAttributeString("xmlns", ns.Key, 
-                xmlns, ns.Value.AbsoluteUri);
+            _XmlWriter.WriteAttributeString(
+                ns.Key == "base" ? "xml" : "xmlns", 
+                ns.Key, 
+                ns.Key == "base" ? xml : xmlns, 
+                ns.Value.AbsoluteUri);
         }
 
         return true;

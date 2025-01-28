@@ -65,14 +65,14 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
 
             var type = node.Triples.Where(t => RdfUtils
                     .RdfUriEquals(t.Predicate, CimRdfSchemaStrings.RdfType))
-                .Single().Object as Uri;
+                .Single().Object as RdfTripleObjectUriContainer;
 
             if (type == null)
             {
                 continue;
             }
 
-            if (_SerializeHelper.TryGetTypeInfo(type.AbsoluteUri, 
+            if (_SerializeHelper.TryGetTypeInfo(type.UriObject.AbsoluteUri, 
                     out var typeInfo)
                 && typeInfo != null)
             {
@@ -101,14 +101,14 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
         {
             var type = node.Triples.Where(t => RdfUtils
                 .RdfUriEquals(t.Predicate, CimRdfSchemaStrings.RdfType))
-            .Single().Object as Uri;
+            .Single().Object as RdfTripleObjectUriContainer;
 
             if (type == null)
             {
                 continue;
             }
 
-            if ((_ObjectsCache.TryGetValue(type, out var entity)
+            if ((_ObjectsCache.TryGetValue(type.UriObject, out var entity)
                 && entity is CimRdfsClass metaClass) == false)
             {
                 continue;
@@ -158,9 +158,9 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
                 }
 
                 if (attribute.FieldType == MetaFieldType.ByRef 
-                    && value is Uri valueRefUri)
+                    && value is RdfTripleObjectUriContainer valueRefUriContainer)
                 {
-                    if (_ObjectsCache.TryGetValue(valueRefUri, 
+                    if (_ObjectsCache.TryGetValue(valueRefUriContainer.UriObject, 
                         out var description))
                     {
                         _SerializeHelper.SetMetaMemberValue(metaDescription, 
@@ -168,16 +168,16 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
                     }
                 }
                 else if (attribute.FieldType == MetaFieldType.Value 
-                    && value is string valueString)
+                    && value is RdfTripleObjectLiteralContainer literalContainer)
                 {
                     _SerializeHelper.SetMetaMemberValue(metaDescription, 
-                        memberInfo, valueString);
+                        memberInfo, literalContainer.LiteralObject);
                 }
                 else if (attribute.FieldType == MetaFieldType.Enum 
-                    && value is Uri valueEnumUri)
+                    && value is RdfTripleObjectUriContainer valueEnumUriContainer)
                 {
-                    _SerializeHelper.TryGetMemberInfo(valueEnumUri.AbsoluteUri, 
-                        out var field);
+                    _SerializeHelper.TryGetMemberInfo(valueEnumUriContainer
+                        .UriObject.AbsoluteUri, out var field);
                     _SerializeHelper.TryGetTypeInfo(attribute.Identifier, 
                         out var enumClass);
 

@@ -82,7 +82,7 @@ public abstract class RdfNamespacesContainerBase
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     protected (string prefix, string name) UriToName(Uri uri)
-    {        
+    {   
         string ns = uri.AbsoluteUri[..(uri.AbsoluteUri.IndexOf('#') + 1)];
 
         var prefix = _Namespaces.Where(ns => ns.Value == uri)
@@ -102,5 +102,6 @@ public abstract class RdfNamespacesContainerBase
     }
 
     protected const string xmlns = "http://www.w3.org/2000/xmlns/";
+    protected const string xml = "http://www.w3.org/XML/1998/namespace";
     protected const string rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 }

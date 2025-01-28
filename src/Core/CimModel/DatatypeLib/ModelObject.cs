@@ -495,16 +495,16 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
             return true;
         }
 
-        if (metaProperty.PropertyDatatype == modelObject.MetaClass
+        if (metaProperty.PropertyDatatype.Equals(modelObject.MetaClass)
             || modelObject.MetaClass.Extensions
-                .Any(a => a == metaProperty.PropertyDatatype))
+                .Any(a => a.Equals(metaProperty.PropertyDatatype)))
         {
             return true;
         }
 
         var allAncestors = modelObject.MetaClass.AllAncestors;
-        if (allAncestors.Any(a => a == metaProperty.PropertyDatatype 
-            || a.Extensions.Any(a => a == metaProperty.PropertyDatatype)))
+        if (allAncestors.Any(a => a.Equals(metaProperty.PropertyDatatype) 
+            || a.Extensions.Any(a => a.Equals(metaProperty.PropertyDatatype))))
         {
             return true;
         }
