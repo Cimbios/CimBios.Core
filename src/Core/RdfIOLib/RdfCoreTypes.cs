@@ -47,7 +47,8 @@ public class RdfNode
     /// <param name="predicate">Triple predicate URI.</param>
     /// <param name="object">Triple generic object.</param>
     /// <returns>Created rdf node.</returns>
-    public RdfTriple NewTriple(Uri predicate, object @object)
+    public RdfTriple NewTriple(Uri predicate, 
+        RdfTripleObjectContainerBase @object)
     {
         var triple = new RdfTriple(this, predicate, @object);
         _Triples.Add(triple);
@@ -69,13 +70,14 @@ public class RdfNode
     /// </summary>
     /// <param name="predicate">Triple predicate URI.</param>
     /// <param name="object">Triple generic object.</param>
-    public void RemoveTriple(Uri predicate, object @object)
+    public void RemoveTriple(Uri predicate, 
+        RdfTripleObjectContainerBase @object)
     {
         _Triples.RemoveAll(m => RdfUtils.RdfUriEquals(m.Predicate, predicate) 
             && m.Object ==  @object);
     }
 
-    private List<RdfTriple> _Triples = [];
+    private readonly List<RdfTriple> _Triples = [];
 }
 
 /// <summary>
@@ -84,7 +86,7 @@ public class RdfNode
 public class RdfTriple
 {
     public RdfTriple(RdfNode subject, Uri predicate,
-        object @object)
+        RdfTripleObjectContainerBase @object)
     {
         Subject = subject;
         Predicate = predicate;
@@ -98,85 +100,86 @@ public class RdfTriple
     /// </summary>
     public Uri Predicate { get; set; }
 
-    public object Object { get; set; }
+    public RdfTripleObjectContainerBase Object { get; set; }
 }
 
 /// <summary>
-/// Helper class for rdf entities.
+/// Containered value object for RdfTriple instance.
 /// </summary>
-public static class RdfUtils
+public abstract class RdfTripleObjectContainerBase
 {
-    public static T? ExtractPredicateValue<T>(RdfNode node,
-        Uri predicate) where T : class
+    public System.Type Type { get; private set; }
+    public object RawObject { get; private set; }
+
+    internal RdfTripleObjectContainerBase(object rawObject)
     {
-        var triples = node.Triples
-            .Where(t => RdfUriEquals(t.Predicate, predicate));
-        if (triples.Count() > 0 && triples.First().Object is T value)
-        {
-            return value;
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    /// <summary>
-    /// Equality respects URI fragments comparision.
-    /// </summary>
-    public static bool RdfUriEquals(Uri? lUri, Uri? rUri)
-    {
-        if (lUri == null && rUri == null)
-        {
-            return true;
-        }
-
-         if (lUri != null && rUri != null)
-        {
-            return lUri.AbsoluteUri == rUri.AbsoluteUri;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Get short string form of URI.
-    /// </summary>
-    /// <param name="uri">Resource identifier.</param>
-    /// <param name="identifier">Escaped identifier. Empty if conversion fails.</param>
-    /// <returns>True if identifier</returns>
-    public static bool TryGetEscapedIdentifier(Uri uri, out string identifier)
-    {
-        identifier = string.Empty;
-
-        if (uri.Fragment != string.Empty)
-        {
-            identifier = uri.Fragment
-                .Replace("#", "")
-                .Replace("_", "");
-
-            return true;
-        }
-        else if (uri.LocalPath != string.Empty)
-        {
-            identifier = uri.LocalPath.Replace("/", "");
-            return true;
-        }
-
-        return false;
+        Type = rawObject.GetType();
+        RawObject = rawObject;
     }
 }
 
-public class RdfUriComparer : EqualityComparer<Uri>
+public sealed class RdfTripleObjectLiteralContainer 
+    : RdfTripleObjectContainerBase
 {
-    public override bool Equals(Uri? lUri, Uri? rUri)
+    public string LiteralObject
     {
-        return RdfUtils.RdfUriEquals(lUri, rUri);
+        get
+        {
+            if (RawObject is not string literalObject)
+            {
+                throw new InvalidCastException("RdfTripleObjectLiteralContainer does not contain string object!");
+            }
+
+            return literalObject;
+        }
     }
 
-    public override int GetHashCode(Uri uri)
+    public RdfTripleObjectLiteralContainer(string literalObject)
+        : base(literalObject)
     {
-        return uri.AbsoluteUri.GetHashCode();
     }
 }
 
+public sealed class RdfTripleObjectUriContainer 
+    : RdfTripleObjectContainerBase
+{
+    public Uri UriObject
+    {
+        get
+        {
+            if (RawObject is not Uri uriObject)
+            {
+                throw new InvalidCastException("RdfTripleObjectUriContainer does not contain URI object!");
+            }
+
+            return uriObject;
+        }
+    }
+
+    public RdfTripleObjectUriContainer(Uri uriObject)
+        : base(uriObject)
+    {
+    }
+}
+
+public sealed class RdfTripleObjectStatementsContainer 
+    : RdfTripleObjectContainerBase
+{
+    public ICollection<RdfNode> RdfNodesObject
+    {
+        get
+        {
+            if (RawObject is not ICollection<RdfNode> rdfNodes)
+            {
+                throw new InvalidCastException("RdfTripleObjectStatementsContainer does not contain ICollection<RdfNode> object!");
+            }
+
+            return rdfNodes;
+        }
+    }
+
+    public RdfTripleObjectStatementsContainer(ICollection<RdfNode> rdfNodes)
+        : base(rdfNodes)
+    {
+    }
+}
