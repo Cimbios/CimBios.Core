@@ -14,8 +14,9 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xml:base="https://cim.test.ru" >
 
-	<cim:MetrologyRequirement rdf:about="#_id1">
-        <cim:IdentifiedObject.name>Test object 1 MetrologyRequirement</cim:IdentifiedObject.name>
-		<cim:ReadingTypes>aaa</cim:ReadingTypes>
-    </cim:MetrologyRequirement>
+	<cim:ReactiveCapabilityCurve rdf:about="#_id1">
+		<cim:IdentifiedObject.name>Test object 1 ReactiveCapabilityCurve</cim:IdentifiedObject.name>
+		<cim:ReactiveCapabilityCurve.InitiallyUsedBySynchronousMachines rdf:resource="#_id2"/>
+		<cim:ReactiveCapabilityCurve.InitiallyUsedBySynchronousMachines rdf:resource="#_id3"/>
+	</cim:ReactiveCapabilityCurve>
 </rdf:RDF>

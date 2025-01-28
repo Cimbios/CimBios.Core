@@ -1,22 +1,16 @@
 ﻿using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CimBios.Core.CimModel.Validation
 {
     [AttributeValidation]
-    public class PropertyMultiplisityValidationRule : ValidationRuleBase
+    public class PropertyMultiplicityValidationRule : ValidationRuleBase
     {
         /// <inheritdoc/>
         public override IEnumerable<ValidationResult> Execute(
             IModelObject modelObject)
         {
-            var multiplisityRequied = MultiplisityRequired(modelObject).ToList();
+            var multiplisityRequied = MultiplisityRequired(modelObject);
 
             foreach (var or in multiplisityRequied)
             {
@@ -24,13 +18,19 @@ namespace CimBios.Core.CimModel.Validation
             }
         }
 
+        /// <summary>
+        /// Рузультаты проверки
+        /// </summary>
+        /// <param name="property">Свойства объекта</param>
+        /// <param name="modelObject">Объект модели</param>
+        /// <returns>Результаты проверки</returns>
         private ValidationResult ValidationResults(
             ICimMetaProperty property, IModelObject modelObject)
         {
             return GetPropertiesValue(property, modelObject) == null
                 ? new ValidationResult()
                 {
-                    Message = $"Атрибут / ассоцияция: {property} " +
+                    Message = $"Атрибут / ассоцияция: \"{property}\" " +
                     "не удовлетворяет требованиям множественности",
                     ResultType = ValidationResultKind.Fail,
                     ModelObject = modelObject
@@ -43,8 +43,15 @@ namespace CimBios.Core.CimModel.Validation
                 };
         }
 
+        /// <summary>
+        /// Запрос величины атрибута / ассоциации
+        /// </summary>
+        /// <param name="propertiesRequied">Свойства объекта 
+        /// с необходимой множественностью</param>
+        /// <param name="modelObject">Объект модели</param>
+        /// <returns>Величину атрибута / ассоциацию</returns>
         public object? GetPropertiesValue(
-            ICimMetaProperty propertiesRequied, 
+            ICimMetaProperty propertiesRequied,
             IModelObject modelObject)
         {
             switch (propertiesRequied.PropertyKind)
@@ -54,11 +61,16 @@ namespace CimBios.Core.CimModel.Validation
                         GetAttribute(propertiesRequied);
                 case CimMetaPropertyKind.Assoc1ToM:
                     return modelObject.
-                        GetAssoc1ToM(propertiesRequied);
+                        GetAssoc1ToM(propertiesRequied).FirstOrDefault();
             }
             return null;
         }
 
+        /// <summary>
+        /// Запрос свойств объекта с необходимой множественностью
+        /// </summary>
+        /// <param name="modelObject">Объект модели</param>
+        /// <returns>Свойства объекта с необходимой множественностью</returns>
         private IEnumerable<ICimMetaProperty> MultiplisityRequired(
             IModelObject modelObject)
         {
@@ -66,7 +78,7 @@ namespace CimBios.Core.CimModel.Validation
 
             foreach (var property in properties)
             {
-                if(property.IsValueRequired)
+                if (property.IsValueRequired)
                 {
                     yield return property;
                 }
