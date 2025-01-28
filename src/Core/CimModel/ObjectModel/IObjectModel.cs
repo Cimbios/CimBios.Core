@@ -4,6 +4,9 @@ using CimBios.Utils.ClassTraits;
 
 namespace CimBios.Core.CimModel.ObjectModel;
 
+/// <summary>
+/// Definition of CIM model object type.
+/// </summary>
 public interface IObjectModel : ICanLog
 {
     /// <summary>
@@ -55,4 +58,17 @@ public interface IObjectModel : ICanLog
     /// <param name="uuid">Model object string identifier.</param>
     /// <returns>True if object found and removed.</returns>
     public bool RemoveObject(string uuid);
+
+    /// <summary>
+    /// Remove object from model context.
+    /// </summary>
+    /// <param name="modelObject">Model object.</param>
+    /// <returns>True if object found and removed.</returns>
+    public bool RemoveObject(IModelObject modelObject);
+
+    /// <summary>
+    /// Remove object from model context.
+    /// </summary>
+    /// <param name="modelObjects">Enumerable of model objects.</param>
+    public void RemoveObjects(IEnumerable<IModelObject> modelObjects);
 }
