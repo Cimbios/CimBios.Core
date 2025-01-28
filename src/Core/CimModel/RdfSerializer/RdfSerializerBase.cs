@@ -181,9 +181,8 @@ public abstract class RdfSerializerBase : ICanLog
         }
         else if (objectData is RdfNode compoundRdfNode)
         {
-            RdfNode[] rdfNodesCollection = [compoundRdfNode];
             objectNode.NewTriple(property.BaseUri, 
-                new RdfTripleObjectStatementsContainer(rdfNodesCollection));
+                new RdfTripleObjectStatementsContainer([compoundRdfNode]));
         }
         else if (objectData is not null)
         {
@@ -433,21 +432,8 @@ public abstract class RdfSerializerBase : ICanLog
             return null;
         }
 
-        IModelObject? instanceObject = null;
-
-        if (TypeLib.RegisteredTypes.TryGetValue(instanceNode.TypeIdentifier,
-            out var type))
-        {
-            instanceObject = Activator.CreateInstance(type, 
-                instanceUuid, metaClass, instanceNode.IsAuto) as IModelObject;
-        }
-        else
-        {
-            instanceObject = new ModelObject(instanceUuid, 
+        return TypeLib.CreateInstance(new ModelObjectFactory(), instanceUuid, 
                 metaClass, instanceNode.IsAuto);
-        }
-
-        return instanceObject;
     }
 
     /// <summary>
