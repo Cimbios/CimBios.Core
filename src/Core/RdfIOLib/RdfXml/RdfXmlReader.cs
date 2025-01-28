@@ -131,17 +131,19 @@ public sealed class RdfXmlReader : RdfReaderBase
             {
                 rdfNode.NewTriple(
                     NameToUri(predicateInfo.TypeIdentifier), 
-                    NameToUri(predicateInfo.Identifier));
+                    new RdfTripleObjectUriContainer(
+                        NameToUri(predicateInfo.Identifier)));
             }
             else if (subtreeReader.Read() 
                 && subtreeReader.NodeType == XmlNodeType.Text)
             {
                 rdfNode.NewTriple(
                     NameToUri(predicateInfo.TypeIdentifier), 
-                    subtreeReader.Value);
+                    new RdfTripleObjectLiteralContainer(subtreeReader.Value));
             }
             else if (subtreeReader.NodeType == XmlNodeType.Element)
             {
+                var rdfNodesCollection = new List<RdfNode>();
                 do
                 {
                     if (subtreeReader.NodeType == XmlNodeType.EndElement)
@@ -152,12 +154,14 @@ public sealed class RdfXmlReader : RdfReaderBase
                     var nextNode = ReadNext();
                     if (nextNode != null)
                     {
-                        rdfNode.NewTriple(
-                            NameToUri(predicateInfo.TypeIdentifier), 
-                            nextNode);
+                        rdfNodesCollection.Add(nextNode);
                     }
                 }
                 while (subtreeReader.Read());
+
+                rdfNode.NewTriple(
+                    NameToUri(predicateInfo.TypeIdentifier), 
+                    new RdfTripleObjectStatementsContainer(rdfNodesCollection));
             }
         }
 
@@ -198,9 +202,15 @@ public sealed class RdfXmlReader : RdfReaderBase
     /// <returns>dcd</returns>
     private RdfXmlNodeInfo ReadNodeHeader()
     {
+        var sharperNamespace = _XmlReader.NamespaceURI;
+        if (_XmlReader.NamespaceURI.LastOrDefault() != '#')
+        {
+            sharperNamespace += '#';
+        }
+
         var info = new RdfXmlNodeInfo()
         {
-            TypeIdentifier = _XmlReader.NamespaceURI + _XmlReader.LocalName,
+            TypeIdentifier = sharperNamespace + _XmlReader.LocalName,
             IsEmpty = _XmlReader.IsEmptyElement,
             IsAuto = false
         };
