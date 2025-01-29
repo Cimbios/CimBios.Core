@@ -26,7 +26,7 @@ public class PropertyMultiplicityValidation
     {
         var cimDocument = CimDocumentLoader.LoadCimDocument(
             $"../../../assets/{inputData}.xml",
-            "../../../../../assets/cimrdfs_schemas/cimbios-cim17-RUCIM.rdfs");
+            "../../../assets/cimbios-testRdfsSchema.rdfs");
 
         var objects = cimDocument.GetAllObjects().Where(x => x != null);
 
