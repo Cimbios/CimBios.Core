@@ -1,4 +1,4 @@
-﻿using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.Validation
@@ -14,7 +14,7 @@ namespace CimBios.Core.CimModel.Validation
             IModelObject modelObject)
             =>  modelObject.MetaClass.AllProperties
                 .Where(p => p.IsValueRequired)
-                .Select(p => GetValidationResult(modelObject, reqProp));
+                .Select(p => GetValidationResult(modelObject, p));
 
         /// <summary>
         /// Get validation result.
@@ -25,7 +25,7 @@ namespace CimBios.Core.CimModel.Validation
         private ValidationResult GetValidationResult(
             IModelObject modelObject, ICimMetaProperty property)
         {
-            return GetPropertyValueAsObject(property, modelObject) == null
+            return GetPropertyValueAsObject(modelObject, property) == null
                 ? new ValidationResult()
                 {
                     Message = "Model object does not contain reuired value " +
