@@ -25,20 +25,24 @@ namespace CimBios.Core.CimModel.Validation
         private ValidationResult GetValidationResult(
             IModelObject modelObject, ICimMetaProperty property)
         {
-            return GetPropertyValueAsObject(modelObject, property) == null
-                ? new ValidationResult()
+            var value = GetPropertyValueAsObject(modelObject, property);
+
+            if (value is ICollection<object> collection
+                ? collection.Count() != 0
+                : value != null)
+                return new ValidationResult()
                 {
                     Message = "Model object does not contain reuired value " +
                         $"for \"{property}\" property.",
                     ResultType = ValidationResultKind.Fail,
                     ModelObject = modelObject
-                }
-                : new ValidationResult()
-                {
-                    Message = string.Empty,
-                    ResultType = ValidationResultKind.Pass,
-                    ModelObject = modelObject
                 };
+            else return new ValidationResult()
+            {
+                Message = string.Empty,
+                ResultType = ValidationResultKind.Pass,
+                ModelObject = modelObject
+            };
         }
     }
 }
