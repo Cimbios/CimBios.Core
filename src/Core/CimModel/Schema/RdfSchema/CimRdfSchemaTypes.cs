@@ -212,10 +212,9 @@ public class CimRdfsClass : CimRdfDescriptionBase,
     public void AddProperty(ICimMetaProperty metaProperty)
     {
         if (this.Equals(metaProperty.OwnerClass)
-            && metaProperty is CimRdfsProperty cimRdfsProperty
             && HasProperty(metaProperty, false) == false)
         {
-            _Properties.Add(cimRdfsProperty);
+            _Properties.Add(metaProperty);
         }
     }
 
@@ -231,10 +230,9 @@ public class CimRdfsClass : CimRdfDescriptionBase,
     public void AddIndividual(ICimMetaIndividual metaIndividual)
     {
         if (this.Equals(metaIndividual.InstanceOf)
-            && metaIndividual is CimRdfsIndividual cimRdfsInd
             && _Individuals.Contains(metaIndividual) == false)
         {
-            _Individuals.Add(cimRdfsInd);
+            _Individuals.Add(metaIndividual);
         }
     }
 
@@ -384,8 +382,8 @@ public class CimRdfsClass : CimRdfDescriptionBase,
     }
 
     private readonly List<ICimMetaResource> _SubClassOf = [];
-    private readonly HashSet<CimRdfsProperty> _Properties = [];
-    private readonly HashSet<CimRdfsIndividual> _Individuals = [];
+    private readonly HashSet<ICimMetaProperty> _Properties = [];
+    private readonly HashSet<ICimMetaIndividual> _Individuals = [];
 }
 
 [CimSchemaSerializable("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property")]
