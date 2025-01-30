@@ -113,10 +113,9 @@ public class CimAutoClass : CimAutoResource,
     public void AddProperty(ICimMetaProperty metaProperty)
     {
         if (this.Equals(metaProperty.OwnerClass)
-            && metaProperty is CimAutoProperty cimAutoProperty
             && HasProperty(metaProperty, false) == false)
         {
-            _Properties.Add(cimAutoProperty);
+            _Properties.Add(metaProperty);
         }
     }
 
@@ -132,10 +131,9 @@ public class CimAutoClass : CimAutoResource,
     public void AddIndividual(ICimMetaIndividual metaIndividual)
     {
         if (this.Equals(metaIndividual.InstanceOf)
-            && metaIndividual is CimAutoIndividual cimAutoIndividual
-            && _Individuals.Contains(cimAutoIndividual) == false)
+            && _Individuals.Contains(metaIndividual) == false)
         {
-            _Individuals.Add(cimAutoIndividual);
+            _Individuals.Add(metaIndividual);
         }
     }
 
@@ -228,8 +226,8 @@ public class CimAutoClass : CimAutoResource,
 
     private CimAutoClass? _ParentClass;
 
-    private readonly HashSet<CimAutoProperty> _Properties = [];
-    private readonly HashSet<CimAutoIndividual> _Individuals = [];
+    private readonly HashSet<ICimMetaProperty> _Properties = [];
+    private readonly HashSet<ICimMetaIndividual> _Individuals = [];
 }
 
 public class CimAutoProperty : CimAutoResource, ICimMetaProperty
