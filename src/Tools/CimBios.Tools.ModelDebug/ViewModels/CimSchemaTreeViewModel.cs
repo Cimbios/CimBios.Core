@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using CimBios.Core.CimModel.ModelView;
+using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
 using CimBios.Tools.ModelDebug.Models;
