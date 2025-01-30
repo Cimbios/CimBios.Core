@@ -1,79 +1,75 @@
-﻿using CimBios.Core.CimModel.CimDatatypeLib;
-using System;
 using System.Reflection;
-using CimBios.Core.CimModel.Schema;
-using CimBios.Core.CimModel.ObjectModel;
+using CimBios.Core.CimModel.CimDataModel;
 
-namespace CimBios.Core.CimModel.Validation
+namespace CimBios.Core.CimModel.Validation;
+
+public class ValidationManager
 {
-    public class ValidationManager
+    /// <summary>
+    /// Список правил проверок
+    /// </summary>
+    private IEnumerable<IValidationRule> _validationRules = [];
+
+    /// <summary>
+    /// Список правил праверок
+    /// </summary>
+    public IValidationRule[] GetValidationRules => 
+        _validationRules.ToArray();
+
+    /// <summary>
+    /// Конструктор класса ValidationManager
+    /// </summary>
+    public ValidationManager()
     {
-        /// <summary>
-        /// Список правил проверок
-        /// </summary>
-        private IEnumerable<IValidationRule> _validationRules = [];
+        LoadAssembly();
+    }
 
-        /// <summary>
-        /// Список правил праверок
-        /// </summary>
-        public IValidationRule[] GetValidationRules => 
-            _validationRules.ToArray();
+    /// <summary>
+    /// Проверяет контекст модели
+    /// </summary>
+    /// <param name="objectModel">Контекст модели</param>
+    /// <returns>Массив результатов проверки</returns>
+    public ValidationResult[] Validate(ICimDataModel objectModel)
+    {
+        List<ValidationResult> listRule = new List<ValidationResult>();
 
-        /// <summary>
-        /// Конструктор класса ValidationManager
-        /// </summary>
-        public ValidationManager()
+        var objects = objectModel.GetAllObjects();
+
+        foreach (var rule in _validationRules)
         {
-            LoadAssembly();
-        }
-
-        /// <summary>
-        /// Проверяет контекст модели
-        /// </summary>
-        /// <param name="objectModel">Контекст модели</param>
-        /// <returns>Массив результатов проверки</returns>
-        public ValidationResult[] Validate(IObjectModel objectModel)
-        {
-            List<ValidationResult> listRule = new List<ValidationResult>();
-
-            var objects = objectModel.GetAllObjects();
-
-            foreach (var rule in _validationRules)
+            foreach (var obj in objects)
             {
-                foreach (var obj in objects)
-                {
-                    rule.Execute(obj);
-                }
+                rule.Execute(obj);
             }
-
-            return listRule.ToArray();
         }
 
-        /// <summary>
-        /// Загрузка типов валидации из сборки
-        /// </summary>
-        /// <returns>Типы валидации</returns>
-        private void LoadAssembly()
-        {
-            if (_validationRules.Count() != 0) return;
+        return listRule.ToArray();
+    }
 
-            var assembly = Assembly.GetExecutingAssembly();
+    /// <summary>
+    /// Загрузка типов валидации из сборки
+    /// </summary>
+    /// <returns>Типы валидации</returns>
+    private void LoadAssembly()
+    {
+        if (_validationRules.Count() != 0) return;
 
-            var validationTypes = assembly.GetTypes()
-                .Where(t => t.IsDefined(typeof(AttributeValidation), true));
+        var assembly = Assembly.GetExecutingAssembly();
 
-            _validationRules = validationTypes.Select(
-                vr =>
-                {
-                    var validInstance = Activator.CreateInstance(
-                        vr);
+        var validationTypes = assembly.GetTypes()
+            .Where(t => t.IsDefined(typeof(AttributeValidation), true));
 
-                    if (validInstance == null)
-                        throw new ArgumentNullException();
+        _validationRules = validationTypes.Select(
+            vr =>
+            {
+                var validInstance = Activator.CreateInstance(
+                    vr);
 
-                    return ((ValidationRuleBase)validInstance);
-                }
-            );
-        }
+                if (validInstance == null)
+                    throw new ArgumentNullException();
+
+                return ((ValidationRuleBase)validInstance);
+            }
+        );
     }
 }
