@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.ModelView;
+using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
