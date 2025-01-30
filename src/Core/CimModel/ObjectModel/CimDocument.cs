@@ -18,7 +18,7 @@ public class CimDocument : IObjectModel
 {
     public ILogView Log => _Log;
 
-    public FullModel? Description { get; set; }
+    public FullModel? Description => _Description;
 
     public ICimSchema? Schema => _serializer?.Schema;
 
@@ -76,6 +76,7 @@ public class CimDocument : IObjectModel
         finally
         {        
             ReadModelDescription();
+            streamReader.Close();
         }
     }
 
@@ -186,6 +187,19 @@ public class CimDocument : IObjectModel
         return _Objects.Remove(uuid);
     }
 
+    public bool RemoveObject(IModelObject modelObject)
+    {
+        return RemoveObject(modelObject.Uuid);
+    }
+
+    public void RemoveObjects(IEnumerable<IModelObject> modelObjects)
+    {
+        foreach (var modelObject in modelObjects)
+        {
+            RemoveObject(modelObject);
+        }
+    }
+
     /// <summary>
     /// Find and extract IFullModel description from _objects cache.
     /// </summary>
@@ -196,7 +210,7 @@ public class CimDocument : IObjectModel
 
         if (fullModel != null)
         {
-            Description = fullModel;
+            _Description = fullModel;
             _Objects.Remove(fullModel.Uuid);
         }
         else
@@ -213,4 +227,6 @@ public class CimDocument : IObjectModel
     private RdfSerializerBase _serializer;
 
     private PlainLogView _Log;
+
+    private FullModel? _Description = null;
 }

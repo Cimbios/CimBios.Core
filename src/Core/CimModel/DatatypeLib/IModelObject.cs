@@ -173,3 +173,23 @@ public interface IModelObject : INotifyPropertyChanged
     /// <param name="assocName">Assoc name in format of '(Domain.)Assoc'.</param>
     public void RemoveAllAssocs1ToM(string assocName);
 }
+
+/// <summary>
+/// Model object factory provides activation method.
+/// </summary>
+public interface IModelObjectFactory
+{
+    /// <summary>
+    /// Factory producing type info.
+    /// </summary>
+    public System.Type ProduceType { get; }
+
+    /// <summary>
+    /// Create IModelObject instance.
+    /// </summary>
+    /// <param name="uuid">Object uuid.</param>
+    /// <param name="metaClass">Schema meta class.</param>
+    /// <param name="isAuto">Is creating object auto.</param>
+    /// <returns>IModelObject instance.</returns>
+    public IModelObject Create(string uuid, ICimMetaClass metaClass, bool isAuto);
+}

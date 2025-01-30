@@ -105,75 +105,65 @@ public sealed class RdfXmlReader : RdfReaderBase
             return null;
         }
 
-        var nodesStack = new Stack<RdfNode>();
         var subtreeReader = _XmlReader.ReadSubtree();
-        RdfNode? rdfNode = null;
-        bool blockReading = false;
+        subtreeReader.Read();
 
-        do
+        var nodeInfo = ReadNodeHeader();
+        var nodeIRI = NameToUri(nodeInfo.Identifier);
+        var typeIRI = NameToUri(nodeInfo.TypeIdentifier);
+        var rdfNode = new RdfNode(nodeIRI, typeIRI, nodeInfo.IsAuto);
+
+        while (subtreeReader.Read())
         {
-            if (blockReading == false 
-                && subtreeReader.Read() == false)
+            if (subtreeReader.NodeType == XmlNodeType.EndElement 
+                && subtreeReader.Depth == 0)
             {
                 break;
             }
-            blockReading = false;
 
-            if (subtreeReader.NodeType == XmlNodeType.EndElement
-                && (subtreeReader.Depth & 1) == 0)
+            if (SkipToNextElement(subtreeReader) == false)
             {
-                _XmlReader.ReadEndElement();
-                rdfNode = nodesStack.Pop();
-
-                if (nodesStack.Count != 0)
-                {
-                    nodesStack.Peek().NewTriple(
-                        NameToUri(_XmlReader.Name), 
-                        rdfNode);
-                }
-
-                continue;
+                break;
             }
 
-            if (subtreeReader.NodeType != XmlNodeType.Element)
+            var predicateInfo = ReadNodeHeader();
+            if (predicateInfo.AttributesMap.ContainsKey(rdf + "resource"))
             {
-                continue;
+                rdfNode.NewTriple(
+                    NameToUri(predicateInfo.TypeIdentifier), 
+                    new RdfTripleObjectUriContainer(
+                        NameToUri(predicateInfo.Identifier)));
             }
-
-            int initialDepth = subtreeReader.Depth;
-
-            var nodeInfo = ReadNodeHeader();
-            // Depth parity is node-predicate arc marker.
-            if ((initialDepth & 1) == 0)
+            else if (subtreeReader.Read() 
+                && subtreeReader.NodeType == XmlNodeType.Text)
             {
-                var nodeIRI = NameToUri(nodeInfo.Identifier);
-                var typeIRI = NameToUri(nodeInfo.TypeIdentifier);
-                var nextNode = new RdfNode(nodeIRI, typeIRI, nodeInfo.IsAuto);
-                
-                nodesStack.Push(nextNode);
+                rdfNode.NewTriple(
+                    NameToUri(predicateInfo.TypeIdentifier), 
+                    new RdfTripleObjectLiteralContainer(subtreeReader.Value));
             }
-            else
+            else if (subtreeReader.NodeType == XmlNodeType.Element)
             {
-                if (nodeInfo.AttributesMap.ContainsKey(rdf + "resource"))
+                var rdfNodesCollection = new List<RdfNode>();
+                do
                 {
-                    nodesStack.Peek().NewTriple(
-                        NameToUri(nodeInfo.TypeIdentifier), 
-                        NameToUri(nodeInfo.Identifier));
+                    if (subtreeReader.NodeType == XmlNodeType.EndElement)
+                    {
+                        break;
+                    }
+
+                    var nextNode = ReadNext();
+                    if (nextNode != null)
+                    {
+                        rdfNodesCollection.Add(nextNode);
+                    }
                 }
-                else if (subtreeReader.Read() 
-                    && subtreeReader.NodeType == XmlNodeType.Text)
-                {
-                    nodesStack.Peek().NewTriple(
-                        NameToUri(nodeInfo.TypeIdentifier), 
-                        subtreeReader.Value);
-                }
-                else if (subtreeReader.NodeType == XmlNodeType.Element)
-                {
-                    blockReading = true;
-                }
+                while (subtreeReader.Read());
+
+                rdfNode.NewTriple(
+                    NameToUri(predicateInfo.TypeIdentifier), 
+                    new RdfTripleObjectStatementsContainer(rdfNodesCollection));
             }
         }
-        while (nodesStack.Count != 0);
 
         return rdfNode;
     }
@@ -184,9 +174,19 @@ public sealed class RdfXmlReader : RdfReaderBase
     /// <returns>True if next element reached.</returns>
     private bool SkipToNextElement()
     {
-        while (_XmlReader.NodeType != XmlNodeType.Element)
+        return SkipToNextElement(_XmlReader);
+    }
+
+    /// <summary>
+    /// Skip while Element not found or eof with special reader.
+    /// </summary>
+    /// <param name="xmlReader">Xml reader</param>
+    /// <returns>True if next element reached.</returns>
+    private bool SkipToNextElement(XmlReader xmlReader)
+    {
+        while (xmlReader.NodeType != XmlNodeType.Element)
         {   
-            if (_XmlReader.Read() == false)
+            if (xmlReader.Read() == false)
             {
                 return false;
             }
@@ -202,9 +202,15 @@ public sealed class RdfXmlReader : RdfReaderBase
     /// <returns>dcd</returns>
     private RdfXmlNodeInfo ReadNodeHeader()
     {
+        var sharperNamespace = _XmlReader.NamespaceURI;
+        if (_XmlReader.NamespaceURI.LastOrDefault() != '#')
+        {
+            sharperNamespace += '#';
+        }
+
         var info = new RdfXmlNodeInfo()
         {
-            TypeIdentifier = _XmlReader.NamespaceURI + _XmlReader.LocalName,
+            TypeIdentifier = sharperNamespace + _XmlReader.LocalName,
             IsEmpty = _XmlReader.IsEmptyElement,
             IsAuto = false
         };

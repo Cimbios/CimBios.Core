@@ -55,14 +55,19 @@ public abstract class CimRdfDescriptionBase : ICimMetaResource
         return ShortName;
     }
 
-    public bool Equals(ICimMetaResource? other)
+    public override bool Equals(object? other)
     {
-        if (other == null)
+        if (other is not ICimMetaResource metaResource)
         {
             return false;
         }
 
-        return RdfUtils.RdfUriEquals(BaseUri, other.BaseUri);
+        return RdfUtils.RdfUriEquals(BaseUri, metaResource.BaseUri);
+    }
+
+    public bool Equals(ICimMetaResource? other)
+    {
+        return Equals(other as object);
     }
 
     public override int GetHashCode()
@@ -153,7 +158,24 @@ public class CimRdfsClass : CimRdfDescriptionBase,
     ICimMetaClass, ICimMetaExtensible
 {
     public bool SuperClass => (SubClassOf == null);
-    public ICimMetaClass? ParentClass => GetParentClass();
+    public ICimMetaClass? ParentClass 
+    {
+        get => GetParentClass();
+        set
+        {
+            var parentClass = GetParentClass();
+            if (parentClass != null)
+            {
+                _SubClassOf.Remove(parentClass);
+            }
+            
+            if (value != null && (value.IsExtension == false 
+                    || this.BaseUri == value.BaseUri))
+            {
+                _SubClassOf.Add(value);
+            }
+        }
+    }
     public IEnumerable<ICimMetaClass> AllAncestors => GetAllAncestors();
     public IEnumerable<ICimMetaClass> Extensions => _SubClassOf
         .OfType<ICimMetaClass>().Where(c => c.IsExtension && c.ParentClass == null);
@@ -189,7 +211,7 @@ public class CimRdfsClass : CimRdfDescriptionBase,
 
     public void AddProperty(ICimMetaProperty metaProperty)
     {
-        if (metaProperty.OwnerClass == this
+        if (this.Equals(metaProperty.OwnerClass)
             && metaProperty is CimRdfsProperty cimRdfsProperty
             && HasProperty(metaProperty, false) == false)
         {
@@ -208,7 +230,7 @@ public class CimRdfsClass : CimRdfDescriptionBase,
 
     public void AddIndividual(ICimMetaIndividual metaIndividual)
     {
-        if (metaIndividual.InstanceOf == this
+        if (this.Equals(metaIndividual.InstanceOf)
             && metaIndividual is CimRdfsIndividual cimRdfsInd
             && _Individuals.Contains(metaIndividual) == false)
         {
@@ -373,6 +395,7 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
     public CimMetaPropertyKind PropertyKind => GetMetaPropertyKind();
     public ICimMetaProperty? InverseProperty => InverseOf;
     public ICimMetaClass? PropertyDatatype => GetDatatype();
+
     public bool IsExtension => IsDomainExtension();
     public bool IsValueRequired => ValueRequired();
 
@@ -437,8 +460,8 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
             return CimMetaPropertyKind.Assoc1To1;
         }
 
-        if (Multiplicity == RdfSchema.Multiplicity.OneToN
-            || Multiplicity == RdfSchema.Multiplicity.ZeroToN)
+        if (Multiplicity == RdfSchema.Multiplicity.ZeroToN
+            || Multiplicity == RdfSchema.Multiplicity.OneToN)
         {
             return CimMetaPropertyKind.Assoc1ToM;
         }
