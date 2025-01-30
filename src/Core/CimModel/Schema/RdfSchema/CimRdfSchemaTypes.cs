@@ -397,6 +397,7 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
     public ICimMetaClass? PropertyDatatype => GetDatatype();
 
     public bool IsExtension => IsDomainExtension();
+    public bool IsValueRequired => ValueRequired();
 
     [
         CimSchemaSerializable(
@@ -493,6 +494,22 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
         }
 
         return Domain.IsExtension;
+    }
+
+    private bool ValueRequired()
+    {
+        if (Multiplicity == null)
+        {
+            return false;
+        }
+
+        if (Multiplicity == RdfSchema.Multiplicity.OneToN
+            || Multiplicity == RdfSchema.Multiplicity.StrictlyOne)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private CimRdfsClass? _Domain = null;
