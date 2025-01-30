@@ -3,56 +3,52 @@ using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.Validation
 {
+    /// <summary>
+    /// Validation rule for property multiplicity accordance.
+    /// </summary>
     [AttributeValidation]
     public class PropertyMultiplicityValidationRule : ValidationRuleBase
     {
         /// <inheritdoc/>
         public override IEnumerable<ValidationResult> Execute(
             IModelObject modelObject)
-        {
-            var multiplisityRequied = MultiplisityRequired(modelObject);
-
-            foreach (var or in multiplisityRequied)
-            {
-                yield return ValidationResults(or, modelObject);
-            }
-        }
+            =>  modelObject.MetaClass.AllProperties
+                .Where(p => p.IsValueRequired)
+                .Select(p => GetValidationResult(modelObject, reqProp));
 
         /// <summary>
-        /// Рузультаты проверки
+        /// Get validation result.
         /// </summary>
-        /// <param name="property">Свойства объекта</param>
-        /// <param name="modelObject">Объект модели</param>
-        /// <returns>Результаты проверки</returns>
-        private ValidationResult ValidationResults(
-            ICimMetaProperty property, IModelObject modelObject)
+        /// <param name="modelObject">Model object instance.</param>
+        /// <param name="property">Meta property.</param>
+        /// <returns>Validation result</returns>
+        private ValidationResult GetValidationResult(
+            IModelObject modelObject, ICimMetaProperty property)
         {
-            return GetPropertiesValue(property, modelObject) == null
+            return GetPropertyValueAsObject(property, modelObject) == null
                 ? new ValidationResult()
                 {
-                    Message = $"Атрибут / ассоцияция: \"{property}\" " +
-                    "не удовлетворяет требованиям множественности",
+                    Message = "Model object does not contain reuired value " +
+                        $"for \"{property}\" property.",
                     ResultType = ValidationResultKind.Fail,
                     ModelObject = modelObject
                 }
                 : new ValidationResult()
                 {
-                    Message = "Ошибки отсутствуют",
+                    Message = string.Empty,
                     ResultType = ValidationResultKind.Pass,
                     ModelObject = modelObject
                 };
         }
 
         /// <summary>
-        /// Запрос величины атрибута / ассоциации
+        /// Get any value (attribute or assoc) of model object by meta property.
         /// </summary>
-        /// <param name="propertiesRequied">Свойства объекта 
-        /// с необходимой множественностью</param>
-        /// <param name="modelObject">Объект модели</param>
-        /// <returns>Величину атрибута / ассоциацию</returns>
-        public object? GetPropertiesValue(
-            ICimMetaProperty propertiesRequied,
-            IModelObject modelObject)
+        /// <param name="modelObject">Model object instance.</param>
+        /// <param name="property">Meta property.</param>
+        /// <returns>Object value or null if property value does not exist.</returns>
+        private object? GetPropertyValueAsObject(
+            IModelObject modelObject, ICimMetaProperty property)
         {
             switch (propertiesRequied.PropertyKind)
             {
@@ -63,26 +59,8 @@ namespace CimBios.Core.CimModel.Validation
                     return modelObject.
                         GetAssoc1ToM(propertiesRequied).FirstOrDefault();
             }
+            
             return null;
-        }
-
-        /// <summary>
-        /// Запрос свойств объекта с необходимой множественностью
-        /// </summary>
-        /// <param name="modelObject">Объект модели</param>
-        /// <returns>Свойства объекта с необходимой множественностью</returns>
-        private IEnumerable<ICimMetaProperty> MultiplisityRequired(
-            IModelObject modelObject)
-        {
-            var properties = modelObject.MetaClass.AllProperties;
-
-            foreach (var property in properties)
-            {
-                if (property.IsValueRequired)
-                {
-                    yield return property;
-                }
-            }
         }
     }
 }
