@@ -1,0 +1,344 @@
+<rdf:RDF 
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+	xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" 
+	xmlns:uml="http://langdale.com.au/2005/UML#" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#" 
+	xmlns:cim="http://iec.ch/TC57/CIM100#"
+	xmlns:rf="http://gost.ru/2019/schema-cim01#"
+	xml:base="http://cim.bios/Profiles/RuGostExtensions/v1">
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachine">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>AsynchronousMachine</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_2"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#AsynchronousMachine.PrimeMover">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>PrimeMover</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#AsynchronousMachine"/>
+		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#PrimeMover"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#PrimeMover.AsynchronousMachine"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#AsynchronousMachine">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>AsynchronousMachine</rdfs:label>
+		<rdfs:comment>A rotating machine whose shaft rotates asynchronously with the electrical field.  Also known as an induction machine with no external connection to the rotor windings, e.g. squirrel-cage induction machine.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#AsynchronousMachine"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#AuxiliaryEquipment">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>AuxiliaryEquipment</rdfs:label>
+		<rdfs:comment>AuxiliaryEquipment describe equipment that is not performing any primary functions but support for the equipment performing the primary function.&#xD;
+AuxiliaryEquipment is attached to primary equipment via an association with Terminal.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_AuxiliaryEquipment"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#BaseVoltage">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>BaseVoltage</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_2"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#BaseVoltage.isDC">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>isDC</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#BaseVoltage"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#BaseVoltage">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>BaseVoltage</rdfs:label>
+		<rdfs:comment>Defines a system base voltage which is referenced.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Core"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#BaseVoltage"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#BusArrangement">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>BusArrangement</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_2"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#AuxiliaryEquipment"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#IdentifiedObject">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>IdentifiedObject</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_2"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#IdentifiedObject.OrganisationRoles">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>OrganisationRoles</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#IdentifiedObject"/>
+		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#OrganisationRole"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#OrganisationRole.Objects"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#IdentifiedObject">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>IdentifiedObject</rdfs:label>
+		<rdfs:comment>This is a root class to provide common identification for all classes needing identification and naming attributes.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Core"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Organisation">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Organisation</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_2"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Organisation.ChildOrganisations">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ChildOrganisations</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#Organisation"/>
+		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#_Organisation"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#_Organisation.ParentOrganisation"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Organisation">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Organisation</rdfs:label>
+		<rdfs:comment>Organisation that might have roles as utility, contractor, supplier, manufacturer, customer, etc.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Common"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#IdentifiedObject"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Organisation"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#_Organisation"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#OrganisationRole">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>OrganisationRole</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_2"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#OrganisationRole.Objects">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>Objects</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#OrganisationRole"/>
+		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#IdentifiedObject"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#IdentifiedObject.OrganisationRoles"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#OrganisationRole">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>OrganisationRole</rdfs:label>
+		<rdfs:comment>Identifies a way in which an organisation may participate in the utility enterprise (e.g., customer, manufacturer, etc).</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Common"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#IdentifiedObject"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#OrganisationRole"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Plant">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Plant</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_2"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Plant.Region">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>Region</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#Plant"/>
+		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#SubGeographicalRegion"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#SubGeographicalRegion.Plants"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Plant.Substations">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>Substations</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#Plant"/>
+		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#Substation"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#Substation.Plant"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Plant.ratedP">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedP</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#Plant"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Plant">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Plant</rdfs:label>
+		<rdfs:comment>A Plant is a collection of equipment for purposes of generation.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Plant"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PrimeMover">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>PrimeMover</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_2"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PrimeMover.AsynchronousMachine">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>AsynchronousMachine</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#PrimeMover"/>
+		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#AsynchronousMachine"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#AsynchronousMachine.PrimeMover"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PrimeMover.ratedPower">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedPower</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#PrimeMover"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PrimeMover.rotationSpeed">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>rotationSpeed</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#PrimeMover"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#PrimeMover.rotorGD2">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>rotorGD2</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#PrimeMover"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PrimeMover">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>PrimeMover</rdfs:label>
+		<rdfs:comment>The machine used to develop mechanical energy used to drive a generator.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_GenerationTrainingSimulation"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#PrimeMover"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#SubGeographicalRegion">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>SubGeographicalRegion</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_2"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#SubGeographicalRegion.Plants">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>Plants</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#SubGeographicalRegion"/>
+		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#Plant"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#Plant.Region"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#SubGeographicalRegion">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>SubGeographicalRegion</rdfs:label>
+		<rdfs:comment>A subset of a geographical region of a power system network model.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Core"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#IdentifiedObject"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#SubGeographicalRegion"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Substation">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Substation</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_2"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#Substation.Plant">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>Plant</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#Substation"/>
+		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#Plant"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#Plant.Substations"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Substation">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Substation</rdfs:label>
+		<rdfs:comment>A collection of equipment for purposes other than generation or utilization, through which electric energy in bulk is passed for the purposes of switching or modifying its characteristics.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Core"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#Substation"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#_Organisation">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>_Organisation</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_2"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#_Organisation.ParentOrganisation">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ParentOrganisation</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#_Organisation"/>
+		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#Organisation"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#Organisation.ChildOrganisations"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Base">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Base</rdfs:label>
+		<rdfs:comment>Content of the base CIM published as IEC 61970-301.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_IEC61970"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_RUGOST">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>RUGOST</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_GenerationTrainingSimulation">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>GenerationTrainingSimulation</rdfs:label>
+		<rdfs:comment>The GenerationTrainingSimululation package contains prime movers, such as turbines and boilers, which are needed for simulation and educational purposes.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Generation"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Wires">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Wires</rdfs:label>
+		<rdfs:comment>An extension to the Core and Topology package that models information on the electrical characteristics of Transmission and Distribution networks. This package is used by network applications such as State Estimation, Load Flow and Optimal Power Flow.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Base"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_AuxiliaryEquipment">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>AuxiliaryEquipment</rdfs:label>
+		<rdfs:comment>Contains equipment which is not normal conducting equipment such as sensors, fault locators, and surge protectors.  These devices do not define power carrying topological connections as conducting equipment, but are associated to terminals of other conducting equipment.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Base"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Common">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Common</rdfs:label>
+		<rdfs:comment>This package contains the information classes that support distribution management in general.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_IEC61968"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_IEC61968">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>IEC61968</rdfs:label>
+		<rdfs:comment>The IEC 61968 subpackages of the CIM are developed, standardized and maintained by the UCA community including its working groups and task forces.&#xD;
+Currently, normative parts of the model support the needs of information exchange defined in IEC 61968-3, IEC 61968-4, IEC 61968-5, IEC 61968-6, IEC 61968-8, IEC 61968-9 and in IEC 61968-13.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_TC57CIM"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_IEC61970">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>IEC61970</rdfs:label>
+		<rdfs:comment>Top package for IEC 61970.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_TC57CIM"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Core">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Core</rdfs:label>
+		<rdfs:comment>Contains the core PowerSystemResource and ConductingEquipment entities shared by all applications plus common collections of those entities. Not all applications require all the Core entities.  This package does not depend on any other package except the Domain package, but most of the other packages have associations and generalizations that depend on it.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Base"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Generation">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Generation</rdfs:label>
+		<rdfs:comment>This package contains packages that have information for Unit Commitment and Economic Dispatch of hydro and thermal generating units, Load Forecasting, Automatic Generation Control, and unit modeling for Training Simulation.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Base"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_TC57CIM">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>TC57CIM</rdfs:label>
+		<rdfs:comment>Top package for IEC TC57 CIM.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_rf_58651_2">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>rf_58651_2</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_RUGOST"/>
+	</rdf:Description>
+</rdf:RDF>

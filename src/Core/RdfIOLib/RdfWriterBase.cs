@@ -1,4 +1,4 @@
-using System.Globalization;
+using System.Text;
 using System.Xml;
 
 namespace CimBios.Core.RdfIOLib;
@@ -13,7 +13,7 @@ public abstract class RdfWriterBase : RdfNamespacesContainerBase
     /// Open rdf/xml content from TextWriter.
     /// </summary>
     public abstract void Open(TextWriter textWriter,
-        bool excludeBase = true);
+        bool excludeBase = true, Encoding? encoding = null);
 
     /// <summary>
     /// Open rdf/xml content from XmlWriter.
@@ -41,27 +41,6 @@ public abstract class RdfWriterBase : RdfNamespacesContainerBase
     /// <param name="excludeBase"></param>
     /// <returns>Serialized model XDocument</returns>
     public abstract void WriteAll(IEnumerable<RdfNode> rdfNodes);
-
-    /// <summary>
-    /// Re-format literal values for specific types.
-    /// </summary>
-    /// <param name="value">Object literal value.</param>
-    /// <returns>Re-formatted value.</returns>
-    protected static object FormatLiteralValue(object value)
-    {
-        if (value is DateTime dateTimeValue)
-        {
-            return dateTimeValue.ToUniversalTime()
-                .ToString("yyyy-MM-ddTHH:mm:ssZ");
-        }
-        else if (value is double || value is float)
-        {
-            return Convert.ChangeType(value,
-                typeof(string), CultureInfo.InvariantCulture);
-        }
-
-        return value;
-    }
 }
 
 public enum RdfIRIModeKind

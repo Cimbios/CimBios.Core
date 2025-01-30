@@ -168,15 +168,52 @@ public abstract class RdfSerializerBase : ICanLog
                 break;
         }
 
-        if (objectData is IEnumerable<Uri> tripleObjects)
+        if (objectData is Uri uriReference)
+        {
+            objectNode.NewTriple(property.BaseUri, 
+                    new RdfTripleObjectUriContainer(uriReference));
+        }
+        else if (objectData is IEnumerable<Uri> tripleObjects)
         {
             tripleObjects.ToList().ForEach(to => 
-                objectNode.NewTriple(property.BaseUri, to));
+                objectNode.NewTriple(property.BaseUri, 
+                    new RdfTripleObjectUriContainer(to)));
+        }
+        else if (objectData is RdfNode compoundRdfNode)
+        {
+            objectNode.NewTriple(property.BaseUri, 
+                new RdfTripleObjectStatementsContainer([compoundRdfNode]));
         }
         else if (objectData is not null)
         {
-            objectNode.NewTriple(property.BaseUri, objectData);
+            var formatted = FormatLiteralValue(objectData);
+            if (formatted != null)
+            {
+                objectNode.NewTriple(property.BaseUri, 
+                    new RdfTripleObjectLiteralContainer(formatted));
+            }
         }
+    }
+
+    /// <summary>
+    /// Re-format literal values for specific types.
+    /// </summary>
+    /// <param name="value">Object literal value.</param>
+    /// <returns>Re-formatted value.</returns>
+    private static string? FormatLiteralValue(object value)
+    {
+        if (value is DateTime dateTimeValue)
+        {
+            return dateTimeValue.ToUniversalTime()
+                .ToString("yyyy-MM-ddTHH:mm:ssZ");
+        }
+        else if (value is double || value is float)
+        {
+            return (string)Convert.ChangeType(value,
+                typeof(string), CultureInfo.InvariantCulture);
+        }
+
+        return value.ToString();
     }
 
     /// <summary>
@@ -231,10 +268,10 @@ public abstract class RdfSerializerBase : ICanLog
     /// <param name="subject">Rdf triple subject - CIM object.</param>
     /// <param name="assoc1To1">CIM meta property - assoc.</param>
     /// <returns>Rdf property triple.</returns>
-    private object? GetObjectAsAssoc1To1(IModelObject subject, 
+    private Uri? GetObjectAsAssoc1To1(IModelObject subject, 
         ICimMetaProperty assoc1To1)
     {
-        object resultAssocObject;
+        Uri resultAssocObject;
 
         var assocObj = subject.GetAssoc1To1<IModelObject>(assoc1To1);
         if (assocObj == null)
@@ -242,21 +279,7 @@ public abstract class RdfSerializerBase : ICanLog
             return null;
         }
 
-        if (assocObj.MetaClass.IsCompound)
-        {
-            var compoundNode = ModelObjectToRdfNode(assocObj);
-            if (compoundNode == null)
-            {
-                throw new Exception("RdfXmlSerializer.GetObjectAsAssoc1To1 compound null");
-            }
-
-            resultAssocObject = compoundNode;
-        }
-        else
-        {
-            resultAssocObject = GetBasedIdentifier(assocObj.Uuid,
-                IdentifierPrefix);
-        }
+        resultAssocObject = GetBasedIdentifier(assocObj.Uuid, IdentifierPrefix);
 
         return resultAssocObject;
     }
@@ -409,21 +432,8 @@ public abstract class RdfSerializerBase : ICanLog
             return null;
         }
 
-        IModelObject? instanceObject = null;
-
-        if (TypeLib.RegisteredTypes.TryGetValue(instanceNode.TypeIdentifier,
-            out var type))
-        {
-            instanceObject = Activator.CreateInstance(type, 
-                instanceUuid, metaClass, instanceNode.IsAuto) as IModelObject;
-        }
-        else
-        {
-            instanceObject = new ModelObject(instanceUuid, 
+        return TypeLib.CreateInstance(new ModelObjectFactory(), instanceUuid, 
                 metaClass, instanceNode.IsAuto);
-        }
-
-        return instanceObject;
     }
 
     /// <summary>
@@ -470,20 +480,31 @@ public abstract class RdfSerializerBase : ICanLog
     /// Select expecting IModelObject property data.
     /// </summary>
     /// <returns>Casted data or compound.</returns>
-    private object? DeserializableDataSelector(object data)
+    private object? DeserializableDataSelector(RdfTripleObjectContainerBase data)
     {
-        if (data is RdfNode objectRdfNode)
+        if (data is RdfTripleObjectStatementsContainer statements)
         {
-            return MakeCompoundPropertyObject(objectRdfNode);
+            var compundObjects = new List<IModelObject>();
+            foreach (var statement in statements.RdfNodesObject)
+            {
+                var compoundObject = MakeCompoundPropertyObject(statement);
+                if (compoundObject != null)
+                {
+                    compundObjects.Add(compoundObject);
+                }
+            }
+            return compundObjects;
         }
-        else if (data is Uri objectUri)
+        else if (data is RdfTripleObjectUriContainer uriContainer)
         {
-            return objectUri;
+            return uriContainer.UriObject;
         }
-        else
+        else if (data is RdfTripleObjectLiteralContainer literalContainer)
         {
-            return data as string;
+            return literalContainer.LiteralObject;
         }
+
+        return null;
     }
 
     /// <summary>
@@ -512,9 +533,11 @@ public abstract class RdfSerializerBase : ICanLog
         }
         else if (property.PropertyDatatype is ICimMetaClass dataClass)
         {
-            if (dataClass.IsCompound && data is IModelObject dataObject)
+            if (dataClass.IsCompound && 
+                data is ICollection<IModelObject> modelObjects
+                && modelObjects.Count == 1)
             {
-                endData = dataObject;
+                endData = modelObjects.First();
             }
             else if (dataClass.IsEnum
                 && data is Uri enumValueUri)

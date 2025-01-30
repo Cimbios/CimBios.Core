@@ -123,7 +123,7 @@ public class CimSchema : ICimSchema
                 continue;
             }
 
-            if (individual.InstanceOf == metaClass)
+            if (metaClass.Equals(individual.InstanceOf))
             {
                 result.Add(individual);
             }
@@ -192,38 +192,12 @@ public class CimSchema : ICimSchema
         );
 
         JoinNamespaces(schema.Namespaces, rewriteNamespaces);
+        JoinClasses(schema.Classes); 
 
-        foreach (var metaClass in schema.Classes)
+        if (TieSameNameEnums)
         {
-            if (_All.ContainsKey(metaClass.BaseUri) == false)
-            {
-                _All.Add(metaClass.BaseUri, metaClass);
-            }
+            TieEnumExtensions();
         }
-
-        foreach (var metaProperty in schema.Properties)
-        {
-            if (_All.ContainsKey(metaProperty.BaseUri) == false)
-            {
-                _All.Add(metaProperty.BaseUri, metaProperty);
-            }
-        }
-
-        foreach (var metaDatatype in schema.Datatypes)
-        {
-            if (_All.ContainsKey(metaDatatype.BaseUri) == false)
-            {
-                _All.Add(metaDatatype.BaseUri, metaDatatype);
-            }
-        }       
-
-        foreach (var metaInstance in schema.Individuals)
-        {
-            if (_All.ContainsKey(metaInstance.BaseUri) == false)
-            {
-                _All.Add(metaInstance.BaseUri, metaInstance);
-            }
-        }   
     }
 
     public string GetUriNamespacePrefix(Uri uri)
@@ -318,6 +292,117 @@ public class CimSchema : ICimSchema
                 extensibleEnum.AddExtension(enumClass);
             }
         }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="classes"></param>
+    private void JoinClasses(IEnumerable<ICimMetaClass> classes)
+    {
+        var addClassDelegate = (ICimMetaClass metaClass) => 
+        {
+            if (_All.ContainsKey(metaClass.BaseUri) == false)
+            {
+                if (metaClass.ParentClass != null)
+                {
+                    var parentLeftClass = TryGetResource<ICimMetaClass>
+                        (metaClass.ParentClass.BaseUri);
+                        
+                    if (parentLeftClass != null)
+                    {
+                        metaClass.ParentClass = parentLeftClass;
+                    }
+                }
+                
+                _All.Add(metaClass.BaseUri, metaClass);
+            }
+
+            JoinProperties(metaClass.SelfProperties);
+            JoinIndividuals(metaClass.SelfIndividuals);
+        };
+
+        foreach (var metaClass in classes)
+        {
+            var thisMetaClass = TryGetResource<ICimMetaClass>(metaClass.BaseUri);
+            addClassDelegate(metaClass);
+
+            if (thisMetaClass != null)
+            {
+                if (thisMetaClass.ParentClass == null 
+                    && metaClass.ParentClass != null)
+                {
+                    addClassDelegate(metaClass.ParentClass);
+                    thisMetaClass.ParentClass = metaClass.ParentClass;                    
+                }
+
+                foreach (var ext in metaClass.Extensions)
+                {
+                    if (thisMetaClass.Extensions.Contains(ext) == false
+                        && thisMetaClass is ICimMetaExtensible extClass)
+                    {
+                        addClassDelegate(ext);
+                        if (ext != null)
+                        {
+                            extClass.AddExtension(ext);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="properties"></param>
+    private void JoinProperties(IEnumerable<ICimMetaProperty> properties)
+    {
+        foreach (var metaProperty in properties.ToArray())
+        {
+            if (_All.ContainsKey(metaProperty.BaseUri) == false)
+            {
+                _All.Add(metaProperty.BaseUri, metaProperty);
+
+                if (metaProperty.OwnerClass != null)
+                {
+                    var ownerLeftClass = TryGetResource<ICimMetaClass>
+                        (metaProperty.OwnerClass.BaseUri); 
+
+                    if (ownerLeftClass is ICimMetaExtensible extClass)
+                    {
+                        extClass.RemoveProperty(metaProperty);
+                        extClass.AddProperty(metaProperty);
+                    }
+                }   
+            }
+        }  
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="properties"></param>
+    private void JoinIndividuals(IEnumerable<ICimMetaIndividual> individuals)
+    {
+        foreach (var metaIndividual in individuals.ToArray())
+        {
+            if (_All.ContainsKey(metaIndividual.BaseUri) == false)
+            {
+                _All.Add(metaIndividual.BaseUri, metaIndividual);
+
+                if (metaIndividual.InstanceOf != null)
+                {
+                    var ownerLeftClass = TryGetResource<ICimMetaClass>
+                        (metaIndividual.InstanceOf.BaseUri); 
+
+                    if (ownerLeftClass is ICimMetaExtensible extClass)
+                    {
+                        extClass.AddIndividual(metaIndividual);
+                    }
+                }
+            }
+        }  
     }
 
     private Dictionary<Uri, ICimMetaResource> _All;

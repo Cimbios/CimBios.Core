@@ -112,7 +112,7 @@ public class CimAutoClass : CimAutoResource,
 
     public void AddProperty(ICimMetaProperty metaProperty)
     {
-        if (metaProperty.OwnerClass == this
+        if (this.Equals(metaProperty.OwnerClass)
             && metaProperty is CimAutoProperty cimAutoProperty
             && HasProperty(metaProperty, false) == false)
         {
@@ -131,7 +131,7 @@ public class CimAutoClass : CimAutoResource,
 
     public void AddIndividual(ICimMetaIndividual metaIndividual)
     {
-        if (metaIndividual.InstanceOf == this
+        if (this.Equals(metaIndividual.InstanceOf)
             && metaIndividual is CimAutoIndividual cimAutoIndividual
             && _Individuals.Contains(cimAutoIndividual) == false)
         {
