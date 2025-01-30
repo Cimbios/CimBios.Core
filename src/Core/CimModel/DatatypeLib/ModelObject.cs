@@ -103,15 +103,15 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
             {
                 _PropertiesData.Remove(metaProperty);
 
-                PropertyChanged?.Invoke(this, 
-                    new CimMetaPropertyChangedEventArgs(metaProperty));
+                OnPropertyChanged(new 
+                    CimMetaPropertyChangedEventArgs(metaProperty));
             }
             else
             {
                 _PropertiesData[metaProperty] = value;
 
-                PropertyChanged?.Invoke(this, 
-                    new CimMetaPropertyChangedEventArgs(metaProperty));
+                OnPropertyChanged(new 
+                    CimMetaPropertyChangedEventArgs(metaProperty));
             }
         }
         else
@@ -195,8 +195,7 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
                 _PropertiesData.Remove(metaProperty);
             }
 
-            PropertyChanged?.Invoke(this, 
-                new CimMetaPropertyChangedEventArgs(metaProperty));
+            OnPropertyChanged(new CimMetaPropertyChangedEventArgs(metaProperty));
         }
         else
         {
@@ -277,8 +276,8 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
 
             SetAssociationWithInverse(metaProperty, null, obj);
 
-            PropertyChanged?.Invoke(this, 
-                new CimMetaPropertyChangedEventArgs(metaProperty));
+            OnPropertyChanged(new 
+                CimMetaPropertyChangedEventArgs(metaProperty));
         }
         else
         {
@@ -315,8 +314,8 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
             
             SetAssociationWithInverse(metaProperty, obj, null);
                             
-            PropertyChanged?.Invoke(this, 
-                new CimMetaPropertyChangedEventArgs(metaProperty));
+            OnPropertyChanged(new 
+                CimMetaPropertyChangedEventArgs(metaProperty));
         }
         else
         {
@@ -350,8 +349,8 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
                 SetAssociationWithInverse(metaProperty, assocObject, null);
             }     
 
-            PropertyChanged?.Invoke(this, 
-                new CimMetaPropertyChangedEventArgs(metaProperty));   
+            OnPropertyChanged(
+                new CimMetaPropertyChangedEventArgs(metaProperty));
         }
         else
         {
@@ -586,23 +585,6 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
         }
     }
 
-    private bool CanChangeProperty(ICimMetaProperty metaProperty)
-    {
-        if (PropertyChanging != null)
-        {
-            var arg = new CanCancelPropertyChangingEventArgs(metaProperty, false);
-
-            PropertyChanging.Invoke(this, arg);
-            
-            if (arg.Cancel == true)
-            {
-                return false;
-            }
-        }      
-
-        return true;
-    }
-
     #endregion UtilsPrivate
 
     private string _uuid = string.Empty;
@@ -610,12 +592,6 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
 
     private ICimMetaClass _MetaClass;
     private readonly Dictionary<ICimMetaProperty, object?> _PropertiesData;
-
-    public override event PropertyChangedEventHandler? PropertyChanged;
-
-    public delegate void CanCancelPropertyChangingEventHandler(object? sender, 
-        CanCancelPropertyChangingEventArgs e);
-    public event CanCancelPropertyChangingEventHandler? PropertyChanging;
 }
 
 public class ModelObjectFactory : IModelObjectFactory
