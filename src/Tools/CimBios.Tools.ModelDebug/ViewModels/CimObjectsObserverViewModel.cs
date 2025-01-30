@@ -7,7 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
 using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.ModelView;
+using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.RdfIOLib;
 using CimBios.Tools.ModelDebug.Models;
 using CimBios.Tools.ModelDebug.Services;
