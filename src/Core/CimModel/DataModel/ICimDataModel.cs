@@ -2,12 +2,12 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Utils.ClassTraits;
 
-namespace CimBios.Core.CimModel.ObjectModel;
+namespace CimBios.Core.CimModel.CimDataModel;
 
 /// <summary>
 /// Definition of CIM model object type.
 /// </summary>
-public interface IObjectModel : ICanLog
+public interface ICimDataModel : ICanLog
 {
     /// <summary>
     /// Model description.

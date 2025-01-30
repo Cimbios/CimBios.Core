@@ -2,19 +2,18 @@ using System.Collections.Immutable;
 using System.Data;
 using System.Text;
 using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.ObjectModel;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Utils.ClassTraits;
 
-namespace CimBios.Core.CimModel.ModelView;
+namespace CimBios.Core.CimModel.CimDataModel;
 
 /// <summary>
 /// Instance of CIM model in Rdf/* format.
 /// Supports input and output operations for CIM objects.
 /// </summary>
-public class CimDocument : IObjectModel
+public class CimDocument : ICimDataModel
 {
     public ILogView Log => _Log;
 
