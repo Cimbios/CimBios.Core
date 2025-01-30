@@ -31,3 +31,6 @@ public class CimMetaPropertyChangedEventArgs : PropertyChangedEventArgs
     {
     }
 }
+
+public delegate void CanCancelPropertyChangingEventHandler(object? sender, 
+    CanCancelPropertyChangingEventArgs e);
