@@ -261,6 +261,7 @@ public class CimAutoProperty : CimAutoResource, ICimMetaProperty
     public ICimMetaClass? PropertyDatatype { get; set; }
 
     public bool IsExtension => false; 
+    public bool IsValueRequired => false;
 
     private CimAutoClass? _OwnerClass = null;
 }
