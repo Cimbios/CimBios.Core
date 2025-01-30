@@ -1,11 +1,5 @@
-﻿using CimBios.Core.CimModel.CimDatatypeLib;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
+using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
-using System.Threading.Tasks;
 
 namespace CimBios.Core.CimModel.Validation;
 
@@ -32,14 +26,14 @@ public abstract class ValidationRuleBase : IValidationRule
     protected object? GetPropertyValueAsObject(
         IModelObject modelObject, ICimMetaProperty property)
     {
-        switch (propertiesRequied.PropertyKind)
+        switch (property.PropertyKind)
         {
             case CimMetaPropertyKind.Attribute:
                 return modelObject.
-                    GetAttribute(propertiesRequied);
+                    GetAttribute(property);
             case CimMetaPropertyKind.Assoc1ToM:
                 return modelObject.
-                    GetAssoc1ToM(propertiesRequied).FirstOrDefault();
+                    GetAssoc1ToM(property).FirstOrDefault();
         }
         
         return null;
