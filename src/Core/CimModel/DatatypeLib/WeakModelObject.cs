@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
@@ -13,8 +12,6 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
 
     public override bool IsAuto => _IsAuto;
 
-    public override event PropertyChangedEventHandler? PropertyChanged;
-
     public WeakModelObject(string uuid, CimAutoClass metaClass, bool isAuto)
         : base()
     {
@@ -25,63 +22,188 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
 
     public override bool HasProperty(string propertyName)
     {
-        throw new NotImplementedException();
+        var metaProperty = TryGetMetaPropertyByName(propertyName);
+        if (metaProperty != null)
+        {
+            return _PropertiesData.ContainsKey(metaProperty);
+        }
+
+        return false;
     }
 
     public override object? GetAttribute(ICimMetaProperty metaProperty)
     {
-        throw new NotImplementedException();
+        if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
+            &&_PropertiesData.TryGetValue(metaProperty, out var value))
+        {
+            return value;
+        }
+
+        return null;
     }
 
     public override object? GetAttribute(string attributeName)
     {
-        throw new NotImplementedException();
+        var metaProperty = TryGetMetaPropertyByName(attributeName);
+        if (metaProperty != null)
+        {
+            return GetAttribute(metaProperty);
+        }
+
+        throw new ArgumentException(
+            $"No such meta property with name {attributeName}!");
     }
 
     public override T? GetAttribute<T>(ICimMetaProperty metaProperty) 
         where T : default
     {
-        throw new NotImplementedException();
+        if (GetAttribute(metaProperty) is T typedValue)
+        {
+            return typedValue;
+        }
+
+        return default;
     }
 
     public override T? GetAttribute<T>(string attributeName) 
         where T : default
     {
-        throw new NotImplementedException();
+        var metaProperty = TryGetMetaPropertyByName(attributeName);
+        if (metaProperty != null)
+        {
+            return GetAttribute<T>(metaProperty);
+        }
+
+        throw new ArgumentException(
+            $"No such meta property with name {attributeName}!");
     }
 
     public override void SetAttribute<T>(ICimMetaProperty metaProperty, 
         T? value) where T : default
     {
-        throw new NotImplementedException();
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Attribute)
+        {
+            throw new ArgumentException(
+                $"Attribute {metaProperty.ShortName} does not exist!");
+        }
+
+        if (!typeof(T).IsPrimitive 
+            && !typeof(T).IsAssignableTo(typeof(IModelObject)))
+        {
+            throw new ArgumentException(
+                $"Attribute {metaProperty.ShortName} can not be assigning by value of type {typeof(T).Name}!");
+        }
+
+        if (CanChangeProperty(metaProperty) == false)
+        {
+            return;
+        }
+
+        if (_PropertiesData.ContainsKey(metaProperty))
+        {
+            _PropertiesData[metaProperty] = value;
+        }
+        else
+        {
+            _PropertiesData.Add(metaProperty, value);
+            _MetaClass.AddProperty(metaProperty);
+        }
+
+        OnPropertyChanged(new 
+            CimMetaPropertyChangedEventArgs(metaProperty));
     }
 
     public override void SetAttribute<T>(string attributeName, 
         T? value) where T : default
     {
-        throw new NotImplementedException();
+        var metaProperty = TryGetMetaPropertyByName(attributeName);
+        if (metaProperty == null)
+        {
+            metaProperty = new CimAutoProperty()
+            {
+                BaseUri = new Uri(CimAutoSchemaSerializer.BaseSchemaUri 
+                    + "#" + attributeName),
+                ShortName = attributeName,
+                Description = string.Empty,
+                PropertyKind = CimMetaPropertyKind.Attribute
+            };
+        }
+
+        SetAttribute<T>(metaProperty, value);
     }
 
     public override T? GetAssoc1To1<T>(ICimMetaProperty metaProperty) 
         where T : default
     {
-        throw new NotImplementedException();
+        if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
+            &&_PropertiesData.TryGetValue(metaProperty, out var value)
+            && value is T tObj)
+        {
+            return tObj;
+        }
+
+        return default;
     }
 
     public override T? GetAssoc1To1<T>(string assocName) where T : default
     {
-        throw new NotImplementedException();
+        var metaProperty = TryGetMetaPropertyByName(assocName);
+        if (metaProperty != null)
+        {
+            return GetAssoc1To1<T>(metaProperty);
+        }
+
+        throw new ArgumentException(
+            $"No such meta property with name {assocName}!");
     }
 
+    /// <summary>
+    /// Note: inverse association does not assigning!
+    /// </summary>
     public override void SetAssoc1To1(ICimMetaProperty metaProperty, 
         IModelObject? obj)
     {
-        throw new NotImplementedException();
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1)
+        {
+            throw new ArgumentException(
+                $"Attribute {metaProperty.ShortName} does not exist!");
+        }
+
+        if (CanChangeProperty(metaProperty) == false)
+        {
+            return;
+        }
+
+        if (_PropertiesData.ContainsKey(metaProperty))
+        {
+            _PropertiesData[metaProperty] = obj;
+        }
+        else
+        {
+            _PropertiesData.Add(metaProperty, obj);
+            _MetaClass.AddProperty(metaProperty);
+        }
+
+        OnPropertyChanged(new 
+            CimMetaPropertyChangedEventArgs(metaProperty));
     }
 
     public override void SetAssoc1To1(string assocName, IModelObject? obj)
     {
-        throw new NotImplementedException();
+        var metaProperty = TryGetMetaPropertyByName(assocName);
+        if (metaProperty == null)
+        {
+            metaProperty = new CimAutoProperty()
+            {
+                BaseUri = new Uri(CimAutoSchemaSerializer.BaseSchemaUri 
+                    + "#" + assocName),
+                ShortName = assocName,
+                Description = string.Empty,
+                PropertyKind = CimMetaPropertyKind.Assoc1To1,
+            };
+        }
+
+        SetAssoc1To1(metaProperty, obj);
     }
 
     public override IModelObject[] GetAssoc1ToM(ICimMetaProperty metaProperty)
@@ -141,6 +263,7 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
     private bool _IsAuto;
 
     private readonly Dictionary<ICimMetaProperty, object?> _PropertiesData = [];
+
 }
 
 public class WeakModelObjectFactory : IModelObjectFactory
