@@ -213,6 +213,11 @@ public class CimSchema : ICimSchema
         return "_";
     }
 
+    public void InvalidateAuto()
+    {
+        
+    }
+
     private HashSet<ICimMetaClass> GetExtensions()
     {
         var extensions = new HashSet<ICimMetaClass>();

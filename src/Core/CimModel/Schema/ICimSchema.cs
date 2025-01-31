@@ -1,3 +1,4 @@
+using System.Xml.Serialization;
 using CimBios.Utils.ClassTraits;
 
 namespace CimBios.Core.CimModel.Schema;
@@ -118,6 +119,11 @@ public interface ICimSchema : ICanLog
     /// <param name="uri">Object uri.</param>
     /// <returns>String prefix or '_' if namespace does not exists.</returns>
     public string GetUriNamespacePrefix(Uri uri);
+
+    /// <summary>
+    /// Clear no reference (auto created) auto meta types from schema.
+    /// </summary>
+    public void InvalidateAuto();
 }
 
 /// <summary>
