@@ -64,6 +64,7 @@ public abstract class RdfSerializerBase : ICanLog
     public IEnumerable<IModelObject> Deserialize(StreamReader streamReader)
     {
         InitializeRdfReader(streamReader);
+        Schema.InvalidateAuto();
         var deserializedObjects = ReadObjects();
         ResetCache();
 
