@@ -1,5 +1,5 @@
+using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.ModelView;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 
