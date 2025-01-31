@@ -244,11 +244,11 @@ public class CimAutoProperty : CimAutoResource, ICimMetaProperty
 
             if (value == null)
             {
-                _OwnerClass?.RemoveProperty(this); 
+                (_OwnerClass as ICimMetaExtensible)?.RemoveProperty(this); 
             }
 
             _OwnerClass = value as CimAutoClass;
-            _OwnerClass?.AddProperty(this); 
+            (_OwnerClass as ICimMetaExtensible)?.AddProperty(this); 
         }
     }
 
@@ -261,7 +261,7 @@ public class CimAutoProperty : CimAutoResource, ICimMetaProperty
     public bool IsExtension => false; 
     public bool IsValueRequired => false;
 
-    private CimAutoClass? _OwnerClass = null;
+    private ICimMetaClass? _OwnerClass = null;
 }
 
 public class CimAutoDatatype : CimAutoClass, ICimMetaDatatype
