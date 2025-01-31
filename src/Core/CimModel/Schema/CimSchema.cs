@@ -179,6 +179,8 @@ public class CimSchema : ICimSchema
 
     public void Join(ICimSchema schema, bool rewriteNamespaces = false)
     {
+        InvalidateAuto();
+
         var details = string.Empty;
         if (schema.Namespaces.TryGetValue("base", out var baseUri))
         {
@@ -215,7 +217,22 @@ public class CimSchema : ICimSchema
 
     public void InvalidateAuto()
     {
-        
+        foreach (var metaClass in Classes)
+        {
+            foreach (var metaProperty in metaClass.SelfProperties)
+            {
+                if (TryGetResource<ICimMetaProperty>(
+                    metaProperty.BaseUri) != null)
+                {
+                    continue;
+                }
+
+                if (metaClass is ICimMetaExtensible extClass)
+                {
+                    extClass.RemoveProperty(metaProperty);
+                }
+            }
+        }
     }
 
     private HashSet<ICimMetaClass> GetExtensions()
