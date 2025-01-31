@@ -87,7 +87,7 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
                 $"Attribute {metaProperty.ShortName} does not exist!");
         }
 
-        if (!typeof(T).IsPrimitive 
+        if (value is not string 
             && !typeof(T).IsAssignableTo(typeof(IModelObject)))
         {
             throw new ArgumentException(
