@@ -402,7 +402,7 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
          "http://www.w3.org/2000/01/rdf-schema#domain",
          MetaFieldType.ByRef)
     ]
-    public CimRdfsClass? Domain
+    public ICimMetaClass? Domain
     { 
         get => _Domain; 
         set 
@@ -414,11 +414,11 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
 
             if (value == null)
             {
-                _Domain?.RemoveProperty(this); 
+                (_Domain as ICimMetaExtensible)?.RemoveProperty(this); 
             }
 
             _Domain = value;
-            _Domain?.AddProperty(this); 
+            (_Domain as ICimMetaExtensible)?.AddProperty(this); 
         } 
     }
 
@@ -510,7 +510,7 @@ public class CimRdfsProperty : CimRdfDescriptionBase, ICimMetaProperty
         return false;
     }
 
-    private CimRdfsClass? _Domain = null;
+    private ICimMetaClass? _Domain = null;
 }
 
 [
