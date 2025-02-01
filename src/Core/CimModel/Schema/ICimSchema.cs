@@ -48,6 +48,11 @@ public interface ICimSchema : ICanLog
     public bool TieSameNameEnums { get; set; }
 
     /// <summary>
+    /// Resource super class for all objective classes.
+    /// </summary>
+    public ICimMetaClass ResourceSuperClass { get; }
+
+    /// <summary>
     /// Load RDFS schema content via text reader.
     /// </summary>
     /// <param name="textReader">Text reader provider.</param>

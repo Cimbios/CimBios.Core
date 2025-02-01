@@ -77,7 +77,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
                 && typeInfo != null)
             {
                 if (Activator.CreateInstance(typeInfo, node.Identifier) 
-                    is CimRdfDescriptionBase instance)
+                    is ICimRdfDescription instance)
                 {
                     _ObjectsCache.Add(node.Identifier, instance);
                 }
@@ -117,7 +117,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
             _ObjectsCache.Add(node.Identifier, 
                 new CimRdfsIndividual(node.Identifier)
             {
-                EquivalentClass = metaClass
+                InstanceOf = metaClass
             });
         }
     }
@@ -132,7 +132,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
         {
             if (_ObjectsCache.TryGetValue(node.Identifier, 
                     out ICimMetaResource? metaDescription) == false
-                || metaDescription is CimRdfDescriptionBase == false)
+                || metaDescription is ICimRdfDescription == false)
             {
                 continue;
             }

@@ -133,7 +133,7 @@ public abstract class RdfSerializerBase : ICanLog
     {
         var metaClass = modelObject.MetaClass;
 
-        var rdfNode = new RdfNode(GetBasedIdentifier(modelObject.Uuid, 
+        var rdfNode = new RdfNode(GetBasedIdentifier(modelObject.OID, 
             IdentifierPrefix),
             metaClass.BaseUri,
             modelObject.IsAuto);
@@ -289,7 +289,7 @@ public abstract class RdfSerializerBase : ICanLog
             return null;
         }
 
-        resultAssocObject = GetBasedIdentifier(assocObj.Uuid, IdentifierPrefix);
+        resultAssocObject = GetBasedIdentifier(assocObj.OID, IdentifierPrefix);
 
         return resultAssocObject;
     }
@@ -304,7 +304,7 @@ public abstract class RdfSerializerBase : ICanLog
         ICimMetaProperty assoc1ToM)
     {
         return subject.GetAssoc1ToM(assoc1ToM)
-            .Select(mo => GetBasedIdentifier(mo.Uuid, IdentifierPrefix));
+            .Select(mo => GetBasedIdentifier(mo.OID, IdentifierPrefix));
     }
 
     /// <summary>
@@ -389,7 +389,7 @@ public abstract class RdfSerializerBase : ICanLog
                 continue;
             }
 
-            _objectsCache.TryAdd(instance.Uuid, instance);
+            _objectsCache.TryAdd(instance.OID, instance);
         }
 
         // Second step - fill objects properties.
@@ -471,11 +471,10 @@ public abstract class RdfSerializerBase : ICanLog
             shortName = sIri;
         }
 
-        var newCimAutoClass = new CimAutoClass()
+        var newCimAutoClass = new CimAutoClass(typeIdentifier, 
+            shortName, string.Empty)
         {
-            BaseUri = typeIdentifier,
-            ShortName = shortName,
-            Description = string.Empty
+            ParentClass = Schema.ResourceSuperClass
         };
 
         _createdAutoClassesCache.Add(typeIdentifier.AbsoluteUri, 
@@ -551,7 +550,7 @@ public abstract class RdfSerializerBase : ICanLog
             shortName = sIri;
         }
 
-        ICimMetaDatatype? metaDatatype = null;
+        ICimMetaClass? metaDatatype = null;
         CimMetaPropertyKind cimMetaPropertyKind = CimMetaPropertyKind.NonStandard;
         if (propertyTriple.Object is RdfTripleObjectLiteralContainer)
         {
@@ -563,18 +562,18 @@ public abstract class RdfSerializerBase : ICanLog
         else if (propertyTriple.Object is RdfTripleObjectUriContainer
             || propertyTriple.Object is RdfTripleObjectStatementsContainer)
         {
+            metaDatatype = Schema.ResourceSuperClass;          
+
             cimMetaPropertyKind = CimMetaPropertyKind.Assoc1ToM;
         }
 
-        var newCimAutoProperty = new CimAutoProperty()
+        var newCimAutoProperty = new CimAutoProperty(
+            propertyTriple.Predicate, shortName, string.Empty)
         {
-            BaseUri = propertyTriple.Predicate,
-            ShortName = shortName,
-            Description = string.Empty,
-            PropertyDatatype = metaDatatype,
-            PropertyKind = cimMetaPropertyKind,
             OwnerClass = ownerClass
         };
+        newCimAutoProperty.SetPropertyDatatype(metaDatatype);
+        newCimAutoProperty.SetPropertyKind(cimMetaPropertyKind);
 
         _createdAutoPropertiesCache.Add(propIRI, newCimAutoProperty);
 
@@ -632,7 +631,7 @@ public abstract class RdfSerializerBase : ICanLog
             else
             {
                 _Log.NewMessage(
-                    $"Unnable to convert {data} value to {dataType.PrimitiveType.Name} for {property.ShortName} of instance {instance.Uuid}!", 
+                    $"Unnable to convert {data} value to {dataType.PrimitiveType.Name} for {property.ShortName} of instance {instance.OID}!", 
                     LogMessageSeverity.Error, string.Empty);
             }
         }
@@ -668,7 +667,7 @@ public abstract class RdfSerializerBase : ICanLog
                 else
                 {
                     _Log.NewMessage(
-                        $"Enum value {enumValueUri} of instance {instance.Uuid} does not exist in schema!", 
+                        $"Enum value {enumValueUri} of instance {instance.OID} does not exist in schema!", 
                         LogMessageSeverity.Error, string.Empty);
                 }
             }
@@ -683,7 +682,7 @@ public abstract class RdfSerializerBase : ICanLog
         }
         catch (Exception ex)
         {
-            _Log.NewMessage($"Failed set attribute to instance {instance.Uuid}", 
+            _Log.NewMessage($"Failed set attribute to instance {instance.OID}", 
                 LogMessageSeverity.Error, ex.Message);
         }
     }
@@ -735,7 +734,7 @@ public abstract class RdfSerializerBase : ICanLog
             referenceInstance = new ModelObjectUnresolvedReference
                 (referenceUuid, instance.MetaClass);
 
-            _waitingReferenceObjectUuids.Add(instance.Uuid);
+            _waitingReferenceObjectUuids.Add(instance.OID);
         }
 
         try
@@ -753,7 +752,7 @@ public abstract class RdfSerializerBase : ICanLog
         }
         catch (Exception ex)
         {
-            _Log.NewMessage($"Failed set association to instance {instance.Uuid}", 
+            _Log.NewMessage($"Failed set association to instance {instance.OID}", 
                 LogMessageSeverity.Error, ex.Message);
         }
     }
