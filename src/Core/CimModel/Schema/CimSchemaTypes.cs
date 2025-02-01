@@ -192,5 +192,6 @@ public enum CimMetaPropertyKind
     NonStandard,
     Attribute,
     Assoc1To1,
-    Assoc1ToM
+    Assoc1ToM,
+    Statements
 }
