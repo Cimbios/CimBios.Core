@@ -10,6 +10,14 @@ public class CimAutoClass(Uri baseUri, string shortName, string description)
     public void SetIsEnum(bool isEnum) => IsEnum = isEnum;
     public void SetIsCompound(bool isCompound) => IsCompound = isCompound;
     public void SetIsAbstract(bool isAbstract) => IsAbstract = isAbstract;
+
+    public override void AddProperty(ICimMetaProperty metaProperty)
+    {
+       if (HasProperty(metaProperty, false) == false)
+        {
+            _Properties.Add(metaProperty);
+        }
+    }
 }
 
 public class CimAutoProperty(Uri baseUri, string shortName, string description) 

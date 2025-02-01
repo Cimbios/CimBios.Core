@@ -19,13 +19,20 @@
   </md:FullModel>
   <cim:Terminal rdf:about="#_terminal1">
     <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-    <cim:Terminal.AuxiliaryEquipment rdf:resource="#_dba25403-bc3e-4772-9bcf-171adf575996"/>
+    <cim:Terminal.AuxiliaryEquipment rdf:resource="#_currenttransformer1"/>
+    <cim:Terminal.Unknown rdf:resource="#_unresolved"/>
+    <so:Terminal.Type rdf:resource="so:Trivial"/>
   </cim:Terminal>
   <cim:CurrentTransformer rdf:about="#_currenttransformer1">
-    <cim:AuxiliaryEquipment.Terminal rdf:resource="#_57557678-f8cd-49e0-b9d7-a181bd378105"/>
+    <cim:AuxiliaryEquipment.Terminal rdf:resource="#_terminal1"/>
     <cim:IdentifiedObject.name>ТТ 110 1Т</cim:IdentifiedObject.name>
     <rf:CurrentTransformer.isEmbeded>false</rf:CurrentTransformer.isEmbeded>
     <cim:Equipment.normallyInService>true</cim:Equipment.normallyInService>
     <rf:CurrentTransformer.ratedCurrent>600</rf:CurrentTransformer.ratedCurrent>
+    <cim:IdentifiedObject.CompoundProperty>
+      <cim:CompoundObject>
+        <cim:CompoundObject.Attr>Compound attr</cim:CompoundObject.Attr>
+      </cim:CompoundObject>
+    </cim:IdentifiedObject.CompoundProperty>
   </cim:CurrentTransformer>
 </rdf:RDF>

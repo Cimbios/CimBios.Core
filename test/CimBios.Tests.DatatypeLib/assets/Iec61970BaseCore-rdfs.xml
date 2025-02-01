@@ -5,6 +5,10 @@
 	xmlns:uml="http://langdale.com.au/2005/UML#" 
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#" 
 	xmlns:cim="http://iec.ch/TC57/CIM100#"
+	xmlns:rf="http://gost.ru/2019/schema-cim01#"
+	xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+	xmlns:so="http://so-ups.ru/2015/schema-cim16#"
+	xmlns:me="http://monitel.com/2014/schema-cim16#"
 	xml:base="http://cim.bios/Profiles/Iec61970BaseCore/v1">
 	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#ACDCTerminal">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>

@@ -12,7 +12,7 @@ public interface IModelObject : INotifyPropertyChanged
     /// <summary>
     /// Neccesary object identifier.
     /// </summary>
-    public string Uuid { get; }
+    public string OID { get; }
 
     /// <summary>
     /// Schema meta class.

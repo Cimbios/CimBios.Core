@@ -6,16 +6,16 @@ namespace CimBios.Core.CimModel.DatatypeLib;
 
 public class WeakModelObject : DynamicModelObjectBase, IModelObject
 {
-    public override string Uuid => _Uuid;
+    public override string OID => _Oid;
 
     public override ICimMetaClass MetaClass => _MetaClass;
 
     public override bool IsAuto => _IsAuto;
 
-    public WeakModelObject(string uuid, CimAutoClass metaClass, bool isAuto)
+    public WeakModelObject(string oid, CimAutoClass metaClass, bool isAuto)
         : base()
     {
-        _Uuid = uuid;
+        _Oid = oid;
         _MetaClass = metaClass;
         _IsAuto = isAuto;
     }
@@ -34,7 +34,7 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
     public override object? GetAttribute(ICimMetaProperty metaProperty)
     {
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
-            &&_PropertiesData.TryGetValue(metaProperty, out var value))
+            && _PropertiesData.TryGetValue(metaProperty, out var value))
         {
             return value;
         }
@@ -50,8 +50,7 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
             return GetAttribute(metaProperty);
         }
 
-        throw new ArgumentException(
-            $"No such meta property with name {attributeName}!");
+        return null;
     }
 
     public override T? GetAttribute<T>(ICimMetaProperty metaProperty) 
@@ -74,8 +73,7 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
             return GetAttribute<T>(metaProperty);
         }
 
-        throw new ArgumentException(
-            $"No such meta property with name {attributeName}!");
+        return default;
     }
 
     public override void SetAttribute<T>(ICimMetaProperty metaProperty, 
@@ -84,10 +82,12 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
         if (metaProperty.PropertyKind != CimMetaPropertyKind.Attribute)
         {
             throw new ArgumentException(
-                $"Attribute {metaProperty.ShortName} does not exist!");
+                $"Property {metaProperty.ShortName} is not attribute!");
         }
 
         if (value is not string 
+            && value != null
+            && !value.GetType().IsPrimitive
             && !typeof(T).IsAssignableTo(typeof(IModelObject)))
         {
             throw new ArgumentException(
@@ -109,6 +109,11 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
             _MetaClass.AddProperty(metaProperty);
         }
 
+        if (_MetaClass.HasProperty(metaProperty) == false)
+        {
+            _MetaClass.AddProperty(metaProperty);
+        }
+
         OnPropertyChanged(new 
             CimMetaPropertyChangedEventArgs(metaProperty));
     }
@@ -119,14 +124,14 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
         var metaProperty = TryGetMetaPropertyByName(attributeName);
         if (metaProperty == null)
         {
-            metaProperty = new CimAutoProperty()
-            {
-                BaseUri = new Uri(CimAutoSchemaSerializer.BaseSchemaUri 
+            var newAutoProperty = new CimAutoProperty(
+                new Uri(CimAutoSchemaSerializer.BaseSchemaUri 
                     + "#" + attributeName),
-                ShortName = attributeName,
-                Description = string.Empty,
-                PropertyKind = CimMetaPropertyKind.Attribute
-            };
+                attributeName.Split('.').Last(),
+                string.Empty
+            );
+            newAutoProperty.SetPropertyKind(CimMetaPropertyKind.Attribute);
+            metaProperty = newAutoProperty;
         }
 
         SetAttribute<T>(metaProperty, value);
@@ -136,7 +141,7 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
         where T : default
     {
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
-            &&_PropertiesData.TryGetValue(metaProperty, out var value)
+            && _PropertiesData.TryGetValue(metaProperty, out var value)
             && value is T tObj)
         {
             return tObj;
@@ -153,8 +158,7 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
             return GetAssoc1To1<T>(metaProperty);
         }
 
-        throw new ArgumentException(
-            $"No such meta property with name {assocName}!");
+        return default;
     }
 
     /// <summary>
@@ -163,29 +167,19 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
     public override void SetAssoc1To1(ICimMetaProperty metaProperty, 
         IModelObject? obj)
     {
-        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1)
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1
+            && metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
         {
             throw new ArgumentException(
-                $"Attribute {metaProperty.ShortName} does not exist!");
+                $"Property {metaProperty.ShortName} is not association!");
         }
 
-        if (CanChangeProperty(metaProperty) == false)
-        {
-            return;
-        }
+        RemoveAllAssocs1ToM(metaProperty);
 
-        if (_PropertiesData.ContainsKey(metaProperty))
+        if (obj != null)
         {
-            _PropertiesData[metaProperty] = obj;
+            AddAssoc1ToM(metaProperty, obj);
         }
-        else
-        {
-            _PropertiesData.Add(metaProperty, obj);
-            _MetaClass.AddProperty(metaProperty);
-        }
-
-        OnPropertyChanged(new 
-            CimMetaPropertyChangedEventArgs(metaProperty));
     }
 
     public override void SetAssoc1To1(string assocName, IModelObject? obj)
@@ -193,72 +187,177 @@ public class WeakModelObject : DynamicModelObjectBase, IModelObject
         var metaProperty = TryGetMetaPropertyByName(assocName);
         if (metaProperty == null)
         {
-            metaProperty = new CimAutoProperty()
-            {
-                BaseUri = new Uri(CimAutoSchemaSerializer.BaseSchemaUri 
+            var newAutoProperty = new CimAutoProperty(
+                new Uri(CimAutoSchemaSerializer.BaseSchemaUri 
                     + "#" + assocName),
-                ShortName = assocName,
-                Description = string.Empty,
-                PropertyKind = CimMetaPropertyKind.Assoc1To1,
-            };
+                assocName.Split('.').Last(),
+                string.Empty
+            );
+            newAutoProperty.SetPropertyKind(CimMetaPropertyKind.Assoc1ToM);
+            metaProperty = newAutoProperty;
         }
-
+        
         SetAssoc1To1(metaProperty, obj);
     }
 
     public override IModelObject[] GetAssoc1ToM(ICimMetaProperty metaProperty)
     {
-        throw new NotImplementedException();
+        if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
+            && _PropertiesData.TryGetValue(metaProperty, out var value)
+            && value is ICollection<IModelObject> collection)
+        {
+            return collection.ToArray();
+        }
+
+        return [];
     }
 
     public override IModelObject[] GetAssoc1ToM(string assocName)
     {
-        throw new NotImplementedException();
+        var metaProperty = TryGetMetaPropertyByName(assocName);
+        if (metaProperty != null)
+        {
+            return GetAssoc1ToM(metaProperty);
+        }
+
+        return [];
     }
 
     public override T[] GetAssoc1ToM<T>(ICimMetaProperty metaProperty)
     {
-        throw new NotImplementedException();
+        return GetAssoc1ToM(metaProperty).Cast<T>().ToArray();
     }
 
     public override T[] GetAssoc1ToM<T>(string assocName)
     {
-        throw new NotImplementedException();
+        return GetAssoc1ToM(assocName).Cast<T>().ToArray();
     }
 
     public override void AddAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj)
     {
-        throw new NotImplementedException();
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+        {
+            throw new ArgumentException(
+                $"Property {metaProperty.ShortName} is not association!");
+        }
+
+        if (CanChangeProperty(metaProperty) == false)
+        {
+            return;
+        }
+
+        if (_PropertiesData.TryGetValue(metaProperty, out var data)
+            && data is ICollection<IModelObject> dataCollection) 
+        {
+            dataCollection.Add(obj);
+        }
+        else
+        {
+            _PropertiesData.Add(metaProperty, 
+                new HashSet<IModelObject>() { obj });
+
+            _MetaClass.AddProperty(metaProperty);
+        }
+
+        if (_MetaClass.HasProperty(metaProperty) == false)
+        {
+            _MetaClass.AddProperty(metaProperty);
+        }
+
+        OnPropertyChanged(new 
+            CimMetaPropertyChangedEventArgs(metaProperty));
     }
 
     public override void AddAssoc1ToM(string assocName, IModelObject obj)
     {
-        throw new NotImplementedException();
-    }
-
-    public override void RemoveAllAssocs1ToM(ICimMetaProperty metaProperty)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void RemoveAllAssocs1ToM(string assocName)
-    {
-        throw new NotImplementedException();
+        var metaProperty = TryGetMetaPropertyByName(assocName);
+        if (metaProperty == null)
+        {
+            var newAutoProperty = new CimAutoProperty(
+                new Uri(CimAutoSchemaSerializer.BaseSchemaUri 
+                    + "#" + assocName),
+                assocName.Split('.').Last(),
+                string.Empty
+            );
+            newAutoProperty.SetPropertyKind(CimMetaPropertyKind.Assoc1ToM);
+            metaProperty = newAutoProperty;
+        }
+        
+        AddAssoc1ToM(metaProperty, obj);
     }
 
     public override void RemoveAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj)
     {
-        throw new NotImplementedException();
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+        {
+            throw new ArgumentException(
+                $"Property {metaProperty.ShortName} is not association!");
+        }
+
+        if (CanChangeProperty(metaProperty) == false)
+        {
+            return;
+        }
+
+        if (_PropertiesData.TryGetValue(metaProperty, out var data)
+            && data is ICollection<IModelObject> dataCollection
+            && dataCollection.Contains(obj)) 
+        {
+            dataCollection.Remove(obj);
+        
+            OnPropertyChanged(new 
+                CimMetaPropertyChangedEventArgs(metaProperty));
+        }
     }
 
     public override void RemoveAssoc1ToM(string assocName, IModelObject obj)
     {
-        throw new NotImplementedException();
+        var metaProperty = TryGetMetaPropertyByName(assocName);
+        if (metaProperty == null)
+        {
+            return;
+        }
+
+        RemoveAssoc1ToM(assocName, obj);
     }
 
-    private string _Uuid;
+    public override void RemoveAllAssocs1ToM(ICimMetaProperty metaProperty)
+    {
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+        {
+            throw new ArgumentException(
+                $"Property {metaProperty.ShortName} is not association!");
+        }
+
+        if (CanChangeProperty(metaProperty) == false)
+        {
+            return;
+        }
+
+        if (_PropertiesData.TryGetValue(metaProperty, out var data)
+            && data is ICollection<IModelObject> dataCollection) 
+        {
+            dataCollection.Clear();
+        
+            OnPropertyChanged(new 
+                CimMetaPropertyChangedEventArgs(metaProperty));
+        }
+    }
+
+    public override void RemoveAllAssocs1ToM(string assocName)
+    {
+        var metaProperty = TryGetMetaPropertyByName(assocName);
+        if (metaProperty == null)
+        {
+            return;
+        }
+
+        RemoveAllAssocs1ToM(assocName);
+    }
+
+    private string _Oid;
     private CimAutoClass _MetaClass;
     private bool _IsAuto;
 

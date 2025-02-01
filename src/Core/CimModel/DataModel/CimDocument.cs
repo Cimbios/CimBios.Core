@@ -62,7 +62,7 @@ public class CimDocument : ICimDataModel
         try
         {
             var serialized = _serializer.Deserialize(streamReader);
-            _Objects = serialized.ToDictionary(k => k.Uuid, v => v);
+            _Objects = serialized.ToDictionary(k => k.OID, v => v);
         }
         catch (Exception ex)
         {
@@ -188,7 +188,7 @@ public class CimDocument : ICimDataModel
 
     public bool RemoveObject(IModelObject modelObject)
     {
-        return RemoveObject(modelObject.Uuid);
+        return RemoveObject(modelObject.OID);
     }
 
     public void RemoveObjects(IEnumerable<IModelObject> modelObjects)
@@ -210,7 +210,7 @@ public class CimDocument : ICimDataModel
         if (fullModel != null)
         {
             _Description = fullModel;
-            _Objects.Remove(fullModel.Uuid);
+            _Objects.Remove(fullModel.OID);
         }
         else
         {

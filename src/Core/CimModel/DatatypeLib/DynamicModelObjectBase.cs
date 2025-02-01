@@ -78,7 +78,7 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         return null;
     }
 
-    public abstract string Uuid { get; }
+    public abstract string OID { get; }
 
     public abstract ICimMetaClass MetaClass { get; }
 
