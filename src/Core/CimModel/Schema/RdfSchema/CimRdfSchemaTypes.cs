@@ -205,6 +205,12 @@ public class CimRdfsProperty : CimMetaPropertyBase,
 
     private CimMetaPropertyKind GetMetaPropertyKind()
     {
+        if (RdfUtils.RdfUriEquals(Range?.BaseUri, 
+            CimRdfSchemaStrings.RdfStatement))
+        {
+            return CimMetaPropertyKind.Statements;
+        }
+
         if (Stereotypes.Contains(UMLStereotype.Attribute))
         {
             return CimMetaPropertyKind.Attribute;
