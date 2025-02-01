@@ -144,7 +144,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         if (mObj != null)
         {
             var tmpSearchString = SearchString;
-            SearchString = mObj.Uuid;
+            SearchString = mObj.OID;
             Find(dataGrid);
             SearchString = tmpSearchString;
         }
@@ -179,7 +179,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
 
         var dataFacade = cimObjectItem.ModelObject;
 
-        SelectedUuid = dataFacade.Uuid;
+        SelectedUuid = dataFacade.OID;
 
         foreach (var attrName in dataFacade.MetaClass.AllProperties.Where(p => p.PropertyKind == Core.CimModel.Schema.CimMetaPropertyKind.Attribute).Select(p => p.ShortName))
         {
@@ -228,7 +228,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             string assoc11RefStr = "null";
             if (assoc11Ref != null)
             {
-                assoc11RefStr = assoc11Ref.Uuid;
+                assoc11RefStr = assoc11Ref.OID;
             }
 
             _PropCache.Add(new CimObjectPropertyModel() 
@@ -249,7 +249,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             foreach (var assoc1MRef in assoc1MArray.OfType<IModelObject>())
             {
                 assoc1MNode.AddChild(new CimObjectPropertyModel() 
-                { Name = string.Empty, Value = assoc1MRef.Uuid });
+                { Name = string.Empty, Value = assoc1MRef.OID });
             }
 
             _PropCache.Add(assoc1MNode);

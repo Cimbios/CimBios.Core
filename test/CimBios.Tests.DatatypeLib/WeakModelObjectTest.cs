@@ -39,7 +39,72 @@ public class WeakModelObjectTests
         Assert.NotNull(checkObject);
     }
 
-    
+    [Fact]
+    public void UnkClassKnownProperty()
+    {
+        var cimModel = CreateCimModelInstance(
+            "../../../assets/test_model.xml",
+            "../../../assets/Iec61970BaseCore-rdfs.xml"
+        );
+
+        var checkObject = cimModel
+            .GetObject<WeakModelObject>("currenttransformer1");
+
+        var checkAttrName = checkObject?.GetAttribute("name");
+            
+        Assert.NotNull(checkAttrName);
+    }    
+
+    [Fact]
+    public void UnkClassUnknownProperty()
+    {
+        var cimModel = CreateCimModelInstance(
+            "../../../assets/test_model.xml",
+            "../../../assets/Iec61970BaseCore-rdfs.xml"
+        );
+
+        var checkObject = cimModel
+            .GetObject<WeakModelObject>("currenttransformer1");
+            
+        var checkAttrName = checkObject?
+            .GetAttribute("ratedCurrent");
+            
+        Assert.NotNull(checkAttrName);
+    }  
+
+    [Fact]
+    public void ClassUnkRefAsAssoc()
+    {
+        var cimModel = CreateCimModelInstance(
+            "../../../assets/test_model.xml",
+            "../../../assets/Iec61970BaseCore-rdfs.xml"
+        );
+
+        var checkObject = cimModel
+            .GetObject<Terminal>("terminal1");
+            
+        var checkEnumAssocType = checkObject?.GetAssoc1ToM("Type");
+            
+        Assert.IsType<ModelObjectUnresolvedReference>(checkEnumAssocType?.Single());
+    }  
+
+    [Fact]
+    public void UnkCompound()
+    {
+        var cimModel = CreateCimModelInstance(
+            "../../../assets/test_model.xml",
+            "../../../assets/Iec61970BaseCore-rdfs.xml"
+        );
+
+        var checkObject = cimModel
+            .GetObject<WeakModelObject>("currenttransformer1");
+            
+        var checkCompound = checkObject?
+            .GetAssoc1ToM("CompoundProperty");
+
+        Assert.IsType<WeakModelObject>(checkCompound?.First());
+        Assert.True(checkCompound?.First().IsAuto);
+    }
 
     private static ICimDataModel CreateCimModelInstance(string modelPath, 
         string schemaPath)

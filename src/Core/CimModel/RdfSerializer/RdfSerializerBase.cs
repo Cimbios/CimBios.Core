@@ -181,7 +181,7 @@ public abstract class RdfSerializerBase : ICanLog
         if (objectData is Uri uriReference)
         {
             objectNode.NewTriple(property.BaseUri, 
-                    new RdfTripleObjectUriContainer(uriReference));
+                new RdfTripleObjectUriContainer(uriReference));
         }
         else if (objectData is IEnumerable<Uri> tripleObjects)
         {
@@ -525,8 +525,20 @@ public abstract class RdfSerializerBase : ICanLog
             case CimMetaPropertyKind.Assoc1To1:
             case CimMetaPropertyKind.Assoc1ToM:
             {
-                SetObjectDataAsAssociation(instance,
-                    schemaProperty, (Uri)data);
+                if (data is ICollection<IModelObject> uris)
+                {
+                    foreach (var statmentUri in uris)
+                    {
+                        SetObjectDataAsAssociation(instance,
+                            schemaProperty, statmentUri);
+                    }
+                }
+                else if (data is Uri uri)
+                {
+                    SetObjectDataAsAssociation(instance,
+                        schemaProperty, uri);
+                }
+
                 break;
             }
         }
@@ -547,7 +559,7 @@ public abstract class RdfSerializerBase : ICanLog
         if (RdfUtils.TryGetEscapedIdentifier(propertyTriple.Predicate, 
             out var sIri))
         {
-            shortName = sIri;
+            shortName = sIri.Split('.').Last();
         }
 
         ICimMetaClass? metaDatatype = null;
@@ -556,10 +568,11 @@ public abstract class RdfSerializerBase : ICanLog
         {
             metaDatatype = Schema.TryGetResource<ICimMetaDatatype>(
                 new("http://www.w3.org/2001/XMLSchema#string"));
-            
+
             cimMetaPropertyKind = CimMetaPropertyKind.Attribute;
         }
-        else if (propertyTriple.Object is RdfTripleObjectUriContainer
+        
+        if (propertyTriple.Object is RdfTripleObjectUriContainer
             || propertyTriple.Object is RdfTripleObjectStatementsContainer)
         {
             metaDatatype = Schema.ResourceSuperClass;          
@@ -732,11 +745,17 @@ public abstract class RdfSerializerBase : ICanLog
         if (referenceInstance == null)
         {
             referenceInstance = new ModelObjectUnresolvedReference
-                (referenceUuid, instance.MetaClass);
+                (referenceUuid, Schema.ResourceSuperClass);
 
             _waitingReferenceObjectUuids.Add(instance.OID);
         }
 
+        SetObjectDataAsAssociation(instance, property, referenceInstance);
+    }
+
+   private void SetObjectDataAsAssociation(IModelObject instance,
+        ICimMetaProperty property, IModelObject referenceInstance)
+    {
         try
         {
             if (property.PropertyKind == CimMetaPropertyKind.Assoc1To1)
