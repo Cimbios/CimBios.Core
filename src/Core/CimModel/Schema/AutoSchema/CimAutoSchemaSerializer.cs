@@ -131,7 +131,7 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
     /// <param name="IsCompound">Is class compound.</param>
     /// <returns>New class instance or null if class already exists.</returns>
     private CimAutoClass? AddClass(Uri typeIdentifier, 
-        bool isEnum, bool IsCompound)
+        bool isEnum, bool isCompound)
     {
         if (_ObjectsCache.ContainsKey(typeIdentifier))
         {
@@ -148,15 +148,12 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
             new(BaseSchemaUri + "#CimAutoClass"), 
             out var autoSuperClassResource);
 
-        var autoClass = new CimAutoClass()
+        var autoClass = new CimAutoClass(typeIdentifier, shortName, string.Empty)
         {
-            BaseUri = typeIdentifier,
-            ShortName = shortName,
-            Description = string.Empty,
             ParentClass = autoSuperClassResource as CimAutoClass,
-            IsEnum = isEnum,
-            IsCompound = IsCompound
         };
+        autoClass.SetIsEnum(isEnum);
+        autoClass.SetIsCompound(isCompound);
 
         _ObjectsCache.TryAdd(autoClass.BaseUri, autoClass);
 
@@ -193,15 +190,13 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
             shortName = shortName[(shortName.IndexOf('.') + 1) ..];
         }
 
-        var autoProperty = new CimAutoProperty()
+        var autoProperty = new CimAutoProperty(propertyUri, 
+            shortName, string.Empty)
         {
-            BaseUri = propertyUri,
-            ShortName = shortName,
-            Description = string.Empty,
             OwnerClass = ownerClass,
-            PropertyKind = propertyKind,
-            PropertyDatatype = propertyDatatypeClass
         };
+        autoProperty.SetPropertyDatatype(propertyDatatypeClass);
+        autoProperty.SetPropertyKind(propertyKind);
 
         _ObjectsCache.TryAdd(propertyUri, autoProperty);
 
@@ -218,11 +213,11 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
     {
         if (property.PropertyDatatype == null)
         {
-            property.PropertyDatatype = propertyDatatype;
+            property.SetPropertyDatatype(propertyDatatype);
             return;
         }
 
-        if (propertyDatatype == property.PropertyDatatype)
+        if (propertyDatatype.Equals(property.PropertyDatatype))
         {
             return;
         }
@@ -235,7 +230,7 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
 
         if (newDatatypeOrder > currentDatatypeOrder) 
         {
-            property.PropertyDatatype = propertyDatatype;
+            property.SetPropertyDatatype(propertyDatatype);
         }       
     }
 
@@ -322,11 +317,9 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
             shortName = shortName[(shortName.IndexOf('.') + 1) ..];
         }
 
-        var enumValue = new CimAutoIndividual()
+        var enumValue = new CimAutoIndividual(enumValueUri, 
+            shortName, string.Empty)
         {
-            BaseUri = enumValueUri,
-            ShortName = shortName,
-            Description = string.Empty,
             InstanceOf = enumClass
         };
 
@@ -406,12 +399,10 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
 
             var uri = new Uri(typeUri);
             RdfUtils.TryGetEscapedIdentifier(uri, out var label);
-            var metaDatatype = new CimAutoDatatype()
+            var metaDatatype = new CimAutoDatatype(uri, 
+                label, "Build-in xsd datatype.")
             {
-                BaseUri = uri,
                 SystemType = datatype,
-                ShortName = label,
-                Description = "Build-in xsd datatype."
             };
 
             _ObjectsCache.Add(metaDatatype.BaseUri, metaDatatype);
@@ -422,14 +413,11 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
 
     private void CreateAutoSuperClass()
     {
-        var autoClass = new CimAutoClass()
-        {
-            BaseUri = new(BaseSchemaUri + "#CimAutoClass"),
-            ShortName = "CimAutoClass",
-            Description = string.Empty,
-            IsEnum = false,
-            IsCompound = false
-        };
+        var autoClass = new CimAutoClass(
+            new(BaseSchemaUri + "#CimAutoClass"),
+            "CimAutoClass",
+            string.Empty
+        );
 
         _ObjectsCache.TryAdd(autoClass.BaseUri, autoClass);
     }
@@ -439,7 +427,7 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
     private readonly Dictionary<Uri, ICimMetaResource> _ObjectsCache 
         = new(new RdfUriComparer());
 
-    private Dictionary <string, Uri> _Namespaces = [];
+    private readonly Dictionary <string, Uri> _Namespaces = [];
 }
 
 public class CimAutoSchemaSerializerFactory(RdfReaderBase rdfReader)

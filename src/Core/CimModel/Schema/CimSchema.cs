@@ -1,3 +1,4 @@
+using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.RdfIOLib;
 using CimBios.Utils.ClassTraits;
 
@@ -22,6 +23,8 @@ public class CimSchema : ICimSchema
 
     public bool TieSameNameEnums { get; set; } = true;
 
+    public ICimMetaClass ResourceSuperClass => _ResourceSuperClass;
+
     private ICimSchemaSerializer? _Serializer { get; set; }
 
     public CimSchema()
@@ -30,6 +33,13 @@ public class CimSchema : ICimSchema
 
         _All = [];
         _Namespaces = [];
+
+        var rdfsReourceUri = new Uri("http://www.w3.org/2000/01/rdf-schema#Resource");
+        var resourceSuperClass = new CimAutoClass(
+            rdfsReourceUri, "Resource", "Root rdfs:Resource meta instance.");
+        resourceSuperClass.SetIsAbstract(true);
+        _ResourceSuperClass = resourceSuperClass;
+        _All.Add(rdfsReourceUri, _ResourceSuperClass);
     }
 
     public CimSchema(ICimSchemaSerializerFactory serializerFactory)
@@ -57,6 +67,8 @@ public class CimSchema : ICimSchema
         {
             TieEnumExtensions();
         }
+
+        CreateSuperDescriptionClass();
 
         var details = string.Empty;
         if (_Namespaces.TryGetValue("base", out var baseUri))
@@ -427,9 +439,25 @@ public class CimSchema : ICimSchema
         }  
     }
 
+    private void CreateSuperDescriptionClass()
+    {
+        var extensionsCache = Extensions;
+        foreach (var quasiSuper in Classes.Where(c => 
+            c != ResourceSuperClass
+            && c.SuperClass 
+            && !c.IsEnum 
+            && c is not ICimMetaDatatype
+            && !extensionsCache.Contains(c)))
+        {
+            quasiSuper.ParentClass = ResourceSuperClass;
+        }
+    }
+
     private Dictionary<Uri, ICimMetaResource> _All;
 
     private Dictionary<string, Uri> _Namespaces;
+
+    public ICimMetaClass _ResourceSuperClass;
 
     private readonly PlainLogView _Log;
 }
