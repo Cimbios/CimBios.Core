@@ -1,7 +1,7 @@
 
 using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.CIM17;
+using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
 using CimBios.Core.CimModel.DatatypeLib;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;

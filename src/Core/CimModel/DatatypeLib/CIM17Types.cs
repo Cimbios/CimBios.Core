@@ -4,7 +4,7 @@
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.DatatypeLib;
 
-namespace CimBios.Core.CimModel.CimDatatypeLib.CIM17;
+namespace CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
 
 /// <summary>
 /// A DC electrical connection point at the AC/DC converter. The AC/DC converter

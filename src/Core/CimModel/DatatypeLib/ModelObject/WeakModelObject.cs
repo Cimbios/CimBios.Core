@@ -4,7 +4,8 @@ using CimBios.Core.CimModel.Schema.AutoSchema;
 
 namespace CimBios.Core.CimModel.DatatypeLib;
 
-public class WeakModelObject : DynamicModelObjectBase, IModelObject
+public class WeakModelObject : DynamicModelObjectBase, 
+    IModelObject//, IStatementsContainer
 {
     public override string OID => _Oid;
 
