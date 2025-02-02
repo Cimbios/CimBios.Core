@@ -328,10 +328,10 @@ public abstract class RdfSerializerBase : ICanLog
     private IEnumerable<RdfNode> GetObjectAsStatements(IModelObject subject,
         ICimMetaProperty statementsProperty)
     {
+        var result = new List<RdfNode>();
         if (subject is IStatementsContainer statementsContainer
             && statementsContainer.Statements.ContainsKey(statementsProperty))
         {
-            var result = new List<RdfNode>();
             var statements = statementsContainer.Statements[statementsProperty];
 
             foreach (var statement in statements)
@@ -346,7 +346,7 @@ public abstract class RdfSerializerBase : ICanLog
             }
         }
 
-        return [];
+        return result;
     }
 
     /// <summary>
@@ -637,8 +637,10 @@ public abstract class RdfSerializerBase : ICanLog
             statementsContainer)
         {
             var maybeCompound = statementsContainer.RdfNodesObject
-                .SingleOrDefault();
-            if (maybeCompound != null && maybeCompound.IsAuto)
+                .FirstOrDefault();
+            if (statementsContainer.RdfNodesObject.Count == 1 
+                && maybeCompound != null 
+                && maybeCompound.IsAuto)
             {
                 var compundMetaClass = GetOrCreateAutoClass(
                     maybeCompound.TypeIdentifier);
