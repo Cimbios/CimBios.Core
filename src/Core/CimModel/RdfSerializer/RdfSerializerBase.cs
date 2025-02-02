@@ -553,8 +553,7 @@ public abstract class RdfSerializerBase : ICanLog
             if (Settings.UnknownPropertiesAllowed
                 || instance is WeakModelObject)
             {
-                schemaProperty = GetOrCreateAutoProperty(instance.MetaClass, 
-                    propertyTriple);
+                schemaProperty = GetOrCreateAutoProperty(propertyTriple);
             }
             else
             {
@@ -600,8 +599,7 @@ public abstract class RdfSerializerBase : ICanLog
         }
     }
 
-    private CimAutoProperty GetOrCreateAutoProperty(ICimMetaClass ownerClass, 
-        RdfTriple propertyTriple)
+    private CimAutoProperty GetOrCreateAutoProperty(RdfTriple propertyTriple)
     {
         var propIRI = propertyTriple.Predicate.AbsoluteUri;
 
@@ -661,7 +659,7 @@ public abstract class RdfSerializerBase : ICanLog
         var newCimAutoProperty = new CimAutoProperty(
             propertyTriple.Predicate, shortName, string.Empty)
         {
-            OwnerClass = ownerClass
+            OwnerClass = Schema.ResourceSuperClass
         };
         newCimAutoProperty.SetPropertyDatatype(metaDatatype);
         newCimAutoProperty.SetPropertyKind(cimMetaPropertyKind);
