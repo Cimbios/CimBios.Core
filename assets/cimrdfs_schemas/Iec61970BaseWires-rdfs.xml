@@ -1240,7 +1240,6 @@ Starting value for steady state solutions.</rdfs:comment>
 		<rdfs:comment>A modelling construct to provide a root class for containing equipment.</rdfs:comment>
 		<cims:belongsToCategory rdf:resource="#Package_Core"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
-		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#PowerSystemResource"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#ExternalNetworkInjection">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -4884,7 +4883,6 @@ calculated reactance = x(nominal) * (1 + x(from this class)/100).   The x(nomina
 		<rdfs:label>Terminal</rdfs:label>
 		<rdfs:comment>An AC electrical connection point to a piece of conducting equipment. Terminals are connected at physical connection points called connectivity nodes.</rdfs:comment>
 		<cims:belongsToCategory rdf:resource="#Package_Core"/>
-		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#IdentifiedObject"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Terminal.HasFirstMutualCoupling">
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
