@@ -1,20 +1,23 @@
-using System.ComponentModel;
 using CimBios.Core.CimModel.DatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
-public class ModelObject : DynamicModelObjectBase, IModelObject
+public class ModelObject : DynamicModelObjectBase, 
+    IModelObject, IStatementsContainer
 {
-    public override string Uuid => _uuid;
+    public override string OID => _Oid;
     public override bool IsAuto => _isAuto;
     public override ICimMetaClass MetaClass => _MetaClass;
 
-    internal ModelObject(string uuid, ICimMetaClass metaClass, 
+    public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
+    Statements => _Statements.AsReadOnly();
+
+    internal ModelObject(string oid, ICimMetaClass metaClass, 
         bool isAuto = false)
     {
-        _uuid = uuid;
+        _Oid = oid;
         _isAuto = isAuto;
 
         _MetaClass = metaClass;
@@ -103,15 +106,15 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
             {
                 _PropertiesData.Remove(metaProperty);
 
-                PropertyChanged?.Invoke(this, 
-                    new CimMetaPropertyChangedEventArgs(metaProperty));
+                OnPropertyChanged(new 
+                    CimMetaPropertyChangedEventArgs(metaProperty));
             }
             else
             {
                 _PropertiesData[metaProperty] = value;
 
-                PropertyChanged?.Invoke(this, 
-                    new CimMetaPropertyChangedEventArgs(metaProperty));
+                OnPropertyChanged(new 
+                    CimMetaPropertyChangedEventArgs(metaProperty));
             }
         }
         else
@@ -195,8 +198,7 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
                 _PropertiesData.Remove(metaProperty);
             }
 
-            PropertyChanged?.Invoke(this, 
-                new CimMetaPropertyChangedEventArgs(metaProperty));
+            OnPropertyChanged(new CimMetaPropertyChangedEventArgs(metaProperty));
         }
         else
         {
@@ -277,8 +279,8 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
 
             SetAssociationWithInverse(metaProperty, null, obj);
 
-            PropertyChanged?.Invoke(this, 
-                new CimMetaPropertyChangedEventArgs(metaProperty));
+            OnPropertyChanged(new 
+                CimMetaPropertyChangedEventArgs(metaProperty));
         }
         else
         {
@@ -315,8 +317,8 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
             
             SetAssociationWithInverse(metaProperty, obj, null);
                             
-            PropertyChanged?.Invoke(this, 
-                new CimMetaPropertyChangedEventArgs(metaProperty));
+            OnPropertyChanged(new 
+                CimMetaPropertyChangedEventArgs(metaProperty));
         }
         else
         {
@@ -350,8 +352,8 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
                 SetAssociationWithInverse(metaProperty, assocObject, null);
             }     
 
-            PropertyChanged?.Invoke(this, 
-                new CimMetaPropertyChangedEventArgs(metaProperty));   
+            OnPropertyChanged(
+                new CimMetaPropertyChangedEventArgs(metaProperty));
         }
         else
         {
@@ -375,6 +377,40 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
     }
 
     #endregion Assocs1MLogic
+
+    #region Statements
+
+    public void AddToStatements(ICimMetaProperty statementProperty,
+        IModelObject statement)
+    {
+        if (statementProperty.PropertyKind != CimMetaPropertyKind.Statements)
+        {
+            throw new ArgumentException(
+                $"Property {statementProperty.ShortName} is not statement!");
+        }
+
+        if (_Statements.TryGetValue(statementProperty, 
+            out var statements) == false)
+        {
+            _Statements.Add(statementProperty, 
+                new HashSet<IModelObject>() { statement });
+        }
+        else if (statements.Contains(statement) == false)
+        {
+            statements.Add(statement);
+        }
+    }
+
+    public void RemoveFromStatements(ICimMetaProperty statementProperty,
+        IModelObject statement)
+    {
+        if (_Statements.TryGetValue(statementProperty, 
+            out var statements))
+        {
+            statements.Remove(statement);
+        }
+    }
+    #endregion Statements
 
     #region UtilsPrivate
 
@@ -586,36 +622,16 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
         }
     }
 
-    private bool CanChangeProperty(ICimMetaProperty metaProperty)
-    {
-        if (PropertyChanging != null)
-        {
-            var arg = new CanCancelPropertyChangingEventArgs(metaProperty, false);
-
-            PropertyChanging.Invoke(this, arg);
-            
-            if (arg.Cancel == true)
-            {
-                return false;
-            }
-        }      
-
-        return true;
-    }
-
     #endregion UtilsPrivate
 
-    private string _uuid = string.Empty;
+    private string _Oid = string.Empty;
     private bool _isAuto;
 
     private ICimMetaClass _MetaClass;
     private readonly Dictionary<ICimMetaProperty, object?> _PropertiesData;
 
-    public override event PropertyChangedEventHandler? PropertyChanged;
-
-    public delegate void CanCancelPropertyChangingEventHandler(object? sender, 
-        CanCancelPropertyChangingEventArgs e);
-    public event CanCancelPropertyChangingEventHandler? PropertyChanging;
+    private readonly Dictionary<ICimMetaProperty, ICollection<IModelObject>> 
+    _Statements = [];
 }
 
 public class ModelObjectFactory : IModelObjectFactory
@@ -638,8 +654,8 @@ public sealed class ModelObjectUnresolvedReference
 {
     public Uri Predicate => MetaClass.BaseUri;
 
-    public ModelObjectUnresolvedReference(string uuid, ICimMetaClass metaClass)
-        : base(uuid, metaClass, true)
+    public ModelObjectUnresolvedReference(string oid, ICimMetaClass metaClass)
+        : base(oid, metaClass, true)
     {
     }
 }

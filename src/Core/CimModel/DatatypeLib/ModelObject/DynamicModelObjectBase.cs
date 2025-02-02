@@ -78,13 +78,14 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         return null;
     }
 
-    public abstract string Uuid { get; }
+    public abstract string OID { get; }
 
     public abstract ICimMetaClass MetaClass { get; }
 
     public abstract bool IsAuto { get; }
 
-    public abstract event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
+    public event CanCancelPropertyChangingEventHandler? PropertyChanging;
 
     public abstract void AddAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj);
@@ -134,4 +135,31 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
     public abstract void SetAttribute<T>(ICimMetaProperty metaProperty, T? value);
 
     public abstract void SetAttribute<T>(string attributeName, T? value);
+
+    public virtual void OnPropertyChanged(CimMetaPropertyChangedEventArgs args)
+    {
+        PropertyChanged?.Invoke(this, args);
+    }
+
+    public virtual void OnPropertyChanging(CanCancelPropertyChangingEventArgs args)
+    {
+        PropertyChanging?.Invoke(this, args);
+    }    
+
+    protected bool CanChangeProperty(ICimMetaProperty metaProperty)
+    {
+        if (PropertyChanging != null)
+        {
+            var arg = new CanCancelPropertyChangingEventArgs(metaProperty, false);
+
+            PropertyChanging.Invoke(this, arg);
+            
+            if (arg.Cancel == true)
+            {
+                return false;
+            }
+        }      
+
+        return true;
+    }
 }

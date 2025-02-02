@@ -1,3 +1,4 @@
+using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.RdfIOLib;
 using CimBios.Utils.ClassTraits;
 
@@ -22,6 +23,8 @@ public class CimSchema : ICimSchema
 
     public bool TieSameNameEnums { get; set; } = true;
 
+    public ICimMetaClass ResourceSuperClass => _ResourceSuperClass;
+
     private ICimSchemaSerializer? _Serializer { get; set; }
 
     public CimSchema()
@@ -30,6 +33,12 @@ public class CimSchema : ICimSchema
 
         _All = [];
         _Namespaces = [];
+
+        var rdfsReourceUri = new Uri("http://www.w3.org/2000/01/rdf-schema#Resource");
+        var resourceSuperClass = new CimAutoClass(
+            rdfsReourceUri, "Resource", "Root rdfs:Resource meta instance.");
+        resourceSuperClass.SetIsAbstract(true);
+        _ResourceSuperClass = resourceSuperClass;
     }
 
     public CimSchema(ICimSchemaSerializerFactory serializerFactory)
@@ -51,12 +60,15 @@ public class CimSchema : ICimSchema
         _Serializer.Load(textReader);
 
         _All = _Serializer.Deserialize();
+        _All.Add(_ResourceSuperClass.BaseUri, _ResourceSuperClass);
         _Namespaces = _Serializer.Namespaces.ToDictionary();
 
         if (TieSameNameEnums)
         {
             TieEnumExtensions();
         }
+
+        CreateSuperDescriptionClass();
 
         var details = string.Empty;
         if (_Namespaces.TryGetValue("base", out var baseUri))
@@ -179,6 +191,8 @@ public class CimSchema : ICimSchema
 
     public void Join(ICimSchema schema, bool rewriteNamespaces = false)
     {
+        InvalidateAuto();
+
         var details = string.Empty;
         if (schema.Namespaces.TryGetValue("base", out var baseUri))
         {
@@ -211,6 +225,26 @@ public class CimSchema : ICimSchema
         }
 
         return "_";
+    }
+
+    public void InvalidateAuto()
+    {
+        foreach (var metaClass in Classes)
+        {
+            foreach (var metaProperty in metaClass.SelfProperties)
+            {
+                if (TryGetResource<ICimMetaProperty>(
+                    metaProperty.BaseUri) != null)
+                {
+                    continue;
+                }
+
+                if (metaClass is ICimMetaExtensible extClass)
+                {
+                    extClass.RemoveProperty(metaProperty);
+                }
+            }
+        }
     }
 
     private HashSet<ICimMetaClass> GetExtensions()
@@ -304,15 +338,21 @@ public class CimSchema : ICimSchema
         {
             if (_All.ContainsKey(metaClass.BaseUri) == false)
             {
-                if (metaClass.ParentClass != null)
+                if (metaClass.ParentClass != null 
+                    && !metaClass.ParentClass.Equals(ResourceSuperClass))
                 {
                     var parentLeftClass = TryGetResource<ICimMetaClass>
                         (metaClass.ParentClass.BaseUri);
                         
-                    if (parentLeftClass != null)
+                    if (parentLeftClass != null &&
+                        !parentLeftClass.Equals(ResourceSuperClass))
                     {
                         metaClass.ParentClass = parentLeftClass;
                     }
+                }
+                else
+                {
+                    metaClass.ParentClass = ResourceSuperClass;
                 }
                 
                 _All.Add(metaClass.BaseUri, metaClass);
@@ -329,8 +369,9 @@ public class CimSchema : ICimSchema
 
             if (thisMetaClass != null)
             {
-                if (thisMetaClass.ParentClass == null 
-                    && metaClass.ParentClass != null)
+                if (thisMetaClass.ParentClass == ResourceSuperClass 
+                    && metaClass.ParentClass != null
+                    && !metaClass.ParentClass.Equals(ResourceSuperClass))
                 {
                     addClassDelegate(metaClass.ParentClass);
                     thisMetaClass.ParentClass = metaClass.ParentClass;                    
@@ -405,9 +446,25 @@ public class CimSchema : ICimSchema
         }  
     }
 
+    private void CreateSuperDescriptionClass()
+    {
+        var extensionsCache = Extensions;
+        foreach (var quasiSuper in Classes.Where(c => 
+            c != ResourceSuperClass
+            && c.SuperClass 
+            && !c.IsEnum 
+            && c is not ICimMetaDatatype
+            && !extensionsCache.Contains(c)))
+        {
+            quasiSuper.ParentClass = ResourceSuperClass;
+        }
+    }
+
     private Dictionary<Uri, ICimMetaResource> _All;
 
     private Dictionary<string, Uri> _Namespaces;
+
+    public ICimMetaClass _ResourceSuperClass;
 
     private readonly PlainLogView _Log;
 }

@@ -1,6 +1,8 @@
 using System.Globalization;
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib;
 using CimBios.Core.CimModel.Schema;
+using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.RdfIOLib;
 using CimBios.Utils.ClassTraits;
 
@@ -14,6 +16,11 @@ public abstract class RdfSerializerBase : ICanLog
     protected const string IdentifierPrefix = "#_";
 
     public ILogView Log => _Log;
+
+    /// <summary>
+    /// Rdf serializer settings.
+    /// </summary>
+    public RdfSerializerSettings Settings { get; set; }
 
     /// <summary>
     /// Cim schema rules.
@@ -45,6 +52,8 @@ public abstract class RdfSerializerBase : ICanLog
         _schema = schema;
         _typeLib = datatypeLib;
         _Log = new PlainLogView(this);
+
+        Settings = new RdfSerializerSettings();
     }
 
     /// <summary>
@@ -55,6 +64,7 @@ public abstract class RdfSerializerBase : ICanLog
     public IEnumerable<IModelObject> Deserialize(StreamReader streamReader)
     {
         InitializeRdfReader(streamReader);
+        Schema.InvalidateAuto();
         var deserializedObjects = ReadObjects();
         ResetCache();
 
@@ -123,7 +133,17 @@ public abstract class RdfSerializerBase : ICanLog
     {
         var metaClass = modelObject.MetaClass;
 
-        var rdfNode = new RdfNode(GetBasedIdentifier(modelObject.Uuid, 
+        if (Schema.TryGetResource<ICimMetaClass>(metaClass.BaseUri) == null
+            && Settings.UnknownClassesAllowed == false)
+        {
+            _Log.NewMessage(
+                $"Cannot write instance {modelObject.OID} - {metaClass.ShortName} does not exist in schema!", 
+                LogMessageSeverity.Error, string.Empty);
+
+            return null;
+        }
+
+        var rdfNode = new RdfNode(GetBasedIdentifier(modelObject.OID, 
             IdentifierPrefix),
             metaClass.BaseUri,
             modelObject.IsAuto);
@@ -163,6 +183,9 @@ public abstract class RdfSerializerBase : ICanLog
             case CimMetaPropertyKind.Assoc1ToM:
                 objectData = GetObjectAsAssoc1ToM(modelObject, property);
                 break;
+            case CimMetaPropertyKind.Statements:
+                objectData = GetObjectAsStatements(modelObject, property);
+                break;
             //CimMetaPropertyKind.NonStandard
             default: 
                 break;
@@ -171,7 +194,7 @@ public abstract class RdfSerializerBase : ICanLog
         if (objectData is Uri uriReference)
         {
             objectNode.NewTriple(property.BaseUri, 
-                    new RdfTripleObjectUriContainer(uriReference));
+                new RdfTripleObjectUriContainer(uriReference));
         }
         else if (objectData is IEnumerable<Uri> tripleObjects)
         {
@@ -183,6 +206,11 @@ public abstract class RdfSerializerBase : ICanLog
         {
             objectNode.NewTriple(property.BaseUri, 
                 new RdfTripleObjectStatementsContainer([compoundRdfNode]));
+        }
+        else if (objectData is IEnumerable<RdfNode> statements)
+        {
+            objectNode.NewTriple(property.BaseUri, 
+                new RdfTripleObjectStatementsContainer(statements.ToArray()));
         }
         else if (objectData is not null)
         {
@@ -255,7 +283,7 @@ public abstract class RdfSerializerBase : ICanLog
                 if (compoundObject != null)
                 {
                     tripleObject = ModelObjectToRdfNode(compoundObject);
-                }   
+                }
             }
         }
 
@@ -279,7 +307,7 @@ public abstract class RdfSerializerBase : ICanLog
             return null;
         }
 
-        resultAssocObject = GetBasedIdentifier(assocObj.Uuid, IdentifierPrefix);
+        resultAssocObject = GetBasedIdentifier(assocObj.OID, IdentifierPrefix);
 
         return resultAssocObject;
     }
@@ -294,7 +322,31 @@ public abstract class RdfSerializerBase : ICanLog
         ICimMetaProperty assoc1ToM)
     {
         return subject.GetAssoc1ToM(assoc1ToM)
-            .Select(mo => GetBasedIdentifier(mo.Uuid, IdentifierPrefix));
+            .Select(mo => GetBasedIdentifier(mo.OID, IdentifierPrefix));
+    }
+
+    private IEnumerable<RdfNode> GetObjectAsStatements(IModelObject subject,
+        ICimMetaProperty statementsProperty)
+    {
+        var result = new List<RdfNode>();
+        if (subject is IStatementsContainer statementsContainer
+            && statementsContainer.Statements.ContainsKey(statementsProperty))
+        {
+            var statements = statementsContainer.Statements[statementsProperty];
+
+            foreach (var statement in statements)
+            {
+                var rdfNode = ModelObjectToRdfNode(statement);
+                if (rdfNode == null)
+                {
+                    continue;
+                }
+
+                result.Add(rdfNode);
+            }
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -353,6 +405,8 @@ public abstract class RdfSerializerBase : ICanLog
     {        
         _objectsCache = [];
         _waitingReferenceObjectUuids = [];
+        _createdAutoClassesCache = [];
+        _createdAutoPropertiesCache = [];
     }
 
     /// <summary>
@@ -377,7 +431,7 @@ public abstract class RdfSerializerBase : ICanLog
                 continue;
             }
 
-            _objectsCache.TryAdd(instance.Uuid, instance);
+            _objectsCache.TryAdd(instance.OID, instance);
         }
 
         // Second step - fill objects properties.
@@ -389,12 +443,14 @@ public abstract class RdfSerializerBase : ICanLog
             if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
                 out var instanceUuid) == false)
             {
+                // throw Critical
                 continue;
             }
 
             if (_objectsCache.TryGetValue(instanceUuid,
                 out var instance) == false)
             {
+                // throw Critical
                 continue;
             }
 
@@ -421,19 +477,64 @@ public abstract class RdfSerializerBase : ICanLog
         if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
             out var instanceUuid) == false)
         {
+            // error cannot get identifier
             return null;
         }
 
         var metaClass = Schema.TryGetResource<ICimMetaClass>
             (instanceNode.TypeIdentifier);
 
+        IModelObjectFactory? objectFactory = new ModelObjectFactory();
         if (metaClass == null)
         {
-            return null;
+            if (Settings.UnknownClassesAllowed)
+            {
+                var autoClass = GetOrCreateAutoClass(instanceNode.TypeIdentifier);
+                autoClass.SetIsCompound(instanceNode.IsAuto);
+                objectFactory = new WeakModelObjectFactory();
+
+                metaClass = autoClass;
+            }
+            else
+            {
+                // warning skip unkwnow class
+                return null;      
+            }
         }
 
-        return TypeLib.CreateInstance(new ModelObjectFactory(), instanceUuid, 
-                metaClass, instanceNode.IsAuto);
+        return TypeLib.CreateInstance(objectFactory, instanceUuid, 
+            metaClass, instanceNode.IsAuto);
+    }
+
+    /// <summary>
+    /// Create auto class for Settings.AllowUnknownClasses=true
+    /// </summary>
+    /// <param name="typeIdentifier">Type URI</param>
+    /// <returns>Auto class instance.</returns>
+    private CimAutoClass GetOrCreateAutoClass(Uri typeIdentifier)
+    {
+        if (_createdAutoClassesCache.TryGetValue(typeIdentifier.AbsoluteUri, 
+            out var cimAutoClass))
+        {
+            return cimAutoClass;
+        }
+
+        var shortName = typeIdentifier.AbsoluteUri;
+        if (RdfUtils.TryGetEscapedIdentifier(typeIdentifier, out var sIri))
+        {
+            shortName = sIri;
+        }
+
+        var newCimAutoClass = new CimAutoClass(typeIdentifier, 
+            shortName, string.Empty)
+        {
+            ParentClass = Schema.ResourceSuperClass
+        };
+
+        _createdAutoClassesCache.Add(typeIdentifier.AbsoluteUri, 
+            newCimAutoClass);
+
+        return newCimAutoClass;
     }
 
     /// <summary>
@@ -449,7 +550,16 @@ public abstract class RdfSerializerBase : ICanLog
 
         if (schemaProperty == null)
         {
-            return;
+            if (Settings.UnknownPropertiesAllowed
+                || instance is WeakModelObject)
+            {
+                schemaProperty = GetOrCreateAutoProperty(propertyTriple);
+            }
+            else
+            {
+                // warning skip unknown prop
+                return;
+            }
         }
 
         object? data = DeserializableDataSelector(propertyTriple.Object);
@@ -473,7 +583,92 @@ public abstract class RdfSerializerBase : ICanLog
                     schemaProperty, (Uri)data);
                 break;
             }
+            case CimMetaPropertyKind.Statements:
+            {
+                if (instance is IStatementsContainer statementsContainer
+                    && data is ICollection<IModelObject> statements)
+                {
+                    foreach (var statement in statements)
+                    {
+                        statementsContainer
+                            .AddToStatements(schemaProperty, statement);
+                    }
+                }
+                break;
+            }
         }
+    }
+
+    private CimAutoProperty GetOrCreateAutoProperty(RdfTriple propertyTriple)
+    {
+        var propIRI = propertyTriple.Predicate.AbsoluteUri;
+
+        if (_createdAutoPropertiesCache.TryGetValue(propIRI, 
+            out var cimAutoProperty))
+        {
+            return cimAutoProperty;
+        }
+
+        var shortName = propIRI;
+        if (RdfUtils.TryGetEscapedIdentifier(propertyTriple.Predicate, 
+            out var sIri))
+        {
+            shortName = sIri.Split('.').Last();
+        }
+
+        ICimMetaClass? metaDatatype = null;
+        CimMetaPropertyKind cimMetaPropertyKind = CimMetaPropertyKind.NonStandard;
+        if (propertyTriple.Object is RdfTripleObjectLiteralContainer)
+        {
+            metaDatatype = Schema.TryGetResource<ICimMetaDatatype>(
+                new("http://www.w3.org/2001/XMLSchema#string"));
+
+            cimMetaPropertyKind = CimMetaPropertyKind.Attribute;
+        }
+        
+        if (propertyTriple.Object is RdfTripleObjectUriContainer)
+        {
+            metaDatatype = Schema.ResourceSuperClass;          
+
+            cimMetaPropertyKind = CimMetaPropertyKind.Assoc1ToM;
+        }
+
+        if (propertyTriple.Object is RdfTripleObjectStatementsContainer
+            statementsContainer)
+        {
+            var maybeCompound = statementsContainer.RdfNodesObject
+                .FirstOrDefault();
+            if (statementsContainer.RdfNodesObject.Count == 1 
+                && maybeCompound != null 
+                && maybeCompound.IsAuto)
+            {
+                var compundMetaClass = GetOrCreateAutoClass(
+                    maybeCompound.TypeIdentifier);
+                compundMetaClass.SetIsCompound(true);
+                
+                metaDatatype = compundMetaClass;
+
+                cimMetaPropertyKind = CimMetaPropertyKind.Attribute; 
+            }
+            else
+            {
+                metaDatatype = Schema.ResourceSuperClass;
+
+                cimMetaPropertyKind = CimMetaPropertyKind.Statements;
+            }
+        }
+
+        var newCimAutoProperty = new CimAutoProperty(
+            propertyTriple.Predicate, shortName, string.Empty)
+        {
+            OwnerClass = Schema.ResourceSuperClass
+        };
+        newCimAutoProperty.SetPropertyDatatype(metaDatatype);
+        newCimAutoProperty.SetPropertyKind(cimMetaPropertyKind);
+
+        _createdAutoPropertiesCache.Add(propIRI, newCimAutoProperty);
+
+        return newCimAutoProperty;
     }
 
     /// <summary>
@@ -484,16 +679,16 @@ public abstract class RdfSerializerBase : ICanLog
     {
         if (data is RdfTripleObjectStatementsContainer statements)
         {
-            var compundObjects = new List<IModelObject>();
+            var compoundObjects = new List<IModelObject>();
             foreach (var statement in statements.RdfNodesObject)
             {
                 var compoundObject = MakeCompoundPropertyObject(statement);
                 if (compoundObject != null)
                 {
-                    compundObjects.Add(compoundObject);
+                    compoundObjects.Add(compoundObject);
                 }
             }
-            return compundObjects;
+            return compoundObjects;
         }
         else if (data is RdfTripleObjectUriContainer uriContainer)
         {
@@ -504,6 +699,7 @@ public abstract class RdfSerializerBase : ICanLog
             return literalContainer.LiteralObject;
         }
 
+        // log
         return null;
     }
 
@@ -527,7 +723,7 @@ public abstract class RdfSerializerBase : ICanLog
             else
             {
                 _Log.NewMessage(
-                    $"Unnable to convert {data} value to {dataType.PrimitiveType.Name} for {property.ShortName} of instance {instance.Uuid}!", 
+                    $"Unnable to convert {data} value to {dataType.PrimitiveType.Name} for {property.ShortName} of instance {instance.OID}!", 
                     LogMessageSeverity.Error, string.Empty);
             }
         }
@@ -537,7 +733,7 @@ public abstract class RdfSerializerBase : ICanLog
                 data is ICollection<IModelObject> modelObjects
                 && modelObjects.Count == 1)
             {
-                endData = modelObjects.First();
+                endData = modelObjects.Single();
             }
             else if (dataClass.IsEnum
                 && data is Uri enumValueUri)
@@ -563,7 +759,7 @@ public abstract class RdfSerializerBase : ICanLog
                 else
                 {
                     _Log.NewMessage(
-                        $"Enum value {enumValueUri} of instance {instance.Uuid} does not exist in schema!", 
+                        $"Enum value {enumValueUri} of instance {instance.OID} does not exist in schema!", 
                         LogMessageSeverity.Error, string.Empty);
                 }
             }
@@ -578,7 +774,7 @@ public abstract class RdfSerializerBase : ICanLog
         }
         catch (Exception ex)
         {
-            _Log.NewMessage($"Failed set attribute to instance {instance.Uuid}", 
+            _Log.NewMessage($"Failed set attribute to instance {instance.OID}", 
                 LogMessageSeverity.Error, ex.Message);
         }
     }
@@ -628,11 +824,17 @@ public abstract class RdfSerializerBase : ICanLog
         if (referenceInstance == null)
         {
             referenceInstance = new ModelObjectUnresolvedReference
-                (referenceUuid, instance.MetaClass);
+                (referenceUuid, Schema.ResourceSuperClass);
 
-            _waitingReferenceObjectUuids.Add(instance.Uuid);
+            _waitingReferenceObjectUuids.Add(instance.OID);
         }
 
+        SetObjectDataAsAssociation(instance, property, referenceInstance);
+    }
+
+   private void SetObjectDataAsAssociation(IModelObject instance,
+        ICimMetaProperty property, IModelObject referenceInstance)
+    {
         try
         {
             if (property.PropertyKind == CimMetaPropertyKind.Assoc1To1)
@@ -648,7 +850,7 @@ public abstract class RdfSerializerBase : ICanLog
         }
         catch (Exception ex)
         {
-            _Log.NewMessage($"Failed set association to instance {instance.Uuid}", 
+            _Log.NewMessage($"Failed set association to instance {instance.OID}", 
                 LogMessageSeverity.Error, ex.Message);
         }
     }
@@ -681,6 +883,9 @@ public abstract class RdfSerializerBase : ICanLog
 
     private Dictionary<string, IModelObject> _objectsCache = [];
     private HashSet<string> _waitingReferenceObjectUuids = [];
+
+    private Dictionary<string, CimAutoClass> _createdAutoClassesCache = [];
+    private Dictionary<string, CimAutoProperty> _createdAutoPropertiesCache = [];
 
     private StreamReader? _streamReader;
     private StreamWriter? _streamWriter;

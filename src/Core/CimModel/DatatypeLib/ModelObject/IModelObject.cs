@@ -12,7 +12,7 @@ public interface IModelObject : INotifyPropertyChanged
     /// <summary>
     /// Neccesary object identifier.
     /// </summary>
-    public string Uuid { get; }
+    public string OID { get; }
 
     /// <summary>
     /// Schema meta class.
@@ -172,6 +172,11 @@ public interface IModelObject : INotifyPropertyChanged
     /// </summary>
     /// <param name="assocName">Assoc name in format of '(Domain.)Assoc'.</param>
     public void RemoveAllAssocs1ToM(string assocName);
+
+    /// <summary>
+    /// Event fires before changing property value.
+    /// </summary>
+    public event CanCancelPropertyChangingEventHandler? PropertyChanging;
 }
 
 /// <summary>
