@@ -88,21 +88,15 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
         get => GetParentClass();
         set
         {
-            if (_ParentClass == value)
+            var parentClass = GetParentClass();
+            if (parentClass != null)
             {
-                return;
+                _Ancestors.Remove(parentClass);
             }
 
-            if (_ParentClass != null)
+            if (value != null && _Ancestors.Contains(value) == false)
             {
-                _Ancestors.Remove(_ParentClass);
-            }
-
-            _ParentClass = value;
-
-            if (_ParentClass != null)
-            {
-                _Ancestors.Add(_ParentClass);
+                _Ancestors.Add(value);
             }
         }
     }
@@ -295,9 +289,7 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
         return individuals;
     }
 
-    protected List<ICimMetaClass> _Ancestors = [];
-
-    protected ICimMetaClass? _ParentClass;
+    protected HashSet<ICimMetaClass> _Ancestors = [];
 
     protected HashSet<ICimMetaProperty> _Properties = [];
     protected HashSet<ICimMetaIndividual> _Individuals = [];

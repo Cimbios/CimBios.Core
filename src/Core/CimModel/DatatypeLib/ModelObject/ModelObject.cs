@@ -1,15 +1,18 @@
-using System.ComponentModel;
 using CimBios.Core.CimModel.DatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
-public class ModelObject : DynamicModelObjectBase, IModelObject
+public class ModelObject : DynamicModelObjectBase, 
+    IModelObject, IStatementsContainer
 {
     public override string OID => _Oid;
     public override bool IsAuto => _isAuto;
     public override ICimMetaClass MetaClass => _MetaClass;
+
+    public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
+    Statements => _Statements.AsReadOnly();
 
     internal ModelObject(string oid, ICimMetaClass metaClass, 
         bool isAuto = false)
@@ -375,6 +378,40 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
 
     #endregion Assocs1MLogic
 
+    #region Statements
+
+    public void AddToStatements(ICimMetaProperty statementProperty,
+        IModelObject statement)
+    {
+        if (statementProperty.PropertyKind != CimMetaPropertyKind.Statements)
+        {
+            throw new ArgumentException(
+                $"Property {statementProperty.ShortName} is not statement!");
+        }
+
+        if (_Statements.TryGetValue(statementProperty, 
+            out var statements) == false)
+        {
+            _Statements.Add(statementProperty, 
+                new HashSet<IModelObject>() { statement });
+        }
+        else if (statements.Contains(statement) == false)
+        {
+            statements.Add(statement);
+        }
+    }
+
+    public void RemoveFromStatements(ICimMetaProperty statementProperty,
+        IModelObject statement)
+    {
+        if (_Statements.TryGetValue(statementProperty, 
+            out var statements))
+        {
+            statements.Remove(statement);
+        }
+    }
+    #endregion Statements
+
     #region UtilsPrivate
 
     /// <summary>
@@ -592,6 +629,9 @@ public class ModelObject : DynamicModelObjectBase, IModelObject
 
     private ICimMetaClass _MetaClass;
     private readonly Dictionary<ICimMetaProperty, object?> _PropertiesData;
+
+    private readonly Dictionary<ICimMetaProperty, ICollection<IModelObject>> 
+    _Statements = [];
 }
 
 public class ModelObjectFactory : IModelObjectFactory

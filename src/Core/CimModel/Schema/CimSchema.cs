@@ -39,7 +39,6 @@ public class CimSchema : ICimSchema
             rdfsReourceUri, "Resource", "Root rdfs:Resource meta instance.");
         resourceSuperClass.SetIsAbstract(true);
         _ResourceSuperClass = resourceSuperClass;
-        _All.Add(rdfsReourceUri, _ResourceSuperClass);
     }
 
     public CimSchema(ICimSchemaSerializerFactory serializerFactory)
@@ -61,6 +60,7 @@ public class CimSchema : ICimSchema
         _Serializer.Load(textReader);
 
         _All = _Serializer.Deserialize();
+        _All.Add(_ResourceSuperClass.BaseUri, _ResourceSuperClass);
         _Namespaces = _Serializer.Namespaces.ToDictionary();
 
         if (TieSameNameEnums)
@@ -338,15 +338,21 @@ public class CimSchema : ICimSchema
         {
             if (_All.ContainsKey(metaClass.BaseUri) == false)
             {
-                if (metaClass.ParentClass != null)
+                if (metaClass.ParentClass != null 
+                    && !metaClass.ParentClass.Equals(ResourceSuperClass))
                 {
                     var parentLeftClass = TryGetResource<ICimMetaClass>
                         (metaClass.ParentClass.BaseUri);
                         
-                    if (parentLeftClass != null)
+                    if (parentLeftClass != null &&
+                        !parentLeftClass.Equals(ResourceSuperClass))
                     {
                         metaClass.ParentClass = parentLeftClass;
                     }
+                }
+                else
+                {
+                    metaClass.ParentClass = ResourceSuperClass;
                 }
                 
                 _All.Add(metaClass.BaseUri, metaClass);
@@ -363,8 +369,9 @@ public class CimSchema : ICimSchema
 
             if (thisMetaClass != null)
             {
-                if (thisMetaClass.ParentClass == null 
-                    && metaClass.ParentClass != null)
+                if (thisMetaClass.ParentClass == ResourceSuperClass 
+                    && metaClass.ParentClass != null
+                    && !metaClass.ParentClass.Equals(ResourceSuperClass))
                 {
                     addClassDelegate(metaClass.ParentClass);
                     thisMetaClass.ParentClass = metaClass.ParentClass;                    

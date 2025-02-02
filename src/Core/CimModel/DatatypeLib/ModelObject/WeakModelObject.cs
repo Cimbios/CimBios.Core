@@ -5,7 +5,7 @@ using CimBios.Core.CimModel.Schema.AutoSchema;
 namespace CimBios.Core.CimModel.DatatypeLib;
 
 public class WeakModelObject : DynamicModelObjectBase, 
-    IModelObject//, IStatementsContainer
+    IModelObject, IStatementsContainer
 {
     public override string OID => _Oid;
 
@@ -13,7 +13,10 @@ public class WeakModelObject : DynamicModelObjectBase,
 
     public override bool IsAuto => _IsAuto;
 
-    public WeakModelObject(string oid, CimAutoClass metaClass, bool isAuto)
+    public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
+    Statements => _Statements.AsReadOnly();
+
+    internal WeakModelObject(string oid, CimAutoClass metaClass, bool isAuto)
         : base()
     {
         _Oid = oid;
@@ -89,7 +92,7 @@ public class WeakModelObject : DynamicModelObjectBase,
         if (value is not string 
             && value != null
             && !value.GetType().IsPrimitive
-            && !typeof(T).IsAssignableTo(typeof(IModelObject)))
+            && !typeof(T).IsAssignableFrom(typeof(IModelObject)))
         {
             throw new ArgumentException(
                 $"Attribute {metaProperty.ShortName} can not be assigning by value of type {typeof(T).Name}!");
@@ -358,12 +361,45 @@ public class WeakModelObject : DynamicModelObjectBase,
         RemoveAllAssocs1ToM(assocName);
     }
 
+    public void AddToStatements(ICimMetaProperty statementProperty,
+        IModelObject statement)
+    {
+        if (statementProperty.PropertyKind != CimMetaPropertyKind.Statements)
+        {
+            throw new ArgumentException(
+                $"Property {statementProperty.ShortName} is not statement!");
+        }
+
+        if (_Statements.TryGetValue(statementProperty, 
+            out var statements) == false)
+        {
+            _Statements.Add(statementProperty, 
+                new HashSet<IModelObject>() { statement });
+        }
+        else if (statements.Contains(statement) == false)
+        {
+            statements.Add(statement);
+        }
+    }
+
+    public void RemoveFromStatements(ICimMetaProperty statementProperty,
+        IModelObject statement)
+    {
+        if (_Statements.TryGetValue(statementProperty, 
+            out var statements))
+        {
+            statements.Remove(statement);
+        }
+    }
+
     private string _Oid;
     private CimAutoClass _MetaClass;
     private bool _IsAuto;
 
     private readonly Dictionary<ICimMetaProperty, object?> _PropertiesData = [];
 
+    private readonly Dictionary<ICimMetaProperty, ICollection<IModelObject>> 
+    _Statements = [];
 }
 
 public class WeakModelObjectFactory : IModelObjectFactory

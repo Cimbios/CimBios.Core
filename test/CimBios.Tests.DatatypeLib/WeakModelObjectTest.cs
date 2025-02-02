@@ -100,10 +100,10 @@ public class WeakModelObjectTests
             .GetObject<WeakModelObject>("currenttransformer1");
             
         var checkCompound = checkObject?
-            .GetAssoc1ToM("CompoundProperty");
+            .GetAttribute<IModelObject>("CompoundProperty");
 
-        Assert.IsType<WeakModelObject>(checkCompound?.First());
-        Assert.True(checkCompound?.First().IsAuto);
+        Assert.IsType<WeakModelObject>(checkCompound);
+        Assert.True(checkCompound.IsAuto);
     }
 
     private static ICimDataModel CreateCimModelInstance(string modelPath, 
