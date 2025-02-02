@@ -16,6 +16,7 @@
     <ProjectReference Include="../../src/Core/CimModel/DatatypeLib/CimBios.Core.CimModel.DatatypeLib.csproj" />
     <ProjectReference Include="..\..\src\Core\CimModel\DataModel\CimBios.Core.CimModel.DataModel.csproj" />
     <ProjectReference Include="../../src/Core/CimModel/RdfSerializer/CimBios.Core.CimModel.RdfSerializer.csproj" />
+    <ProjectReference Include="..\..\src\Core\CimModel\DataModel\CimBios.Core.CimModel.DataModel.csproj" />
     <ProjectReference Include="..\..\src\Core\CimModel\Validation\CimBios.Core.CimModel.Validation.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -31,11 +31,14 @@ public abstract class ValidationRuleBase : IValidationRule
             case CimMetaPropertyKind.Attribute:
                 return modelObject.
                     GetAttribute(property);
+            case CimMetaPropertyKind.Assoc1To1:
+                return modelObject.
+                    GetAssoc1ToM(property);
             case CimMetaPropertyKind.Assoc1ToM:
                 return modelObject.
-                    GetAssoc1ToM(property).FirstOrDefault();
+                    GetAssoc1ToM(property);
         }
-        
+
         return null;
     }
 }
