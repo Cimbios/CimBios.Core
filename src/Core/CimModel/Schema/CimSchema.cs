@@ -404,19 +404,19 @@ public class CimSchema : ICimSchema
             if (_All.ContainsKey(metaProperty.BaseUri) == false)
             {
                 _All.Add(metaProperty.BaseUri, metaProperty);
-
-                if (metaProperty.OwnerClass != null)
-                {
-                    var ownerLeftClass = TryGetResource<ICimMetaClass>
-                        (metaProperty.OwnerClass.BaseUri); 
-
-                    if (ownerLeftClass is ICimMetaExtensible extClass)
-                    {
-                        extClass.RemoveProperty(metaProperty);
-                        extClass.AddProperty(metaProperty);
-                    }
-                }   
             }
+
+            if (metaProperty.OwnerClass != null)
+            {
+                var ownerLeftClass = TryGetResource<ICimMetaClass>
+                    (metaProperty.OwnerClass.BaseUri);
+
+                if (ownerLeftClass is ICimMetaExtensible extClass)
+                {
+                    extClass.RemoveProperty(metaProperty);
+                    extClass.AddProperty(metaProperty);
+                }
+            }   
         }  
     }
 
