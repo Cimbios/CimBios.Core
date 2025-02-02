@@ -52,7 +52,7 @@ public class CimRdfsClass : CimMetaClassBase,
         "http://www.w3.org/2000/01/rdf-schema#subClassOf",
         MetaFieldType.ByRef, isCollection: true)
     ]
-    public List<ICimMetaClass> SubClassOf 
+    public HashSet<ICimMetaClass> SubClassOf 
     { 
         get => _Ancestors;
         set => _Ancestors = value;

@@ -23,5 +23,5 @@ public interface IStatementsContainer
         IModelObject statement);
 
     public void RemoveFromStatements(ICimMetaProperty statementProperty,
-        IModelObject statements);
+        IModelObject statement);
 }
