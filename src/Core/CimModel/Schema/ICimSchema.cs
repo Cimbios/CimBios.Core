@@ -1,3 +1,4 @@
+using System.Xml.Serialization;
 using CimBios.Utils.ClassTraits;
 
 namespace CimBios.Core.CimModel.Schema;
@@ -45,6 +46,11 @@ public interface ICimSchema : ICanLog
     /// Tie all same name enums in one via extension link.
     /// </summary>
     public bool TieSameNameEnums { get; set; }
+
+    /// <summary>
+    /// Resource super class for all objective classes.
+    /// </summary>
+    public ICimMetaClass ResourceSuperClass { get; }
 
     /// <summary>
     /// Load RDFS schema content via text reader.
@@ -118,6 +124,11 @@ public interface ICimSchema : ICanLog
     /// <param name="uri">Object uri.</param>
     /// <returns>String prefix or '_' if namespace does not exists.</returns>
     public string GetUriNamespacePrefix(Uri uri);
+
+    /// <summary>
+    /// Clear no reference (auto created) auto meta types from schema.
+    /// </summary>
+    public void InvalidateAuto();
 }
 
 /// <summary>

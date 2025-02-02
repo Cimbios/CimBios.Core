@@ -153,7 +153,7 @@ public class CimDatatypeLib : ICimDatatypeLib
         string uuid, ICimMetaClass metaClass, bool isAuto)
     {
         if (RegisteredTypes.TryGetValue(metaClass.BaseUri, out var type)
-            && type.IsAssignableFrom(modelObjectFactory.ProduceType))
+            && type.IsAssignableTo(modelObjectFactory.ProduceType))
         {
             return Activator.CreateInstance(type, uuid, 
                 metaClass, isAuto) as IModelObject;

@@ -77,7 +77,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
                 && typeInfo != null)
             {
                 if (Activator.CreateInstance(typeInfo, node.Identifier) 
-                    is CimRdfDescriptionBase instance)
+                    is ICimRdfDescription instance)
                 {
                     _ObjectsCache.Add(node.Identifier, instance);
                 }
@@ -117,7 +117,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
             _ObjectsCache.Add(node.Identifier, 
                 new CimRdfsIndividual(node.Identifier)
             {
-                EquivalentClass = metaClass
+                InstanceOf = metaClass
             });
         }
     }
@@ -132,7 +132,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
         {
             if (_ObjectsCache.TryGetValue(node.Identifier, 
                     out ICimMetaResource? metaDescription) == false
-                || metaDescription is CimRdfDescriptionBase == false)
+                || metaDescription is ICimRdfDescription == false)
             {
                 continue;
             }
@@ -212,6 +212,14 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
 
             _ObjectsCache.Add(metaDatatype.BaseUri, metaDatatype);
         }
+
+        // Build rdf:Statement
+        var rdfStatement = new CimRdfsClass(CimRdfSchemaStrings.RdfStatement)
+        {
+            Label = "Statement",
+        };
+        rdfStatement.Stereotypes.Add(UMLStereotype.CIMAbstract);
+        _ObjectsCache.Add(rdfStatement.BaseUri, rdfStatement);
     }
 
     /// <summary>
@@ -281,6 +289,8 @@ public static class CimRdfSchemaStrings
         new("http://www.w3.org/2000/01/rdf-schema#Class");
     public static Uri RdfProperty = 
         new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property");
+    public static Uri RdfStatement = 
+        new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement");
 }
 
 public class CimRdfSchemaSerializerFactory(RdfReaderBase rdfReader)

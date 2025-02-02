@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Reflection;
 
 namespace CimBios.Utils.MetaReflectionHelper;
@@ -113,10 +114,12 @@ public class MetaReflectionHelper
     {
         if (member is PropertyInfo propertyInfo)
         {
-            if (propertyInfo.GetValue(descriptionClass) 
-                is ICollection<T> collection)
+            if (typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType)
+                && typeof(T) != typeof(string))
             {
-                collection.Add(value);
+                var propValue = propertyInfo.GetValue(descriptionClass);
+                var addMethod = propertyInfo.PropertyType.GetMethod("Add");
+                addMethod!.Invoke(propValue, [value]);
             }
             else
             {
@@ -128,13 +131,11 @@ public class MetaReflectionHelper
     /// <summary>
     /// Collected serializable types.
     /// </summary>
-    private Dictionary<string, TypeInfo> _Types { get; }
-        = new Dictionary<string, TypeInfo>();
+    private Dictionary<string, TypeInfo> _Types { get; } = [];
 
     /// <summary>
     /// Collected serializable members.
     /// </summary>
-    private Dictionary<string, MemberInfo> _Members { get; }
-        = new Dictionary<string, MemberInfo>();
+    private Dictionary<string, MemberInfo> _Members { get; } = [];
 
 }

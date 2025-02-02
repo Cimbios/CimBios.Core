@@ -8,7 +8,7 @@ public class CimObjectDataTreeModel : TreeViewNodeModel
 {
     public IModelObject ModelObject { get; set; }
 
-    public string Uuid { get => ModelObject.Uuid; }
+    public string Uuid { get => ModelObject.OID; }
 
     public string Name 
     {
