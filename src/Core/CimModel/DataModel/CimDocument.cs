@@ -32,8 +32,15 @@ public class CimDocument : ICimDataModel
         _Objects = [];
 
         _serializer = new RdfXmlSerializer(
-            new CimAutoSchemaXmlFactory().CreateSchema(), 
-            new CimDatatypeLib.CimDatatypeLib());
+            new CimRdfSchemaXmlFactory().CreateSchema(), 
+            new CimDatatypeLib.CimDatatypeLib())
+            {
+                Settings = new RdfSerializerSettings()
+                {
+                    UnknownClassesAllowed = true,
+                    UnknownPropertiesAllowed = true
+                }
+            };
     }
 
     public CimDocument(RdfSerializerBase rdfSerializer)
