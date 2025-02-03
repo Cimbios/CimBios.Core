@@ -1,9 +1,9 @@
-namespace CimBios.Core.CimDifferenceManager;
+namespace CimBios.Core.CimDifferenceModel;
 
 /// <summary>
 /// 
 /// </summary>
-public interface IDifferenceManager
+public interface IDifferenceModel
 {
     // forward
     // reference
