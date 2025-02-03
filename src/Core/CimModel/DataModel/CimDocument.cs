@@ -4,7 +4,7 @@ using System.Text;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Core.CimModel.Schema.AutoSchema;
+using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Utils.ClassTraits;
 
 namespace CimBios.Core.CimModel.CimDataModel;
