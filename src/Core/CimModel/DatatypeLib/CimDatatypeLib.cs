@@ -13,7 +13,7 @@ public interface ICimDatatypeLib : ICanLog
     /// <summary>
     /// Dictionary Uri to Type of IModelObject concrete classes.
     /// </summary>
-    public Dictionary<Uri, System.Type> RegisteredTypes { get; }
+    public IReadOnlyDictionary<Uri, System.Type> RegisteredTypes { get; }
 
     /// <summary>
     /// Load assembly by file path.
@@ -54,8 +54,9 @@ public class CimDatatypeLib : ICimDatatypeLib
     /// <summary>
     /// Runtime attached typelib assemblies.
     /// </summary>
-    public HashSet<Assembly> LoadedAssemblies => _LoadedAssemblies;
-    public Dictionary<Uri, System.Type> RegisteredTypes => _RegisteredTypes;
+    public ICollection<Assembly> LoadedAssemblies => _LoadedAssemblies;
+    public IReadOnlyDictionary<Uri, System.Type> RegisteredTypes 
+        => _RegisteredTypes.AsReadOnly();
 
     public ILogView Log => _Log;
 
@@ -128,9 +129,11 @@ public class CimDatatypeLib : ICimDatatypeLib
             return;
         }
 
+        var typeUri = new Uri(attribute.AbsoluteUri);
+
         if (type.IsEnum)
         {
-            _RegisteredTypes.Add(new Uri(attribute.AbsoluteUri), type);
+            _RegisteredTypes.Add(typeUri, type);
             return;
         }
 
@@ -146,7 +149,14 @@ public class CimDatatypeLib : ICimDatatypeLib
             return;
         }
 
-        _RegisteredTypes.Add(new Uri(attribute.AbsoluteUri), type);
+        if (_RegisteredTypes.ContainsKey(typeUri))
+        {
+            _RegisteredTypes[typeUri] = type;
+        }
+        else
+        {
+            _RegisteredTypes.Add(typeUri, type);
+        }
     }
 
     public IModelObject? CreateInstance(IModelObjectFactory modelObjectFactory,
@@ -171,6 +181,7 @@ public class CimDatatypeLib : ICimDatatypeLib
 
     private PlainLogView _Log;
 }
+
 
 /// <summary>
 /// Attribute for mark CIM concrete class type.
