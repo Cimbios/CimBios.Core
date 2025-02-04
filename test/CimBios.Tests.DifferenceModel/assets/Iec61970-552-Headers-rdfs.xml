@@ -1,0 +1,123 @@
+<rdf:RDF 
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+  xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" 
+  xmlns:uml="http://langdale.com.au/2005/UML#" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema#" 
+  xmlns:cim="http://iec.ch/TC57/2014/CIM-schema-cim16#" 
+  xmlns:rf="http://gost.ru/2019/schema-cim01#"
+  xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" 
+  xmlns:dm="http://iec.ch/TC57/61970-552/DifferenceModel/1#" 
+  xml:base="http://cim.bios/Profiles/v1">
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>DifferenceModel</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_DifferenceModel"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/DifferenceModel/1#forwardDifferences">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>forwardDifferences</rdfs:label>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel"/>
+		<rdfs:range rdf:resource="rdf:Statement"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/DifferenceModel/1#reverseDifferences">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>reverseDifferences</rdfs:label>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel"/>
+		<rdfs:range rdf:resource="rdf:Statement"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#FullModel">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>FullModel</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_ModelDescription"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Model</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_ModelDescription"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.DependentOn">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>DependentOn</rdfs:label>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.SupersededBy">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>SupersededBy</rdfs:label>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.created">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>created</rdfs:label>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.description">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>description</rdfs:label>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.modelingAuthoritySet">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>modelingAuthoritySet</rdfs:label>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+		<rdfs:range rdf:resource="#URI"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.profile">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>profile</rdfs:label>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+		<rdfs:range rdf:resource="#URI"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.scenarioTime">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>scenarioTime</rdfs:label>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.version">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>version</rdfs:label>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="URI">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>URI</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_Part552 Headers">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>Part552 Headers</rdfs:label>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_DifferenceModel">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>DifferenceModel</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_Part552 Headers"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Package_ModelDescription">
+		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
+		<rdfs:label>ModelDescription</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_Part552 Headers"/>
+	</rdf:Description>
+</rdf:RDF>
