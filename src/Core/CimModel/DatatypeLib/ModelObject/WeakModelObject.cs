@@ -98,13 +98,15 @@ public class WeakModelObject : DynamicModelObjectBase,
                 $"Attribute {metaProperty.ShortName} can not be assigning by value of type {typeof(T).Name}!");
         }
 
-        if (CanChangeProperty(metaProperty) == false)
+        if (CanChangeProperty(metaProperty, value) == false)
         {
             return;
         }
 
+        object? old = null;
         if (_PropertiesData.ContainsKey(metaProperty))
         {
+            old = _PropertiesData[metaProperty];
             _PropertiesData[metaProperty] = value;
         }
         else
@@ -118,8 +120,8 @@ public class WeakModelObject : DynamicModelObjectBase,
             _MetaClass.AddProperty(metaProperty);
         }
 
-        OnPropertyChanged(new 
-            CimMetaPropertyChangedEventArgs(metaProperty));
+        OnPropertyChanged(new CimMetaAttributeChangedEventArgs(
+            metaProperty, old, value));
     }
 
     public override void SetAttribute<T>(string attributeName, 
@@ -246,7 +248,7 @@ public class WeakModelObject : DynamicModelObjectBase,
                 $"Property {metaProperty.ShortName} is not association!");
         }
 
-        if (CanChangeProperty(metaProperty) == false)
+        if (CanChangeProperty(metaProperty, obj) == false)
         {
             return;
         }
@@ -269,8 +271,8 @@ public class WeakModelObject : DynamicModelObjectBase,
             _MetaClass.AddProperty(metaProperty);
         }
 
-        OnPropertyChanged(new 
-            CimMetaPropertyChangedEventArgs(metaProperty));
+        OnPropertyChanged(new CimMetaAssocChangedEventArgs(
+            metaProperty, null, obj));
     }
 
     public override void AddAssoc1ToM(string assocName, IModelObject obj)
@@ -300,7 +302,7 @@ public class WeakModelObject : DynamicModelObjectBase,
                 $"Property {metaProperty.ShortName} is not association!");
         }
 
-        if (CanChangeProperty(metaProperty) == false)
+        if (CanChangeProperty(metaProperty, obj, true) == false)
         {
             return;
         }
@@ -311,8 +313,8 @@ public class WeakModelObject : DynamicModelObjectBase,
         {
             dataCollection.Remove(obj);
         
-            OnPropertyChanged(new 
-                CimMetaPropertyChangedEventArgs(metaProperty));
+            OnPropertyChanged(new CimMetaAssocChangedEventArgs(
+                metaProperty, obj, null));
         }
     }
 
@@ -335,18 +337,13 @@ public class WeakModelObject : DynamicModelObjectBase,
                 $"Property {metaProperty.ShortName} is not association!");
         }
 
-        if (CanChangeProperty(metaProperty) == false)
-        {
-            return;
-        }
-
         if (_PropertiesData.TryGetValue(metaProperty, out var data)
             && data is ICollection<IModelObject> dataCollection) 
         {
-            dataCollection.Clear();
-        
-            OnPropertyChanged(new 
-                CimMetaPropertyChangedEventArgs(metaProperty));
+            foreach (var assocObject in dataCollection)
+            {
+                RemoveAssoc1ToM(metaProperty, assocObject);
+            }
         }
     }
 
