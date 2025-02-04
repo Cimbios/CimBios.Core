@@ -146,11 +146,28 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         PropertyChanging?.Invoke(this, args);
     }    
 
-    protected bool CanChangeProperty(ICimMetaProperty metaProperty)
+    protected bool CanChangeProperty(ICimMetaProperty metaProperty, 
+        object? newValue, bool? isRemove = null)
     {
         if (PropertyChanging != null)
         {
-            var arg = new CanCancelPropertyChangingEventArgs(metaProperty, false);
+            CanCancelPropertyChangingEventArgs arg;
+            if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
+            {
+                arg = new CanCancelAttributeChangingEventArgs(metaProperty, 
+                    newValue);
+            }
+            else if ((metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
+                || metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+                && newValue is IModelObject modelObject)
+            {
+                arg = new CanCancelAssocChangingEventArgs(metaProperty, 
+                    modelObject, isRemove ?? false);
+            }
+            else
+            {
+                return false;
+            }
 
             PropertyChanging.Invoke(this, arg);
             
