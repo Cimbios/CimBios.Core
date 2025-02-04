@@ -84,7 +84,7 @@ public class ModelObject : DynamicModelObjectBase,
         ValidatePropertyValueAssignition(metaProperty, 
             value, CimMetaPropertyKind.Attribute);
 
-        if (CanChangeProperty(metaProperty) == false)
+        if (CanChangeProperty(metaProperty, value) == false)
         {
             return;
         }
@@ -102,20 +102,18 @@ public class ModelObject : DynamicModelObjectBase,
                 return;
             }
 
+            var old = _PropertiesData[metaProperty];
             if (value == null)
             {
                 _PropertiesData.Remove(metaProperty);
-
-                OnPropertyChanged(new 
-                    CimMetaPropertyChangedEventArgs(metaProperty));
             }
             else
             {
                 _PropertiesData[metaProperty] = value;
-
-                OnPropertyChanged(new 
-                    CimMetaPropertyChangedEventArgs(metaProperty));
             }
+
+            OnPropertyChanged(new CimMetaAttributeChangedEventArgs(
+                metaProperty, old, value));
         }
         else
         {
@@ -131,6 +129,7 @@ public class ModelObject : DynamicModelObjectBase,
         if (metaProperty != null)
         {
             SetAttribute<T>(metaProperty, value);
+            return;
         }
 
         throw new ArgumentException(
@@ -172,14 +171,21 @@ public class ModelObject : DynamicModelObjectBase,
         ValidatePropertyValueAssignition(metaProperty, 
             obj, CimMetaPropertyKind.Assoc1To1);
 
-        if (CanChangeProperty(metaProperty) == false)
+        if (CanChangeProperty(metaProperty, obj) == false)
         {
             return;
         }
 
-        if (obj != null && _PropertiesData.ContainsKey(metaProperty) == false)
+        if (_PropertiesData.ContainsKey(metaProperty) == false)
         {
-            _PropertiesData.Add(metaProperty, null);
+            if (obj != null)
+            {
+                _PropertiesData.Add(metaProperty, null);
+            }
+            else
+            {
+                return;
+            }
         }
 
         if (_PropertiesData.ContainsKey(metaProperty))
@@ -198,7 +204,8 @@ public class ModelObject : DynamicModelObjectBase,
                 _PropertiesData.Remove(metaProperty);
             }
 
-            OnPropertyChanged(new CimMetaPropertyChangedEventArgs(metaProperty));
+            OnPropertyChanged(new CimMetaAssocChangedEventArgs(
+                metaProperty, assocObj, obj));
         }
         else
         {
@@ -207,7 +214,7 @@ public class ModelObject : DynamicModelObjectBase,
         }
      }
 
-    public  override void SetAssoc1To1(string assocName, IModelObject? obj)
+    public override void SetAssoc1To1(string assocName, IModelObject? obj)
     {
         var metaProperty = TryGetMetaPropertyByName(assocName);
         if (metaProperty != null)
@@ -264,6 +271,11 @@ public class ModelObject : DynamicModelObjectBase,
         ValidatePropertyValueAssignition(metaProperty, 
             obj, CimMetaPropertyKind.Assoc1ToM);
 
+        if (CanChangeProperty(metaProperty, obj, false) == false)
+        {
+            return;
+        }
+
         if (_PropertiesData.ContainsKey(metaProperty) == false)
         {
             _PropertiesData.Add(metaProperty, new HashSet<IModelObject>());
@@ -279,8 +291,8 @@ public class ModelObject : DynamicModelObjectBase,
 
             SetAssociationWithInverse(metaProperty, null, obj);
 
-            OnPropertyChanged(new 
-                CimMetaPropertyChangedEventArgs(metaProperty));
+            OnPropertyChanged(new CimMetaAssocChangedEventArgs(
+                metaProperty, null, obj));
         }
         else
         {
@@ -305,7 +317,12 @@ public class ModelObject : DynamicModelObjectBase,
 
     public override void RemoveAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj)
-    {
+    {       
+        if (CanChangeProperty(metaProperty, obj, true) == false)
+        {
+            return;
+        }
+
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
             && _PropertiesData.TryGetValue(metaProperty, out var value)
             && value is ICollection<IModelObject> assocCollection)
@@ -317,8 +334,8 @@ public class ModelObject : DynamicModelObjectBase,
             
             SetAssociationWithInverse(metaProperty, obj, null);
                             
-            OnPropertyChanged(new 
-                CimMetaPropertyChangedEventArgs(metaProperty));
+            OnPropertyChanged(new CimMetaAssocChangedEventArgs(
+                metaProperty, obj, null));
         }
         else
         {
@@ -343,17 +360,20 @@ public class ModelObject : DynamicModelObjectBase,
 
     public override void RemoveAllAssocs1ToM(ICimMetaProperty metaProperty)
     {
+        if (MetaClass.AllProperties.Contains(metaProperty) == true
+            && _PropertiesData.ContainsKey(metaProperty) == false)
+        {
+            return;
+        }
+
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
             && _PropertiesData.TryGetValue(metaProperty, out var value)
             && value is ICollection<IModelObject> assocCollection)
         {
             foreach (var assocObject in assocCollection)   
             {
-                SetAssociationWithInverse(metaProperty, assocObject, null);
+                RemoveAssoc1ToM(metaProperty, assocObject);
             }     
-
-            OnPropertyChanged(
-                new CimMetaPropertyChangedEventArgs(metaProperty));
         }
         else
         {
@@ -577,7 +597,6 @@ public class ModelObject : DynamicModelObjectBase,
             _PropertiesData[metaProperty] = newObj;
         }
         else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
-            && newObj != null
             && _PropertiesData[metaProperty] 
                 is ICollection<IModelObject> assocCollection)
         {
