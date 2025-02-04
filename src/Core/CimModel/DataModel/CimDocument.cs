@@ -1,7 +1,9 @@
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Data;
 using System.Text;
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
@@ -21,6 +23,9 @@ public class CimDocument : ICimDataModel
 
     public ICimSchema? Schema => _serializer?.Schema;
 
+    public IReadOnlyCollection<ICimDataModelChangeStatement> Changes
+        => _ChangesCache.Reverse().ToArray();
+
     /// <summary>
     /// All cached objects collection (uuid to IModelObject).
     /// </summary>
@@ -30,6 +35,7 @@ public class CimDocument : ICimDataModel
     {
         _Log = new PlainLogView(this);
         _Objects = [];
+        _ChangesCache = [];
 
         _serializer = new RdfXmlSerializer(
             new CimRdfSchemaXmlFactory().CreateSchema(), 
@@ -47,6 +53,7 @@ public class CimDocument : ICimDataModel
     {
         _Log = new PlainLogView(this);
         _Objects = [];
+        _ChangesCache = [];
 
         _serializer = rdfSerializer;
     }
@@ -68,8 +75,14 @@ public class CimDocument : ICimDataModel
 
         try
         {
+            _ChangesCache = [];
             var serialized = _serializer.Deserialize(streamReader);
             _Objects = serialized.ToDictionary(k => k.OID, v => v);
+
+            foreach (var obj in _Objects.Values)
+            {
+                obj.PropertyChanged += OnModelObjectPropertyChanged;
+            }
         }
         catch (Exception ex)
         {
@@ -163,9 +176,9 @@ public class CimDocument : ICimDataModel
         return _Objects.Values.Where(o => o.MetaClass == metaClass);
     }
 
-    public IModelObject? GetObject(string uuid)
+    public IModelObject? GetObject(string oid)
     {
-        if (_Objects.TryGetValue(uuid, out var instance)
+        if (_Objects.TryGetValue(oid, out var instance)
             && !instance.IsAuto
             && !instance.MetaClass.IsCompound)
         {
@@ -177,9 +190,9 @@ public class CimDocument : ICimDataModel
         }
     }
 
-    public T? GetObject<T>(string uuid) where T : IModelObject
+    public T? GetObject<T>(string oid) where T : IModelObject
     {
-        IModelObject? modelObject = GetObject(uuid);
+        IModelObject? modelObject = GetObject(oid);
         if (modelObject != null && modelObject is T typedObject)
         {
             return typedObject;
@@ -188,9 +201,22 @@ public class CimDocument : ICimDataModel
         return default;
     }
 
-    public bool RemoveObject(string uuid)
+    public bool RemoveObject(string oid)
     {
-        return _Objects.Remove(uuid);
+        if (_Objects.TryGetValue(oid, out var removingObject)
+            && _Objects.Remove(oid) == true)
+        {
+            UnlinkAllModelObjectAssocs(removingObject);
+
+            removingObject.PropertyChanged -= OnModelObjectPropertyChanged;
+
+            OnModelObjectStorageChanged(removingObject, 
+                CimDataModelObjectStorageChangeType.Remove);
+
+            return true;
+        }
+
+        return false;
     }
 
     public bool RemoveObject(IModelObject modelObject)
@@ -204,6 +230,56 @@ public class CimDocument : ICimDataModel
         {
             RemoveObject(modelObject);
         }
+    }
+
+    public IModelObject CreateObject(string oid, ICimMetaClass metaClass)
+    {
+        if (oid.Length == 0)
+        {
+            throw new ArgumentException("OID cannot be empty!");
+        }       
+
+        if (_Objects.ContainsKey(oid))
+        {
+            throw new ArgumentException($"Object with OID:{oid} already exists!");
+        }
+
+        var instance = _serializer.TypeLib.CreateInstance(
+            new ModelObjectFactory(), oid, metaClass, false);
+
+        if (instance == null)
+        {
+            throw new NotSupportedException("TypeLib instance creation failed!");
+        }
+
+        _Objects.Add(instance.OID, instance);
+        instance.PropertyChanged += OnModelObjectPropertyChanged;
+
+        OnModelObjectStorageChanged(instance, 
+            CimDataModelObjectStorageChangeType.Add);
+
+        return instance;
+    }
+
+    public event CimDataModelObjectPropertyChangedEventHandler? 
+        ModelObjectPropertyChanged;
+    public event CimDataModelObjectStorageChangedEventHandler? 
+        ModelObjectStorageChanged;
+
+
+    public void DiscardLastChange()
+    {
+        throw new NotImplementedException();
+    }
+    
+    public void DiscardAllChanges()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void CommitAllChanges()
+    {
+        _ChangesCache.Clear();
     }
 
     /// <summary>
@@ -230,9 +306,93 @@ public class CimDocument : ICimDataModel
         }
     }
 
+    private void OnModelObjectPropertyChanged(object? sender, 
+        PropertyChangedEventArgs e)
+    {
+        if (sender is not IModelObject modelObject
+            || e is not CimMetaPropertyChangedEventArgs cimEv)
+        {
+            return;
+        }
+
+        var updateStatement = new CimDataModelObjectUpdatedStatement(
+            modelObject, cimEv);
+
+        if (_ChangesCache.TryPeek(out var lastChange)
+            && lastChange.ModelObject == modelObject
+            && lastChange is CimDataModelObjectUpdatedStatement luStatement)
+        {
+             // Discarding last change.
+            if (luStatement.NewValue == updateStatement.OldValue
+                && luStatement.OldValue == updateStatement.NewValue)
+            {
+                _ChangesCache.Pop();
+                return;
+            }
+        }
+
+        _ChangesCache.Push(updateStatement);
+
+        ModelObjectPropertyChanged?.Invoke(this, modelObject, cimEv);
+    }
+
+    private void OnModelObjectStorageChanged(IModelObject modelObject,
+        CimDataModelObjectStorageChangeType changeType)
+    {
+        if (modelObject.IsAuto)
+        {
+            return;
+        }
+
+        if (_ChangesCache.TryPeek(out var lastChange)
+            && lastChange.ModelObject == modelObject)
+        {
+            // Discarding last change.
+            if ((lastChange is CimDataModelObjectAddedStatement
+                    && changeType == CimDataModelObjectStorageChangeType.Remove)
+                || (lastChange is CimDataModelObjectRemovedStatement
+                    && changeType == CimDataModelObjectStorageChangeType.Add))
+            {
+                _ChangesCache.Pop();
+                return;
+            }
+        }
+
+        if (changeType == CimDataModelObjectStorageChangeType.Add)
+        {
+            _ChangesCache.Push(
+                new CimDataModelObjectAddedStatement(modelObject));
+        }
+        if (changeType == CimDataModelObjectStorageChangeType.Remove)
+        {
+            _ChangesCache.Push(
+                new CimDataModelObjectRemovedStatement(modelObject));
+        }
+
+        ModelObjectStorageChanged?.Invoke(this, modelObject, 
+            new CimDataModelObjectStorageChangedEventArgs(changeType));
+    }
+
+    private static void UnlinkAllModelObjectAssocs(IModelObject modelObject)
+    {
+        foreach (var assoc in modelObject.MetaClass.AllProperties)
+        {
+            if (assoc.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+            {
+                modelObject.SetAssoc1To1(assoc, null);
+            }
+            else if (assoc.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+            {
+                modelObject.RemoveAllAssocs1ToM(assoc);
+            }
+        }
+    }
+
     private RdfSerializerBase _serializer;
 
     private PlainLogView _Log;
 
     private FullModel? _Description = null;
+
+    private Stack<ICimDataModelChangeStatement> _ChangesCache = [];
 }
