@@ -14,7 +14,7 @@ public class ModelObject : DynamicModelObjectBase,
     public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     Statements => _Statements.AsReadOnly();
 
-    internal ModelObject(string oid, ICimMetaClass metaClass, 
+    public ModelObject(string oid, ICimMetaClass metaClass, 
         bool isAuto = false)
     {
         _Oid = oid;
