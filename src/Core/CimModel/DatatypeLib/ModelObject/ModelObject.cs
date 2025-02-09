@@ -22,6 +22,8 @@ public class ModelObject : DynamicModelObjectBase,
 
         _MetaClass = metaClass;
         _PropertiesData = [];
+
+        InitStatementsCollections();
     }
 
     public override bool HasProperty(string propertyName)
@@ -638,6 +640,16 @@ public class ModelObject : DynamicModelObjectBase,
             {
                 newObj.AddAssoc1ToM(metaProperty.InverseProperty, this);
             }
+        }
+    }
+    
+    private void InitStatementsCollections()
+    {
+        foreach (var statementProperty in MetaClass.AllProperties
+            .Where(p => p.PropertyKind == CimMetaPropertyKind.Statements))
+        {
+            _Statements.Add(statementProperty, 
+                new HashSet<IModelObject>());
         }
     }
 

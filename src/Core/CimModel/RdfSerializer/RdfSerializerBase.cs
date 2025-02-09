@@ -744,7 +744,7 @@ public abstract class RdfSerializerBase : ICanLog
                 if (schemaEnumValue != null)
                 {
                     if (TypeLib.RegisteredTypes.TryGetValue(
-                        property.PropertyDatatype.BaseUri, out var typeEnum))
+                        property.PropertyDatatype, out var typeEnum))
                     {
                         var enumValue = Enum.Parse(typeEnum,
                             schemaEnumValue!.ShortName);

@@ -110,7 +110,8 @@ public class WeakModelObjectTests
         string schemaPath)
     {
         var schema = LoadCimSchema(schemaPath);
-        var rdfSerializer = new RdfXmlSerializer(schema, new CimDatatypeLib())
+        var rdfSerializer = new RdfXmlSerializer(schema, 
+            new CimDatatypeLib(schema))
         {
             Settings = new RdfSerializerSettings()
             {

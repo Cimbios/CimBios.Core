@@ -1,12 +1,13 @@
 using System.Text;
 using CimBios.Core.CimModel.CimDataModel;
+using CimBios.Utils.ClassTraits;
 
-namespace CimBios.Core.DifferenceModel;
+namespace CimBios.Core.CimDifferenceModel;
 
 /// <summary>
 /// 
 /// </summary>
-public interface ICimDifferenceModel
+public interface ICimDifferenceModel : ICanLog
 {
     public void Load(StreamReader streamReader);
     public void Load(string path);

@@ -16,12 +16,14 @@ public class WeakModelObject : DynamicModelObjectBase,
     public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     Statements => _Statements.AsReadOnly();
 
-    internal WeakModelObject(string oid, CimAutoClass metaClass, bool isAuto)
+    internal WeakModelObject(string oid, CimMetaClassBase metaClass, bool isAuto)
         : base()
     {
         _Oid = oid;
         _MetaClass = metaClass;
         _IsAuto = isAuto;
+
+        InitStatementsCollections();
     }
 
     public override bool HasProperty(string propertyName)
@@ -389,8 +391,18 @@ public class WeakModelObject : DynamicModelObjectBase,
         }
     }
 
+    private void InitStatementsCollections()
+    {
+        foreach (var statementProperty in MetaClass.AllProperties
+            .Where(p => p.PropertyKind == CimMetaPropertyKind.Statements))
+        {
+            _Statements.Add(statementProperty, 
+                new HashSet<IModelObject>());
+        }
+    }
+
     private string _Oid;
-    private CimAutoClass _MetaClass;
+    private CimMetaClassBase _MetaClass;
     private bool _IsAuto;
 
     private readonly Dictionary<ICimMetaProperty, object?> _PropertiesData = [];
@@ -406,11 +418,11 @@ public class WeakModelObjectFactory : IModelObjectFactory
     public IModelObject Create(string uuid, 
         ICimMetaClass metaClass, bool isAuto)
     {
-        if (metaClass is not CimAutoClass autoMetaClass)
+        if (metaClass is not CimMetaClassBase metaClassBase)
         {
             throw new InvalidCastException();
         }
 
-        return new WeakModelObject(uuid, autoMetaClass, isAuto);
+        return new WeakModelObject(uuid, metaClassBase, isAuto);
     }
 }
