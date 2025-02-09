@@ -265,7 +265,7 @@ public class DataSelectorViewModel : ViewModelBase
 
         
         var serializer = SelectedDataContext.RdfSerializerFactory
-            .Create(cimSchema, new CimDatatypeLib());
+            .Create(cimSchema, new CimDatatypeLib(cimSchema));
         modelContext = new CimDocument(serializer);
 
         modelContext.Load(SourceUri.LocalPath);

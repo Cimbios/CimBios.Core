@@ -12,7 +12,8 @@ public static class CimDocumentLoader
         var cimSchema = new CimRdfSchemaXmlFactory().CreateSchema();
         cimSchema.Load(new StreamReader(schemaPath));
 
-        var serializer = new RdfXmlSerializer(cimSchema, new CimDatatypeLib());
+        var serializer = new RdfXmlSerializer(cimSchema, 
+            new CimDatatypeLib(cimSchema));
         var cimDocument = new CimDocument(serializer);
         cimDocument.Load(path);
         

@@ -81,10 +81,18 @@ public interface ICimDataModel : ICanLog
     /// <summary>
     /// Create IModelObject instance of meta class.
     /// </summary>
-    /// <param name="oid">Sepcific object identifier.</param>
+    /// <param name="oid">Specific object identifier.</param>
     /// <param name="metaClass">Meta class.</param>
-    /// <returns></returns>
+    /// <returns>Create IModelObject instance.</returns>
     public IModelObject CreateObject(string oid, ICimMetaClass metaClass);
+
+    /// <summary>
+    /// Create IModelObject instance of datatype lib meta class.
+    /// </summary>
+    /// <typeparam name="T">Datatype lib type.</typeparam>
+    /// <param name="oid">Specific object identifier.</param>
+    /// <returns>Create T : IModelObject instance.</returns>
+    public T CreateObject<T>(string oid) where T : class, IModelObject;
 
     //public IModelObject CreateObject(ICimMetaClass metaClass);
     ///public T CreateObject<T>(string oid) where T: IModelObject;

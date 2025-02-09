@@ -13,7 +13,7 @@ public interface ICimDatatypeLib : ICanLog
     /// <summary>
     /// Dictionary Uri to Type of IModelObject concrete classes.
     /// </summary>
-    public IReadOnlyDictionary<Uri, System.Type> RegisteredTypes { get; }
+    public IReadOnlyDictionary<ICimMetaClass, System.Type> RegisteredTypes { get; }
 
     /// <summary>
     /// Load assembly by file path.
@@ -36,14 +36,26 @@ public interface ICimDatatypeLib : ICanLog
     public void RegisterType(System.Type type);
 
     /// <summary>
-    /// 
+    /// Create instance of schema meta class.
     /// </summary>
-    /// <param name="uuid"></param>
-    /// <param name="metaClass"></param>
-    /// <param name="isAuto"></param>
-    /// <returns></returns>
+    /// <param name="modelObjectFactory">Model object factory.</param>
+    /// <param name="oid">OID of creating instance.</param>
+    /// <param name="metaClass">Cim schema meta class.</param>
+    /// <param name="isAuto">Is auto class attribute.</param>
+    /// <returns>IModelObject instance of meta type.</returns>
     public IModelObject? CreateInstance(IModelObjectFactory modelObjectFactory,
-        string uuid, ICimMetaClass metaClass, bool isAuto);
+        string oid, ICimMetaClass metaClass, bool isAuto);
+
+    /// <summary>
+    /// Create instance of schema meta class.
+    /// </summary>
+    /// <typeparam name="T">IModelObject CIM lib type.</typeparam>
+    /// <param name="oid">OID of creating instance.</param>
+    /// <param name="metaClass">Cim schema meta class.</param>
+    /// <param name="isAuto">Is auto class attribute.</param>
+    /// <returns>IModelObject instance of meta type.</returns>
+    public T? CreateInstance<T>(string oid, bool isAuto) 
+        where T : class, IModelObject;
 }
 
 /// <summary>
@@ -55,19 +67,22 @@ public class CimDatatypeLib : ICimDatatypeLib
     /// Runtime attached typelib assemblies.
     /// </summary>
     public ICollection<Assembly> LoadedAssemblies => _LoadedAssemblies;
-    public IReadOnlyDictionary<Uri, System.Type> RegisteredTypes 
+    public IReadOnlyDictionary<ICimMetaClass, System.Type> RegisteredTypes 
         => _RegisteredTypes.AsReadOnly();
 
     public ILogView Log => _Log;
 
-    public CimDatatypeLib()
+    public CimDatatypeLib(ICimSchema cimSchema)
     {
         _Log = new PlainLogView(this);
+
+        _Schema = cimSchema;
 
         LoadAssembly(Assembly.GetExecutingAssembly());
     }
 
-    public CimDatatypeLib(string typesAssemblyPath) : this()
+    public CimDatatypeLib(string typesAssemblyPath, ICimSchema cimSchema) 
+        : this(cimSchema)
     {
         LoadAssembly(typesAssemblyPath);
     }
@@ -130,10 +145,17 @@ public class CimDatatypeLib : ICimDatatypeLib
         }
 
         var typeUri = new Uri(attribute.AbsoluteUri);
+        var metaType = _Schema.TryGetResource<ICimMetaClass>(typeUri);
+
+        // Not registered in schema.
+        if (metaType == null)
+        {
+            return;
+        }
 
         if (type.IsEnum)
         {
-            _RegisteredTypes.Add(typeUri, type);
+            _RegisteredTypes.Add(metaType, type);
             return;
         }
 
@@ -149,35 +171,46 @@ public class CimDatatypeLib : ICimDatatypeLib
             return;
         }
 
-        if (_RegisteredTypes.ContainsKey(typeUri))
+        if (_RegisteredTypes.ContainsKey(metaType))
         {
-            _RegisteredTypes[typeUri] = type;
+            _RegisteredTypes[metaType] = type;
         }
         else
         {
-            _RegisteredTypes.Add(typeUri, type);
+            _RegisteredTypes.Add(metaType, type);
         }
     }
 
     public IModelObject? CreateInstance(IModelObjectFactory modelObjectFactory,
-        string uuid, ICimMetaClass metaClass, bool isAuto)
+        string oid, ICimMetaClass metaClass, bool isAuto)
     {
-        if (RegisteredTypes.TryGetValue(metaClass.BaseUri, out var type)
+        if (RegisteredTypes.TryGetValue(metaClass, out var type)
             && type.IsAssignableTo(modelObjectFactory.ProduceType))
         {
-            return Activator.CreateInstance(type, uuid, 
+            return Activator.CreateInstance(type, oid, 
                 metaClass, isAuto) as IModelObject;
         }
         else
         {
-            return modelObjectFactory.Create(uuid, metaClass, isAuto);
+            return modelObjectFactory.Create(oid, metaClass, isAuto);
         }
     }
 
+    public T? CreateInstance<T>(string oid, bool isAuto) 
+        where T : class, IModelObject
+    {   
+        var metaClassTypePair = RegisteredTypes
+            .Where(p => p.Value == typeof(T)).Single();
+
+        return Activator.CreateInstance(metaClassTypePair.Value, oid, 
+            metaClassTypePair.Key, isAuto) as T;
+    }
+
+    private ICimSchema _Schema;
+
     private HashSet<Assembly> _LoadedAssemblies = [];
 
-    private Dictionary<Uri, System.Type> _RegisteredTypes 
-        = new(new RdfUriComparer());
+    private Dictionary<ICimMetaClass, System.Type> _RegisteredTypes = [];
 
     private PlainLogView _Log;
 }

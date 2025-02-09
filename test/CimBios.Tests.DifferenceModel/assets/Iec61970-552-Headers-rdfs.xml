@@ -4,10 +4,13 @@
   xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" 
   xmlns:uml="http://langdale.com.au/2005/UML#" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema#" 
-  xmlns:cim="http://iec.ch/TC57/2014/CIM-schema-cim16#" 
-  xmlns:rf="http://gost.ru/2019/schema-cim01#"
   xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" 
   xmlns:dm="http://iec.ch/TC57/61970-552/DifferenceModel/1#" 
+  xmlns:cim="http://iec.ch/TC57/CIM100#" 
+  xmlns:me="http://monitel.com/2014/schema-cim16#" 
+  xmlns:rf="http://gost.ru/2019/schema-cim01#" 
+  xmlns:rh="http://rushydro.ru/2015/schema-cim16#" 
+  xmlns:so="http://so-ups.ru/2015/schema-cim16#"
   xml:base="http://cim.bios/Profiles/v1">
 	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>

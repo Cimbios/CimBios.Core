@@ -37,9 +37,10 @@ public class CimDocument : ICimDataModel
         _Objects = [];
         _ChangesCache = [];
 
+        var rdfSchema = new CimRdfSchemaXmlFactory().CreateSchema();
         _serializer = new RdfXmlSerializer(
-            new CimRdfSchemaXmlFactory().CreateSchema(), 
-            new CimDatatypeLib.CimDatatypeLib())
+            rdfSchema, 
+            new CimDatatypeLib.CimDatatypeLib(rdfSchema))
             {
                 Settings = new RdfSerializerSettings()
                 {
@@ -252,11 +253,26 @@ public class CimDocument : ICimDataModel
             throw new NotSupportedException("TypeLib instance creation failed!");
         }
 
-        _Objects.Add(instance.OID, instance);
-        instance.PropertyChanged += OnModelObjectPropertyChanged;
+        AddObjectToStorage(instance);
 
-        OnModelObjectStorageChanged(instance, 
-            CimDataModelObjectStorageChangeType.Add);
+        return instance;
+    }
+
+    public T CreateObject<T>(string oid) where T : class, IModelObject
+    {
+        if (oid.Length == 0)
+        {
+            throw new ArgumentException("OID cannot be empty!");
+        }   
+
+        var instance = _serializer.TypeLib.CreateInstance<T>(oid, false);
+
+        if (instance == null)
+        {
+            throw new NotSupportedException("TypeLib instance creation failed!");
+        }
+
+        AddObjectToStorage(instance);
 
         return instance;
     }
@@ -280,6 +296,15 @@ public class CimDocument : ICimDataModel
     public void CommitAllChanges()
     {
         _ChangesCache.Clear();
+    }
+
+    private void AddObjectToStorage(IModelObject modelObject)
+    {
+        _Objects.Add(modelObject.OID, modelObject);
+        modelObject.PropertyChanged += OnModelObjectPropertyChanged;
+
+        OnModelObjectStorageChanged(modelObject, 
+            CimDataModelObjectStorageChangeType.Add);
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using CimBios.Core.CimModel.Schema.AutoSchema;
+using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Core.RdfIOLib;
 using CimBios.Utils.ClassTraits;
 
@@ -34,11 +35,11 @@ public class CimSchema : ICimSchema
         _All = [];
         _Namespaces = [];
 
-        var rdfsReourceUri = new Uri("http://www.w3.org/2000/01/rdf-schema#Resource");
         var resourceSuperClass = new CimAutoClass(
-            rdfsReourceUri, "Resource", "Root rdfs:Resource meta instance.");
+            CimRdfSchemaStrings.RdfsResource,
+            "Resource", "Root rdfs:Resource meta instance.");
         resourceSuperClass.SetIsAbstract(true);
-        _ResourceSuperClass = resourceSuperClass;
+        _ResourceSuperClass = resourceSuperClass;   
     }
 
     public CimSchema(ICimSchemaSerializerFactory serializerFactory)
@@ -61,6 +62,14 @@ public class CimSchema : ICimSchema
 
         _All = _Serializer.Deserialize();
         _All.Add(_ResourceSuperClass.BaseUri, _ResourceSuperClass);
+
+        _All.Add(CimRdfSchemaStrings.RdfDescription, 
+            new CimAutoClass(
+                CimRdfSchemaStrings.RdfDescription, 
+                "Description", 
+                "rdf:Description meta instance.")
+            );
+
         _Namespaces = _Serializer.Namespaces.ToDictionary();
 
         if (TieSameNameEnums)
