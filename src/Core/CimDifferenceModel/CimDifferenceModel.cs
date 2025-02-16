@@ -3,6 +3,7 @@ using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Utils.ClassTraits;
@@ -119,103 +120,14 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
         {
             if (changeStatement is CimDataModelObjectAddedStatement added)
             {
-                PushAddStatement(added);
+
             }
             else if (changeStatement is CimDataModelObjectUpdatedStatement updated)
             {
-
+                
             }
         } 
 
-        FlushDiffCahceToDifferenceModel();
-    }
-
-    private void PushAddStatement(CimDataModelObjectAddedStatement statement)
-    {
-        if (_differenceCache.ContainsKey(statement.ModelObject.OID) == false)
-        {
-            var addDiffObject = _serializer.TypeLib.CreateInstance(
-                    new WeakModelObjectFactory(),
-                    statement.ModelObject.OID,
-                    statement.ModelObject.MetaClass,
-                    false
-                );
-
-            var addDiffStatement = 
-                new AddCimDifferenceStatement(addDiffObject);
-            _differenceCache.Add(addDiffStatement.OID, addDiffStatement);
-        }
-        else
-        {
-            throw new NotSupportedException("tmp: Adding object already modified!");
-        }
-    }
-
-    private void PushUpdateStatement(CimDataModelObjectUpdatedStatement statement)
-    {
-        if (_differenceCache.ContainsKey(statement.ModelObject.OID) == false)
-        {
-            var descriptionMetaClass = _serializer.Schema
-                .TryGetResource<ICimMetaClass>(new(DifferenceModel.ClassUri)
-            );
-
-            var fwdDiffObject = _serializer.TypeLib.CreateInstance(
-                    new WeakModelObjectFactory(),
-                    statement.ModelObject.OID,
-                    descriptionMetaClass,
-                    false
-                );
-
-            var rvsDiffObject = _serializer.TypeLib.CreateInstance(
-                    new WeakModelObjectFactory(),
-                    statement.ModelObject.OID,
-                    descriptionMetaClass,
-                    false
-                );     
-
-            var updDiffStatement = 
-                new UpdateCimDifferenceStatement(
-                    fwdDiffObject, 
-                    statement.OldValue as IModelObject);
-
-            _differenceCache.Add(updDiffStatement.OID, updDiffStatement);
-        }
-    }
-
-    private static void SetModelObjectData(IModelObject modelObject, 
-        ICimMetaProperty metaProperty, object value)
-    {
-        if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
-        {
-            modelObject.SetAttribute(metaProperty, value);
-        }
-        else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
-        {
-            modelObject.SetAssoc1To1(metaProperty, value as IModelObject);
-        }
-        else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
-        {
-            modelObject.AddAssoc1ToM(metaProperty, value as IModelObject);
-        }
-    }
-
-    private void FlushDiffCahceToDifferenceModel()
-    {
-        _InternalDifferenceModel.forwardDifferences.Clear();
-        _InternalDifferenceModel.reverseDifferences.Clear();
-
-        foreach (var diff in _differenceCache.Values)
-        {
-            if (diff is AddCimDifferenceStatement addDiff)
-            {
-                _InternalDifferenceModel.forwardDifferences
-                    .Add(addDiff.AddObject);
-            }
-
-            
-        }
-
-        _differenceCache.Clear();
     }
 
     public void InvalidateDataWithModel(ICimDataModel cimDataModel)
@@ -240,7 +152,8 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
 
         if (diffModelInstance == null)
         {
-            throw new NotSupportedException("dm:DifferenceModel instance initialization failed!");
+            throw new NotSupportedException
+            ("dm:DifferenceModel instance initialization failed!");
         }
 
         _internalDifferenceModel = diffModelInstance;
@@ -253,7 +166,8 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
         {
             if (_internalDifferenceModel == null)
             {
-                throw new NotSupportedException("Internal difference model has not been initialized!");
+                throw new NotSupportedException
+                ("Internal difference model has not been initialized!");
             }
 
             return _internalDifferenceModel;
@@ -271,41 +185,37 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
     private PlainLogView _Log;
 }
 
-internal interface ICimDifferenceStatement
+public interface IDifferenceObject : IModelObject
+{
+    public IReadOnlyModelObject? OriginalObject { get; }
+}
+
+public class DifferenceObject : WeakModelObject, IDifferenceObject
+{
+    public IReadOnlyModelObject? OriginalObject => _originalObject;
+
+    public DifferenceObject(string oid, CimMetaClassBase metaClass)
+        : base(oid, metaClass, false)
+    {
+
+    }
+
+    private WeakModelObject? _originalObject;
+}
+
+public interface ICimDifferenceStatement
 {
     public string OID { get; }
+
+    public IDifferenceObject? OriginalObjectData { get; }
+    public IDifferenceObject? ModifiedObjectData { get; }
 }
 
-internal sealed class AddCimDifferenceStatement 
-    (IModelObject addDifferenceObject)
-    : ICimDifferenceStatement
+public class CimDifferenceStatement : ICimDifferenceStatement
 {
-    public string OID => AddObject.OID;
+    public string OID => throw new NotImplementedException();
 
-    public IModelObject AddObject { get; } = addDifferenceObject;
-}
+    public IDifferenceObject? OriginalObjectData => throw new NotImplementedException();
 
-internal sealed class RemoveCimDifferenceStatement 
-    (IModelObject removeDifferenceObject)
-    : ICimDifferenceStatement
-{
-    public string OID => RemoveObject.OID;
-
-    public IModelObject RemoveObject { get; } = removeDifferenceObject;
-}
-
-internal sealed class UpdateCimDifferenceStatement 
-    : ICimDifferenceStatement
-{
-    public string OID => ForwardObject.OID;
-
-    public IModelObject ForwardObject { get; } 
-    public IModelObject ReverseObject { get; }
-
-    public UpdateCimDifferenceStatement (IModelObject forwardObject, 
-        IModelObject reverseObject)
-    {
-        ForwardObject = forwardObject;
-        ReverseObject = reverseObject;        
-    }
+    public IDifferenceObject? ModifiedObjectData => throw new NotImplementedException();
 }

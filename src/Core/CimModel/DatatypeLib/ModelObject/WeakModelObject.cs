@@ -16,7 +16,7 @@ public class WeakModelObject : DynamicModelObjectBase,
     public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     Statements => _Statements.AsReadOnly();
 
-    internal WeakModelObject(string oid, CimMetaClassBase metaClass, bool isAuto)
+    public WeakModelObject(string oid, CimMetaClassBase metaClass, bool isAuto)
         : base()
     {
         _Oid = oid;
