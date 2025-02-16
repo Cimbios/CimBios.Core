@@ -21,7 +21,9 @@ public class CimDocument : ICimDataModel
 
     public FullModel? Description => _Description;
 
-    public ICimSchema? Schema => _serializer?.Schema;
+    public ICimSchema Schema => _schema;
+
+    public ICimDatatypeLib TypeLib => _typeLib;
 
     public IReadOnlyCollection<ICimDataModelChangeStatement> Changes
         => _ChangesCache.Reverse().ToArray();
@@ -48,6 +50,9 @@ public class CimDocument : ICimDataModel
                     UnknownPropertiesAllowed = true
                 }
             };
+
+        _schema = _serializer.Schema;
+        _typeLib = _serializer.TypeLib;
     }
 
     public CimDocument(RdfSerializerBase rdfSerializer)
@@ -57,6 +62,8 @@ public class CimDocument : ICimDataModel
         _ChangesCache = [];
 
         _serializer = rdfSerializer;
+        _schema = _serializer.Schema;
+        _typeLib = _serializer.TypeLib;
     }
 
     /// <summary>
@@ -245,7 +252,7 @@ public class CimDocument : ICimDataModel
             throw new ArgumentException($"Object with OID:{oid} already exists!");
         }
 
-        var instance = _serializer.TypeLib.CreateInstance(
+        var instance = TypeLib.CreateInstance(
             new ModelObjectFactory(), oid, metaClass, false);
 
         if (instance == null)
@@ -265,7 +272,7 @@ public class CimDocument : ICimDataModel
             throw new ArgumentException("OID cannot be empty!");
         }   
 
-        var instance = _serializer.TypeLib.CreateInstance<T>(oid, false);
+        var instance = TypeLib.CreateInstance<T>(oid, false);
 
         if (instance == null)
         {
@@ -413,9 +420,11 @@ public class CimDocument : ICimDataModel
         }
     }
 
-    private RdfSerializerBase _serializer;
-
     private PlainLogView _Log;
+
+    private RdfSerializerBase   _serializer;
+    private ICimSchema          _schema;
+    private ICimDatatypeLib     _typeLib;
 
     private FullModel? _Description = null;
 
