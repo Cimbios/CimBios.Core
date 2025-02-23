@@ -1,6 +1,6 @@
 using System.ComponentModel;
-using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 using CimBios.Core.CimModel.Schema;
+using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
@@ -82,6 +82,12 @@ public interface IModelObject : INotifyPropertyChanged, IReadOnlyModelObject
     /// Event fires before changing property value.
     /// </summary>
     public event CanCancelPropertyChangingEventHandler? PropertyChanging;
+
+    /// <summary>
+    /// Get read only wrapper for model object.
+    /// </summary>
+    /// <returns>IModelObject instances array.</returns>
+    public IReadOnlyModelObject AsReadOnly();
 }
 
 /// <summary>

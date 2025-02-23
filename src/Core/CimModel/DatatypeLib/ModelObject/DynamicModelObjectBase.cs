@@ -1,10 +1,13 @@
 using System.ComponentModel;
 using System.Dynamic;
-using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
+using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 
-namespace CimBios.Core.CimModel.DatatypeLib;
+namespace CimBios.Core.CimModel.CimDatatypeLib;
 
+/// <summary>
+/// Provides dynamo object functionality.
+/// </summary>
 public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
 {
     protected DynamicModelObjectBase() : base() {}
@@ -19,21 +22,16 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         var metaProperty = TryGetMetaPropertyByName(binder.Name);
         if (metaProperty != null)
         {
-            if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
-            {
-                result = GetAttribute(metaProperty);
-                return true;
+            var propValue = this.TryGetPropertyValue(metaProperty);
+            result = propValue;
+
+            if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
+                && propValue is IList<IModelObject> assocCollection)
+            {                
+                result = BindDynamicAssocsCollection(metaProperty, assocCollection);
             }
-            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
-            {
-                result = GetAssoc1To1<IModelObject>(metaProperty);
-                return true;        
-            }
-            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
-            {
-                result = GetAssoc1ToM(metaProperty);
-                return true;        
-            }         
+
+            return true;
         }
 
         return base.TryGetMember(binder, out result);
@@ -53,7 +51,7 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
             {
                 SetAssoc1To1(metaProperty, value as IModelObject);
                 return true;        
-            }      
+            } 
         }
 
         return base.TrySetMember(binder, value);
@@ -86,6 +84,11 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public event CanCancelPropertyChangingEventHandler? PropertyChanging;
+
+    public virtual IReadOnlyModelObject AsReadOnly()
+    {
+        return new ReadOnlyModelObject(this);
+    }
 
     public abstract void AddAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj);
@@ -178,5 +181,34 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         }      
 
         return true;
+    }
+
+    private BindingList<IModelObject> BindDynamicAssocsCollection(
+        ICimMetaProperty metaProperty, IList<IModelObject> assocCollection)
+    {
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+        {
+            throw new NotSupportedException();
+        }
+
+        var blist = new BindingList<IModelObject>(assocCollection);
+
+        blist.ListChanged += (_, e) =>
+        {
+            if (e.ListChangedType == ListChangedType.ItemAdded)
+            {
+                var newObj = blist.ElementAt(e.NewIndex);
+                AddAssoc1ToM(metaProperty, newObj);
+            }
+            else if (e.ListChangedType == ListChangedType.ItemDeleted)
+            {
+                var oldObj = GetAssoc1ToM(metaProperty)
+                    .ElementAt(e.NewIndex);
+                
+                RemoveAssoc1ToM(metaProperty, oldObj);
+            }
+        };
+
+        return blist;
     }
 }
