@@ -1,6 +1,6 @@
 using CimBios.Core.CimModel.Schema;
 
-namespace CimBios.Core.CimModel.DatatypeLib.ModelObject;
+namespace CimBios.Core.CimModel.CimDatatypeLib;
 
 /// <summary>
 /// Base CIM model object interface.

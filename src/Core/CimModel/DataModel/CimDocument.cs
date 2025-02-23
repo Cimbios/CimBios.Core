@@ -4,6 +4,7 @@ using System.Data;
 using System.Text;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
+using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
@@ -85,7 +86,7 @@ public class CimDocument : ICimDataModel
         {
             _ChangesCache = [];
             var serialized = _serializer.Deserialize(streamReader);
-            _Objects = serialized.ToDictionary(k => k.OID, v => v);
+            _Objects = serialized.AsParallel().ToDictionary(k => k.OID, v => v);
 
             foreach (var obj in _Objects.Values)
             {
@@ -213,7 +214,7 @@ public class CimDocument : ICimDataModel
     {
         if (_Objects.TryGetValue(oid, out var removingObject)
             && _Objects.Remove(oid) == true)
-        {
+        { 
             UnlinkAllModelObjectAssocs(removingObject);
 
             removingObject.PropertyChanged -= OnModelObjectPropertyChanged;
