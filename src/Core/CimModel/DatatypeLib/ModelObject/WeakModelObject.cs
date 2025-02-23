@@ -1,8 +1,8 @@
-using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
+using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 
-namespace CimBios.Core.CimModel.DatatypeLib;
+namespace CimBios.Core.CimModel.CimDatatypeLib;
 
 public class WeakModelObject : DynamicModelObjectBase, 
     IModelObject, IStatementsContainer
@@ -16,11 +16,16 @@ public class WeakModelObject : DynamicModelObjectBase,
     public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     Statements => _Statements.AsReadOnly();
 
-    public WeakModelObject(string oid, CimMetaClassBase metaClass, bool isAuto)
+    public WeakModelObject(string oid, ICimMetaClass metaClass, bool isAuto)
         : base()
     {
+        if (metaClass is not CimMetaClassBase metaClassBase)
+        {
+            throw new InvalidCastException();
+        }
+
         _Oid = oid;
-        _MetaClass = metaClass;
+        _MetaClass = metaClassBase;
         _IsAuto = isAuto;
 
         InitStatementsCollections();
@@ -150,9 +155,9 @@ public class WeakModelObject : DynamicModelObjectBase,
     {
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
             && _PropertiesData.TryGetValue(metaProperty, out var value)
-            && value is T tObj)
+            && value is ICollection<T> tObjCol)
         {
-            return tObj;
+            return tObjCol.FirstOrDefault();
         }
 
         return default;
@@ -244,7 +249,8 @@ public class WeakModelObject : DynamicModelObjectBase,
     public override void AddAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj)
     {
-        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1
+            && metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
         {
             throw new ArgumentException(
                 $"Property {metaProperty.ShortName} is not association!");
@@ -298,7 +304,8 @@ public class WeakModelObject : DynamicModelObjectBase,
     public override void RemoveAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj)
     {
-        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1
+            && metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
         {
             throw new ArgumentException(
                 $"Property {metaProperty.ShortName} is not association!");
@@ -333,7 +340,8 @@ public class WeakModelObject : DynamicModelObjectBase,
 
     public override void RemoveAllAssocs1ToM(ICimMetaProperty metaProperty)
     {
-        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1
+            && metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
         {
             throw new ArgumentException(
                 $"Property {metaProperty.ShortName} is not association!");
@@ -405,9 +413,9 @@ public class WeakModelObject : DynamicModelObjectBase,
     private CimMetaClassBase _MetaClass;
     private bool _IsAuto;
 
-    private readonly Dictionary<ICimMetaProperty, object?> _PropertiesData = [];
+    protected readonly Dictionary<ICimMetaProperty, object?> _PropertiesData = [];
 
-    private readonly Dictionary<ICimMetaProperty, ICollection<IModelObject>> 
+    protected readonly Dictionary<ICimMetaProperty, ICollection<IModelObject>> 
     _Statements = [];
 }
 

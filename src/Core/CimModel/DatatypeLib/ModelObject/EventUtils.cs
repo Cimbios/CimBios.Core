@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using CimBios.Core.CimModel.Schema;
 
-namespace CimBios.Core.CimModel.CimDatatypeLib;
+namespace CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 
 /// <summary>
 /// Can cancel functionality for PropertyChangingEventArgs.

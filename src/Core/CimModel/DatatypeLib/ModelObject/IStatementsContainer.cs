@@ -1,7 +1,6 @@
-using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 
-namespace CimBios.Core.CimModel.DatatypeLib;
+namespace CimBios.Core.CimModel.CimDatatypeLib;
 
 /// <summary>
 /// Interface provides statements parse type properies storage.
