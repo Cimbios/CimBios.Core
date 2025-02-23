@@ -31,7 +31,8 @@ internal class DiffsFromModelHelper
             {
                 if (diff is null)
                 {
-                    diff = new AdditionDifferenceObject(added.ModelObject.OID);
+                    diff = new AdditionDifferenceObject(added.ModelObject.OID,
+                        added.ModelObject.MetaClass);
                 }
                 else if (diff is DeletionDifferenceObject delDiff)
                 {
@@ -89,7 +90,9 @@ internal class DiffsFromModelHelper
                 else
                 {
                     var tmpDiff = diff;
-                    diff = new DeletionDifferenceObject(removed.ModelObject.OID);
+                    diff = new DeletionDifferenceObject(removed.ModelObject.OID,
+                        removed.ModelObject.MetaClass);
+                        
                     foreach (var prop in removed.ModelObject
                         .MetaClass.AllProperties)
                     {

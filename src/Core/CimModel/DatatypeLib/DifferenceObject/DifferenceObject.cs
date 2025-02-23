@@ -31,7 +31,14 @@ public abstract class DifferenceObjectBase : IDifferenceObject
             string.Empty
         );
 
-        _ModifiedObject = new WeakModelObject(oid, descriptionMetaClass, true);
+        _ModifiedObject = new WeakModelObject(oid, descriptionMetaClass, false);
+    }
+
+    protected DifferenceObjectBase (string oid, ICimMetaClass metaClass)
+    {
+        OID = oid;
+
+        _ModifiedObject = new WeakModelObject(oid, metaClass, false);
     }
 
     protected DifferenceObjectBase(IDifferenceObject differenceObject)
@@ -224,8 +231,8 @@ public abstract class DifferenceObjectBase : IDifferenceObject
 /// 
 /// </summary>
 /// <param name="oid"></param>
-public class AdditionDifferenceObject (string oid)
-    : DifferenceObjectBase (oid)
+public class AdditionDifferenceObject (string oid, ICimMetaClass metaClass)
+    : DifferenceObjectBase (oid, metaClass)
 {
     protected override WeakModelObject? _OriginalObject => null;
 }
@@ -234,8 +241,8 @@ public class AdditionDifferenceObject (string oid)
 /// 
 /// </summary>
 /// <param name="oid"></param>
-public class DeletionDifferenceObject (string oid)
-    : DifferenceObjectBase (oid)
+public class DeletionDifferenceObject (string oid, ICimMetaClass metaClass)
+    : DifferenceObjectBase (oid, metaClass)
 {
     protected override WeakModelObject? _OriginalObject => null;
 }
