@@ -1,5 +1,4 @@
 using CimBios.Core.CimModel.CimDataModel;
-using CimBios.Core.CimModel.CimDataModel.Utils;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.DataModel.Utils;
@@ -18,8 +17,6 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
     {
         _serializer.Settings.UnknownClassesAllowed = true;
         _serializer.Settings.UnknownPropertiesAllowed = true;
-
-        InitInternalDifferenceModel();
     }
 
     public CimDifferenceModel(RdfSerializerBase rdfSerializer, 
@@ -31,37 +28,98 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
     public void ExtractFromDataModel(ICimDataModel cimDataModel)
     {
+        ResetAll();
+        
         var diffsHelper = new DiffsFromModelHelper(cimDataModel);
         _DifferencesCache = diffsHelper.Differences;
+        ToDifferenceModel();
     }
 
-    public void InvalidateDataWithModel(ICimDataModel cimDataModel)
+    public void InvalidateWithDataModel(ICimDataModel cimDataModel)
     {
         throw new NotImplementedException();
     }
 
     public void ResetAll()
     {
-        InitInternalDifferenceModel();
-    }
-
-    private void InitInternalDifferenceModel()
-    {
-        //_differenceCache.Clear();
-
-        var diffModelInstance =
-        _serializer.TypeLib.CreateInstance<DifferenceModel>(
+        _internalDifferenceModel = TypeLib.CreateInstance<DifferenceModel>(
             Guid.NewGuid().ToString(),
             isAuto: false
         );
 
-        if (diffModelInstance == null)
+        if (_internalDifferenceModel == null)
         {
             throw new NotSupportedException
             ("dm:DifferenceModel instance initialization failed!");
         }
 
-        _internalDifferenceModel = diffModelInstance;
+        _DifferencesCache.Clear();
+    }
+
+    private void ToDifferenceModel()
+    {
+        _DifferencesCache.Values.AsParallel().ForAll(
+            diff =>
+            {
+                if (diff.ModifiedObject is not IModelObject modifiedObject)
+                {
+                    return;
+                }
+
+                if (diff is AdditionDifferenceObject
+                    || diff is UpdatingDifferenceObject)
+                {
+                    _InternalDifferenceModel.forwardDifferences.Add(
+                        modifiedObject);
+                }
+
+                if (diff is DeletionDifferenceObject
+                    || diff is UpdatingDifferenceObject)
+                {
+                    _InternalDifferenceModel.reverseDifferences.Add(
+                        modifiedObject);       
+                }
+
+                if (diff is UpdatingDifferenceObject
+                    && diff.OriginalObject is IModelObject originalObject)
+                {
+                    _InternalDifferenceModel.reverseDifferences.Add(
+                        originalObject); 
+                }
+            }
+        );
+    }
+
+    private void ToDifferencesCache()
+    {
+        _DifferencesCache.Clear();
+
+        var descriptionMetaClass = Schema.TryGetResource<ICimMetaClass>(
+            new(Description.ClassUri));
+
+        if (descriptionMetaClass == null)
+        {
+            throw new NotSupportedException(
+                "Schema does not contains neccessary rdf:Description class!");
+        }
+
+        _InternalDifferenceModel.forwardDifferences
+            .AsParallel().ForAll(s => 
+            {
+                if (s.MetaClass == descriptionMetaClass)
+                {
+                    var updDiff = new UpdatingDifferenceObject(s.OID);
+                    
+                }
+                else
+                {
+                    var addDiff = new AdditionDifferenceObject(
+                        s.OID, s.MetaClass);
+
+                    _DifferencesCache.Add(addDiff.OID, addDiff);
+                }
+            }
+        );
     }
 
     protected override void PushDeserializedObjects(
@@ -70,6 +128,10 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         _internalDifferenceModel = cache
             .OfType<DifferenceModel>()
             .Single();
+
+        _Objects.Add(_internalDifferenceModel.OID, _internalDifferenceModel);
+
+        ToDifferencesCache();
     }
 
     #region NotImpl

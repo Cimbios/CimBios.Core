@@ -15,7 +15,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
 {
     public virtual ILogView Log => _Log;
 
-    public virtual Model? Description => _Description;
+    public virtual Model? ModelDescription => _Description;
 
     public virtual ICimSchema Schema => _schema;
 
@@ -27,7 +27,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     /// All cached objects collection (uuid to IModelObject).
     /// </summary>
-    protected Dictionary<string, IModelObject> _Objects { get; set; }
+    protected virtual Dictionary<string, IModelObject> _Objects { get; set; }
 
     protected CimDocumentBase(RdfSerializerBase rdfSerializer)
     {
@@ -112,9 +112,9 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         }  
 
         var forSerializeObjects = _Objects.Values.ToImmutableList();
-        if (Description != null)
+        if (ModelDescription != null)
         {
-            forSerializeObjects.Add(Description);
+            forSerializeObjects.Add(ModelDescription);
         }
 
         try
