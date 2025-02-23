@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Text;
 using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Utils.ClassTraits;
@@ -9,6 +10,8 @@ namespace CimBios.Core.CimDifferenceModel;
 /// </summary>
 public interface ICimDifferenceModel : ICanLog
 {
+    public IReadOnlyCollection<IDifferenceObject> Differences { get; }
+
     public void Load(StreamReader streamReader);
     public void Load(string path);
     public void Parse(string content, Encoding? encoding = null);

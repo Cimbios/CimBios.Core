@@ -1,9 +1,8 @@
+using System.Collections.ObjectModel;
 using System.Text;
 using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
-using CimBios.Core.CimModel.DatatypeLib;
-using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Utils.ClassTraits;
@@ -13,6 +12,9 @@ namespace CimBios.Core.CimDifferenceModel;
 public class CimDifferenceModel : ICimDifferenceModel, ICanLog
 {
     public ILogView Log => _Log;
+
+    public IReadOnlyCollection<IDifferenceObject> Differences
+         => _DifferencesCache.Values;
 
     public CimDifferenceModel(RdfSerializerBase rdfSerializer)
     {
@@ -112,22 +114,107 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
 
     public void ExtractFromDataModel(ICimDataModel cimDataModel)
     {
-        _differenceCache.Clear();
-
         var changes = cimDataModel.Changes;
 
         foreach (var changeStatement in changes)
         {
+            if (_DifferencesCache.TryGetValue(changeStatement.ModelObject.OID, 
+                out IDifferenceObject? diff) == false)
+            {
+                diff = null;
+            }
+
             if (changeStatement is CimDataModelObjectAddedStatement added)
             {
+                if (diff is null)
+                {
+                    diff = new AdditionDifferenceObject(added.ModelObject.OID);
+                }
+                else if (diff is DeletionDifferenceObject delDiff)
+                {
+                    diff = new UpdatingDifferenceObject(
+                        added.ModelObject.OID); 
 
-            }
-            else if (changeStatement is CimDataModelObjectUpdatedStatement updated)
-            {
+                    _DifferencesCache.Remove(delDiff.OID);
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                        "Unexpected change before adding difference!");
+                }
                 
+                _DifferencesCache.Add(diff.OID, diff);
+            }
+            else if (changeStatement is 
+                CimDataModelObjectUpdatedStatement updated)
+            {
+                diff ??= new UpdatingDifferenceObject(updated.ModelObject.OID);
+
+                if (diff is UpdatingDifferenceObject 
+                    || diff is AdditionDifferenceObject)
+                {
+                    diff.ChangePropertyValue(updated.MetaProperty,
+                        updated.OldValue, updated.NewValue);
+
+                    if (diff.ModifiedProperties.Count == 0)
+                    {
+                        _DifferencesCache.Remove(diff.OID);
+                        diff = null;
+                    }
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                        "Unexpected change before updating difference!");
+                }
+            }
+            else if (changeStatement is 
+                CimDataModelObjectRemovedStatement removed)
+            {
+                if (diff is AdditionDifferenceObject)
+                {
+                    _DifferencesCache.Remove(diff.OID);
+                    diff = null;
+                    continue;
+                }
+
+                 if (diff is DeletionDifferenceObject)
+                 {
+                    throw new NotSupportedException(
+                        "Unexpected change before removing difference!");
+                 }
+                else
+                {
+                    var tmoDiff = diff;
+                    diff = new DeletionDifferenceObject(removed.ModelObject.OID);
+                    foreach (var prop in removed.ModelObject
+                        .MetaClass.AllProperties)
+                    {
+                        var propValue = removed.ModelObject
+                            .TryGetPropertyValue(prop);
+                        
+                        diff.ChangePropertyValue(prop, null, propValue);
+                    }
+
+                    if (tmoDiff is UpdatingDifferenceObject upd)
+                    {
+                        _DifferencesCache.Remove(tmoDiff.OID);
+                        foreach (var prop in upd.ModifiedProperties)
+                        {
+                            var propValue = upd.OriginalObject?.
+                                TryGetPropertyValue(prop);
+
+                            diff.ChangePropertyValue(prop, null, propValue);
+                        }
+                    }
+                }
+            }
+
+            if (diff != null)
+            {
+                _DifferencesCache.TryAdd(diff.OID, diff);
             }
         } 
-
     }
 
     public void InvalidateDataWithModel(ICimDataModel cimDataModel)
@@ -142,7 +229,7 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
 
     private void InitInternalDifferenceModel()
     {
-        _differenceCache.Clear();
+        //_differenceCache.Clear();
 
         var diffModelInstance = 
         _serializer.TypeLib.CreateInstance<DifferenceModel>(
@@ -159,8 +246,7 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
         _internalDifferenceModel = diffModelInstance;
     }
 
-    private 
-    DifferenceModel _InternalDifferenceModel
+    private DifferenceModel _InternalDifferenceModel
     {
         get
         {
@@ -176,46 +262,11 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
 
     private DifferenceModel? _internalDifferenceModel = null;
 
-    private Dictionary<string, ICimDifferenceStatement> _differenceCache = [];
+    private Dictionary<string, IDifferenceObject> _DifferencesCache = [];
 
     private RdfSerializerBase _serializer;
 
     private ICimSchema _schema => _serializer.Schema;
 
     private PlainLogView _Log;
-}
-
-public interface IDifferenceObject : IModelObject
-{
-    public IReadOnlyModelObject? OriginalObject { get; }
-}
-
-public class DifferenceObject : WeakModelObject, IDifferenceObject
-{
-    public IReadOnlyModelObject? OriginalObject => _originalObject;
-
-    public DifferenceObject(string oid, CimMetaClassBase metaClass)
-        : base(oid, metaClass, false)
-    {
-
-    }
-
-    private WeakModelObject? _originalObject;
-}
-
-public interface ICimDifferenceStatement
-{
-    public string OID { get; }
-
-    public IDifferenceObject? OriginalObjectData { get; }
-    public IDifferenceObject? ModifiedObjectData { get; }
-}
-
-public class CimDifferenceStatement : ICimDifferenceStatement
-{
-    public string OID => throw new NotImplementedException();
-
-    public IDifferenceObject? OriginalObjectData => throw new NotImplementedException();
-
-    public IDifferenceObject? ModifiedObjectData => throw new NotImplementedException();
 }
