@@ -184,6 +184,12 @@ public class CimDatatypeLib : ICimDatatypeLib
     public IModelObject? CreateInstance(IModelObjectFactory modelObjectFactory,
         string oid, ICimMetaClass metaClass, bool isAuto)
     {
+        if (_Schema.CanCreateClass(metaClass) == false)
+        {
+            throw new NotSupportedException(
+                $"Class {metaClass.ShortName} cannot be created!");
+        }
+
         if (RegisteredTypes.TryGetValue(metaClass, out var type)
             && type.IsAssignableTo(modelObjectFactory.ProduceType))
         {
@@ -201,6 +207,12 @@ public class CimDatatypeLib : ICimDatatypeLib
     {   
         var metaClassTypePair = RegisteredTypes
             .Where(p => p.Value == typeof(T)).Single();
+
+        if (_Schema.CanCreateClass(metaClassTypePair.Key) == false)
+        {
+            throw new NotSupportedException(
+                $"Class {metaClassTypePair.Key.ShortName} cannot be created!");
+        }
 
         return Activator.CreateInstance(metaClassTypePair.Value, oid, 
             metaClassTypePair.Key, isAuto) as T;
