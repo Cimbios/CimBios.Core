@@ -14,7 +14,7 @@ public interface ICimDataModel : ICanLog
     /// <summary>
     /// Model description.
     /// </summary>
-    public Model? Description { get; }
+    public Model? ModelDescription { get; }
 
     /// <summary>
     /// Applied schema to this context serializer.
