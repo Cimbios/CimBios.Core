@@ -2,7 +2,7 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using CimBios.Core.CimModel.Schema;
 
-namespace CimBios.Core.CimModel.CimDataModel;
+namespace CimBios.Core.CimModel.CimDataModel.Utils;
 
 public interface ICimDataModelChangeStatement
 {

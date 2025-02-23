@@ -1,4 +1,5 @@
 using System.Data;
+using CimBios.Core.CimModel.CimDataModel.Utils;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.RdfSerializer;

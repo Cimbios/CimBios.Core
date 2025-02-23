@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Text;
+using CimBios.Core.CimModel.CimDataModel.Utils;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
