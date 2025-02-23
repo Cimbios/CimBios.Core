@@ -1,9 +1,12 @@
-using CimBios.Core.CimModel.DatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
+using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
+/// <summary>
+/// Implementation of CIM meta typed identified object.
+/// </summary>
 public class ModelObject : DynamicModelObjectBase, 
     IModelObject, IStatementsContainer
 {
@@ -98,8 +101,7 @@ public class ModelObject : DynamicModelObjectBase,
 
         if (_PropertiesData.ContainsKey(metaProperty))
         {
-            if ((value == null && _PropertiesData[metaProperty] == null)
-                || value!.Equals(_PropertiesData[metaProperty]))
+            if (value == null && _PropertiesData[metaProperty] == null)
             {
                 return;
             }
@@ -222,6 +224,7 @@ public class ModelObject : DynamicModelObjectBase,
         if (metaProperty != null)
         {
             SetAssoc1To1(metaProperty, obj);
+            return;
         }
 
         throw new ArgumentException(
@@ -309,6 +312,7 @@ public class ModelObject : DynamicModelObjectBase,
         if (metaProperty != null)
         {
             AddAssoc1ToM(metaProperty, obj);
+            return;
         }
         else
         {

@@ -1,7 +1,6 @@
-using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 
-namespace CimBios.Core.CimModel.DatatypeLib.ModelObject;
+namespace CimBios.Core.CimModel.CimDatatypeLib;
 
 /// <summary>
 /// Read abillities interface of CIM model object.
