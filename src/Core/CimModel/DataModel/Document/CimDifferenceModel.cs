@@ -1,28 +1,21 @@
-using System.Collections.ObjectModel;
-using System.Text;
 using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Utils.ClassTraits;
 
-namespace CimBios.Core.CimDifferenceModel;
+namespace CimBios.Core.CimModel.CimDifferenceModel;
 
-public class CimDifferenceModel : ICimDifferenceModel, ICanLog
+public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 {
-    public ILogView Log => _Log;
-
     public IReadOnlyCollection<IDifferenceObject> Differences
          => _DifferencesCache.Values;
 
     public CimDifferenceModel(RdfSerializerBase rdfSerializer)
+        : base (rdfSerializer)
     {
-        _serializer = rdfSerializer;
         _serializer.Settings.UnknownClassesAllowed = true;
         _serializer.Settings.UnknownPropertiesAllowed = true;
-
-        _Log = new PlainLogView(this);
 
         InitInternalDifferenceModel();
     }
@@ -32,84 +25,6 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
         : this(rdfSerializer)
     {
         ExtractFromDataModel(cimDataModel);
-    }
-
-    public void Load(StreamReader streamReader)
-    {
-        if (streamReader == null || _serializer == null)
-        {
-            _Log.NewMessage(
-                "CimDifferenceModel: Stream reader or serializer has not been initialized!",
-                LogMessageSeverity.Error
-            );            
-
-            return;
-        }
-
-        try
-        {
-            var serialized = _serializer.Deserialize(streamReader);
-            var _objects = serialized.ToDictionary(k => k.OID, v => v);
-            
-            _internalDifferenceModel = _objects.Values
-                .OfType<DifferenceModel>()
-                .FirstOrDefault();
-        }
-        catch (Exception ex)
-        {
-            _Log.NewMessage(
-                "CimDifferenceModel: Deserialization failed.",
-                LogMessageSeverity.Critical,
-                ex.Message
-            );
-        }
-        finally
-        {        
-            streamReader.Close();
-        }
-    }
-
-    public void Load(string path)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Parse(string content, Encoding? encoding = null)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Save(StreamWriter streamWriter)
-    {
-        if (streamWriter == null || _serializer == null)
-        {
-            _Log.NewMessage(
-                "CimDifferenceModel: Stream writer provider has not been initialized!",
-                LogMessageSeverity.Error
-             );  
-
-            return;
-        }  
-
-        List<IModelObject> forSerializeObjects = [_internalDifferenceModel];
-
-        try
-        {
-            _serializer.Serialize(streamWriter, forSerializeObjects);
-        }
-        catch (Exception ex)
-        {
-            _Log.NewMessage(
-                "CimDifferenceModel: Serialization failed.",
-                LogMessageSeverity.Critical,
-                ex.Message
-            );
-        }
-    }
-
-    public void Save(string path)
-    {
-        throw new NotImplementedException();
     }
 
     public void ExtractFromDataModel(ICimDataModel cimDataModel)
@@ -185,7 +100,7 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
                  }
                 else
                 {
-                    var tmoDiff = diff;
+                    var tmpDiff = diff;
                     diff = new DeletionDifferenceObject(removed.ModelObject.OID);
                     foreach (var prop in removed.ModelObject
                         .MetaClass.AllProperties)
@@ -196,9 +111,9 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
                         diff.ChangePropertyValue(prop, null, propValue);
                     }
 
-                    if (tmoDiff is UpdatingDifferenceObject upd)
+                    if (tmpDiff is UpdatingDifferenceObject upd)
                     {
-                        _DifferencesCache.Remove(tmoDiff.OID);
+                        _DifferencesCache.Remove(tmpDiff.OID);
                         foreach (var prop in upd.ModifiedProperties)
                         {
                             var propValue = upd.OriginalObject?.
@@ -231,7 +146,7 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
     {
         //_differenceCache.Clear();
 
-        var diffModelInstance = 
+        var diffModelInstance =
         _serializer.TypeLib.CreateInstance<DifferenceModel>(
             Guid.NewGuid().ToString(),
             isAuto: false
@@ -244,6 +159,64 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
         }
 
         _internalDifferenceModel = diffModelInstance;
+    }
+
+    protected override void PushDeserializedObjects(
+        IEnumerable<IModelObject> cache)
+    {
+        _internalDifferenceModel = cache
+            .OfType<DifferenceModel>()
+            .Single();
+    }
+
+    public override IEnumerable<IModelObject> GetAllObjects()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IEnumerable<T> GetObjects<T>()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IEnumerable<IModelObject> GetObjects(ICimMetaClass metaClass)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IModelObject? GetObject(string oid)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override T? GetObject<T>(string oid) where T : default
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool RemoveObject(string oid)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool RemoveObject(IModelObject modelObject)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void RemoveObjects(IEnumerable<IModelObject> modelObjects)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IModelObject CreateObject(string oid, ICimMetaClass metaClass)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override T CreateObject<T>(string oid)
+    {
+        throw new NotImplementedException();
     }
 
     private DifferenceModel _InternalDifferenceModel
@@ -263,10 +236,4 @@ public class CimDifferenceModel : ICimDifferenceModel, ICanLog
     private DifferenceModel? _internalDifferenceModel = null;
 
     private Dictionary<string, IDifferenceObject> _DifferencesCache = [];
-
-    private RdfSerializerBase _serializer;
-
-    private ICimSchema _schema => _serializer.Schema;
-
-    private PlainLogView _Log;
 }
