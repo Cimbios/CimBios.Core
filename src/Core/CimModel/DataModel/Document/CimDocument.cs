@@ -3,7 +3,6 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Utils.ClassTraits;
 
 namespace CimBios.Core.CimModel.CimDataModel;
 

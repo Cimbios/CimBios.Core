@@ -3,8 +3,8 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
-using CimBios.Core.CimDifferenceModel;
 using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
+using CimBios.Core.CimModel.CimDifferenceModel;
 
 namespace CimBios.Tests.DifferenceModel;
 

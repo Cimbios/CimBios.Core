@@ -1,9 +1,9 @@
-using System.Collections.ObjectModel;
 using System.Text;
 using CimBios.Core.CimModel.CimDataModel;
+using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Utils.ClassTraits;
 
-namespace CimBios.Core.CimDifferenceModel;
+namespace CimBios.Core.CimModel.CimDifferenceModel;
 
 /// <summary>
 /// 
