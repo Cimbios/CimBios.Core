@@ -1,6 +1,5 @@
 using System.Globalization;
 using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.DatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.RdfIOLib;
@@ -423,7 +422,7 @@ public abstract class RdfSerializerBase : ICanLog
         }
 
         // First step - creating objects.
-        foreach (var instanceNode in _RdfReader.ReadAll())
+        foreach (var instanceNode in _RdfReader.ReadAll().AsParallel())
         {
             var instance = RdfNodeToModelObject(instanceNode);
             if (instance == null)
@@ -438,7 +437,7 @@ public abstract class RdfSerializerBase : ICanLog
         _streamReader.BaseStream.Position = 0;
         _streamReader.DiscardBufferedData();    
         InitializeRdfReader(_streamReader);
-        foreach (var instanceNode in _RdfReader.ReadAll())
+        foreach (var instanceNode in _RdfReader.ReadAll().AsParallel())
         {
             if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
                 out var instanceUuid) == false)
