@@ -6,11 +6,13 @@ using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 
-[CimClass("http://www.w3.org/1999/02/22-rdf-syntax-ns#Description")]
+[CimClass(Description.ClassUri)]
 public partial class Description
 (string uuid, ICimMetaClass metaClass, bool isAuto = false)
     : ModelObject(uuid, metaClass, isAuto)
 {
+    public const string ClassUri 
+        = "http://www.w3.org/1999/02/22-rdf-syntax-ns#Description";
 }
 /// <summary>
 ///

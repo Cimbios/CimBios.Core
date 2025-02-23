@@ -4,7 +4,7 @@ using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Core.CimDifferenceModel;
 
-namespace CimBios.Tests.DifferenceManager;
+namespace CimBios.Tests.DifferenceModel;
 
 public class LoadTest
 {
