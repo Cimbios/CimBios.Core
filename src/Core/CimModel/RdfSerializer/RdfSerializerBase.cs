@@ -422,7 +422,7 @@ public abstract class RdfSerializerBase : ICanLog
         }
 
         // First step - creating objects.
-        foreach (var instanceNode in _RdfReader.ReadAll().AsParallel())
+        foreach (var instanceNode in _RdfReader.ReadAll())
         {
             var instance = RdfNodeToModelObject(instanceNode);
             if (instance == null)
@@ -437,7 +437,7 @@ public abstract class RdfSerializerBase : ICanLog
         _streamReader.BaseStream.Position = 0;
         _streamReader.DiscardBufferedData();    
         InitializeRdfReader(_streamReader);
-        foreach (var instanceNode in _RdfReader.ReadAll().AsParallel())
+        foreach (var instanceNode in _RdfReader.ReadAll())
         {
             if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
                 out var instanceUuid) == false)
