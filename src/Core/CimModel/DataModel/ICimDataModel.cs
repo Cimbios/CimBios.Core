@@ -19,7 +19,7 @@ public interface ICimDataModel : ICanLog
     /// <summary>
     /// Applied schema to this context serializer.
     /// </summary>
-    public ICimSchema? Schema { get; }
+    public ICimSchema Schema { get; }
 
     /// <summary>
     /// Changes collection of this model.
