@@ -6,17 +6,19 @@ using CimBios.Core.CimModel.Schema.AutoSchema;
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
 /// <summary>
-/// 
+/// Base class for difference objects, provides comparision access to changes.
 /// </summary>
 public abstract class DifferenceObjectBase : IDifferenceObject
 {
     public string OID { get; }
 
+    public ICimMetaClass MetaClass { get; }
+
     public IReadOnlyCollection<ICimMetaProperty> ModifiedProperties
         => _ModifiedProperties;
 
-    public IReadOnlyModelObject? OriginalObject => _OriginalObject;
-    public IReadOnlyModelObject ModifiedObject => _ModifiedObject;
+    public IReadOnlyModelObject? OriginalObject => _OriginalObject?.AsReadOnly();
+    public IReadOnlyModelObject ModifiedObject => _ModifiedObject.AsReadOnly();
 
     protected abstract WeakModelObject? _OriginalObject { get; }
     protected WeakModelObject _ModifiedObject { get; }
@@ -32,6 +34,8 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         );
 
         _ModifiedObject = new WeakModelObject(oid, descriptionMetaClass, false);
+
+        MetaClass = descriptionMetaClass;
     }
 
     protected DifferenceObjectBase (string oid, ICimMetaClass metaClass)
@@ -39,6 +43,20 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         OID = oid;
 
         _ModifiedObject = new WeakModelObject(oid, metaClass, false);
+
+        MetaClass = metaClass;
+    }
+
+    protected DifferenceObjectBase (IModelObject modifiedObject)
+    {
+        OID = modifiedObject.OID;
+
+        _ModifiedObject = new WeakModelObject(modifiedObject); 
+
+        _ModifiedProperties = _ModifiedObject
+            .GetNotNullProperties().ToHashSet();  
+
+        MetaClass = modifiedObject.MetaClass;
     }
 
     protected DifferenceObjectBase(IDifferenceObject differenceObject)
@@ -62,6 +80,12 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         if (_ModifiedProperties.Contains(metaProperty) == false)
         {           
             _ModifiedProperties.Add(metaProperty);
+        }
+
+        if (fromValue is IModelObject oldCompound 
+            && toValue is IModelObject newCompound)
+        {
+            ChangeCompoundAttribute(metaProperty, oldCompound, newCompound);
         }
 
         if (_OriginalObject?.MetaClass.HasProperty(metaProperty) == false)
@@ -224,33 +248,55 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         return true;
     }
 
+    private void ChangeCompoundAttribute(ICimMetaProperty metaProperty,
+        IModelObject oldCompound, IModelObject newCompound)
+    {
+    
+    }
+
     protected HashSet<ICimMetaProperty> _ModifiedProperties = [];
 }
 
 /// <summary>
 /// 
 /// </summary>
-/// <param name="oid"></param>
-public class AdditionDifferenceObject (string oid, ICimMetaClass metaClass)
-    : DifferenceObjectBase (oid, metaClass)
+public class AdditionDifferenceObject : DifferenceObjectBase
 {
     protected override WeakModelObject? _OriginalObject => null;
+
+    public AdditionDifferenceObject (string oid, ICimMetaClass metaClass)
+        : base (oid, metaClass)
+    {
+    }
+
+     public AdditionDifferenceObject (IModelObject modifiedMOdelObject)
+        : base (modifiedMOdelObject)
+    {
+    }   
 }
 
 /// <summary>
 /// 
 /// </summary>
-/// <param name="oid"></param>
-public class DeletionDifferenceObject (string oid, ICimMetaClass metaClass)
-    : DifferenceObjectBase (oid, metaClass)
+public class DeletionDifferenceObject
+    : DifferenceObjectBase
 {
     protected override WeakModelObject? _OriginalObject => null;
+
+    public DeletionDifferenceObject (string oid, ICimMetaClass metaClass)
+        : base (oid, metaClass)
+    {
+    }
+
+     public DeletionDifferenceObject (IModelObject modifiedMOdelObject)
+        : base (modifiedMOdelObject)
+    {
+    }   
 }
 
 /// <summary>
 /// 
 /// </summary>
-/// <param name="oid"></param>
 public class UpdatingDifferenceObject
     : DifferenceObjectBase
 {
@@ -260,6 +306,59 @@ public class UpdatingDifferenceObject
         : base (oid)
     {
         _OriginalObject = new WeakModelObject(oid, 
-            _ModifiedObject.MetaClass, true);
+            _ModifiedObject.MetaClass, false);
+    }
+
+    public UpdatingDifferenceObject (IModelObject originalObject, 
+        IModelObject modifiedObject)
+        : base (modifiedObject)
+    {
+        if (originalObject.MetaClass != modifiedObject.MetaClass)
+        {
+            throw new NotSupportedException(
+                "Origin and modified objects meta classes should be equals!");
+        }
+
+        _OriginalObject = new WeakModelObject(originalObject);
+
+        // TO-DO invalidate
+
+        _ModifiedProperties = 
+            _OriginalObject.GetNotNullProperties()
+            .Union(_ModifiedObject.GetNotNullProperties())
+            .ToHashSet();
+    }
+}
+
+/// <summary>
+/// Extension methods for WeakModelObject class.
+/// </summary>
+internal static class WeakModelObjectExtensions
+{
+    internal static ICimMetaProperty[] GetNotNullProperties(
+        this WeakModelObject modelObject)
+    {
+        var notNullProps = new List<ICimMetaProperty>();
+
+        foreach (var metaProperty in modelObject.MetaClass.AllProperties)
+        {
+            if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
+                && modelObject.GetAttribute(metaProperty) != null)
+            {
+                notNullProps.Add(metaProperty);
+            }
+            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
+                && modelObject.GetAssoc1To1<IModelObject>(metaProperty) != null)
+            {
+                notNullProps.Add(metaProperty);
+            }
+            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
+                && modelObject.GetAssoc1ToM(metaProperty).Length != 0)
+            {
+                notNullProps.Add(metaProperty);
+            }
+        }
+
+        return notNullProps.ToArray();
     }
 }

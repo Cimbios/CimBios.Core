@@ -4,24 +4,18 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 
 namespace CimBios.Core.CimModel.DataModel.Utils;
 
-internal class DiffsFromModelHelper
+internal static class DiffsFromModelHelper
 {
-    public Dictionary<string, IDifferenceObject> Differences => _Differences;
-
-    public DiffsFromModelHelper(ICimDataModel model)
+    internal static Dictionary<string, IDifferenceObject> ExtractFrom(
+        ICimDataModel model)
     {
-        Extract(model);
-    }
-
-    private void Extract(ICimDataModel model)
-    {
-        _Differences.Clear();
+        Dictionary<string, IDifferenceObject> differences = [];
 
         var changes = model.Changes;
 
         foreach (var changeStatement in changes)
         {
-            if (_Differences.TryGetValue(changeStatement.ModelObject.OID, 
+            if (differences.TryGetValue(changeStatement.ModelObject.OID, 
                 out IDifferenceObject? diff) == false)
             {
                 diff = null;
@@ -36,10 +30,11 @@ internal class DiffsFromModelHelper
                 }
                 else if (diff is DeletionDifferenceObject delDiff)
                 {
+                    // TODO: check class changing
                     diff = new UpdatingDifferenceObject(
                         added.ModelObject.OID); 
 
-                    _Differences.Remove(delDiff.OID);
+                    differences.Remove(delDiff.OID);
                 }
                 else
                 {
@@ -47,7 +42,7 @@ internal class DiffsFromModelHelper
                         "Unexpected change before adding difference!");
                 }
                 
-                _Differences.Add(diff.OID, diff);
+                differences.Add(diff.OID, diff);
             }
             else if (changeStatement is 
                 CimDataModelObjectUpdatedStatement updated)
@@ -62,7 +57,7 @@ internal class DiffsFromModelHelper
 
                     if (diff.ModifiedProperties.Count == 0)
                     {
-                        _Differences.Remove(diff.OID);
+                        differences.Remove(diff.OID);
                         diff = null;
                     }
                 }
@@ -77,7 +72,7 @@ internal class DiffsFromModelHelper
             {
                 if (diff is AdditionDifferenceObject)
                 {
-                    _Differences.Remove(diff.OID);
+                    differences.Remove(diff.OID);
                     diff = null;
                     continue;
                 }
@@ -104,7 +99,7 @@ internal class DiffsFromModelHelper
 
                     if (tmpDiff is UpdatingDifferenceObject upd)
                     {
-                        _Differences.Remove(tmpDiff.OID);
+                        differences.Remove(tmpDiff.OID);
                         foreach (var prop in upd.ModifiedProperties)
                         {
                             var propValue = upd.OriginalObject?.
@@ -118,10 +113,10 @@ internal class DiffsFromModelHelper
 
             if (diff != null)
             {
-                _Differences.TryAdd(diff.OID, diff);
+                differences.TryAdd(diff.OID, diff);
             }
         } 
-    }
 
-    private Dictionary<string, IDifferenceObject> _Differences = [];
+        return differences;
+    }
 }
