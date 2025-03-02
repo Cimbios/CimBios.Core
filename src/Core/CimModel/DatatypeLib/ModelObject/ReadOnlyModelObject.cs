@@ -46,6 +46,12 @@ public class ReadOnlyModelObject (IReadOnlyModelObject modelObject)
     public T[] GetAssoc1ToM<T>(string assocName)
         where T: IModelObject
         => ModelObject.GetAssoc1ToM<T>(assocName);
+
+    public IModelObject? GetAssoc1To1(ICimMetaProperty metaProperty)
+         => ModelObject.GetAssoc1To1(metaProperty);
+
+    public IModelObject? GetAssoc1To1(string assocName)
+        => ModelObject.GetAssoc1To1(assocName);
 }
 
 /// <summary>
