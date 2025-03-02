@@ -172,7 +172,7 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
     public virtual void AddProperty(ICimMetaProperty metaProperty)
     {
         if (this.Equals(metaProperty.OwnerClass)
-            && HasProperty(metaProperty, false) == false)
+            && HasProperty(metaProperty, true) == false)
         {
             _Properties.Add(metaProperty);
         }

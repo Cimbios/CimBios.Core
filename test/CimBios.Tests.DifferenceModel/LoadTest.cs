@@ -17,6 +17,8 @@ public class LoadTest
         var cimDifferenceModel = new CimDifferenceModel(rdfSerializer);
 
         cimDifferenceModel.Load(new StreamReader("../../../assets/test_diff.xml"));
+
+        Assert.True(true);
     }
 
     [Fact]

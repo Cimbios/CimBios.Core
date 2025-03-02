@@ -13,7 +13,7 @@ public class CimAutoClass(Uri baseUri, string shortName, string description)
 
     public override void AddProperty(ICimMetaProperty metaProperty)
     {
-       if (HasProperty(metaProperty, false) == false)
+       if (HasProperty(metaProperty, true) == false)
         {
             _Properties.Add(metaProperty);
         }

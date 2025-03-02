@@ -152,6 +152,11 @@ public abstract class RdfSerializerBase : ICanLog
             WriteObjectProperty(rdfNode, modelObject, schemaProperty);
         }
 
+        if (rdfNode.Triples.Length == 0)
+        {
+            return null;
+        }
+
         return rdfNode;
     }
 
@@ -268,7 +273,7 @@ public abstract class RdfSerializerBase : ICanLog
                 }
                 else if (enumObject is Enum typedEnum)
                 {   
-                    tripleObject = Schema.GetClassIndividuals(metaClass)
+                    tripleObject = metaClass.AllIndividuals
                         .Where(i => i.ShortName == typedEnum.ToString())
                         .Select(i => i.BaseUri)
                         .FirstOrDefault();
@@ -641,11 +646,11 @@ public abstract class RdfSerializerBase : ICanLog
                 && maybeCompound != null 
                 && maybeCompound.IsAuto)
             {
-                var compundMetaClass = GetOrCreateAutoClass(
+                var compoundMetaClass = GetOrCreateAutoClass(
                     maybeCompound.TypeIdentifier);
-                compundMetaClass.SetIsCompound(true);
+                compoundMetaClass.SetIsCompound(true);
                 
-                metaDatatype = compundMetaClass;
+                metaDatatype = compoundMetaClass;
 
                 cimMetaPropertyKind = CimMetaPropertyKind.Attribute; 
             }

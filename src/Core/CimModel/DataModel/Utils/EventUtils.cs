@@ -54,6 +54,7 @@ public sealed class CimDataModelObjectUpdatedStatement
         {
             OldValue = attrEv.OldValue;
             NewValue = attrEv.NewValue;
+
         }
         else if (eventArgs is CimMetaAssocChangedEventArgs assocEv)
         {

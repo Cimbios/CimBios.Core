@@ -11,17 +11,15 @@ public interface ICimDifferenceModel : ICanLog
 {
     public IReadOnlyCollection<IDifferenceObject> Differences { get; }
 
+    public void ApplyToDataModel(ICimDataModel cimDataModel);
     public void ExtractFromDataModel(ICimDataModel cimDataModel);
-    public void InvalidateWithDataModel(ICimDataModel cimDataModel);
+    public void FitToDataModelSchema(ICimDataModel cimDataModel);
 
     public void ResetAll();
 
-    // forward
-    // reference
     // compare
     // load
     // save
     // apply
-    // subscribe
-    // invalidate
+
 }
