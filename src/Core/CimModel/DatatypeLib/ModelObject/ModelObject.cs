@@ -1,6 +1,7 @@
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
+using System.Collections.Concurrent;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
@@ -44,7 +45,15 @@ public class ModelObject : DynamicModelObjectBase,
 
     public override object? GetAttribute(ICimMetaProperty metaProperty)
     {
-        return GetDataByProperty(metaProperty, CimMetaPropertyKind.Attribute);
+        var data = GetDataByProperty(metaProperty, 
+            CimMetaPropertyKind.Attribute);
+
+        if (data is IModelObject compound)
+        {
+            SubscribesToCompoundChanges(metaProperty, compound);
+        }
+
+        return data;
     }
 
     public override object? GetAttribute(string attributeName)
@@ -96,7 +105,7 @@ public class ModelObject : DynamicModelObjectBase,
 
         if (_PropertiesData.ContainsKey(metaProperty) == false)
         {
-            _PropertiesData.Add(metaProperty, null);
+            _PropertiesData.TryAdd(metaProperty, null);
         }
 
         if (_PropertiesData.ContainsKey(metaProperty))
@@ -109,7 +118,7 @@ public class ModelObject : DynamicModelObjectBase,
             var old = _PropertiesData[metaProperty];
             if (value == null)
             {
-                _PropertiesData.Remove(metaProperty);
+                _PropertiesData.Remove(metaProperty, out var _);
             }
             else
             {
@@ -184,7 +193,7 @@ public class ModelObject : DynamicModelObjectBase,
         {
             if (obj != null)
             {
-                _PropertiesData.Add(metaProperty, null);
+                _PropertiesData.TryAdd(metaProperty, null);
             }
             else
             {
@@ -205,7 +214,7 @@ public class ModelObject : DynamicModelObjectBase,
 
             if (_PropertiesData[metaProperty] == null)
             {
-                _PropertiesData.Remove(metaProperty);
+                _PropertiesData.Remove(metaProperty, out var _);
             }
 
             OnPropertyChanged(new CimMetaAssocChangedEventArgs(
@@ -283,7 +292,7 @@ public class ModelObject : DynamicModelObjectBase,
 
         if (_PropertiesData.ContainsKey(metaProperty) == false)
         {
-            _PropertiesData.Add(metaProperty, new HashSet<IModelObject>());
+            _PropertiesData.TryAdd(metaProperty, new HashSet<IModelObject>());
         }
 
         if (_PropertiesData.TryGetValue(metaProperty, out var value)
@@ -418,7 +427,7 @@ public class ModelObject : DynamicModelObjectBase,
         if (_Statements.TryGetValue(statementProperty, 
             out var statements) == false)
         {
-            _Statements.Add(statementProperty, 
+            _Statements.TryAdd(statementProperty, 
                 new HashSet<IModelObject>() { statement });
         }
         else if (statements.Contains(statement) == false)
@@ -652,7 +661,7 @@ public class ModelObject : DynamicModelObjectBase,
         foreach (var statementProperty in MetaClass.AllProperties
             .Where(p => p.PropertyKind == CimMetaPropertyKind.Statements))
         {
-            _Statements.Add(statementProperty, 
+            _Statements.TryAdd(statementProperty, 
                 new HashSet<IModelObject>());
         }
     }
@@ -663,9 +672,12 @@ public class ModelObject : DynamicModelObjectBase,
     private bool _isAuto;
 
     private ICimMetaClass _MetaClass;
-    private readonly Dictionary<ICimMetaProperty, object?> _PropertiesData;
 
-    private readonly Dictionary<ICimMetaProperty, ICollection<IModelObject>> 
+    private readonly ConcurrentDictionary<ICimMetaProperty, object?> 
+    _PropertiesData;
+
+    private readonly 
+    ConcurrentDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     _Statements = [];
 }
 
@@ -677,20 +689,5 @@ public class ModelObjectFactory : IModelObjectFactory
         ICimMetaClass metaClass, bool isAuto)
     {
         return new ModelObject(uuid, metaClass, isAuto);
-    }
-}
-
-/// <summary>
-/// Class for unfindable by reference object in model
-/// ObjectData - ClassType means predicate URI
-/// </summary>
-public sealed class ModelObjectUnresolvedReference 
-    : ModelObject, IModelObject
-{
-    public Uri Predicate => MetaClass.BaseUri;
-
-    public ModelObjectUnresolvedReference(string oid, ICimMetaClass metaClass)
-        : base(oid, metaClass, true)
-    {
     }
 }

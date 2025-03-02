@@ -1,9 +1,14 @@
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
+using System.Collections.Concurrent;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
+/// <summary>
+/// Weak linked model object. Provides meta schema validation free IO functions.
+/// Use only to represent data in unknown schema format. Meta class always auto.
+/// </summary>
 public class WeakModelObject : DynamicModelObjectBase, 
     IModelObject, IStatementsContainer
 {
@@ -16,19 +21,36 @@ public class WeakModelObject : DynamicModelObjectBase,
     public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     Statements => _Statements.AsReadOnly();
 
+    /// <summary>
+    /// Default weak linked object constructor. Take
+    /// </summary>
     public WeakModelObject(string oid, ICimMetaClass metaClass, bool isAuto)
         : base()
     {
-        if (metaClass is not CimMetaClassBase metaClassBase)
+        if (metaClass is not CimAutoClass autoClass)
         {
-            throw new InvalidCastException();
+            autoClass = new CimAutoClass(
+                metaClass.BaseUri,
+                metaClass.ShortName,
+                metaClass.Description
+            );
         }
 
         _Oid = oid;
-        _MetaClass = metaClassBase;
+        _MetaClass = autoClass;
         _IsAuto = isAuto;
 
         InitStatementsCollections();
+    }
+
+    /// <summary>
+    /// Copy constuctor.
+    /// </summary>
+    /// <param name="modelObject">Model object for copy.</param>
+    public WeakModelObject (IReadOnlyModelObject modelObject)
+        : this (modelObject.OID, modelObject.MetaClass, modelObject.IsAuto)
+    {
+        this.CopyPropertiesFrom(modelObject, true);
     }
 
     public override bool HasProperty(string propertyName)
@@ -47,6 +69,11 @@ public class WeakModelObject : DynamicModelObjectBase,
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
             && _PropertiesData.TryGetValue(metaProperty, out var value))
         {
+            if (value is IModelObject compound)
+            {
+                SubscribesToCompoundChanges(metaProperty, compound);
+            }
+            
             return value;
         }
 
@@ -118,7 +145,7 @@ public class WeakModelObject : DynamicModelObjectBase,
         }
         else
         {
-            _PropertiesData.Add(metaProperty, value);
+            _PropertiesData.TryAdd(metaProperty, value);
             _MetaClass.AddProperty(metaProperty);
         }
 
@@ -126,6 +153,8 @@ public class WeakModelObject : DynamicModelObjectBase,
         {
             _MetaClass.AddProperty(metaProperty);
         }
+
+        CleanUpNullProperty(metaProperty);
 
         OnPropertyChanged(new CimMetaAttributeChangedEventArgs(
             metaProperty, old, value));
@@ -193,6 +222,8 @@ public class WeakModelObject : DynamicModelObjectBase,
         {
             AddAssoc1ToM(metaProperty, obj);
         }
+
+        CleanUpNullProperty(metaProperty);
     }
 
     public override void SetAssoc1To1(string assocName, IModelObject? obj)
@@ -268,7 +299,7 @@ public class WeakModelObject : DynamicModelObjectBase,
         }
         else
         {
-            _PropertiesData.Add(metaProperty, 
+            _PropertiesData.TryAdd(metaProperty, 
                 new HashSet<IModelObject>() { obj });
 
             _MetaClass.AddProperty(metaProperty);
@@ -278,6 +309,8 @@ public class WeakModelObject : DynamicModelObjectBase,
         {
             _MetaClass.AddProperty(metaProperty);
         }
+
+        CleanUpNullProperty(metaProperty);
 
         OnPropertyChanged(new CimMetaAssocChangedEventArgs(
             metaProperty, null, obj));
@@ -380,7 +413,7 @@ public class WeakModelObject : DynamicModelObjectBase,
         if (_Statements.TryGetValue(statementProperty, 
             out var statements) == false)
         {
-            _Statements.Add(statementProperty, 
+            _Statements.TryAdd(statementProperty, 
                 new HashSet<IModelObject>() { statement });
         }
         else if (statements.Contains(statement) == false)
@@ -404,18 +437,41 @@ public class WeakModelObject : DynamicModelObjectBase,
         foreach (var statementProperty in MetaClass.AllProperties
             .Where(p => p.PropertyKind == CimMetaPropertyKind.Statements))
         {
-            _Statements.Add(statementProperty, 
+            _Statements.TryAdd(statementProperty, 
                 new HashSet<IModelObject>());
         }
     }
 
+    private void CleanUpNullProperty (ICimMetaProperty metaProperty)
+    {
+        if (_PropertiesData.TryGetValue(metaProperty, out var data) == false)
+        {
+            return;
+        }
+
+        if ((metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
+            || metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+            && data == null)
+        {
+            _PropertiesData.Remove(metaProperty, out var _);
+        }
+        else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
+            && data is ICollection<IModelObject> dataCol
+            && dataCol.Count == 0)
+        {
+            _PropertiesData.Remove(metaProperty, out var _);
+        }
+    }
+
     private string _Oid;
-    private CimMetaClassBase _MetaClass;
+    private CimAutoClass _MetaClass;
     private bool _IsAuto;
 
-    protected readonly Dictionary<ICimMetaProperty, object?> _PropertiesData = [];
+    protected readonly ConcurrentDictionary<ICimMetaProperty, object?> 
+    _PropertiesData = [];
 
-    protected readonly Dictionary<ICimMetaProperty, ICollection<IModelObject>> 
+    protected readonly 
+    ConcurrentDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     _Statements = [];
 }
 
