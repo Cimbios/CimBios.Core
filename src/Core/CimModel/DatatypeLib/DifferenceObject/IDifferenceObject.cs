@@ -15,6 +15,11 @@ public interface IDifferenceObject
     /// <summary>
     /// 
     /// </summary>
+    public ICimMetaClass MetaClass { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public IReadOnlyCollection<ICimMetaProperty> ModifiedProperties { get; }
 
     /// <summary>

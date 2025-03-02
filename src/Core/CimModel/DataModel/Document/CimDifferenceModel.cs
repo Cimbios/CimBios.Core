@@ -26,22 +26,28 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         ExtractFromDataModel(cimDataModel);
     }
 
+     public void ApplyToDataModel(ICimDataModel cimDataModel)
+     {
+        DiffsToModelHelper.ApplyTo(cimDataModel, _DifferencesCache.Values);
+     }
+
     public void ExtractFromDataModel(ICimDataModel cimDataModel)
     {
         ResetAll();
         
-        var diffsHelper = new DiffsFromModelHelper(cimDataModel);
-        _DifferencesCache = diffsHelper.Differences;
+        _DifferencesCache = DiffsFromModelHelper.ExtractFrom(cimDataModel);
         ToDifferenceModel();
     }
 
-    public void InvalidateWithDataModel(ICimDataModel cimDataModel)
+    public void FitToDataModelSchema(ICimDataModel cimDataModel)
     {
         throw new NotImplementedException();
     }
 
     public void ResetAll()
     {
+        _Objects.Clear();
+        
         _internalDifferenceModel = TypeLib.CreateInstance<DifferenceModel>(
             Guid.NewGuid().ToString(),
             isAuto: false
@@ -53,6 +59,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             ("dm:DifferenceModel instance initialization failed!");
         }
 
+        _Objects.Add(_internalDifferenceModel.OID, _internalDifferenceModel);
         _DifferencesCache.Clear();
     }
 
@@ -61,30 +68,24 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         _DifferencesCache.Values.AsParallel().ForAll(
             diff =>
             {
-                if (diff.ModifiedObject is not IModelObject modifiedObject)
-                {
-                    return;
-                }
-
                 if (diff is AdditionDifferenceObject
                     || diff is UpdatingDifferenceObject)
                 {
                     _InternalDifferenceModel.forwardDifferences.Add(
-                        modifiedObject);
+                        new WeakModelObject(diff.ModifiedObject));
                 }
 
-                if (diff is DeletionDifferenceObject
-                    || diff is UpdatingDifferenceObject)
+                if (diff is DeletionDifferenceObject)
                 {
                     _InternalDifferenceModel.reverseDifferences.Add(
-                        modifiedObject);       
+                        new WeakModelObject(diff.ModifiedObject));       
                 }
 
                 if (diff is UpdatingDifferenceObject
-                    && diff.OriginalObject is IModelObject originalObject)
+                    && diff.OriginalObject is not null)
                 {
                     _InternalDifferenceModel.reverseDifferences.Add(
-                        originalObject); 
+                        new WeakModelObject(diff.OriginalObject)); 
                 }
             }
         );
@@ -103,21 +104,63 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
                 "Schema does not contains neccessary rdf:Description class!");
         }
 
-        _InternalDifferenceModel.forwardDifferences
-            .AsParallel().ForAll(s => 
+        var waitingForwardUpdates = new Dictionary<string, IModelObject>();
+        _InternalDifferenceModel.forwardDifferences.AsParallel().ForAll(s => 
             {
-                if (s.MetaClass == descriptionMetaClass)
+                if (s.MetaClass != descriptionMetaClass)
                 {
-                    var updDiff = new UpdatingDifferenceObject(s.OID);
-                    
-                }
-                else
-                {
-                    var addDiff = new AdditionDifferenceObject(
-                        s.OID, s.MetaClass);
+                    var addDiff = new AdditionDifferenceObject(s);
 
                     _DifferencesCache.Add(addDiff.OID, addDiff);
                 }
+                else
+                {
+                    waitingForwardUpdates.TryAdd(s.OID, s);   
+                }
+            }
+        );
+
+        _InternalDifferenceModel.reverseDifferences.AsParallel().ForAll(s => 
+            {
+                if (s.MetaClass != descriptionMetaClass)
+                {
+                    var delDiff = new DeletionDifferenceObject(s);
+
+                    _DifferencesCache.Add(delDiff.OID, delDiff);
+                }
+                else
+                {
+                    if (waitingForwardUpdates.TryGetValue(s.OID,
+                        out var waiting) == false)
+                    {
+                        waiting = new WeakModelObject(s.OID, 
+                            descriptionMetaClass, false);
+                    }
+                    else
+                    {
+                        waitingForwardUpdates.Remove(s.OID);
+                    }
+
+                    var updDiff = new UpdatingDifferenceObject(s, waiting);  
+
+                    _DifferencesCache.Add(updDiff.OID, updDiff);
+                }
+            }
+        );
+
+        waitingForwardUpdates.Values.AsParallel().ForAll(w =>
+            {
+                if (w == null)
+                {
+                    return;
+                }
+                
+                var modified = new WeakModelObject(w.OID, 
+                    descriptionMetaClass, false);
+
+                var updDiff = new UpdatingDifferenceObject(w, modified);
+
+                 _DifferencesCache.Add(updDiff.OID, updDiff);
             }
         );
     }

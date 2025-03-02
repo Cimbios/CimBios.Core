@@ -173,6 +173,54 @@ public class ExtractFromDataModelTest
         );
     }
 
+    // Just behaivour
+    [Fact]
+    public void SaveDiff ()
+    {
+        var diffSchema = LoadCimSchema(DiffSchemaPath);
+        var rdfSerializer = new RdfXmlSerializer(diffSchema, 
+            new CimDatatypeLib(diffSchema));
+
+        var cimDifferenceModel = new CimDifferenceModel(rdfSerializer);
+
+        var cimDocument = CreateCimModelInstance(ModelSchemaPath);
+
+        var terminal = cimDocument.CreateObject<Terminal>("ex_t_1");
+        terminal.name = "Test Terminal";
+
+        var cn = cimDocument.CreateObject<ConnectivityNode>("ex_cn_1");
+        cn.name = "Test ConnectivityNode";
+
+        var substation = cimDocument.CreateObject<Substation>("ex_ss_1");
+        substation.name = "Test Substation";
+
+        var voltageLevel = cimDocument.CreateObject<VoltageLevel>("ex_vl_1");
+        voltageLevel.name = "Test VoltageLevel";
+        voltageLevel.Substation = substation;
+
+        var bay = cimDocument.CreateObject<Bay>("ex_bay_1");
+        bay.name = "Test Bay";
+        bay.VoltageLevel = voltageLevel;   
+
+        cimDocument.CommitAllChanges(); // 4 avoid add change statement
+
+        terminal.name = "Terminal name";
+        terminal.ConnectivityNode = cn;
+        terminal.phases = PhaseCode.ABC;
+
+        var newTerminal = cimDocument.CreateObject<Terminal>("new_t_1");
+        newTerminal.name = "New terminal"; 
+        newTerminal.sequenceNumber = 1;    
+
+        cn.AddAssoc1ToM("Terminals", newTerminal);
+
+        cimDocument.RemoveObject(voltageLevel);
+
+        cimDifferenceModel.ExtractFromDataModel(cimDocument);
+        cimDifferenceModel.Save(
+            new StreamWriter("../../../assets/test_diff_wr_extracted.xml"));
+    }
+
     private static ICimDataModel CreateCimModelInstance(string schemaPath)
     {
         var schema = LoadCimSchema(schemaPath);
