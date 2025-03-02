@@ -52,6 +52,20 @@ public interface IReadOnlyModelObject : IModelObjectCore
     public T? GetAssoc1To1<T>(string assocName) where T: IModelObject;
 
     /// <summary>
+    /// Get 1 to 1 assoc object. Throws exception if property does not exists.
+    /// </summary>
+    /// <param name="metaProperty">Schema meta property instance.</param>
+    /// <returns>IModelObject instance.</returns>
+    public IModelObject? GetAssoc1To1(ICimMetaProperty metaProperty);
+
+    /// <summary>
+    /// Get 1 to 1 assoc object. Throws exception if property does not exists.
+    /// </summary>
+    /// <param name="assocName">Assoc name in format of '(Domain.)Assoc'.</param>
+    /// <returns>IModelObject instance.</returns>
+    public IModelObject? GetAssoc1To1(string assocName);
+
+    /// <summary>
     /// Get 1 to M assoc objects. Throws exception if property does not exists.
     /// </summary>
     /// <param name="metaProperty">Schema meta property instance.</param>

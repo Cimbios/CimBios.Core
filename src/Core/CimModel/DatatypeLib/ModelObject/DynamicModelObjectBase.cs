@@ -100,6 +100,12 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
 
     public abstract T? GetAssoc1To1<T>(string assocName) where T : IModelObject;
 
+    public IModelObject? GetAssoc1To1(ICimMetaProperty metaProperty) 
+        => GetAssoc1To1<IModelObject>(metaProperty);
+
+    public IModelObject? GetAssoc1To1(string assocName)
+        => GetAssoc1To1<IModelObject>(assocName);
+
     public abstract IModelObject[] GetAssoc1ToM(ICimMetaProperty metaProperty);
 
     public abstract IModelObject[] GetAssoc1ToM(string assocName);
@@ -183,6 +189,44 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         return true;
     }
 
+    protected void SubscribesToCompoundChanges(ICimMetaProperty metaProperty,
+        IModelObject compoundObject)
+    {
+        if (compoundObject.MetaClass.IsCompound == false)
+        {
+            return;
+        }
+
+        if (compoundObject is IModelObject compound)
+        {
+            compound.PropertyChanged += (_, e) =>
+            {
+                if (e is not CimMetaAttributeChangedEventArgs eventArg)
+                {
+                    return;
+                }
+
+                var oldModelObjectMock = new WeakModelObject(compound.OID, 
+                    compound.MetaClass, true);
+
+                var newModelObjectMock = new WeakModelObject(compound.OID, 
+                    compound.MetaClass, true);
+
+                oldModelObjectMock.SetAttribute(eventArg.MetaProperty, 
+                    eventArg.OldValue);
+
+                newModelObjectMock.SetAttribute(eventArg.MetaProperty, 
+                    eventArg.NewValue);
+                
+                OnPropertyChanged(
+                    new CimMetaAttributeChangedEventArgs(
+                        metaProperty, 
+                        oldModelObjectMock, newModelObjectMock)
+                );
+            };
+        }
+    }
+
     private BindingList<IModelObject> BindDynamicAssocsCollection(
         ICimMetaProperty metaProperty, IList<IModelObject> assocCollection)
     {
@@ -210,5 +254,63 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         };
 
         return blist;
+    }
+}
+
+/// <summary>
+/// 
+/// </summary>
+public static class ModelObjectExtensions
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="modelObject"></param>
+    /// <param name="fromModelObject"></param>
+    /// <param name="allowAssoc11Capture">Re-connect inverse 1 to 1 assoc.</param>
+    public static void CopyPropertiesFrom (this IModelObject modelObject, 
+        IReadOnlyModelObject fromModelObject, bool allowAssoc11Capture = false)
+    {
+        var intersectedProps = modelObject.MetaClass.AllProperties
+            .Intersect(fromModelObject.MetaClass.AllProperties)
+            .ToList();
+
+        foreach (var metaProperty in intersectedProps)
+        {
+            var inverse = metaProperty.InverseProperty?.PropertyKind
+                ?? CimMetaPropertyKind.NonStandard;
+
+            if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
+            {
+                var copy = fromModelObject.GetAttribute(metaProperty);
+                modelObject.SetAttribute(metaProperty, copy);
+            }
+            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
+                && (allowAssoc11Capture == true 
+                    || inverse != CimMetaPropertyKind.Assoc1To1))
+            {
+                var refCopy = fromModelObject.GetAssoc1To1<IModelObject>(metaProperty);
+                modelObject.SetAssoc1To1(metaProperty, refCopy);                
+            }
+            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+            {
+                var refCol = fromModelObject.GetAssoc1ToM(metaProperty);
+                foreach (var refCopy in refCol)
+                {
+                    modelObject.AddAssoc1ToM(metaProperty, refCopy);
+                }               
+            }
+            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Statements
+                && modelObject is IStatementsContainer statementsContainer1
+                && fromModelObject is IStatementsContainer statementsContainer2)
+            {
+                foreach (var statement in statementsContainer2
+                    .Statements[metaProperty])
+                {
+                    statementsContainer1.AddToStatements(
+                        metaProperty, statement);
+                }
+            }
+        }
     }
 }
