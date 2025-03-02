@@ -42,11 +42,17 @@
         <me:IdentifiedObject.ChildObjects rdf:resource="#_969395fa-be57-43a9-aa20-c438ecf4a7d6" />
       </rdf:Description>
       <cim:OrganisationRole rdf:about="#_969395fa-be57-43a9-aa20-c438ecf4a7d6">
+        <cim:Terminal.phases rdf:resource="#_PhaseCode.ABC" />
         <me:OrganisationRole.Category rdf:resource="#_10000d78-0000-0000-c000-0000006d746c" />
         <cim:OrganisationRole.Organisation rdf:resource="#_90523b87-67c6-40df-8a10-893d9a1f85c9" />
         <rf:OrganisationRole.Objects rdf:resource="#_817d13ad-4d9d-4063-8cbc-6854bc67ec79" />
         <cim:IdentifiedObject.name>Эксплуатация Приморская ГРЭС АО «Кузбассэнерго»</cim:IdentifiedObject.name>
         <me:IdentifiedObject.ParentObject rdf:resource="#_62956e68-9210-4290-941a-0e3a5a8ff4ad" />
+        <cim:Asset.inUseDate>
+          <cim:InUseDate>
+            <cim:InUseDate.inUseDate>2025-02-24T00:00:00Z</cim:InUseDate.inUseDate>
+          </cim:InUseDate>
+        </cim:Asset.inUseDate>
       </cim:OrganisationRole>
     </dm:forwardDifferences>
     <dm:reverseDifferences>
