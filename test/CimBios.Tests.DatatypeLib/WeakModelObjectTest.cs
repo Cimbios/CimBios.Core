@@ -2,6 +2,7 @@
 using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
@@ -18,8 +19,8 @@ public class WeakModelObjectTests
             "../../../assets/Iec61970BaseCore-rdfs.xml"
         );
 
-        var checkObject = cimModel
-            .GetObject<WeakModelObject>("currenttransformer1");
+        var checkObject = cimModel.GetObject<WeakModelObject>(
+            cimModel.OIDDescriptorFactory.Create("_currenttransformer1"));
             
         Assert.NotNull(checkObject);
     }
@@ -33,7 +34,7 @@ public class WeakModelObjectTests
         );
 
         var checkObject = cimModel
-            .GetObject<Terminal>("terminal1");
+            .GetObject<Terminal>(new TextDescriptor("_terminal1"));
             
         Assert.NotNull(checkObject);
     }
@@ -46,8 +47,8 @@ public class WeakModelObjectTests
             "../../../assets/Iec61970BaseCore-rdfs.xml"
         );
 
-        var checkObject = cimModel
-            .GetObject<WeakModelObject>("currenttransformer1");
+        var checkObject = cimModel.GetObject<WeakModelObject>(
+            new TextDescriptor("_currenttransformer1"));
 
         var checkAttrName = checkObject?.GetAttribute("name");
             
@@ -62,8 +63,8 @@ public class WeakModelObjectTests
             "../../../assets/Iec61970BaseCore-rdfs.xml"
         );
 
-        var checkObject = cimModel
-            .GetObject<WeakModelObject>("currenttransformer1");
+        var checkObject = cimModel.GetObject<WeakModelObject>(
+            new TextDescriptor("_currenttransformer1"));
             
         var checkAttrName = checkObject?
             .GetAttribute("ratedCurrent");
@@ -79,8 +80,8 @@ public class WeakModelObjectTests
             "../../../assets/Iec61970BaseCore-rdfs.xml"
         );
 
-        var checkObject = cimModel
-            .GetObject<Terminal>("terminal1");
+        var checkObject = cimModel.GetObject<Terminal>(
+            new TextDescriptor("_terminal1"));
             
         var checkEnumAssocType = checkObject?.GetAssoc1ToM("Type");
             
@@ -95,32 +96,33 @@ public class WeakModelObjectTests
             "../../../assets/Iec61970BaseCore-rdfs.xml"
         );
 
-        var checkObject = cimModel
-            .GetObject<WeakModelObject>("currenttransformer1");
+        var checkObject = cimModel.GetObject<WeakModelObject>(
+            new TextDescriptor("_currenttransformer1"));
             
         var checkCompound = checkObject?
             .GetAttribute<IModelObject>("CompoundProperty");
 
         Assert.IsType<WeakModelObject>(checkCompound);
-        Assert.True(checkCompound.IsAuto);
+        Assert.True(checkCompound.OID is AutoDescriptor);
     }
 
     private static ICimDataModel CreateCimModelInstance(string modelPath, 
         string schemaPath)
     {
         var schema = LoadCimSchema(schemaPath);
-        var rdfSerializer = new RdfXmlSerializer(schema, 
-            new CimDatatypeLib(schema))
-        {
-            Settings = new RdfSerializerSettings()
-            {
+        var typeLib = new CimDatatypeLib(schema);
+
+        var cimDocument = new CimDocument(schema, typeLib, 
+            new TextDescriptorFactory());
+            
+        cimDocument.Load(modelPath, new RdfXmlSerializerFactory() 
+        { 
+            Settings = new RdfSerializerSettings() 
+            {  
                 UnknownClassesAllowed = true,
                 UnknownPropertiesAllowed = true
-            }
-        };
-
-        var cimDocument = new CimDocument(rdfSerializer);
-        cimDocument.Load(modelPath);
+            } 
+        });
 
         return cimDocument;
     }

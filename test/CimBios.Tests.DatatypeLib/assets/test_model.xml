@@ -12,19 +12,19 @@
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:cim="http://iec.ch/TC57/CIM100#"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#" > 
-	<md:FullModel rdf:about="#_fullmodel1">
+	<md:FullModel rdf:ID="_fullmodel1">
     <md:Model.created>2023-07-26T10:30:58.5964959Z</md:Model.created>
     <md:Model.version>ver:11.7.1.229;ext:1;</md:Model.version>
     <me:Model.name>CIM16</me:Model.name>
   </md:FullModel>
-  <cim:Terminal rdf:about="#_terminal1">
+  <cim:Terminal rdf:ID="_terminal1">
     <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-    <cim:Terminal.AuxiliaryEquipment rdf:resource="#_currenttransformer1"/>
-    <cim:Terminal.Unknown rdf:resource="#_unresolved"/>
+    <cim:Terminal.AuxiliaryEquipment rdf:resource="_currenttransformer1"/>
+    <cim:Terminal.Unknown rdf:resource="_unresolved"/>
     <so:Terminal.Type rdf:resource="so:Trivial"/>
   </cim:Terminal>
-  <cim:CurrentTransformer rdf:about="#_currenttransformer1">
-    <cim:AuxiliaryEquipment.Terminal rdf:resource="#_terminal1"/>
+  <cim:CurrentTransformer rdf:ID="_currenttransformer1">
+    <cim:AuxiliaryEquipment.Terminal rdf:resource="_terminal1"/>
     <cim:IdentifiedObject.name>ТТ 110 1Т</cim:IdentifiedObject.name>
     <rf:CurrentTransformer.isEmbeded>false</rf:CurrentTransformer.isEmbeded>
     <cim:Equipment.normallyInService>true</cim:Equipment.normallyInService>

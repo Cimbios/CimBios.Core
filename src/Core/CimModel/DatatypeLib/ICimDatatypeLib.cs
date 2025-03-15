@@ -1,4 +1,5 @@
 using System.Reflection;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Utils.ClassTraits;
 
@@ -43,7 +44,7 @@ public interface ICimDatatypeLib : ICanLog
     /// <param name="isAuto">Is auto class attribute.</param>
     /// <returns>IModelObject instance of meta type.</returns>
     public IModelObject? CreateInstance(IModelObjectFactory modelObjectFactory,
-        string oid, ICimMetaClass metaClass, bool isAuto);
+        IOIDDescriptor oid, ICimMetaClass metaClass);
 
     /// <summary>
     /// Create instance of schema meta class.
@@ -53,6 +54,25 @@ public interface ICimDatatypeLib : ICanLog
     /// <param name="metaClass">Cim schema meta class.</param>
     /// <param name="isAuto">Is auto class attribute.</param>
     /// <returns>IModelObject instance of meta type.</returns>
-    public T? CreateInstance<T>(string oid, bool isAuto) 
+    public T? CreateInstance<T>(IOIDDescriptor oid) 
         where T : class, IModelObject;
+
+    /// <summary>
+    /// Create enum value instance of meta individual type.
+    /// </summary>
+    /// <typeparam name="TEnum">Typed enum generic value.</typeparam>
+    /// <param name="metaIndividual">Meta individual instance.</param>
+    /// <returns></returns>
+    public EnumValueObject? CreateEnumValueInstance(
+        ICimMetaIndividual metaIndividual);
+
+    /// <summary>
+    /// Create enum value instance of meta individual type.
+    /// </summary>
+    /// <typeparam name="TEnum">Typed enum generic value.</typeparam>
+    /// <param name="enumValue">Typed enum value instance.</param>
+    /// <returns></returns>
+    public EnumValueObject<TEnum>? CreateEnumValueInstance<TEnum>(
+        TEnum enumValue) where TEnum: struct, Enum;
+
 }

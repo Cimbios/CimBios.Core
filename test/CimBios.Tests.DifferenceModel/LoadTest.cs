@@ -1,4 +1,5 @@
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.CimDifferenceModel;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
@@ -12,11 +13,13 @@ public class LoadTest
     public void LoadAndGetDifferenceModelObject()
     {
         var schema = LoadCimSchema("../../../assets/Iec61970-552-Headers-rdfs.xml");
-        var rdfSerializer = new RdfXmlSerializer(schema, 
-            new CimDatatypeLib(schema));
-        var cimDifferenceModel = new CimDifferenceModel(rdfSerializer);
+        var typeLib = new CimDatatypeLib(schema);
 
-        cimDifferenceModel.Load(new StreamReader("../../../assets/test_diff.xml"));
+        var cimDifferenceModel = new CimDifferenceModel(schema, typeLib, 
+            new TextDescriptorFactory());
+
+        cimDifferenceModel.Load(new StreamReader("../../../assets/test_diff.xml"), 
+            new RdfXmlSerializerFactory());
 
         Assert.True(true);
     }
@@ -25,12 +28,15 @@ public class LoadTest
     public void SaveDifferenceModelObject()
     {
         var schema = LoadCimSchema("../../../assets/Iec61970-552-Headers-rdfs.xml");
-        var rdfSerializer = new RdfXmlSerializer(schema, 
-            new CimDatatypeLib(schema));
-        var cimDifferenceModel = new CimDifferenceModel(rdfSerializer);
+        var typeLib = new CimDatatypeLib(schema);
 
-        cimDifferenceModel.Load(new StreamReader("../../../assets/test_diff.xml"));
-        cimDifferenceModel.Save(new StreamWriter("../../../assets/test_diff_wr.xml"));
+        var cimDifferenceModel = new CimDifferenceModel(schema, typeLib, 
+            new TextDescriptorFactory());
+
+        cimDifferenceModel.Load(new StreamReader("../../../assets/test_diff.xml"), 
+            new RdfXmlSerializerFactory());
+        cimDifferenceModel.Load(new StreamReader("../../../assets/test_diff_wr.xml"), 
+            new RdfXmlSerializerFactory());
     }
 
     private static ICimSchema LoadCimSchema(string path, 

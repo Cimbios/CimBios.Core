@@ -1,6 +1,7 @@
 using CimBios.Core.CimModel.CimDataModel.Utils;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Utils.ClassTraits;
 
@@ -27,6 +28,11 @@ public interface ICimDataModel : ICanLog
     public IReadOnlyCollection<ICimDataModelChangeStatement> Changes { get; }
 
     /// <summary>
+    /// Descriptor factory for producing objects.
+    /// </summary>
+    public IOIDDescriptorFactory OIDDescriptorFactory { get; } 
+
+    /// <summary>
     /// Get all model objects.
     /// </summary>
     /// <returns>IModelObject instance collection.</returns>
@@ -49,7 +55,7 @@ public interface ICimDataModel : ICanLog
     /// </summary>
     /// <param name="oid"></param>
     /// <returns>IModelObject instance or null.</returns>
-    public IModelObject? GetObject(string oid);
+    public IModelObject? GetObject(IOIDDescriptor oid);
 
     /// <summary>
     /// Get typed model object by uuid.
@@ -57,14 +63,14 @@ public interface ICimDataModel : ICanLog
     /// <typeparam name="T">IModelObject generalized class.</typeparam>
     /// <param name="oid">Model object string identifier.</param>
     /// <returns>T casted IModelObject instance or null.</returns>
-    public T? GetObject<T>(string oid) where T : IModelObject;
+    public T? GetObject<T>(IOIDDescriptor oid) where T : IModelObject;
 
     /// <summary>
     /// Remove object from model context.
     /// </summary>
     /// <param name="oid">Model object string identifier.</param>
     /// <returns>True if object found and removed.</returns>
-    public bool RemoveObject(string oid);
+    public bool RemoveObject(IOIDDescriptor oid);
 
     /// <summary>
     /// Remove object from model context.
@@ -85,7 +91,7 @@ public interface ICimDataModel : ICanLog
     /// <param name="oid">Specific object identifier.</param>
     /// <param name="metaClass">Meta class.</param>
     /// <returns>Create IModelObject instance.</returns>
-    public IModelObject CreateObject(string oid, ICimMetaClass metaClass);
+    public IModelObject CreateObject(IOIDDescriptor oid, ICimMetaClass metaClass);
 
     /// <summary>
     /// Create IModelObject instance of datatype lib meta class.
@@ -93,7 +99,7 @@ public interface ICimDataModel : ICanLog
     /// <typeparam name="T">Datatype lib type.</typeparam>
     /// <param name="oid">Specific object identifier.</param>
     /// <returns>Create T : IModelObject instance.</returns>
-    public T CreateObject<T>(string oid) where T : class, IModelObject;
+    public T CreateObject<T>(IOIDDescriptor oid) where T : class, IModelObject;
 
     //public IModelObject CreateObject(ICimMetaClass metaClass);
     ///public T CreateObject<T>(string oid) where T: IModelObject;

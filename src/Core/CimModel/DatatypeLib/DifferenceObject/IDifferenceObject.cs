@@ -1,3 +1,4 @@
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
@@ -10,7 +11,7 @@ public interface IDifferenceObject
     /// <summary>
     /// 
     /// </summary>
-    public string OID { get; }
+    public IOIDDescriptor OID { get; }
 
     /// <summary>
     /// 

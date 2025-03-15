@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
@@ -23,6 +24,14 @@ public interface IModelObject : INotifyPropertyChanged, IReadOnlyModelObject
     /// <param name="attributeName">Attribute name in format of '(Domain.)Attribute'.</param>
     /// <param name="value">Typed value.</param>
     public void SetAttribute<T>(string attributeName, T? value);
+
+    /// <summary>
+    /// Create compound model object for meta property attribute.
+    /// </summary>
+    /// <param name="metaProperty">Schema compound meta property instance.</param>
+    /// <param name="reset">Recreate compound if already exists.</param>
+    public void InitializeCompoundAttribute(ICimMetaProperty metaProperty, 
+        bool reset = true);
 
     /// <summary>
     /// Set 1 to 1 assoc object or clear assoc if obj is null.
@@ -107,5 +116,6 @@ public interface IModelObjectFactory
     /// <param name="metaClass">Schema meta class.</param>
     /// <param name="isAuto">Is creating object auto.</param>
     /// <returns>IModelObject instance.</returns>
-    public IModelObject Create(string uuid, ICimMetaClass metaClass, bool isAuto);
+    public IModelObject Create(IOIDDescriptor oid, 
+        ICimMetaClass metaClass, ICimDatatypeLib? typeLib);
 }

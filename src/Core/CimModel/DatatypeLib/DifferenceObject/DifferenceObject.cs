@@ -1,5 +1,6 @@
 
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 
@@ -10,7 +11,7 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 /// </summary>
 public abstract class DifferenceObjectBase : IDifferenceObject
 {
-    public string OID { get; }
+    public IOIDDescriptor OID { get; }
 
     public ICimMetaClass MetaClass { get; }
 
@@ -23,7 +24,7 @@ public abstract class DifferenceObjectBase : IDifferenceObject
     protected abstract WeakModelObject? _OriginalObject { get; }
     protected WeakModelObject _ModifiedObject { get; }
 
-    protected DifferenceObjectBase(string oid)
+    protected DifferenceObjectBase(IOIDDescriptor oid)
     {
         OID = oid;
 
@@ -33,16 +34,16 @@ public abstract class DifferenceObjectBase : IDifferenceObject
             string.Empty
         );
 
-        _ModifiedObject = new WeakModelObject(oid, descriptionMetaClass, false);
+        _ModifiedObject = new WeakModelObject(oid, descriptionMetaClass, null);
 
         MetaClass = descriptionMetaClass;
     }
 
-    protected DifferenceObjectBase (string oid, ICimMetaClass metaClass)
+    protected DifferenceObjectBase (IOIDDescriptor oid, ICimMetaClass metaClass)
     {
         OID = oid;
 
-        _ModifiedObject = new WeakModelObject(oid, metaClass, false);
+        _ModifiedObject = new WeakModelObject(oid, metaClass, null);
 
         MetaClass = metaClass;
     }
@@ -264,7 +265,7 @@ public class AdditionDifferenceObject : DifferenceObjectBase
 {
     protected override WeakModelObject? _OriginalObject => null;
 
-    public AdditionDifferenceObject (string oid, ICimMetaClass metaClass)
+    public AdditionDifferenceObject (IOIDDescriptor oid, ICimMetaClass metaClass)
         : base (oid, metaClass)
     {
     }
@@ -283,7 +284,7 @@ public class DeletionDifferenceObject
 {
     protected override WeakModelObject? _OriginalObject => null;
 
-    public DeletionDifferenceObject (string oid, ICimMetaClass metaClass)
+    public DeletionDifferenceObject (IOIDDescriptor oid, ICimMetaClass metaClass)
         : base (oid, metaClass)
     {
     }
@@ -302,11 +303,11 @@ public class UpdatingDifferenceObject
 {
     protected override WeakModelObject? _OriginalObject { get; }
 
-    public UpdatingDifferenceObject (string oid)
+    public UpdatingDifferenceObject (IOIDDescriptor oid)
         : base (oid)
     {
         _OriginalObject = new WeakModelObject(oid, 
-            _ModifiedObject.MetaClass, false);
+            _ModifiedObject.MetaClass);
     }
 
     public UpdatingDifferenceObject (IModelObject originalObject, 

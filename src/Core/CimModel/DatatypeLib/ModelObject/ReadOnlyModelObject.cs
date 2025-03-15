@@ -1,3 +1,4 @@
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
@@ -5,8 +6,8 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 public class ReadOnlyModelObject (IReadOnlyModelObject modelObject) 
     : IReadOnlyModelObject
 {
-    public string OID => ModelObject.OID;
-    public bool IsAuto => ModelObject.IsAuto;
+    public ICimDatatypeLib? TypeLib => ModelObject.TypeLib;
+    public IOIDDescriptor OID => ModelObject.OID;
     public ICimMetaClass MetaClass => ModelObject.MetaClass;
 
     protected IReadOnlyModelObject ModelObject { get; } = modelObject;

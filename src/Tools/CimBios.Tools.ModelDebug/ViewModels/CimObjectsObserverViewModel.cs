@@ -140,11 +140,13 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             return;
         }
 
-        var mObj = _CimModelDocument?.GetObject(selectedProp.Value);
+        var mObj = _CimModelDocument?.GetObject(_CimModelDocument!.
+            OIDDescriptorFactory.Create(selectedProp.Value));
+            
         if (mObj != null)
         {
             var tmpSearchString = SearchString;
-            SearchString = mObj.OID;
+            SearchString = mObj.OID.ToString();
             Find(dataGrid);
             SearchString = tmpSearchString;
         }
@@ -179,7 +181,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
 
         var dataFacade = cimObjectItem.ModelObject;
 
-        SelectedUuid = dataFacade.OID;
+        SelectedUuid = dataFacade.OID.ToString();
 
         foreach (var attrName in dataFacade.MetaClass.AllProperties.Where(p => p.PropertyKind == Core.CimModel.Schema.CimMetaPropertyKind.Attribute).Select(p => p.ShortName))
         {
@@ -228,7 +230,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             string assoc11RefStr = "null";
             if (assoc11Ref != null)
             {
-                assoc11RefStr = assoc11Ref.OID;
+                assoc11RefStr = assoc11Ref.OID.ToString();
             }
 
             _PropCache.Add(new CimObjectPropertyModel() 
@@ -249,7 +251,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             foreach (var assoc1MRef in assoc1MArray.OfType<IModelObject>())
             {
                 assoc1MNode.AddChild(new CimObjectPropertyModel() 
-                { Name = string.Empty, Value = assoc1MRef.OID });
+                { Name = string.Empty, Value = assoc1MRef.OID.ToString() });
             }
 
             _PropCache.Add(assoc1MNode);
