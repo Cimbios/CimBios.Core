@@ -1,5 +1,7 @@
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Utils.ClassTraits;
+using System.ComponentModel;
 using System.Reflection;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
@@ -128,7 +130,7 @@ public class CimDatatypeLib : ICimDatatypeLib
     }
 
     public IModelObject? CreateInstance(IModelObjectFactory modelObjectFactory,
-        string oid, ICimMetaClass metaClass, bool isAuto)
+        IOIDDescriptor oid, ICimMetaClass metaClass)
     {
         if (_Schema.CanCreateClass(metaClass) == false)
         {
@@ -136,32 +138,99 @@ public class CimDatatypeLib : ICimDatatypeLib
                 $"Class {metaClass.ShortName} cannot be created!");
         }
 
-        if (RegisteredTypes.TryGetValue(metaClass, out var type)
-            && type.IsAssignableTo(modelObjectFactory.ProduceType))
+        var isRegisteredType = RegisteredTypes
+            .TryGetValue(metaClass, out var type);
+
+        if (isRegisteredType && type!.IsAssignableTo(modelObjectFactory.ProduceType))
         {
-            return Activator.CreateInstance(type, oid, 
-                metaClass, isAuto) as IModelObject;
+            return Activator.CreateInstance(type, oid, metaClass, this) 
+                as IModelObject;
         }
         else
         {
-            return modelObjectFactory.Create(oid, metaClass, isAuto);
+            return modelObjectFactory.Create(oid, metaClass, this);
         }
     }
 
-    public T? CreateInstance<T>(string oid, bool isAuto) 
+    public T? CreateInstance<T>(IOIDDescriptor oid) 
         where T : class, IModelObject
     {   
-        var metaClassTypePair = RegisteredTypes
-            .Where(p => p.Value == typeof(T)).Single();
+        var metaClass = TypedToMetaClass<T>();
+        var type = RegisteredTypes[metaClass];
 
-        if (_Schema.CanCreateClass(metaClassTypePair.Key) == false)
+        if (_Schema.CanCreateClass(metaClass) == false)
         {
             throw new NotSupportedException(
-                $"Class {metaClassTypePair.Key.ShortName} cannot be created!");
+                $"Class {metaClass.ShortName} cannot be created!");
         }
 
-        return Activator.CreateInstance(metaClassTypePair.Value, oid, 
-            metaClassTypePair.Key, isAuto) as T;
+        return Activator.CreateInstance(type, oid, metaClass, this) as T;
+    }
+
+    public EnumValueObject? CreateEnumValueInstance(
+        ICimMetaIndividual metaIndividual) 
+    {
+        if (metaIndividual.InstanceOf == null)
+        {
+            throw new InvalidEnumArgumentException(
+                $"Invalid meta enum value {metaIndividual.ShortName}!");
+        }
+
+        if (RegisteredTypes.TryGetValue(metaIndividual.InstanceOf, 
+            out var enumType))
+        {
+            var constructType = typeof(EnumValueObject<>)
+                .MakeGenericType(enumType);
+
+            var enumValuenNstance = Activator.CreateInstance(constructType, 
+                BindingFlags.NonPublic | BindingFlags.Instance, 
+                null, [metaIndividual], null);
+
+            return enumValuenNstance as EnumValueObject;
+        }
+        else if (_Schema.Individuals.Contains(metaIndividual))
+        {
+            return new EnumValueObject(metaIndividual);
+        }
+        else
+        {
+            throw new NotSupportedException(
+                $"Enum value {metaIndividual.ShortName} is not registered!");
+        }
+    }
+
+    public EnumValueObject<TEnum>? CreateEnumValueInstance<TEnum>(
+        TEnum enumValue) where TEnum: struct, Enum
+    {
+        var metaClass = TypedToMetaClass<TEnum>();
+        var metaIndividual = metaClass
+            .AllIndividuals.FirstOrDefault(
+                i => i.ShortName == enumValue.ToString());
+
+        if (metaIndividual != null)
+        {
+            return new EnumValueObject<TEnum>(metaIndividual);
+        }
+        else
+        {
+            throw new NotSupportedException(
+                $"Enum value {enumValue} does not align typelib schema!");
+        }
+    }
+
+    private ICimMetaClass TypedToMetaClass<T>()
+    {
+        var metaClass = RegisteredTypes.Keys
+            .Where(c => RegisteredTypes[c] == typeof(T))
+            .FirstOrDefault();
+
+        if (metaClass == null)
+        {
+            throw new NotSupportedException(
+                $"Meta class of type {typeof(T).Name} is not registered!");
+        }
+
+        return metaClass;
     }
 
     private ICimSchema _Schema;
@@ -186,4 +255,3 @@ public class CimClassAttribute : Attribute
         AbsoluteUri = absoluteUri;
     }
 }
-

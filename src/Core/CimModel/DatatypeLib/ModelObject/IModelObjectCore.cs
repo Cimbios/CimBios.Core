@@ -1,3 +1,4 @@
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
@@ -8,19 +9,19 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 public interface IModelObjectCore
 {
     /// <summary>
+    /// Core typelib factory.
+    /// </summary>
+    public ICimDatatypeLib? TypeLib { get; }
+
+    /// <summary>
     /// Neccesary object identifier.
     /// </summary>
-    public string OID { get; }
+    public IOIDDescriptor OID { get; }
 
     /// <summary>
     /// Schema meta class.
     /// </summary>
     public ICimMetaClass MetaClass { get; }
-
-    /// <summary>
-    /// Unidentified object status
-    /// </summary>
-    public bool IsAuto { get; }
 
     /// <summary>
     /// Check is property exists method.

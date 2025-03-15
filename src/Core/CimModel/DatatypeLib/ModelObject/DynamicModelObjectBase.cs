@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Dynamic;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
@@ -76,11 +77,9 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         return null;
     }
 
-    public abstract string OID { get; }
-
+    public abstract ICimDatatypeLib? TypeLib { get; }
+    public abstract IOIDDescriptor OID { get; }
     public abstract ICimMetaClass MetaClass { get; }
-
-    public abstract bool IsAuto { get; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public event CanCancelPropertyChangingEventHandler? PropertyChanging;
@@ -123,6 +122,9 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
     public abstract T? GetAttribute<T>(ICimMetaProperty metaProperty);
 
     public abstract T? GetAttribute<T>(string attributeName);
+
+    public abstract void InitializeCompoundAttribute(
+        ICimMetaProperty metaProperty, bool reset = true);
 
     public abstract bool HasProperty(string propertyName);
 
@@ -206,11 +208,11 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
                     return;
                 }
 
-                var oldModelObjectMock = new WeakModelObject(compound.OID, 
-                    compound.MetaClass, true);
+                var oldModelObjectMock = new WeakModelObject(
+                    new AutoDescriptor(), compound.MetaClass, TypeLib);
 
-                var newModelObjectMock = new WeakModelObject(compound.OID, 
-                    compound.MetaClass, true);
+                var newModelObjectMock = new WeakModelObject(
+                    new AutoDescriptor(), compound.MetaClass, TypeLib);
 
                 oldModelObjectMock.SetAttribute(eventArg.MetaProperty, 
                     eventArg.OldValue);
@@ -260,7 +262,7 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
 /// <summary>
 /// 
 /// </summary>
-public static class ModelObjectExtensions
+public static class ModelObjectCopyPropsExtension
 {
     /// <summary>
     /// 

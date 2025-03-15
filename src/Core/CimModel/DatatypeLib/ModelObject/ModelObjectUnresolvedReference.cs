@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
@@ -12,21 +13,32 @@ public sealed class ModelObjectUnresolvedReference : IModelObject
 {
     public Uri Predicate => MetaClass.BaseUri;
 
-    public string OID { get; }
+    public IOIDDescriptor OID { get; }
 
     public ICimMetaClass MetaClass { get; }
 
-    public bool IsAuto => true;
+    public ICimDatatypeLib TypeLib => throw new NotImplementedException();
 
-
-    public ModelObjectUnresolvedReference(string oid, ICimMetaClass metaClass)
+    public ModelObjectUnresolvedReference(IOIDDescriptor oid, 
+        ICimMetaClass metaClass)
     {
         OID = oid;
         MetaClass = metaClass;
     }
 
-    public event CanCancelPropertyChangingEventHandler? PropertyChanging;
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public event CanCancelPropertyChangingEventHandler? PropertyChanging
+    {
+        add => throw new NotSupportedException();
+
+        remove { }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged
+    {
+        add => throw new NotSupportedException();
+
+        remove { }
+    }
 
     public void SetAttribute<T>(ICimMetaProperty metaProperty, T? value)
     {
@@ -144,6 +156,12 @@ public sealed class ModelObjectUnresolvedReference : IModelObject
     }
 
     public IModelObject? GetAssoc1To1(string assocName)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void InitializeCompoundAttribute(ICimMetaProperty metaProperty, 
+        bool reset = true)
     {
         throw new NotImplementedException();
     }

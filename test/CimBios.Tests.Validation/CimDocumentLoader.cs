@@ -1,5 +1,6 @@
 using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 
@@ -12,10 +13,9 @@ public static class CimDocumentLoader
         var cimSchema = new CimRdfSchemaXmlFactory().CreateSchema();
         cimSchema.Load(new StreamReader(schemaPath));
 
-        var serializer = new RdfXmlSerializer(cimSchema, 
-            new CimDatatypeLib(cimSchema));
-        var cimDocument = new CimDocument(serializer);
-        cimDocument.Load(path);
+        var cimDocument = new CimDocument(cimSchema, 
+            new CimDatatypeLib(cimSchema), new TextDescriptorFactory());
+        cimDocument.Load(path, new RdfXmlSerializerFactory());
         
         return cimDocument;
     }

@@ -2,7 +2,7 @@ using System.Data;
 using CimBios.Core.CimModel.CimDataModel.Utils;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
-using CimBios.Core.CimModel.RdfSerializer;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDataModel;
@@ -11,8 +11,9 @@ namespace CimBios.Core.CimModel.CimDataModel;
 /// Instance of CIM model in Rdf/* format.
 /// Supports input and output operations for CIM objects.
 /// </summary>
-public class CimDocument(RdfSerializerBase rdfSerializer) 
-    : CimDocumentBase(rdfSerializer), ICimDataModel
+public class CimDocument(ICimSchema cimSchema, ICimDatatypeLib typeLib, 
+    IOIDDescriptorFactory oidDescriptorFactory) 
+    : CimDocumentBase(cimSchema, typeLib, oidDescriptorFactory), ICimDataModel
 {
     public override IEnumerable<IModelObject> GetAllObjects()
     {
@@ -29,10 +30,10 @@ public class CimDocument(RdfSerializerBase rdfSerializer)
         return _Objects.Values.Where(o => o.MetaClass == metaClass);
     }
 
-    public override IModelObject? GetObject(string oid)
+    public override IModelObject? GetObject(IOIDDescriptor oid)
     {
         if (_Objects.TryGetValue(oid, out var instance)
-            && !instance.IsAuto
+            && instance is not AutoDescriptor
             && !instance.MetaClass.IsCompound)
         {
             return instance;
@@ -43,7 +44,7 @@ public class CimDocument(RdfSerializerBase rdfSerializer)
         }
     }
 
-    public override T? GetObject<T>(string oid) where T : default
+    public override T? GetObject<T>(IOIDDescriptor oid) where T : default
     {
         IModelObject? modelObject = GetObject(oid);
         if (modelObject != null && modelObject is T typedObject)
@@ -54,7 +55,7 @@ public class CimDocument(RdfSerializerBase rdfSerializer)
         return default;
     }
 
-    public override bool RemoveObject(string oid)
+    public override bool RemoveObject(IOIDDescriptor oid)
     {
         if (_Objects.TryGetValue(oid, out var removingObject)
             && _Objects.Remove(oid) == true)
@@ -85,12 +86,13 @@ public class CimDocument(RdfSerializerBase rdfSerializer)
         }
     }
 
-    public override IModelObject CreateObject(string oid, ICimMetaClass metaClass)
+    public override IModelObject CreateObject(IOIDDescriptor oid, 
+        ICimMetaClass metaClass)
     {
-        if (oid.Length == 0)
+        if (oid.IsEmpty)
         {
             throw new ArgumentException("OID cannot be empty!");
-        }       
+        }   
 
         if (_Objects.ContainsKey(oid))
         {
@@ -98,7 +100,7 @@ public class CimDocument(RdfSerializerBase rdfSerializer)
         }
 
         var instance = TypeLib.CreateInstance(
-            new ModelObjectFactory(), oid, metaClass, false);
+            new ModelObjectFactory(), oid, metaClass);
 
         if (instance == null)
         {
@@ -110,14 +112,14 @@ public class CimDocument(RdfSerializerBase rdfSerializer)
         return instance;
     }
 
-    public override T CreateObject<T>(string oid) where T : class
+    public override T CreateObject<T>(IOIDDescriptor oid) where T : class
     {
-        if (oid.Length == 0)
+        if (oid.IsEmpty)
         {
             throw new ArgumentException("OID cannot be empty!");
         }   
 
-        var instance = TypeLib.CreateInstance<T>(oid, false);
+        var instance = TypeLib.CreateInstance<T>(oid);
 
         if (instance == null)
         {
@@ -147,7 +149,7 @@ public class CimDocument(RdfSerializerBase rdfSerializer)
         {
             if (obj is FullModel fullModel)
             {
-                _Description = fullModel;
+                ModelDescription = fullModel;
                 _Objects.Remove(obj.OID);
                 continue;
             }

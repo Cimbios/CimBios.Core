@@ -1,7 +1,7 @@
 using CimBios.Core.CimModel.Schema;
-using CimBios.Core.RdfIOLib;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using System.Collections.Concurrent;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
@@ -11,18 +11,18 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 public class ModelObject : DynamicModelObjectBase, 
     IModelObject, IStatementsContainer
 {
-    public override string OID => _Oid;
-    public override bool IsAuto => _isAuto;
+    public override ICimDatatypeLib? TypeLib => _TypeLib;
+    public override IOIDDescriptor OID => _Oid;
     public override ICimMetaClass MetaClass => _MetaClass;
 
     public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     Statements => _Statements.AsReadOnly();
 
-    public ModelObject(string oid, ICimMetaClass metaClass, 
-        bool isAuto = false)
+    public ModelObject(IOIDDescriptor oid, ICimMetaClass metaClass,
+        ICimDatatypeLib? typeLib = null)
     {
+        _TypeLib = typeLib;
         _Oid = oid;
-        _isAuto = isAuto;
 
         _MetaClass = metaClass;
         _PropertiesData = [];
@@ -71,9 +71,14 @@ public class ModelObject : DynamicModelObjectBase,
     public override T? GetAttribute<T>(ICimMetaProperty metaProperty) 
         where T: default
     {
-        if (GetAttribute(metaProperty) is T typedValue)
+        var value = GetAttribute(metaProperty);
+        if (value is T typedValue)
         {
             return typedValue;
+        }
+        else if (value is EnumValueObject enumValueObject)
+        {
+            return (T)enumValueObject.AsEnum();
         }
 
         return default;
@@ -92,9 +97,43 @@ public class ModelObject : DynamicModelObjectBase,
             $"No such meta property with name {attributeName}!");
     }
 
+    public override void InitializeCompoundAttribute(
+        ICimMetaProperty metaProperty, bool reset = true)
+    {
+        if (metaProperty.PropertyDatatype == null)
+        {
+            throw new NotSupportedException(
+                $"Undefined compound property {metaProperty.ShortName} class type!");
+        }
+
+        if (TypeLib != null)
+        {
+            var compoundObject = TypeLib.CreateInstance(
+                new ModelObjectFactory(),
+                new AutoDescriptor(),
+                metaProperty.PropertyDatatype
+            );
+
+            if (compoundObject != null)
+            {
+                SetAttribute(metaProperty, compoundObject);
+                return;
+            }
+        }
+
+        throw new NotSupportedException(
+            $"Typelib error while {metaProperty.ShortName} compound object creation!");
+    }
+
     public override void SetAttribute<T>(ICimMetaProperty metaProperty, T? value) 
         where T: default
     {
+        if (value is Enum enumValue)
+        {
+            this.SetAttributeAsEnum(metaProperty, enumValue);
+            return;
+        }
+
         ValidatePropertyValueAssignition(metaProperty, 
             value, CimMetaPropertyKind.Attribute);
 
@@ -519,21 +558,11 @@ public class ModelObject : DynamicModelObjectBase,
         {
             return true;
         }
-        else if (value is Uri uriValue
+        else if (value is EnumValueObject enumWrappedValue
             && metaProperty.PropertyDatatype.IsEnum)
         {
-            if (metaProperty.PropertyDatatype.AllIndividuals.Any(
-                ind => RdfUtils.RdfUriEquals(ind.BaseUri, uriValue)))
-            {
-                return true;
-            }
-        }
-        else if (value is Enum enumValue
-            && metaProperty.PropertyDatatype.IsEnum)
-        {
-            if (metaProperty.PropertyDatatype.ShortName == enumValue.GetType().Name
-                && metaProperty.PropertyDatatype.AllIndividuals.Any(
-                ind => ind.ShortName == enumValue.ToString()))
+            if (metaProperty.PropertyDatatype.AllIndividuals
+                .Contains(enumWrappedValue.MetaEnumValue))
             {
                 return true;
             }
@@ -668,8 +697,8 @@ public class ModelObject : DynamicModelObjectBase,
 
     #endregion UtilsPrivate
 
-    private string _Oid = string.Empty;
-    private bool _isAuto;
+    private ICimDatatypeLib? _TypeLib;
+    private IOIDDescriptor _Oid;
 
     private ICimMetaClass _MetaClass;
 
@@ -685,9 +714,9 @@ public class ModelObjectFactory : IModelObjectFactory
 {
     public System.Type ProduceType => typeof(ModelObject);
 
-    public IModelObject Create(string uuid, 
-        ICimMetaClass metaClass, bool isAuto)
+    public IModelObject Create(IOIDDescriptor oid, ICimMetaClass metaClass,
+         ICimDatatypeLib? typeLib = null)
     {
-        return new ModelObject(uuid, metaClass, isAuto);
+        return new ModelObject(oid, metaClass, typeLib);
     }
 }

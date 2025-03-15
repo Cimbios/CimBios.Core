@@ -1,27 +1,25 @@
+using System.Text;
 using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.DataModel.Utils;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDifferenceModel;
 
-public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
+public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
+    IOIDDescriptorFactory oidDescriptorFactory) 
+    : CimDocumentBase(cimSchema, typeLib, oidDescriptorFactory), 
+    ICimDifferenceModel
 {
     public IReadOnlyCollection<IDifferenceObject> Differences
          => _DifferencesCache.Values;
 
-    public CimDifferenceModel(RdfSerializerBase rdfSerializer)
-        : base (rdfSerializer)
-    {
-        _serializer.Settings.UnknownClassesAllowed = true;
-        _serializer.Settings.UnknownPropertiesAllowed = true;
-    }
-
-    public CimDifferenceModel(RdfSerializerBase rdfSerializer, 
+    public CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
         ICimDataModel cimDataModel)
-        : this(rdfSerializer)
+        : this(cimSchema, typeLib, cimDataModel.OIDDescriptorFactory)
     {
         ExtractFromDataModel(cimDataModel);
     }
@@ -49,9 +47,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         _Objects.Clear();
         
         _internalDifferenceModel = TypeLib.CreateInstance<DifferenceModel>(
-            Guid.NewGuid().ToString(),
-            isAuto: false
-        );
+            new GuidDescriptor());
 
         if (_internalDifferenceModel == null)
         {
@@ -104,7 +100,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
                 "Schema does not contains neccessary rdf:Description class!");
         }
 
-        var waitingForwardUpdates = new Dictionary<string, IModelObject>();
+        var waitingForwardUpdates = new Dictionary<IOIDDescriptor, IModelObject>();
         _InternalDifferenceModel.forwardDifferences.AsParallel().ForAll(s => 
             {
                 if (s.MetaClass != descriptionMetaClass)
@@ -134,7 +130,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
                         out var waiting) == false)
                     {
                         waiting = new WeakModelObject(s.OID, 
-                            descriptionMetaClass, false);
+                            descriptionMetaClass);
                     }
                     else
                     {
@@ -156,7 +152,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
                 }
                 
                 var modified = new WeakModelObject(w.OID, 
-                    descriptionMetaClass, false);
+                    descriptionMetaClass);
 
                 var updDiff = new UpdatingDifferenceObject(w, modified);
 
@@ -175,6 +171,43 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         _Objects.Add(_internalDifferenceModel.OID, _internalDifferenceModel);
 
         ToDifferencesCache();
+    }
+
+    public override void Load(StreamReader streamReader, 
+        IRdfSerializerFactory serializerFactory, ICimSchema cimSchema)
+    {
+        serializerFactory.Settings = new RdfSerializerSettings()
+        {
+            UnknownClassesAllowed = true,
+            UnknownPropertiesAllowed = true
+        };
+
+        base.Load(streamReader, serializerFactory, cimSchema);
+    }
+
+    public override void Save(StreamWriter streamWriter,
+        IRdfSerializerFactory serializerFactory, ICimSchema cimSchema)
+    {
+        serializerFactory.Settings = new RdfSerializerSettings()
+        {
+            UnknownClassesAllowed = true,
+            UnknownPropertiesAllowed = true
+        };
+
+        base.Save(streamWriter, serializerFactory, cimSchema);
+    }
+
+    public override void Parse(string content, 
+        IRdfSerializerFactory serializerFactory, 
+        ICimSchema cimSchema, Encoding? encoding = null)
+    {
+        serializerFactory.Settings = new RdfSerializerSettings()
+        {
+            UnknownClassesAllowed = true,
+            UnknownPropertiesAllowed = true
+        };
+
+        base.Parse(content, serializerFactory, cimSchema, encoding);
     }
 
     #region NotImpl
@@ -196,19 +229,19 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             "DifferenceModel does not provides this method implementation!");
     }
 
-    public override IModelObject? GetObject(string oid)
+    public override IModelObject? GetObject(IOIDDescriptor oid)
     {
         throw new NotImplementedException(
             "DifferenceModel does not provides this method implementation!");
     }
 
-    public override T? GetObject<T>(string oid) where T : default
+    public override T? GetObject<T>(IOIDDescriptor oid) where T : default
     {
         throw new NotImplementedException(
             "DifferenceModel does not provides this method implementation!");
     }
 
-    public override bool RemoveObject(string oid)
+    public override bool RemoveObject(IOIDDescriptor oid)
     {
         throw new NotImplementedException(
             "DifferenceModel does not provides this method implementation!");
@@ -226,13 +259,13 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             "DifferenceModel does not provides this method implementation!");
     }
 
-    public override IModelObject CreateObject(string oid, ICimMetaClass metaClass)
+    public override IModelObject CreateObject(IOIDDescriptor oid, ICimMetaClass metaClass)
     {
         throw new NotImplementedException(
             "DifferenceModel does not provides this method implementation!");
     }
 
-    public override T CreateObject<T>(string oid)
+    public override T CreateObject<T>(IOIDDescriptor oid)
     {
         throw new NotImplementedException(
             "DifferenceModel does not provides this method implementation!");
@@ -255,5 +288,5 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
     private DifferenceModel? _internalDifferenceModel = null;
 
-    private Dictionary<string, IDifferenceObject> _DifferencesCache = [];
+    private Dictionary<IOIDDescriptor, IDifferenceObject> _DifferencesCache = [];
 }

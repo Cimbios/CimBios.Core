@@ -1,15 +1,16 @@
 using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDataModel.Utils;
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 
 namespace CimBios.Core.CimModel.DataModel.Utils;
 
 internal static class DiffsFromModelHelper
 {
-    internal static Dictionary<string, IDifferenceObject> ExtractFrom(
+    internal static Dictionary<IOIDDescriptor, IDifferenceObject> ExtractFrom(
         ICimDataModel model)
     {
-        Dictionary<string, IDifferenceObject> differences = [];
+        Dictionary<IOIDDescriptor, IDifferenceObject> differences = [];
 
         var changes = model.Changes;
 

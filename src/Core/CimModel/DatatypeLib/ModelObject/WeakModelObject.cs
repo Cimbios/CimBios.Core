@@ -2,6 +2,7 @@ using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using System.Collections.Concurrent;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
@@ -12,19 +13,19 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 public class WeakModelObject : DynamicModelObjectBase, 
     IModelObject, IStatementsContainer
 {
-    public override string OID => _Oid;
-
+    public override ICimDatatypeLib? TypeLib => _TypeLib;
+    public override IOIDDescriptor OID => _Oid;
     public override ICimMetaClass MetaClass => _MetaClass;
 
-    public override bool IsAuto => _IsAuto;
 
     public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     Statements => _Statements.AsReadOnly();
 
     /// <summary>
-    /// Default weak linked object constructor. Take
+    /// Default weak linked object constructor.
     /// </summary>
-    public WeakModelObject(string oid, ICimMetaClass metaClass, bool isAuto)
+    public WeakModelObject(IOIDDescriptor oid, 
+        ICimMetaClass metaClass, ICimDatatypeLib? typeLib = null)
         : base()
     {
         if (metaClass is not CimAutoClass autoClass)
@@ -36,9 +37,9 @@ public class WeakModelObject : DynamicModelObjectBase,
             );
         }
 
+        _TypeLib = typeLib;
         _Oid = oid;
         _MetaClass = autoClass;
-        _IsAuto = isAuto;
 
         InitStatementsCollections();
     }
@@ -48,7 +49,7 @@ public class WeakModelObject : DynamicModelObjectBase,
     /// </summary>
     /// <param name="modelObject">Model object for copy.</param>
     public WeakModelObject (IReadOnlyModelObject modelObject)
-        : this (modelObject.OID, modelObject.MetaClass, modelObject.IsAuto)
+        : this (modelObject.OID, modelObject.MetaClass, modelObject.TypeLib)
     {
         this.CopyPropertiesFrom(modelObject, true);
     }
@@ -94,9 +95,14 @@ public class WeakModelObject : DynamicModelObjectBase,
     public override T? GetAttribute<T>(ICimMetaProperty metaProperty) 
         where T : default
     {
-        if (GetAttribute(metaProperty) is T typedValue)
+        var data = GetAttribute(metaProperty);
+        if (data is T typedValue)
         {
             return typedValue;
+        }
+        else if (data is EnumValueObject enumValueObject)
+        {
+            return (T)enumValueObject.AsEnum();
         }
 
         return default;
@@ -114,9 +120,21 @@ public class WeakModelObject : DynamicModelObjectBase,
         return default;
     }
 
+    public override void InitializeCompoundAttribute(
+        ICimMetaProperty metaProperty, bool reset = true)
+    {
+        throw new NotImplementedException();
+    }
+
     public override void SetAttribute<T>(ICimMetaProperty metaProperty, 
         T? value) where T : default
     {
+        if (value is Enum enumValue)
+        {
+            this.SetAttributeAsEnum(metaProperty, enumValue);
+            return;
+        }
+
         if (metaProperty.PropertyKind != CimMetaPropertyKind.Attribute)
         {
             throw new ArgumentException(
@@ -463,9 +481,9 @@ public class WeakModelObject : DynamicModelObjectBase,
         }
     }
 
-    private string _Oid;
+    private ICimDatatypeLib? _TypeLib;
+    private IOIDDescriptor _Oid;
     private CimAutoClass _MetaClass;
-    private bool _IsAuto;
 
     protected readonly ConcurrentDictionary<ICimMetaProperty, object?> 
     _PropertiesData = [];
@@ -479,14 +497,14 @@ public class WeakModelObjectFactory : IModelObjectFactory
 {
     public System.Type ProduceType => typeof(WeakModelObject);
 
-    public IModelObject Create(string uuid, 
-        ICimMetaClass metaClass, bool isAuto)
+    public IModelObject Create(IOIDDescriptor oid, 
+        ICimMetaClass metaClass, ICimDatatypeLib? typeLib = null)
     {
         if (metaClass is not CimMetaClassBase metaClassBase)
         {
             throw new InvalidCastException();
         }
 
-        return new WeakModelObject(uuid, metaClassBase, isAuto);
+        return new WeakModelObject(oid, metaClass, typeLib);
     }
 }

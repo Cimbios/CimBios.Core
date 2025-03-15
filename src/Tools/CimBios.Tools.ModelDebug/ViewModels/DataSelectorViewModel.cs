@@ -13,6 +13,8 @@ using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Tools.ModelDebug.Models;
 using CimBios.Tools.ModelDebug.Services;
 using CommunityToolkit.Mvvm.Input;
+using CimBios.Core.CimModel.RdfSerializer;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
@@ -159,7 +161,8 @@ public class DataSelectorViewModel : ViewModelBase
 
         try
         {
-            modelContext.Save(SourceUri.LocalPath);
+            modelContext.Save(SourceUri.LocalPath, 
+                SelectedDataContext.RdfSerializerFactory);
         }
         catch (Exception ex)
         {
@@ -264,11 +267,11 @@ public class DataSelectorViewModel : ViewModelBase
         }
 
         
-        var serializer = SelectedDataContext.RdfSerializerFactory
-            .Create(cimSchema, new CimDatatypeLib(cimSchema));
-        modelContext = new CimDocument(serializer);
+        modelContext = new CimDocument(cimSchema, new CimDatatypeLib(cimSchema), 
+            new GuidDescriptorFactory());
 
-        modelContext.Load(SourceUri.LocalPath);
+        modelContext.Load(SourceUri.LocalPath, 
+            SelectedDataContext.RdfSerializerFactory);
 
         ResultMessage += "Model successfully loaded!\n";
 

@@ -5,35 +5,35 @@ using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
 using CimBios.Core.CimModel.CimDifferenceModel;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 
 namespace CimBios.Tests.DifferenceModel;
 
 public class ExtractFromDataModelTest
 {
     private const string DiffSchemaPath 
-        = "../../../assets/Iec61970-552-Headers-rdfs.xml";
+        = "../../../../common_assets/Iec61970-552-Headers-rdfs.xml";
     private const string ModelSchemaPath 
-        = "../../../assets/Iec61970BaseCore-rdfs.xml";
+        = "../../../../common_assets/Iec61970BaseCore-rdfs.xml";
 
     [Fact]
     public void AddModelObject()
     {
         var diffSchema = LoadCimSchema(DiffSchemaPath);
-        var rdfSerializer = new RdfXmlSerializer(diffSchema, 
-            new CimDatatypeLib(diffSchema));
 
-        var cimDifferenceModel = new CimDifferenceModel(rdfSerializer);
+        var cimDifferenceModel = new CimDifferenceModel(diffSchema, 
+            new CimDatatypeLib(diffSchema), new TextDescriptorFactory());
 
         var cimDocument = CreateCimModelInstance(ModelSchemaPath);
 
-        cimDocument.CreateObject<Substation>("test1");
+        cimDocument.CreateObject<Substation>(new TextDescriptor("test1"));
 
         cimDifferenceModel.ExtractFromDataModel(cimDocument);
 
         Assert.Contains(
             cimDifferenceModel.Differences
                 .OfType<AdditionDifferenceObject>(),
-            d => d.OID == "test1"
+            d => (TextDescriptor)d.OID == "test1"
         );
     }
 
@@ -41,14 +41,14 @@ public class ExtractFromDataModelTest
     public void UpdateModelObjectAttribute()
     {
         var diffSchema = LoadCimSchema(DiffSchemaPath);
-        var rdfSerializer = new RdfXmlSerializer(diffSchema, 
-            new CimDatatypeLib(diffSchema));
 
-        var cimDifferenceModel = new CimDifferenceModel(rdfSerializer);
+        var cimDifferenceModel = new CimDifferenceModel(diffSchema, 
+            new CimDatatypeLib(diffSchema), new TextDescriptorFactory());
 
         var cimDocument = CreateCimModelInstance(ModelSchemaPath);
 
-        var substation = cimDocument.CreateObject<Substation>("test1");
+        var substation = cimDocument.CreateObject<Substation>(
+            new TextDescriptor("test1"));
         cimDocument.CommitAllChanges(); // 4 avoid add change statement
 
         substation.name = "Test name";
@@ -58,7 +58,7 @@ public class ExtractFromDataModelTest
         Assert.Contains(
             cimDifferenceModel.Differences
                 .OfType<UpdatingDifferenceObject>(),
-            d => d.OID == "test1" && d.ModifiedObject
+            d => (TextDescriptor)d.OID == "test1" && d.ModifiedObject
                 .GetAttribute<string>("name") == "Test name"
         );
     }
@@ -67,15 +67,16 @@ public class ExtractFromDataModelTest
     public void UpdateModelObjectAssocs()
     {
         var diffSchema = LoadCimSchema(DiffSchemaPath);
-        var rdfSerializer = new RdfXmlSerializer(diffSchema, 
-            new CimDatatypeLib(diffSchema));
 
-        var cimDifferenceModel = new CimDifferenceModel(rdfSerializer);
+        var cimDifferenceModel = new CimDifferenceModel(diffSchema, 
+            new CimDatatypeLib(diffSchema), new TextDescriptorFactory());
 
         var cimDocument = CreateCimModelInstance(ModelSchemaPath);
 
-        var substation = cimDocument.CreateObject<Substation>("test1");
-        var voltageLevel = cimDocument.CreateObject<VoltageLevel>("test2");
+        var substation = cimDocument.CreateObject<Substation>(
+            new TextDescriptor("test1"));
+        var voltageLevel = cimDocument.CreateObject<VoltageLevel>(
+            new TextDescriptor("test2"));
         cimDocument.CommitAllChanges(); // 4 avoid add change statement
 
         voltageLevel.Substation = substation;
@@ -85,7 +86,7 @@ public class ExtractFromDataModelTest
         Assert.Contains(
             cimDifferenceModel.Differences
                 .OfType<UpdatingDifferenceObject>(),
-            d => d.OID == "test2" && d.ModifiedObject
+            d => (TextDescriptor)d.OID == "test2" && d.ModifiedObject
                 .GetAssoc1To1<IModelObject>("Substation") == substation
         );
     }
@@ -94,14 +95,14 @@ public class ExtractFromDataModelTest
     public void AddAndUpdateModelObject()
     {
         var diffSchema = LoadCimSchema(DiffSchemaPath);
-        var rdfSerializer = new RdfXmlSerializer(diffSchema, 
-            new CimDatatypeLib(diffSchema));
 
-        var cimDifferenceModel = new CimDifferenceModel(rdfSerializer);
+        var cimDifferenceModel = new CimDifferenceModel(diffSchema, 
+            new CimDatatypeLib(diffSchema), new TextDescriptorFactory());
 
         var cimDocument = CreateCimModelInstance(ModelSchemaPath);
 
-        var substation = cimDocument.CreateObject<Substation>("test1");
+        var substation = cimDocument.CreateObject<Substation>(
+            new TextDescriptor("test1"));
 
         substation.name = "Test name";
         substation.name = "New name";
@@ -111,7 +112,7 @@ public class ExtractFromDataModelTest
         Assert.Contains(
             cimDifferenceModel.Differences
                 .OfType<AdditionDifferenceObject>(),
-            d => d.OID == "test1" && d.ModifiedObject
+            d => (TextDescriptor)d.OID == "test1" && d.ModifiedObject
                 .GetAttribute<string>("name") == "New name"
         );
     }
@@ -120,14 +121,15 @@ public class ExtractFromDataModelTest
     public void RemoveModelObject()
     {
         var diffSchema = LoadCimSchema(DiffSchemaPath);
-        var rdfSerializer = new RdfXmlSerializer(diffSchema, 
-            new CimDatatypeLib(diffSchema));
 
-        var cimDifferenceModel = new CimDifferenceModel(rdfSerializer);
+        var cimDifferenceModel = new CimDifferenceModel(diffSchema, 
+            new CimDatatypeLib(diffSchema), new TextDescriptorFactory());
 
         var cimDocument = CreateCimModelInstance(ModelSchemaPath);
 
-        var terminal = cimDocument.CreateObject<Terminal>("test1");
+        var terminal = cimDocument.CreateObject<Terminal>(
+            new TextDescriptor("test1"));
+
         terminal.name = "Test name";
         terminal.sequenceNumber = 2;
         cimDocument.CommitAllChanges(); // 4 avoid add change statement
@@ -139,7 +141,7 @@ public class ExtractFromDataModelTest
         Assert.Contains(
             cimDifferenceModel.Differences
                 .OfType<DeletionDifferenceObject>(),
-            d => d.OID == "test1" 
+            d => (TextDescriptor)d.OID == "test1" 
                 && d.ModifiedObject.GetAttribute<string>("name") == "Test name"
                 && d.ModifiedObject.GetAttribute<int>("sequenceNumber") == 2
         );
@@ -149,14 +151,14 @@ public class ExtractFromDataModelTest
     public void UpdateAndRemoveModelObject()
     {
         var diffSchema = LoadCimSchema(DiffSchemaPath);
-        var rdfSerializer = new RdfXmlSerializer(diffSchema, 
-            new CimDatatypeLib(diffSchema));
 
-        var cimDifferenceModel = new CimDifferenceModel(rdfSerializer);
+        var cimDifferenceModel = new CimDifferenceModel(diffSchema, 
+            new CimDatatypeLib(diffSchema), new TextDescriptorFactory());
 
         var cimDocument = CreateCimModelInstance(ModelSchemaPath);
 
-        var terminal = cimDocument.CreateObject<Terminal>("test1");
+        var terminal = cimDocument.CreateObject<Terminal>(
+            new TextDescriptor("test1"));
         terminal.name = "Test name";
         cimDocument.CommitAllChanges(); // 4 avoid add change statement
 
@@ -168,7 +170,7 @@ public class ExtractFromDataModelTest
         Assert.Contains(
             cimDifferenceModel.Differences
                 .OfType<DeletionDifferenceObject>(),
-            d => d.OID == "test1" 
+            d => (TextDescriptor)d.OID == "test1" 
                 && d.ModifiedObject.GetAttribute<string>("name") == "Test name"
         );
     }
@@ -178,27 +180,31 @@ public class ExtractFromDataModelTest
     public void SaveDiff ()
     {
         var diffSchema = LoadCimSchema(DiffSchemaPath);
-        var rdfSerializer = new RdfXmlSerializer(diffSchema, 
-            new CimDatatypeLib(diffSchema));
 
-        var cimDifferenceModel = new CimDifferenceModel(rdfSerializer);
+        var cimDifferenceModel = new CimDifferenceModel(diffSchema, 
+            new CimDatatypeLib(diffSchema), new TextDescriptorFactory());
 
         var cimDocument = CreateCimModelInstance(ModelSchemaPath);
 
-        var terminal = cimDocument.CreateObject<Terminal>("ex_t_1");
+        var terminal = cimDocument.CreateObject<Terminal>(
+            new TextDescriptor("ex_t_1"));
         terminal.name = "Test Terminal";
 
-        var cn = cimDocument.CreateObject<ConnectivityNode>("ex_cn_1");
+        var cn = cimDocument.CreateObject<ConnectivityNode>(
+            new TextDescriptor("ex_cn_1"));
         cn.name = "Test ConnectivityNode";
 
-        var substation = cimDocument.CreateObject<Substation>("ex_ss_1");
+        var substation = cimDocument.CreateObject<Substation>(
+            new TextDescriptor("ex_ss_1"));
         substation.name = "Test Substation";
 
-        var voltageLevel = cimDocument.CreateObject<VoltageLevel>("ex_vl_1");
+        var voltageLevel = cimDocument.CreateObject<VoltageLevel>(
+            new TextDescriptor("ex_vl_1"));
         voltageLevel.name = "Test VoltageLevel";
         voltageLevel.Substation = substation;
 
-        var bay = cimDocument.CreateObject<Bay>("ex_bay_1");
+        var bay = cimDocument.CreateObject<Bay>(
+            new TextDescriptor("ex_bay_1"));
         bay.name = "Test Bay";
         bay.VoltageLevel = voltageLevel;   
 
@@ -208,7 +214,8 @@ public class ExtractFromDataModelTest
         terminal.ConnectivityNode = cn;
         terminal.phases = PhaseCode.ABC;
 
-        var newTerminal = cimDocument.CreateObject<Terminal>("new_t_1");
+        var newTerminal = cimDocument.CreateObject<Terminal>(
+            new TextDescriptor("new_t_1"));
         newTerminal.name = "New terminal"; 
         newTerminal.sequenceNumber = 1;    
 
@@ -218,23 +225,15 @@ public class ExtractFromDataModelTest
 
         cimDifferenceModel.ExtractFromDataModel(cimDocument);
         cimDifferenceModel.Save(
-            new StreamWriter("../../../assets/test_diff_wr_extracted.xml"));
+            new StreamWriter("../../../assets/test_diff_wr_extracted.xml"),
+            new RdfXmlSerializerFactory());
     }
 
     private static ICimDataModel CreateCimModelInstance(string schemaPath)
     {
         var schema = LoadCimSchema(schemaPath);
-        var rdfSerializer = new RdfXmlSerializer(schema, 
-            new CimDatatypeLib(schema))
-        {
-            Settings = new RdfSerializerSettings()
-            {
-                UnknownClassesAllowed = true,
-                UnknownPropertiesAllowed = true
-            }
-        };
-
-        var cimDocument = new CimDocument(rdfSerializer);
+        var cimDocument = new CimDocument(schema, new CimDatatypeLib(schema), 
+            new TextDescriptorFactory());
 
         return cimDocument;
     }

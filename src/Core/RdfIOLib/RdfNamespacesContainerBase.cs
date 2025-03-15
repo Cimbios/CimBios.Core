@@ -83,8 +83,6 @@ public abstract class RdfNamespacesContainerBase
     /// <exception cref="Exception"></exception>
     protected (string prefix, string name) UriToName(Uri uri)
     {   
-        string ns = uri.AbsoluteUri[..(uri.AbsoluteUri.IndexOf('#') + 1)];
-
         var prefix = _Namespaces.Where(ns => ns.Value == uri)
             .Select(p => p.Key).FirstOrDefault();
             
