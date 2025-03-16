@@ -13,8 +13,6 @@ namespace CimBios.Core.CimModel.RdfSerializer;
 /// </summary>
 public abstract class RdfSerializerBase : ICanLog
 {
-    protected const string IdentifierPrefix = "#_";
-
     public ILogView Log => _Log;
 
     /// <summary>
@@ -360,18 +358,6 @@ public abstract class RdfSerializerBase : ICanLog
     }
 
     /// <summary>
-    /// Make URI from uuid and provider source path.
-    /// </summary>
-    /// <param name="oid">IModelObject uuid.</param>
-    /// <param name="prefix">Uuid prefix. 
-    /// '#_' for rdf:about, '_' for rdf:id.</param>
-    /// <returns></returns>
-    // private Uri GetBasedIdentifier(string oid, string prefix)
-    // {
-    //     return new(_RdfWriter.Namespaces["base"] + $"{prefix}{oid}");
-    // }
-
-    /// <summary>
     /// Fill writer namespaces from CimSchema.
     /// </summary>
     private void InitializeWriterNamespaces()
@@ -435,13 +421,22 @@ public abstract class RdfSerializerBase : ICanLog
         // First step - creating objects.
         foreach (var instanceNode in _RdfReader.ReadAll())
         {
-            var instance = RdfNodeToModelObject(instanceNode);
-            if (instance == null)
+            try
             {
-                continue;
-            }
+                var instance = RdfNodeToModelObject(instanceNode);
+                if (instance == null)
+                {
+                    continue;
+                }
 
-            _objectsCache.TryAdd(instance.OID, instance);
+                _objectsCache.TryAdd(instance.OID, instance);
+            }
+            catch (Exception ex)
+            {
+                _Log.NewMessage(
+                    $"Error raised while ModelObject construct {instanceNode.Identifier}.", 
+                    LogMessageSeverity.Error, ex.Message);
+            }
         }
 
         // Second step - fill objects properties.
@@ -450,9 +445,9 @@ public abstract class RdfSerializerBase : ICanLog
         InitializeRdfReader(_streamReader);
         foreach (var instanceNode in _RdfReader.ReadAll())
         {
-            var instanceOid = _OIDDescriptorFactory.Create(instanceNode.Identifier);
-            if (_objectsCache.TryGetValue(instanceOid,
-                out var instance) == false)
+            var instanceOid = _OIDDescriptorFactory.TryCreate(instanceNode.Identifier);
+            if (instanceOid == null || _objectsCache.TryGetValue(instanceOid,
+                    out var instance) == false)
             {
                 // throw Critical
                 continue;
@@ -479,10 +474,14 @@ public abstract class RdfSerializerBase : ICanLog
     private IModelObject? RdfNodeToModelObject(RdfNode instanceNode, 
         bool isAuto = false)
     {
-        IOIDDescriptor instanceOid;
+        IOIDDescriptor? instanceOid;
         if (isAuto == false)
         {
-            instanceOid = _OIDDescriptorFactory.Create(instanceNode.Identifier);
+            instanceOid = _OIDDescriptorFactory.TryCreate(instanceNode.Identifier);
+            if (instanceOid == null)
+            {
+                throw new ArgumentException("Failed to create model object oid!");
+            }
         }
         else 
         {
@@ -807,7 +806,11 @@ public abstract class RdfSerializerBase : ICanLog
     private void SetObjectDataAsAssociation(IModelObject instance,
         ICimMetaProperty property, Uri referenceUri)
     {
-        var referenceOid = _OIDDescriptorFactory.Create(referenceUri);
+        var referenceOid = _OIDDescriptorFactory.TryCreate(referenceUri);
+        if (referenceOid == null)
+        {
+            return;
+        }
 
         _objectsCache.TryGetValue(referenceOid, out var referenceInstance);
 

@@ -2,7 +2,7 @@ using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib.OID;
 
-public class GuidDescriptor : OIDDescriptorBase
+public class UuidDescriptor : OIDDescriptorBase
 {
     public const string DefaultNamespace = "urn:uuid:";
 
@@ -12,7 +12,7 @@ public class GuidDescriptor : OIDDescriptorBase
 
     public override bool IsEmpty => Uuid == Guid.Empty;
 
-    public GuidDescriptor (Uri absoluteOID)
+    public UuidDescriptor (Uri absoluteOID)
     {
         if (RdfUtils.TryGetEscapedIdentifier(absoluteOID, out var oid)
             && Guid.TryParse(oid.Replace("#_", ""), out var uuid))
@@ -25,22 +25,22 @@ public class GuidDescriptor : OIDDescriptorBase
         throw new ArgumentException($"Incorrect UUID uri {absoluteOID}!");
     }    
 
-    public GuidDescriptor (Guid value, string ns)
+    public UuidDescriptor (Guid value, string ns)
     {        
         Uuid = value;
 
         AbsoluteOID = new Uri(ns + this);
     }  
 
-    public GuidDescriptor (Guid value) : this (value, DefaultNamespace)
+    public UuidDescriptor (Guid value) : this (value, DefaultNamespace)
     {
     }
 
-    public GuidDescriptor() : this (Guid.NewGuid())
+    public UuidDescriptor() : this (Guid.NewGuid())
     {
     }
 
-    public GuidDescriptor (string value) : this (Guid.Parse(value))
+    public UuidDescriptor (string value) : this (Guid.Parse(value))
     {
     }
 
@@ -60,32 +60,68 @@ public class GuidDescriptor : OIDDescriptorBase
     }
 }
 
-public class GuidDescriptorFactory : IOIDDescriptorFactory
+public class UuidDescriptorFactory : IOIDDescriptorFactory
 {
-    public string Namespace { get; } = GuidDescriptor.DefaultNamespace;
+    public string Namespace { get; } = UuidDescriptor.DefaultNamespace;
 
-    public GuidDescriptorFactory ()
+    public UuidDescriptorFactory ()
     {
         
     }
 
-    public GuidDescriptorFactory (string ns)
+    public UuidDescriptorFactory (string ns)
     {
         Namespace = ns;
     }
 
     public IOIDDescriptor Create()
     {
-        return new GuidDescriptor();
+        return new UuidDescriptor();
     }
 
     public IOIDDescriptor Create(string value)
     {
-        return new GuidDescriptor(value);
+        return new UuidDescriptor(value);
     }
 
     public IOIDDescriptor Create(Uri value)
     {
-        return new GuidDescriptor(value);
+        return new UuidDescriptor(value);
+    }
+
+    public IOIDDescriptor? TryCreate()
+    {
+        try
+        {
+            return Create();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public IOIDDescriptor? TryCreate(string value)
+    {
+        try
+        {
+            return Create(value);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public IOIDDescriptor? TryCreate(Uri value)
+    {
+        try
+        {
+            return Create(value);
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

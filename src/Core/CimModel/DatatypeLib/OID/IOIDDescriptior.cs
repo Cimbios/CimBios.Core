@@ -28,7 +28,12 @@ public interface IOIDDescriptor : IComparable, IEquatable<IOIDDescriptor>
 public interface IOIDDescriptorFactory
 {
     public string Namespace { get; }
+    
     public IOIDDescriptor Create();
     public IOIDDescriptor Create(string value);
     public IOIDDescriptor Create(Uri value);
+
+    public IOIDDescriptor? TryCreate();
+    public IOIDDescriptor? TryCreate(string value);
+    public IOIDDescriptor? TryCreate(Uri value);
 }
