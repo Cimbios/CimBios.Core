@@ -61,8 +61,7 @@ public static class RdfUtils
         else if (uri.Fragment != string.Empty)
         {
             identifier = uri.Fragment
-                .Replace("#", "")
-                .Replace("_", "");
+                .Replace("#", "");
 
             return true;
         }

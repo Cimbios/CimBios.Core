@@ -15,10 +15,12 @@ public class UuidDescriptor : OIDDescriptorBase
     public UuidDescriptor (Uri absoluteOID)
     {
         if (RdfUtils.TryGetEscapedIdentifier(absoluteOID, out var oid)
-            && Guid.TryParse(oid.Replace("#_", ""), out var uuid))
+            && Guid.TryParse(oid.Replace(UuidPrefix, ""), out var uuid))
         {
             Uuid = uuid;
-            AbsoluteOID = absoluteOID;
+            AbsoluteOID = new Uri(DefaultNamespace + UuidPrefix 
+                + uuid.ToString().ToLower());
+    
             return;
         }
 
@@ -58,6 +60,8 @@ public class UuidDescriptor : OIDDescriptorBase
     {
         return Uuid.ToString().ToLower();
     }
+
+    private const string UuidPrefix = "#_";
 }
 
 public class UuidDescriptorFactory : IOIDDescriptorFactory
