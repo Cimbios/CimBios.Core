@@ -23,7 +23,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     public virtual ICimDatatypeLib TypeLib { get; }
 
     public virtual IOIDDescriptorFactory OIDDescriptorFactory { get; } 
-        = new GuidDescriptorFactory();
+        = new UuidDescriptorFactory();
 
     public IReadOnlyCollection<ICimDataModelChangeStatement> Changes
         => _ChangesCache.Reverse().ToArray();

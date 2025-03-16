@@ -24,7 +24,7 @@ public class RdfXmlSerializer : RdfSerializerBase
 
         if (oidDescriptorFactory == null)
         {
-            _oidDescriptorFactory = new GuidDescriptorFactory();
+            _oidDescriptorFactory = new UuidDescriptorFactory();
         }
         else
         {

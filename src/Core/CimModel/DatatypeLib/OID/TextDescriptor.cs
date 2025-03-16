@@ -57,4 +57,40 @@ public class TextDescriptorFactory : IOIDDescriptorFactory
     {
         return new TextDescriptor(value);
     }
+
+    public IOIDDescriptor? TryCreate()
+    {
+        try
+        {
+            return Create();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public IOIDDescriptor? TryCreate(string value)
+    {
+        try
+        {
+            return Create(value);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public IOIDDescriptor? TryCreate(Uri value)
+    {
+        try
+        {
+            return Create(value);
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

@@ -268,7 +268,7 @@ public class DataSelectorViewModel : ViewModelBase
 
         
         modelContext = new CimDocument(cimSchema, new CimDatatypeLib(cimSchema), 
-            new GuidDescriptorFactory());
+            new UuidDescriptorFactory());
 
         modelContext.Load(SourceUri.LocalPath, 
             SelectedDataContext.RdfSerializerFactory);

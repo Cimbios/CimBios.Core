@@ -47,7 +47,7 @@ public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
         _Objects.Clear();
         
         _internalDifferenceModel = TypeLib.CreateInstance<DifferenceModel>(
-            new GuidDescriptor());
+            new UuidDescriptor());
 
         if (_internalDifferenceModel == null)
         {
