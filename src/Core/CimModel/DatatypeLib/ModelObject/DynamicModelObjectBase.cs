@@ -264,77 +264,118 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
 }
 
 /// <summary>
-/// 
+/// Copy properties extension.
 /// </summary>
 public static class ModelObjectCopyPropsExtension
 {
     /// <summary>
-    /// 
+    /// Copy intersected properties from one CIM model object to another.
     /// </summary>
-    /// <param name="modelObject"></param>
-    /// <param name="fromModelObject"></param>
-    /// <param name="allowAssoc11Capture">Re-connect inverse 1 to 1 assoc.</param>
-    public static void CopyPropertiesFrom (this IModelObject modelObject, 
+    /// <param name="toModelObject">Model object to copy.</param>
+    /// <param name="fromModelObject">Model object from copy</param>
+    /// <param name="allowAssoc11Capture">Re-link inverse 1 to 1 assoc.</param>
+    public static void CopyPropertiesFrom (this IModelObject toModelObject, 
         IReadOnlyModelObject fromModelObject, bool allowAssoc11Capture = false)
     {
-        var intersectedProps = modelObject.MetaClass.AllProperties
+        var intersectedProps = toModelObject.MetaClass.AllProperties
             .Intersect(fromModelObject.MetaClass.AllProperties)
             .ToList();
 
         foreach (var metaProperty in intersectedProps)
         {
-            var inverse = metaProperty.InverseProperty?.PropertyKind
-                ?? CimMetaPropertyKind.NonStandard;
-
             if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
             {
-                var copy = fromModelObject.GetAttribute(metaProperty);
-                if (metaProperty.PropertyDatatype is ICimMetaDatatype metaDatatype)
-                {
-                    copy = Convert.ChangeType(copy,
-                        metaDatatype.PrimitiveType, 
-                        System.Globalization.CultureInfo.InvariantCulture);
-                }
-                else if (metaProperty.PropertyDatatype 
-                        is ICimMetaClass cimMetaClassType 
-                    && cimMetaClassType.IsCompound
-                    && copy is IModelObject fromCompound)
-                {
-                    var newCompound = modelObject
-                        .InitializeCompoundAttribute(metaProperty);
-                    newCompound.CopyPropertiesFrom(fromCompound);
-                    copy = newCompound;
-                }
-
-                modelObject.SetAttribute(metaProperty, copy);
+                CopyAttribute(toModelObject, fromModelObject, metaProperty);
             }
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
-                && (allowAssoc11Capture == true 
-                    || inverse != CimMetaPropertyKind.Assoc1To1))
+                || metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
             {
-                var refCopy = fromModelObject.GetAssoc1To1<IModelObject>(metaProperty);
-                modelObject.SetAssoc1To1(metaProperty, refCopy);                
-            }
-            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
-            {
-                modelObject.RemoveAllAssocs1ToM(metaProperty);
-                var refCol = fromModelObject.GetAssoc1ToM(metaProperty);
-                foreach (var refCopy in refCol)
-                {
-                    modelObject.AddAssoc1ToM(metaProperty, refCopy);
-                }               
+                CopyAssocs(toModelObject, fromModelObject, 
+                    metaProperty, allowAssoc11Capture);           
             }
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Statements
-                && modelObject is IStatementsContainer statementsContainer1
+                && toModelObject is IStatementsContainer statementsContainer1
                 && fromModelObject is IStatementsContainer statementsContainer2)
             {
-                foreach (var statement in statementsContainer2
-                    .Statements[metaProperty])
+                CopyStatements(statementsContainer1, 
+                    statementsContainer2, metaProperty);
+            }
+        }
+    }
+
+    private static void CopyAttribute (IModelObject toModelObject, 
+        IReadOnlyModelObject fromModelObject, ICimMetaProperty metaProperty)
+    {
+        var copy = fromModelObject.GetAttribute(metaProperty);
+        if (metaProperty.PropertyDatatype is ICimMetaDatatype metaDatatype)
+        {
+            copy = Convert.ChangeType(copy,
+                metaDatatype.PrimitiveType, 
+                System.Globalization.CultureInfo.InvariantCulture);
+        }
+        else if (metaProperty.PropertyDatatype 
+                is ICimMetaClass cimMetaClassType)
+        {
+            if (cimMetaClassType.IsCompound
+                && copy is IModelObject fromCompound)
+            {
+                var newCompound = toModelObject
+                    .InitializeCompoundAttribute(metaProperty);
+                newCompound.CopyPropertiesFrom(fromCompound);
+                copy = newCompound;
+            }
+            else if (cimMetaClassType.IsEnum 
+                && copy is IReadOnlyCollection<IModelObject> unresolved)
+            {
+                var metaIndividual = cimMetaClassType
+                    .AllIndividuals.FirstOrDefault(i => 
+                    i.BaseUri.AbsoluteUri 
+                        == unresolved.First().OID.AbsoluteOID.AbsoluteUri);
+                
+                if (metaIndividual != null)
                 {
-                    statementsContainer1.AddToStatements(
-                        metaProperty, statement);
+                    toModelObject.SetAttributeAsEnum(metaProperty, 
+                        metaIndividual);
+
+                    return;
                 }
             }
+        }
+
+        toModelObject.SetAttribute(metaProperty, copy);
+    }
+
+    private static void CopyAssocs(IModelObject toModelObject, 
+        IReadOnlyModelObject fromModelObject, ICimMetaProperty metaProperty,
+        bool recaptureAssoc11 = false)
+    {
+        var inverse = metaProperty.InverseProperty?.PropertyKind
+            ?? CimMetaPropertyKind.NonStandard;
+
+        if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
+            && (recaptureAssoc11 == true 
+                || inverse != CimMetaPropertyKind.Assoc1To1))
+        {
+            var refCopy = fromModelObject.GetAssoc1To1<IModelObject>(metaProperty);
+            toModelObject.SetAssoc1To1(metaProperty, refCopy);                
+        }
+        else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+        {
+            toModelObject.RemoveAllAssocs1ToM(metaProperty);
+            var refCol = fromModelObject.GetAssoc1ToM(metaProperty);
+            foreach (var refCopy in refCol)
+            {
+                toModelObject.AddAssoc1ToM(metaProperty, refCopy);
+            }               
+        }
+    }
+
+    private static void CopyStatements(IStatementsContainer toStatements, 
+        IStatementsContainer fromStatements, ICimMetaProperty metaProperty)
+    {
+        foreach (var statement in fromStatements.Statements[metaProperty])
+        {
+            toStatements.AddToStatements(metaProperty, statement);
         }
     }
 }

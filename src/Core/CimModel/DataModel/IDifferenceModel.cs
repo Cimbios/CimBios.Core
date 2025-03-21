@@ -32,10 +32,7 @@ public interface ICimDifferenceModel : ICanLog
     /// <param name="originDataModel">Origin (left) CIM data model.</param>
     /// <param name="modifiedDataModel">Modified (right) CIM data model.</param>
     public void CompareDataModels(ICimDataModel originDataModel, 
-        ICimDataModel modifiedDataModel)
-    {
-        
-    }
+        ICimDataModel modifiedDataModel);
 
     /// <summary>
     /// Subscribes on CIM data model objects changes. Raising changes are accumulating in cache.

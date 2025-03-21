@@ -141,21 +141,23 @@ public class CimDatatypeLib : ICimDatatypeLib
         var isRegisteredType = RegisteredTypes
             .TryGetValue(metaClass, out var type);
 
+        IModelObject? instance = null;
         if (isRegisteredType && type!.IsAssignableTo(modelObjectFactory.ProduceType))
         {
-            return Activator.CreateInstance(type, oid, metaClass) 
-                as IModelObject;
+            instance = Activator.CreateInstance(type, oid, metaClass) as IModelObject;
         }
-        else
-        {
-            var instance = modelObjectFactory.Create(oid, metaClass);
-            if (instance is DynamicModelObjectBase dynamicModelObject)
-            {
-                dynamicModelObject.InternalTypeLib = this;
-            }
 
-            return instance;
+        if (instance == null)
+        {
+            instance = modelObjectFactory.Create(oid, metaClass);
         }
+
+        if (instance is DynamicModelObjectBase dynamicModelObject)
+        {
+            dynamicModelObject.InternalTypeLib = this;
+        }
+
+        return instance;
     }
 
     public T? CreateInstance<T>(IOIDDescriptor oid) 

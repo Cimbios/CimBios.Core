@@ -25,7 +25,10 @@ internal static class DiffsToModelHelper
 
                 addedObject.CopyPropertiesFrom(diff.ModifiedObject, true);
                 ResolveReferencesInModelObject(model, addedObject);
-
+            }
+            else if (diff is DeletionDifferenceObject)
+            {
+                model.RemoveObject(diff.OID);
             }
         });
     }
