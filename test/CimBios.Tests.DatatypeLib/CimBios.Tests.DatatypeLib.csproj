@@ -13,10 +13,9 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Core\CimModel\DataModel\CimBios.Core.CimModel.DataModel.csproj" />
-    <ProjectReference Include="..\..\src\Core\CimModel\DatatypeLib\CimBios.Core.CimModel.DatatypeLib.csproj" />
+    <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
-    <Using Include="Xunit" />
+    <ProjectReference Include="..\CimBios.Tests.Infrastructure\CimBios.Tests.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

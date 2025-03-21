@@ -8,8 +8,8 @@ namespace CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 
 [CimClass(ClassUri)]
 public partial class Description
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ModelObject(oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ModelObject(oid, metaClass)
 {
     public const string ClassUri 
         = "http://www.w3.org/1999/02/22-rdf-syntax-ns#Description";
@@ -19,8 +19,8 @@ public partial class Description
 /// </summary>
 [CimClass(ClassUri)]
 public partial class DifferenceModel
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Model(oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Model(oid, metaClass)
 {
     public new const string ClassUri 
         = "http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel";
@@ -64,8 +64,8 @@ public partial class DifferenceModel
 /// </summary>
 [CimClass(ClassUri)]
 public partial class FullModel
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Model(oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Model(oid, metaClass)
 {
     public new const string ClassUri 
         = "http://iec.ch/TC57/61970-552/ModelDescription/1#FullModel";
@@ -75,8 +75,8 @@ public partial class FullModel
 /// </summary>
 [CimClass(ClassUri)]
 public partial class Model
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ModelObject(oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ModelObject(oid, metaClass)
 {
     public const string ClassUri 
         = "http://iec.ch/TC57/61970-552/ModelDescription/1#Model";

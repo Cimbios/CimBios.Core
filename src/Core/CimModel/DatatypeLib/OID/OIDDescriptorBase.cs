@@ -8,14 +8,14 @@ public abstract class OIDDescriptorBase : IOIDDescriptor
 {
     public abstract Uri AbsoluteOID { get; }
 
-    public virtual bool IsEmpty => AbsoluteOID.Fragment.Length != 0 
-        || AbsoluteOID.LocalPath.Length != 0;
+    public virtual bool IsEmpty => AbsoluteOID.Fragment.Length == 0 
+        && AbsoluteOID.LocalPath.Length == 0;
 
     public abstract int CompareTo(object? obj);
 
     public bool Equals(IOIDDescriptor? other)
     {
-        return AbsoluteOID.AbsolutePath == other?.AbsoluteOID.AbsolutePath;
+        return AbsoluteOID.AbsoluteUri == other?.AbsoluteOID.AbsoluteUri;
     }
 
     public override int GetHashCode()

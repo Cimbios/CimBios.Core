@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:cim="http://iec.ch/TC57/CIM100#"
+    xmlns:rf="http://gost.ru/2019/schema-cim01#" > 
+  <md:FullModel rdf:ID="_FullModelHeader">
+    <md:Model.created>2000-01-01T00:00:00.000Z</md:Model.created>
+  </md:FullModel>
+  <cim:Substation rdf:ID="_SubstationA">
+    <cim:Substation.VoltageLevels rdf:resource="_AVoltageLevel35"/>
+    <cim:IdentifiedObject.name>Substation A</cim:IdentifiedObject.name>
+    <cim:Substation.VoltageLevels rdf:resource="_AVoltageLevel10"/>
+    <cim:Substation.VoltageLevels rdf:resource="_AVoltageLevel110"/>
+    <cim:Substation.Region rdf:resource="_TestRegion"/>
+    <cim:EquipmentContainer.Equipments rdf:resource="_APowerTransformer"/>
+    <!-- for test unexisting property -->
+    <cim:UndefinedAssoc rdf:resource="_TestUndefinedAssocRef"/>
+    <cim:PowerSystemResource.Assets rdf:resource="_ASubstationAsset"/>
+  </cim:Substation>
+  <cim:VoltageLevel rdf:ID="_AVoltageLevel110">
+    <cim:IdentifiedObject.name>110 kV Switchgear</cim:IdentifiedObject.name>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_1000063d-0000-0000-c000-0000006d746c"/>
+    <cim:VoltageLevel.Bays rdf:resource="_AInputBay110"/>
+    <cim:VoltageLevel.Substation rdf:resource="_SubstationA"/>
+    <cim:ConnectivityNodeContainer.ConnectivityNodes rdf:resource="_ACN1"/>
+  </cim:VoltageLevel>
+  <cim:VoltageLevel rdf:ID="_AVoltageLevel35">
+    <cim:IdentifiedObject.name>35 kV Switchgear</cim:IdentifiedObject.name>
+    <cim:EquipmentContainer.Equipments rdf:resource="_AJunctionPTE35"/>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_10000662-0000-0000-c000-0000006d746c"/>
+    <cim:VoltageLevel.Substation rdf:resource="_SubstationA"/>
+    <cim:ConnectivityNodeContainer.ConnectivityNodes rdf:resource="_ACN4"/>
+  </cim:VoltageLevel>
+  <cim:VoltageLevel rdf:ID="_AVoltageLevel10">
+    <cim:IdentifiedObject.name>10 kV Switchgear</cim:IdentifiedObject.name>
+    <cim:EquipmentContainer.Equipments rdf:resource="_AJunctionPTE10"/>
+    <cim:VoltageLevel.BaseVoltage rdf:resource="#_10000637-0000-0000-c000-0000006d746c"/>
+    <cim:VoltageLevel.Substation rdf:resource="_SubstationA"/>
+    <cim:ConnectivityNodeContainer.ConnectivityNodes rdf:resource="_ACN5"/>
+  </cim:VoltageLevel>
+  <cim:Bay rdf:ID="_AInputBay110">
+    <cim:Bay.breakerConfiguration rdf:resource="cim:BreakerConfiguration.singleBreaker"/>
+    <cim:EquipmentContainer.Equipments rdf:resource="_ABreaker110"/>
+    <cim:Bay.VoltageLevel rdf:resource="_AVoltageLevel110"/>
+    <cim:IdentifiedObject.name>Bay 110 kV</cim:IdentifiedObject.name>
+    <cim:EquipmentContainer.Equipments rdf:resource="_ADisconnector110"/>
+    <cim:ConnectivityNodeContainer.ConnectivityNodes rdf:resource="_ACN3"/>
+    <cim:Bay.busBarConfiguration rdf:resource="rf:BusbarConfiguration.noBus"/>
+    <cim:ConnectivityNodeContainer.ConnectivityNodes rdf:resource="_ACN2"/>
+    <cim:EquipmentContainer.Equipments rdf:resource="_ABusArrangment110"/>
+    <cim:EquipmentContainer.Equipments rdf:resource="_AGroundDisconnector110"/>
+    <cim:EquipmentContainer.Equipments rdf:resource="_ACurrentTransformer1"/>
+  </cim:Bay>
+  <cim:PowerTransformer rdf:ID="_APowerTransformer">
+    <cim:PowerTransformer.PowerTransformerEnd rdf:resource="_APTEndHV"/>
+    <cim:Equipment.normallyInService>true</cim:Equipment.normallyInService>
+    <cim:Equipment.EquipmentContainer rdf:resource="_SubstationA"/>
+    <cim:PowerTransformer.PowerTransformerEnd rdf:resource="_APTEndMV"/>
+    <cim:ConductingEquipment.Terminals rdf:resource="_APTEndLVT1"/>
+    <cim:ConductingEquipment.Terminals rdf:resource="_APTEndHVT1"/>
+    <cim:ConductingEquipment.Terminals rdf:resource="_APTEndMVT1"/>
+    <cim:IdentifiedObject.name>Power transformer</cim:IdentifiedObject.name>
+    <cim:PowerTransformer.PowerTransformerEnd rdf:resource="_APTEndLV"/>
+  </cim:PowerTransformer>
+  <cim:PowerTransformerEnd rdf:ID="_APTEndHV">
+    <cim:TransformerEnd.Terminal rdf:resource="_APTEndHVT1"/>
+    <cim:TransformerEnd.grounded>true</cim:TransformerEnd.grounded>
+    <cim:PowerTransformerEnd.ratedS>6.3</cim:PowerTransformerEnd.ratedS>
+    <cim:PowerTransformerEnd.g>9.451795841355048E-07</cim:PowerTransformerEnd.g>
+    <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+    <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+    <cim:IdentifiedObject.name>HV</cim:IdentifiedObject.name>
+    <cim:PowerTransformerEnd.connectionKind rdf:resource="cim:WindingConnection.Yn"/>
+    <cim:PowerTransformerEnd.b>-5.154127278020619E-06</cim:PowerTransformerEnd.b>
+    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
+    <cim:TransformerEnd.RatioTapChanger rdf:resource="_APTRadioTapChanger"/>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="_APowerTransformer"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_1000063d-0000-0000-c000-0000006d746c"/>
+    <cim:PowerTransformerEnd.ratedU>115</cim:PowerTransformerEnd.ratedU>
+  </cim:PowerTransformerEnd>
+  <cim:PowerTransformerEnd rdf:ID="_APTEndMV">
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="_APowerTransformer"/>
+    <cim:PowerTransformerEnd.connectionKind rdf:resource="cim:WindingConnection.Yn"/>
+    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
+    <cim:IdentifiedObject.name>MV</cim:IdentifiedObject.name>
+    <cim:PowerTransformerEnd.phaseAngleClock>0</cim:PowerTransformerEnd.phaseAngleClock>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:TransformerEnd.Terminal rdf:resource="_APTEndMVT1"/>
+    <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+    <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_10000662-0000-0000-c000-0000006d746c"/>
+    <cim:PowerTransformerEnd.ratedS>6.3</cim:PowerTransformerEnd.ratedS>
+    <cim:PowerTransformerEnd.ratedU>38.5</cim:PowerTransformerEnd.ratedU>
+    <cim:TransformerEnd.grounded>false</cim:TransformerEnd.grounded>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+  </cim:PowerTransformerEnd>
+  <cim:PowerTransformerEnd rdf:ID="_APTEndLV">
+    <cim:IdentifiedObject.name>LV</cim:IdentifiedObject.name>
+    <cim:TransformerEnd.endNumber>3</cim:TransformerEnd.endNumber>
+    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
+    <cim:TransformerEnd.rground>0</cim:TransformerEnd.rground>
+    <cim:PowerTransformerEnd.ratedU>11</cim:PowerTransformerEnd.ratedU>
+    <cim:PowerTransformerEnd.ratedS>6.3</cim:PowerTransformerEnd.ratedS>
+    <cim:PowerTransformerEnd.phaseAngleClock>11</cim:PowerTransformerEnd.phaseAngleClock>
+    <cim:TransformerEnd.xground>0</cim:TransformerEnd.xground>
+    <cim:PowerTransformerEnd.connectionKind rdf:resource="cim:WindingConnection.D"/>
+    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="_APowerTransformer"/>
+    <cim:TransformerEnd.BaseVoltage rdf:resource="#_10000637-0000-0000-c000-0000006d746c"/>
+    <cim:PowerTransformerEnd.g>0</cim:PowerTransformerEnd.g>
+    <cim:TransformerEnd.Terminal rdf:resource="_APTEndLVT1"/>
+  </cim:PowerTransformerEnd>
+  <cim:Breaker rdf:ID="_ABreaker110">
+    <cim:IdentifiedObject.name>Input breaker 110 kV</cim:IdentifiedObject.name>
+    <cim:Equipment.normallyInService>true</cim:Equipment.normallyInService>
+    <cim:Equipment.EquipmentContainer rdf:resource="_AInputBay110"/>
+    <cim:ConductingEquipment.Terminals rdf:resource="_ABreaker110T1"/>
+    <cim:ConductingEquipment.Terminals rdf:resource="_ABreaker110T2"/>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_1000063d-0000-0000-c000-0000006d746c"/>
+    <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+  </cim:Breaker>
+  <cim:Disconnector rdf:ID="_ADisconnector110">
+    <cim:IdentifiedObject.name>Input disconnector 110 kV</cim:IdentifiedObject.name>
+    <cim:Equipment.normallyInService>true</cim:Equipment.normallyInService>
+    <cim:Equipment.EquipmentContainer rdf:resource="_AInputBay110"/>
+    <cim:ConductingEquipment.Terminals rdf:resource="_ADisconnector110T2"/>
+    <cim:ConductingEquipment.Terminals rdf:resource="_ADisconnector110T1"/>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_1000063d-0000-0000-c000-0000006d746c"/>
+    <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+  </cim:Disconnector>
+  <cim:GroundDisconnector rdf:ID="_AGroundDisconnector110">
+    <cim:IdentifiedObject.name>Ground disconnector</cim:IdentifiedObject.name>
+    <cim:Equipment.normallyInService>true</cim:Equipment.normallyInService>
+    <cim:Equipment.EquipmentContainer rdf:resource="_AInputBay110"/>
+    <cim:ConductingEquipment.Terminals rdf:resource="_AGroundDisconnector110T1"/>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_1000063d-0000-0000-c000-0000006d746c"/>
+    <cim:Switch.normalOpen>true</cim:Switch.normalOpen>
+  </cim:GroundDisconnector>
+  <cim:Junction rdf:ID="_AJunctionPTE35">
+    <cim:IdentifiedObject.name>PT junction 35</cim:IdentifiedObject.name>
+    <cim:Equipment.normallyInService>true</cim:Equipment.normallyInService>
+    <cim:Equipment.EquipmentContainer rdf:resource="_AVoltageLevel35"/>
+    <cim:ConductingEquipment.Terminals rdf:resource="_AJunctionPTE35T1"/>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_10000662-0000-0000-c000-0000006d746c"/>
+  </cim:Junction>
+  <cim:Junction rdf:ID="_AJunctionPTE10">
+    <cim:IdentifiedObject.name>PT junction 10</cim:IdentifiedObject.name>
+    <cim:Equipment.normallyInService>true</cim:Equipment.normallyInService>
+    <cim:Equipment.EquipmentContainer rdf:resource="_AVoltageLevel10"/>
+    <cim:ConductingEquipment.Terminals rdf:resource="_AJunctionPTE10T1"/>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_10000637-0000-0000-c000-0000006d746c"/>
+  </cim:Junction>
+  <cim:CurrentTransformer rdf:ID="_ACurrentTransformer1">
+    <cim:IdentifiedObject.name>Current transformer 1</cim:IdentifiedObject.name>
+    <cim:AuxiliaryEquipment.Terminal rdf:resource="_ABreaker110T1"/>
+    <cim:Equipment.normallyInService>true</cim:Equipment.normallyInService>
+    <cim:Equipment.EquipmentContainer rdf:resource="_AInputBay110"/>
+    <rf:CurrentTransformer.isEmbeded>false</rf:CurrentTransformer.isEmbeded>
+    <cim:Equipment.OperationalLimitSet rdf:resource="_ABreakerOperationalLimitSet"/>
+  </cim:CurrentTransformer>
+  <rf:BusArrangement rdf:ID="_ABusArrangment110">
+    <cim:IdentifiedObject.name>Bus arrangement 110 kV</cim:IdentifiedObject.name>
+    <cim:AuxiliaryEquipment.Terminal rdf:resource="_AOutterLine"/>
+    <cim:Equipment.normallyInService>true</cim:Equipment.normallyInService>
+    <cim:Equipment.EquipmentContainer rdf:resource="_AInputBay110"/>
+    <cim:Equipment.OperationalLimitSet rdf:resource="_ABusArrangment110OperationalLimitSet"/>
+  </rf:BusArrangement>
+  <cim:RatioTapChanger rdf:ID="_APTRadioTapChanger">
+    <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
+    <cim:IdentifiedObject.name>RTC ± 9x1.78%</cim:IdentifiedObject.name>
+    <cim:RatioTapChanger.TransformerEnd rdf:resource="_APTEndHV"/>
+    <cim:RatioTapChanger.stepVoltageIncrement>1.78</cim:RatioTapChanger.stepVoltageIncrement>
+    <cim:TapChanger.highStep>19</cim:TapChanger.highStep>
+    <rf:TapChanger.neutralStepCount>1</rf:TapChanger.neutralStepCount>
+    <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+    <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+    <cim:TapChanger.neutralStep>10</cim:TapChanger.neutralStep>
+    <cim:TapChanger.normalStep>10</cim:TapChanger.normalStep>
+  </cim:RatioTapChanger>
+  <cim:Terminal rdf:ID="_APTEndLVT1">
+    <cim:Terminal.ConductingEquipment rdf:resource="_APowerTransformer"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="_ACN5"/>
+    <cim:ACDCTerminal.sequenceNumber>3</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.TransformerEnd rdf:resource="_APTEndLV"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:ID="_AGroundDisconnector110T1">
+    <cim:Terminal.ConductingEquipment rdf:resource="_AGroundDisconnector110"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="_ACN2"/>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+  </cim:Terminal>
+  <cim:Terminal rdf:ID="_ADisconnector110T1">
+    <cim:Terminal.ConductingEquipment rdf:resource="_ADisconnector110"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="_ACN2"/>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+  </cim:Terminal>
+  <cim:Terminal rdf:ID="_APTEndMVT1">
+    <cim:Terminal.ConductingEquipment rdf:resource="_APowerTransformer"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="_ACN4"/>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.phases rdf:resource="cim:PhaseCode.ABCN"/>
+    <cim:Terminal.TransformerEnd rdf:resource="_APTEndMV"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:ID="_APTEndHVT1">
+    <cim:Terminal.ConductingEquipment rdf:resource="_APowerTransformer"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="_ACN1"/>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.phases rdf:resource="cim:PhaseCode.ABCN"/>
+    <cim:Terminal.TransformerEnd rdf:resource="_APTEndHV"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:ID="_ABreaker110T1">
+    <cim:Terminal.ConductingEquipment rdf:resource="_ABreaker110"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="_ACN3"/>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.AuxiliaryEquipment rdf:resource="_ACurrentTransformer1"/>
+    <cim:ACDCTerminal.OperationalLimitSet rdf:resource="_ABreakerOperationalLimitSet"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:ID="_ABreaker110T2">
+    <cim:Terminal.ConductingEquipment rdf:resource="_ABreaker110"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="_ACN1"/>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+  </cim:Terminal>
+  <cim:Terminal rdf:ID="_ADisconnector110T2">
+    <cim:Terminal.ConductingEquipment rdf:resource="_ADisconnector110"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="_ACN3"/>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+  </cim:Terminal>
+  <cim:ConnectivityNode rdf:ID="_ACN1">
+    <cim:ConnectivityNode.Terminals rdf:resource="_ABreaker110T2"/>
+    <cim:ConnectivityNode.Terminals rdf:resource="_APTEndHVT1"/>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="_AVoltageLevel110"/>
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:ID="_ACN2">
+    <cim:ConnectivityNode.Terminals rdf:resource="_AGroundDisconnector110T1"/>
+    <cim:ConnectivityNode.Terminals rdf:resource="_ADisconnector110T1"/>
+    <cim:ConnectivityNode.Terminals rdf:resource="_AOutterLine"/>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="_AInputBay110"/>
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:ID="_ACN3">
+    <cim:ConnectivityNode.Terminals rdf:resource="_ABreaker110T1"/>
+    <cim:ConnectivityNode.Terminals rdf:resource="_ADisconnector110T2"/>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="_AInputBay110"/>
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:ID="_ACN4">
+    <cim:ConnectivityNode.Terminals rdf:resource="_AJunctionPTE35T1"/>
+    <cim:ConnectivityNode.Terminals rdf:resource="_APTEndMVT1"/>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="_AVoltageLevel35"/>
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:ID="_ACN5">
+    <cim:ConnectivityNode.Terminals rdf:resource="_AJunctionPTE10T1"/>
+    <cim:ConnectivityNode.Terminals rdf:resource="_APTEndLVT1"/>
+    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="_AVoltageLevel10"/>
+  </cim:ConnectivityNode>
+  <cim:Asset rdf:ID="_ASubstationAsset">
+    <cim:IdentifiedObject.name>Substation A asset</cim:IdentifiedObject.name>
+    <cim:Asset.inUseDate>
+      <cim:InUseDate>
+        <cim:InUseDate.inUseDate>2000-01-01T00:00:00Z</cim:InUseDate.inUseDate>
+      </cim:InUseDate>
+    </cim:Asset.inUseDate>
+    <cim:Asset.position>1</cim:Asset.position>
+    <cim:Asset.PowerSystemResources rdf:resource="_SubstationA" />
+  </cim:Asset>
+  <cim:Asset rdf:ID="_JustLonelyAsset" />
+  <cim:Asset rdf:ID="_RemoveMeAsset">
+    <cim:IdentifiedObject.name>Remove me!</cim:IdentifiedObject.name>
+  </cim:Asset>
+</rdf:RDF>

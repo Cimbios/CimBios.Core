@@ -12,8 +12,8 @@ namespace CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Statement
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement";
@@ -28,8 +28,8 @@ public partial class Statement
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ACDCConverterDCTerminal
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : DCBaseTerminal (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : DCBaseTerminal (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ACDCConverterDCTerminal";
@@ -41,8 +41,8 @@ public partial class ACDCConverterDCTerminal
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ACDCTerminal
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#ACDCTerminal";
 
@@ -104,8 +104,8 @@ public partial class ACDCTerminal
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ACLineSegment
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Conductor (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Conductor (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#ACLineSegment";
 
@@ -222,8 +222,8 @@ public partial class ACLineSegment
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ACLineSegmentPhase
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerSystemResource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerSystemResource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ACLineSegmentPhase";
@@ -264,8 +264,8 @@ public partial class ACLineSegmentPhase
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ACLineSeriesSection
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Equipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Equipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#ACLineSeriesSection";
@@ -397,8 +397,8 @@ public partial class ACLineSeriesSection
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ActivePowerLimit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : OperationalLimit (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : OperationalLimit (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ActivePowerLimit";
@@ -428,8 +428,8 @@ public partial class ActivePowerLimit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ActivityRecord
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#ActivityRecord";
 
@@ -494,8 +494,8 @@ public partial class ActivityRecord
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Agreement
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Document (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Document (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Agreement";
 
@@ -523,8 +523,8 @@ public partial class Agreement
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Analog
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Measurement (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Measurement (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Analog";
 
@@ -583,8 +583,8 @@ public partial class Analog
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AnalogValue
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : MeasurementValue (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : MeasurementValue (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#AnalogValue";
 
@@ -614,8 +614,8 @@ public partial class AnalogValue
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AnalyticScore
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#AnalyticScore";
 }
@@ -629,8 +629,8 @@ public partial class AnalyticScore
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Asset
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Asset";
 
@@ -847,8 +847,8 @@ public partial class Asset
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AssetContainer
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Asset (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Asset (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#AssetContainer";
 
@@ -876,8 +876,8 @@ public partial class AssetContainer
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AssetDeployment
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#AssetDeployment";
@@ -930,8 +930,8 @@ public partial class AssetDeployment
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AssetFunction
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#AssetFunction";
 
@@ -986,8 +986,8 @@ public partial class AssetFunction
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AssetInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#AssetInfo";
 
@@ -1029,8 +1029,8 @@ public partial class AssetInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AssetOrganisationRole
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : OrganisationRole (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : OrganisationRole (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#AssetOrganisationRole";
@@ -1050,8 +1050,8 @@ public partial class AssetOrganisationRole
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AssetOwner
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetOrganisationRole (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetOrganisationRole (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#AssetOwner";
 }
@@ -1062,8 +1062,8 @@ public partial class AssetOwner
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AsynchronousMachine
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : RotatingMachine (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : RotatingMachine (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#AsynchronousMachine";
@@ -1128,8 +1128,8 @@ public partial class AsynchronousMachine
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AsynchronousMachineReactiveCapabilityCurve
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Curve (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Curve (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/"
@@ -1155,8 +1155,8 @@ public partial class AsynchronousMachineReactiveCapabilityCurve
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AsynchronousMachinelnfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : RotatingMachineInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : RotatingMachineInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#AsynchronousMachinelnfo";
@@ -1194,8 +1194,8 @@ public partial class AsynchronousMachinelnfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class AuxiliaryEquipment
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Equipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Equipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#AuxiliaryEquipment";
@@ -1214,8 +1214,8 @@ public partial class AuxiliaryEquipment
 /// </summary>
 [CimClass (ClassUri)]
 public partial class BWRSteamSupply
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : SteamSupply (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : SteamSupply (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#BWRSteamSupply";
 }
@@ -1226,8 +1226,8 @@ public partial class BWRSteamSupply
 /// </summary>
 [CimClass (ClassUri)]
 public partial class BaseReading
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : MeasurementValue (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : MeasurementValue (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#BaseReading";
 
@@ -1286,8 +1286,8 @@ public partial class BaseReading
 /// </summary>
 [CimClass (ClassUri)]
 public partial class BaseVoltage
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#BaseVoltage";
 
@@ -1374,8 +1374,8 @@ public partial class BaseVoltage
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Bay
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EquipmentContainer (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EquipmentContainer (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Bay";
 
@@ -1415,8 +1415,8 @@ public partial class Bay
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Breaker
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ProtectedSwitch (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ProtectedSwitch (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Breaker";
 
@@ -1434,8 +1434,8 @@ public partial class Breaker
 /// </summary>
 [CimClass (ClassUri)]
 public partial class BreakerInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : OldSwitchInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : OldSwitchInfo (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#BreakerInfo";
 
@@ -1461,8 +1461,8 @@ public partial class BreakerInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class BrushlessExciterlnfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#BrushlessExciterlnfo";
@@ -1593,8 +1593,8 @@ public partial class BrushlessExciterlnfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class BusArrangement
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AuxiliaryEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AuxiliaryEquipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#BusArrangement";
@@ -1608,8 +1608,8 @@ public partial class BusArrangement
 /// </summary>
 [CimClass (ClassUri)]
 public partial class BusbarSection
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Connector (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Connector (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#BusbarSection";
 
@@ -1629,8 +1629,8 @@ public partial class BusbarSection
 /// </summary>
 [CimClass (ClassUri)]
 public partial class BusbarSectionInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#BusbarSectionInfo";
@@ -1657,8 +1657,8 @@ public partial class BusbarSectionInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CableInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : WireInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : WireInfo (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#CableInfo";
 
@@ -1797,8 +1797,8 @@ public partial class CableInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CapacityConfiguration
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#CapacityConfiguration";
@@ -1845,8 +1845,8 @@ public partial class CapacityConfiguration
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Channel
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Channel";
 
@@ -1877,8 +1877,8 @@ public partial class Channel
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CogenerationPlant
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerSystemResource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerSystemResource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#CogenerationPlant";
@@ -1915,8 +1915,8 @@ public partial class CogenerationPlant
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ComFunction
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EndDeviceFunction (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EndDeviceFunction (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#ComFunction";
 
@@ -1962,8 +1962,8 @@ public partial class ComFunction
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CombinedCyclePlant
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerSystemResource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerSystemResource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#CombinedCyclePlant";
@@ -1998,8 +1998,8 @@ public partial class CombinedCyclePlant
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CombustionTurbine
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PrimeMover (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PrimeMover (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#CombustionTurbine";
@@ -2018,8 +2018,8 @@ public partial class CombustionTurbine
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ConcentricNeutralCableInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : CableInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : CableInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ConcentricNeutralCableInfo";
@@ -2047,8 +2047,8 @@ public partial class ConcentricNeutralCableInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ConductingEquipment
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Equipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Equipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ConductingEquipment";
@@ -2101,8 +2101,8 @@ public partial class ConductingEquipment
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Conductor
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ConductingEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ConductingEquipment (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Conductor";
 
@@ -2121,8 +2121,8 @@ public partial class Conductor
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ConfigurationEvent
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ActivityRecord (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ActivityRecord (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ConfigurationEvent";
@@ -2158,8 +2158,8 @@ public partial class ConfigurationEvent
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ConnectDisconnectFunction
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EndDeviceFunction (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EndDeviceFunction (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ConnectDisconnectFunction";
@@ -2247,8 +2247,8 @@ public partial class ConnectDisconnectFunction
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ConnectivityNode
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ConnectivityNode";
@@ -2280,8 +2280,8 @@ public partial class ConnectivityNode
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ConnectivityNodeContainer
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerSystemResource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerSystemResource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ConnectivityNodeContainer";
@@ -2308,8 +2308,8 @@ public partial class ConnectivityNodeContainer
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Connector
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ConductingEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ConductingEquipment (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Connector";
 }
@@ -2318,8 +2318,8 @@ public partial class Connector
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ControlledShuntReactorInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ShuntReactorInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ShuntReactorInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#ControlledShuntReactorInfo";
@@ -2402,8 +2402,8 @@ public partial class ControlledShuntReactorInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CoordinateSystem
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#CoordinateSystem";
@@ -2442,8 +2442,8 @@ public partial class CoordinateSystem
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CurrentLimit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : OperationalLimit (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : OperationalLimit (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#CurrentLimit";
 
@@ -2473,8 +2473,8 @@ public partial class CurrentLimit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CurrentTransformer
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Sensor (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Sensor (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#CurrentTransformer";
@@ -2531,8 +2531,8 @@ public partial class CurrentTransformer
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CurrentTransformerInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#CurrentTransformerInfo";
@@ -2657,8 +2657,8 @@ public partial class CurrentTransformerInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CurrentTransformerWinding
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : SensorWinding (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : SensorWinding (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#CurrentTransformerWinding";
@@ -2735,8 +2735,8 @@ public partial class CurrentTransformerWinding
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Curve
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Curve";
 
@@ -2832,8 +2832,8 @@ public partial class Curve
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CurveData
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#CurveData";
 
@@ -2887,8 +2887,8 @@ public partial class CurveData
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Customer
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : OrganisationRole (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : OrganisationRole (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Customer";
 
@@ -2978,8 +2978,8 @@ public partial class Customer
 /// </summary>
 [CimClass (ClassUri)]
 public partial class CustomerAgreement
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Agreement (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Agreement (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#CustomerAgreement";
@@ -3031,8 +3031,8 @@ public partial class CustomerAgreement
 /// </summary>
 [CimClass (ClassUri)]
 public partial class DCBaseTerminal
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ACDCTerminal (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ACDCTerminal (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#DCBaseTerminal";
 }
@@ -3042,8 +3042,8 @@ public partial class DCBaseTerminal
 /// </summary>
 [CimClass (ClassUri)]
 public partial class DCConductingEquipment
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Equipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Equipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#DCConductingEquipment";
@@ -3068,8 +3068,8 @@ public partial class DCConductingEquipment
 /// </summary>
 [CimClass (ClassUri)]
 public partial class DCEquipmentContainer
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EquipmentContainer (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EquipmentContainer (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#DCEquipmentContainer";
@@ -3079,8 +3079,8 @@ public partial class DCEquipmentContainer
 /// </summary>
 [CimClass (ClassUri)]
 public partial class DCLine
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : DCEquipmentContainer (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : DCEquipmentContainer (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#DCLine";
 }
@@ -3091,8 +3091,8 @@ public partial class DCLine
 /// </summary>
 [CimClass (ClassUri)]
 public partial class DCLineSegment
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : DCConductingEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : DCConductingEquipment (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#DCLineSegment";
 
@@ -3135,8 +3135,8 @@ public partial class DCLineSegment
 /// </summary>
 [CimClass (ClassUri)]
 public partial class DCTerminal
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : DCBaseTerminal (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : DCBaseTerminal (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#DCTerminal";
 
@@ -3155,8 +3155,8 @@ public partial class DCTerminal
 /// </summary>
 [CimClass (ClassUri)]
 public partial class DateTimeInterval
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#DateTimeInterval";
@@ -3187,8 +3187,8 @@ public partial class DateTimeInterval
 /// </summary>
 [CimClass (ClassUri)]
 public partial class DeploymentDate
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#DeploymentDate";
 
@@ -3241,8 +3241,8 @@ public partial class DeploymentDate
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Disconnector
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Switch (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Switch (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Disconnector";
 }
@@ -3252,8 +3252,8 @@ public partial class Disconnector
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Discrete
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Measurement (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Measurement (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Discrete";
 
@@ -3302,8 +3302,8 @@ public partial class Discrete
 /// </summary>
 [CimClass (ClassUri)]
 public partial class DiscreteValue
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : MeasurementValue (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : MeasurementValue (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#DiscreteValue";
 
@@ -3332,8 +3332,8 @@ public partial class DiscreteValue
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Document
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Document";
 
@@ -3383,8 +3383,8 @@ public partial class Document
 /// </summary>
 [CimClass (ClassUri)]
 public partial class DrumBoiler
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : FossilSteamSupply (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : FossilSteamSupply (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#DrumBoiler";
 }
@@ -3393,8 +3393,8 @@ public partial class DrumBoiler
 /// </summary>
 [CimClass (ClassUri)]
 public partial class DynamicsFunctionBlock
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#DynamicsFunctionBlock";
@@ -3408,8 +3408,8 @@ public partial class DynamicsFunctionBlock
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EarthFaultCompensator
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ConductingEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ConductingEquipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#EarthFaultCompensator";
@@ -3428,8 +3428,8 @@ public partial class EarthFaultCompensator
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ElectronicAddress
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ElectronicAddress";
@@ -3515,8 +3515,8 @@ public partial class ElectronicAddress
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EndDevice
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetContainer (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetContainer (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#EndDevice";
 
@@ -3600,8 +3600,8 @@ public partial class EndDevice
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EndDeviceCapability
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#EndDeviceCapability";
@@ -3758,8 +3758,8 @@ public partial class EndDeviceCapability
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EndDeviceControl
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#EndDeviceControl";
@@ -3817,8 +3817,8 @@ public partial class EndDeviceControl
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EndDeviceControlType
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#EndDeviceControlType";
@@ -3864,8 +3864,8 @@ public partial class EndDeviceControlType
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EndDeviceEvent
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ActivityRecord (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ActivityRecord (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#EndDeviceEvent";
 
@@ -3907,8 +3907,8 @@ public partial class EndDeviceEvent
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EndDeviceEventDetail
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#EndDeviceEventDetail";
@@ -3938,8 +3938,8 @@ public partial class EndDeviceEventDetail
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EndDeviceEventType
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#EndDeviceEventType";
@@ -3988,8 +3988,8 @@ public partial class EndDeviceEventType
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EndDeviceFunction
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetFunction (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetFunction (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#EndDeviceFunction";
@@ -4019,8 +4019,8 @@ public partial class EndDeviceFunction
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EndDeviceInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#EndDeviceInfo";
 
@@ -4075,8 +4075,8 @@ public partial class EndDeviceInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EnergyConsumer
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ConductingEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ConductingEquipment (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#EnergyConsumer";
 
@@ -4095,8 +4095,8 @@ public partial class EnergyConsumer
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EnergySource
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ConductingEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ConductingEquipment (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#EnergySource";
 }
@@ -4106,8 +4106,8 @@ public partial class EnergySource
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EnvironmentalDependentLimit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : LimitDependency (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : LimitDependency (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#EnvironmentalDependentLimit";
@@ -4118,8 +4118,8 @@ public partial class EnvironmentalDependentLimit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Equipment
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerSystemResource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerSystemResource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Equipment";
 
@@ -4219,8 +4219,8 @@ public partial class Equipment
 /// </summary>
 [CimClass (ClassUri)]
 public partial class EquipmentContainer
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ConnectivityNodeContainer (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ConnectivityNodeContainer (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#EquipmentContainer";
@@ -4266,8 +4266,8 @@ public partial class EquipmentContainer
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ErpItemMaster
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#ErpItemMaster";
 }
@@ -4276,8 +4276,8 @@ public partial class ErpItemMaster
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ExcitationControl
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Equipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Equipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#ExcitationControl";
@@ -4313,8 +4313,8 @@ public partial class ExcitationControl
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ExcitationControllnfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#ExcitationControllnfo";
@@ -4430,8 +4430,8 @@ public partial class ExcitationControllnfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ExcitationSystem
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Equipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Equipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#ExcitationSystem";
@@ -4587,8 +4587,8 @@ public partial class ExcitationSystem
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Facility
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetContainer (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetContainer (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Facility";
 }
@@ -4599,8 +4599,8 @@ public partial class Facility
 /// </summary>
 [CimClass (ClassUri)]
 public partial class FossilFuel
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#FossilFuel";
 
@@ -4644,8 +4644,8 @@ public partial class FossilFuel
 /// </summary>
 [CimClass (ClassUri)]
 public partial class FossilSteamSupply
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : SteamSupply (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : SteamSupply (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#FossilSteamSupply";
@@ -4655,8 +4655,8 @@ public partial class FossilSteamSupply
 /// </summary>
 [CimClass (ClassUri)]
 public partial class FrequencyLimit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : OperationalLimit (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : OperationalLimit (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#FrequencyLimit";
@@ -4685,8 +4685,8 @@ public partial class FrequencyLimit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Fuse
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Switch (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Switch (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Fuse";
 }
@@ -4699,8 +4699,8 @@ public partial class Fuse
 /// </summary>
 [CimClass (ClassUri)]
 public partial class GeneratingUnit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Equipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Equipment (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#GeneratingUnit";
 
@@ -4808,8 +4808,8 @@ public partial class GeneratingUnit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class GeographicalRegion
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#GeographicalRegion";
@@ -4831,8 +4831,8 @@ public partial class GeographicalRegion
 /// </summary>
 [CimClass (ClassUri)]
 public partial class GroundAction
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#GroundAction";
 }
@@ -4842,8 +4842,8 @@ public partial class GroundAction
 /// </summary>
 [CimClass (ClassUri)]
 public partial class GroundDisconnector
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Switch (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Switch (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#GroundDisconnector";
@@ -4853,8 +4853,8 @@ public partial class GroundDisconnector
 /// </summary>
 [CimClass (ClassUri)]
 public partial class GroundingImpedance
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EarthFaultCompensator (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EarthFaultCompensator (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#GroundingImpedance";
@@ -4874,8 +4874,8 @@ public partial class GroundingImpedance
 /// </summary>
 [CimClass (ClassUri)]
 public partial class HeatRecoveryBoiler
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : FossilSteamSupply (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : FossilSteamSupply (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#HeatRecoveryBoiler";
@@ -4901,8 +4901,8 @@ public partial class HeatRecoveryBoiler
 /// </summary>
 [CimClass (ClassUri)]
 public partial class HydroGeneratingUnit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : GeneratingUnit (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : GeneratingUnit (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#HydroGeneratingUnit";
@@ -4949,8 +4949,8 @@ public partial class HydroGeneratingUnit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class HydroPowerPlant
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerSystemResource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerSystemResource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#HydroPowerPlant";
@@ -4995,8 +4995,8 @@ public partial class HydroPowerPlant
 /// </summary>
 [CimClass (ClassUri)]
 public partial class HydroTurbine
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PrimeMover (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PrimeMover (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#HydroTurbine";
 
@@ -5015,8 +5015,8 @@ public partial class HydroTurbine
 /// </summary>
 [CimClass (ClassUri)]
 public partial class IOPoint
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#IOPoint";
 }
@@ -5026,8 +5026,8 @@ public partial class IOPoint
 /// </summary>
 [CimClass (ClassUri)]
 public partial class IdentifiedObject
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#IdentifiedObject";
@@ -5120,8 +5120,8 @@ public partial class IdentifiedObject
 /// </summary>
 [CimClass (ClassUri)]
 public partial class InUseDate
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#InUseDate";
 
@@ -5173,8 +5173,8 @@ public partial class InUseDate
 /// </summary>
 [CimClass (ClassUri)]
 public partial class IntervalBlock
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#IntervalBlock";
 
@@ -5211,8 +5211,8 @@ public partial class IntervalBlock
 /// </summary>
 [CimClass (ClassUri)]
 public partial class IntervalReading
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : BaseReading (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : BaseReading (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#IntervalReading";
@@ -5225,8 +5225,8 @@ public partial class IntervalReading
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Jumper
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Switch (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Switch (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Jumper";
 }
@@ -5236,8 +5236,8 @@ public partial class Jumper
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Junction
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Connector (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Connector (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Junction";
 }
@@ -5247,8 +5247,8 @@ public partial class Junction
 /// </summary>
 [CimClass (ClassUri)]
 public partial class LifecycleDate
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#LifecycleDate";
 
@@ -5307,8 +5307,8 @@ public partial class LifecycleDate
 /// </summary>
 [CimClass (ClassUri)]
 public partial class LimitDependency
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#LimitDependency";
@@ -5342,8 +5342,8 @@ public partial class LimitDependency
 /// </summary>
 [CimClass (ClassUri)]
 public partial class LimitScalingLimit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : LimitDependency (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : LimitDependency (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#LimitScalingLimit";
@@ -5373,8 +5373,8 @@ public partial class LimitScalingLimit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Line
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EquipmentContainer (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EquipmentContainer (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Line";
 
@@ -5393,8 +5393,8 @@ public partial class Line
 /// </summary>
 [CimClass (ClassUri)]
 public partial class LinearShuntCompensator
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ShuntCompensator (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ShuntCompensator (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#LinearShuntCompensator";
@@ -5438,8 +5438,8 @@ public partial class LinearShuntCompensator
 /// </summary>
 [CimClass (ClassUri)]
 public partial class LoadBreakSwitch
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ProtectedSwitch (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ProtectedSwitch (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#LoadBreakSwitch";
@@ -5451,8 +5451,8 @@ public partial class LoadBreakSwitch
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Location
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Location";
 
@@ -5602,8 +5602,8 @@ public partial class Location
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Manufacturer
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : OrganisationRole (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : OrganisationRole (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Manufacturer";
 
@@ -5648,8 +5648,8 @@ public partial class Manufacturer
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Measurement
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Measurement";
 
@@ -5720,8 +5720,8 @@ public partial class Measurement
 /// </summary>
 [CimClass (ClassUri)]
 public partial class MeasurementValue
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IOPoint (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IOPoint (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#MeasurementValue";
@@ -5741,8 +5741,8 @@ public partial class MeasurementValue
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Meter
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EndDevice (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EndDevice (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Meter";
 
@@ -5788,8 +5788,8 @@ public partial class Meter
 /// </summary>
 [CimClass (ClassUri)]
 public partial class MeterMultiplier
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#MeterMultiplier";
@@ -5816,8 +5816,8 @@ public partial class MeterMultiplier
 /// </summary>
 [CimClass (ClassUri)]
 public partial class MeterReading
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#MeterReading";
 
@@ -5891,8 +5891,8 @@ public partial class MeterReading
 /// </summary>
 [CimClass (ClassUri)]
 public partial class MetrologyRequirement
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#MetrologyRequirement";
@@ -5924,8 +5924,8 @@ public partial class MetrologyRequirement
 /// </summary>
 [CimClass (ClassUri)]
 public partial class MutualCoupling
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#MutualCoupling";
 
@@ -6029,8 +6029,8 @@ public partial class MutualCoupling
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Name
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Name";
 
@@ -6075,8 +6075,8 @@ public partial class Name
 /// </summary>
 [CimClass (ClassUri)]
 public partial class NameType
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#NameType";
 
@@ -6115,8 +6115,8 @@ public partial class NameType
 /// </summary>
 [CimClass (ClassUri)]
 public partial class NoLoadTest
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : TransformerTest (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : TransformerTest (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#NoLoadTest";
 
@@ -6164,8 +6164,8 @@ public partial class NoLoadTest
 /// </summary>
 [CimClass (ClassUri)]
 public partial class NonlinearShuntCompensator
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ShuntCompensator (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ShuntCompensator (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#NonlinearShuntCompensator";
@@ -6175,8 +6175,8 @@ public partial class NonlinearShuntCompensator
 /// </summary>
 [CimClass (ClassUri)]
 public partial class NuclearGeneratingUnit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : GeneratingUnit (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : GeneratingUnit (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#NuclearGeneratingUnit";
@@ -6186,8 +6186,8 @@ public partial class NuclearGeneratingUnit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class OldSwitchInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : SwitchInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : SwitchInfo (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#OldSwitchInfo";
 }
@@ -6205,8 +6205,8 @@ public partial class OldSwitchInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class OperationalLimit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#OperationalLimit";
@@ -6268,8 +6268,8 @@ public partial class OperationalLimit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class OperationalLimitSet
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#OperationalLimitSet";
@@ -6311,8 +6311,8 @@ public partial class OperationalLimitSet
 /// </summary>
 [CimClass (ClassUri)]
 public partial class OperationalLimitType
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#OperationalLimitType";
@@ -6360,8 +6360,8 @@ public partial class OperationalLimitType
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Organisation
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Organisation";
 
@@ -6447,8 +6447,8 @@ public partial class Organisation
 /// </summary>
 [CimClass (ClassUri)]
 public partial class OrganisationRole
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#OrganisationRole";
@@ -6493,8 +6493,8 @@ public partial class OrganisationRole
 /// </summary>
 [CimClass (ClassUri)]
 public partial class OverheadWireInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : WireInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : WireInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#OverheadWireInfo";
@@ -6507,8 +6507,8 @@ public partial class OverheadWireInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PSRType
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#PSRType";
 
@@ -6532,8 +6532,8 @@ public partial class PSRType
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PWRSteamSupply
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : SteamSupply (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : SteamSupply (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#PWRSteamSupply";
 }
@@ -6542,8 +6542,8 @@ public partial class PWRSteamSupply
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PerLengthImpedance
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PerLengthLineParameter (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PerLengthLineParameter (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PerLengthImpedance";
@@ -6580,8 +6580,8 @@ public partial class PerLengthImpedance
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PerLengthLineParameter
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PerLengthLineParameter";
@@ -6602,8 +6602,8 @@ public partial class PerLengthLineParameter
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PerLengthPhaseImpedance
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PerLengthImpedance (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PerLengthImpedance (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PerLengthPhaseImpedance";
@@ -6640,8 +6640,8 @@ public partial class PerLengthPhaseImpedance
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PerLengthSequenceImpedance
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PerLengthImpedance (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PerLengthImpedance (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PerLengthSequenceImpedance";
@@ -6717,8 +6717,8 @@ public partial class PerLengthSequenceImpedance
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PetersenCoil
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EarthFaultCompensator (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EarthFaultCompensator (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#PetersenCoil";
 
@@ -6786,8 +6786,8 @@ public partial class PetersenCoil
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PhaseImpedanceData
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PhaseImpedanceData";
@@ -6858,8 +6858,8 @@ public partial class PhaseImpedanceData
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PhaseTapChanger
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : TapChanger (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : TapChanger (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PhaseTapChanger";
@@ -6883,8 +6883,8 @@ public partial class PhaseTapChanger
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PhaseTapChangerAsymmetrical
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PhaseTapChangerNonLinear (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PhaseTapChangerNonLinear (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PhaseTapChangerAsymmetrical";
@@ -6912,8 +6912,8 @@ public partial class PhaseTapChangerAsymmetrical
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PhaseTapChangerLinear
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PhaseTapChanger (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PhaseTapChanger (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PhaseTapChangerLinear";
@@ -6962,8 +6962,8 @@ public partial class PhaseTapChangerLinear
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PhaseTapChangerNonLinear
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PhaseTapChanger (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PhaseTapChanger (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PhaseTapChangerNonLinear";
@@ -7015,8 +7015,8 @@ public partial class PhaseTapChangerNonLinear
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PhaseTapChangerSymmetrical
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PhaseTapChangerNonLinear (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PhaseTapChangerNonLinear (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PhaseTapChangerSymmetrical";
@@ -7027,8 +7027,8 @@ public partial class PhaseTapChangerSymmetrical
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PhaseTapChangerTable
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PhaseTapChangerTable";
@@ -7069,8 +7069,8 @@ public partial class PhaseTapChangerTable
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PhaseTapChangerTablePoint
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : TapChangerTablePoint (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : TapChangerTablePoint (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PhaseTapChangerTablePoint";
@@ -7101,8 +7101,8 @@ public partial class PhaseTapChangerTablePoint
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PhaseTapChangerTabular
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PhaseTapChanger (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PhaseTapChanger (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PhaseTapChangerTabular";
@@ -7121,8 +7121,8 @@ public partial class PhaseTapChangerTabular
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PhotoVoltaicUnit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerElectronicsUnit (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerElectronicsUnit (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PhotoVoltaicUnit";
@@ -7132,8 +7132,8 @@ public partial class PhotoVoltaicUnit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Plant
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EquipmentContainer (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EquipmentContainer (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Plant";
 
@@ -7179,8 +7179,8 @@ public partial class Plant
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PositionPoint
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#PositionPoint";
 
@@ -7245,8 +7245,8 @@ public partial class PositionPoint
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PotentialTransformer
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Sensor (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Sensor (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PotentialTransformer";
@@ -7295,8 +7295,8 @@ public partial class PotentialTransformer
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PotentialTransformerInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PotentialTransformerInfo";
@@ -7347,8 +7347,8 @@ public partial class PotentialTransformerInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PotentialTransformerWinding
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : SensorWinding (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : SensorWinding (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#PotentialTransformerWinding";
@@ -7393,8 +7393,8 @@ public partial class PotentialTransformerWinding
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PowerElectronicsConnection
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : RegulatingCondEq (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : RegulatingCondEq (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PowerElectronicsConnection";
@@ -7486,8 +7486,8 @@ public partial class PowerElectronicsConnection
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PowerElectronicsReactiveCapabilityCurve
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Curve (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Curve (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/"
@@ -7517,8 +7517,8 @@ public partial class PowerElectronicsReactiveCapabilityCurve
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PowerElectronicsUnit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Equipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Equipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PowerElectronicsUnit";
@@ -7574,8 +7574,8 @@ public partial class PowerElectronicsUnit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PowerElectronicsWindUnit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerElectronicsUnit (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerElectronicsUnit (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PowerElectronicsWindUnit";
@@ -7588,8 +7588,8 @@ public partial class PowerElectronicsWindUnit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PowerSystemResource
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PowerSystemResource";
@@ -7657,8 +7657,8 @@ public partial class PowerSystemResource
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PowerTransformer
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ConductingEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ConductingEquipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PowerTransformer";
@@ -7764,8 +7764,8 @@ public partial class PowerTransformer
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PowerTransformerEnd
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : TransformerEnd (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : TransformerEnd (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PowerTransformerEnd";
@@ -7908,8 +7908,8 @@ public partial class PowerTransformerEnd
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PricingStructure
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Document (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Document (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#PricingStructure";
@@ -7930,8 +7930,8 @@ public partial class PricingStructure
 /// </summary>
 [CimClass (ClassUri)]
 public partial class PrimeMover
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerSystemResource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerSystemResource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#PrimeMover";
 
@@ -7989,8 +7989,8 @@ public partial class PrimeMover
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ProductAssetModel
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ProductAssetModel";
@@ -8062,8 +8062,8 @@ public partial class ProductAssetModel
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ProtectedSwitch
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Switch (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Switch (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ProtectedSwitch";
@@ -8084,8 +8084,8 @@ public partial class ProtectedSwitch
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Ratio
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Ratio";
 
@@ -8117,8 +8117,8 @@ public partial class Ratio
 /// </summary>
 [CimClass (ClassUri)]
 public partial class RatioTapChanger
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : TapChanger (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : TapChanger (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#RatioTapChanger";
@@ -8166,8 +8166,8 @@ public partial class RatioTapChanger
 /// </summary>
 [CimClass (ClassUri)]
 public partial class RatioTapChangerTable
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#RatioTapChangerTable";
@@ -8206,8 +8206,8 @@ public partial class RatioTapChangerTable
 /// </summary>
 [CimClass (ClassUri)]
 public partial class RatioTapChangerTablePoint
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : TapChangerTablePoint (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : TapChangerTablePoint (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#RatioTapChangerTablePoint";
@@ -8226,8 +8226,8 @@ public partial class RatioTapChangerTablePoint
 /// </summary>
 [CimClass (ClassUri)]
 public partial class RationalNumber
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#RationalNumber";
 
@@ -8258,8 +8258,8 @@ public partial class RationalNumber
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ReactiveCapabilityCurve
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Curve (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Curve (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ReactiveCapabilityCurve";
@@ -8302,8 +8302,8 @@ public partial class ReactiveCapabilityCurve
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Reading
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : BaseReading (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : BaseReading (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Reading";
 
@@ -8332,8 +8332,8 @@ public partial class Reading
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ReadingInterharmonic
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ReadingInterharmonic";
@@ -8371,8 +8371,8 @@ public partial class ReadingInterharmonic
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ReadingQuality
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#ReadingQuality";
 
@@ -8418,8 +8418,8 @@ public partial class ReadingQuality
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ReadingQualityType
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ReadingQualityType";
@@ -8459,8 +8459,8 @@ public partial class ReadingQualityType
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ReadingType
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#ReadingType";
 
@@ -8641,8 +8641,8 @@ public partial class ReadingType
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Recloser
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ProtectedSwitch (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ProtectedSwitch (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Recloser";
 }
@@ -8652,8 +8652,8 @@ public partial class Recloser
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Register
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Register";
 
@@ -8721,8 +8721,8 @@ public partial class Register
 /// </summary>
 [CimClass (ClassUri)]
 public partial class RegulatingCondEq
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ConductingEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ConductingEquipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#RegulatingCondEq";
@@ -8766,8 +8766,8 @@ public partial class RegulatingCondEq
 /// </summary>
 [CimClass (ClassUri)]
 public partial class RegulatingControl
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerSystemResource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerSystemResource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#RegulatingControl";
@@ -8822,8 +8822,8 @@ public partial class RegulatingControl
 /// </summary>
 [CimClass (ClassUri)]
 public partial class RemoteConnectDisconnectInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#RemoteConnectDisconnectInfo";
@@ -8938,8 +8938,8 @@ public partial class RemoteConnectDisconnectInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class RotatingMachine
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : RegulatingCondEq (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : RegulatingCondEq (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#RotatingMachine";
@@ -8989,8 +8989,8 @@ public partial class RotatingMachine
 /// </summary>
 [CimClass (ClassUri)]
 public partial class RotatingMachineDynamics
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : DynamicsFunctionBlock (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : DynamicsFunctionBlock (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#RotatingMachineDynamics";
@@ -9025,8 +9025,8 @@ public partial class RotatingMachineDynamics
 /// </summary>
 [CimClass (ClassUri)]
 public partial class RotatingMachineInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#RotatingMachineInfo";
@@ -9045,8 +9045,8 @@ public partial class RotatingMachineInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Seal
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Seal";
 
@@ -9089,8 +9089,8 @@ public partial class Seal
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Sensor
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AuxiliaryEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AuxiliaryEquipment (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Sensor";
 }
@@ -9099,8 +9099,8 @@ public partial class Sensor
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SensorWinding
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#SensorWinding";
@@ -9135,8 +9135,8 @@ public partial class SensorWinding
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SeriesCapacitorInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : SeriesCompensatorInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : SeriesCompensatorInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#SeriesCapacitorInfo";
@@ -9180,8 +9180,8 @@ public partial class SeriesCapacitorInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SeriesCompensator
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ConductingEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ConductingEquipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#SeriesCompensator";
@@ -9232,8 +9232,8 @@ public partial class SeriesCompensator
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SeriesCompensatorInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#SeriesCompensatorInfo";
@@ -9284,8 +9284,8 @@ public partial class SeriesCompensatorInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SeriesVarCapacitorInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : SeriesCapacitorInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : SeriesCapacitorInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#SeriesVarCapacitorInfo";
@@ -9352,8 +9352,8 @@ public partial class SeriesVarCapacitorInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ServiceCategory
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ServiceCategory";
@@ -9372,8 +9372,8 @@ public partial class ServiceCategory
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ServiceLocation
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Location (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Location (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ServiceLocation";
@@ -9415,8 +9415,8 @@ public partial class ServiceLocation
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ServiceMultiplier
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ServiceMultiplier";
@@ -9443,8 +9443,8 @@ public partial class ServiceMultiplier
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ServiceSupplier
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : OrganisationRole (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : OrganisationRole (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ServiceSupplier";
@@ -9477,8 +9477,8 @@ public partial class ServiceSupplier
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ShortCircuitTest
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : TransformerTest (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : TransformerTest (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ShortCircuitTest";
@@ -9545,8 +9545,8 @@ public partial class ShortCircuitTest
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ShuntCapacitorInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ShuntCompensatorInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ShuntCompensatorInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#ShuntCapacitorInfo";
@@ -9584,8 +9584,8 @@ public partial class ShuntCapacitorInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ShuntCompensator
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : RegulatingCondEq (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : RegulatingCondEq (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ShuntCompensator";
@@ -9632,8 +9632,8 @@ public partial class ShuntCompensator
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ShuntCompensatorInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ShuntCompensatorInfo";
@@ -9684,8 +9684,8 @@ public partial class ShuntCompensatorInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ShuntReactorInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ShuntCompensatorInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ShuntCompensatorInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#ShuntReactorInfo";
@@ -9738,8 +9738,8 @@ public partial class ShuntReactorInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SimpleEndDeviceFunction
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EndDeviceFunction (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EndDeviceFunction (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#SimpleEndDeviceFunction";
@@ -9758,8 +9758,8 @@ public partial class SimpleEndDeviceFunction
 /// </summary>
 [CimClass (ClassUri)]
 public partial class StabilizingWinding
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#StabilizingWinding";
@@ -9835,8 +9835,8 @@ public partial class StabilizingWinding
 /// </summary>
 [CimClass (ClassUri)]
 public partial class StaticVarCompensator
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : RegulatingCondEq (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : RegulatingCondEq (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#StaticVarCompensator";
@@ -9907,8 +9907,8 @@ public partial class StaticVarCompensator
 /// </summary>
 [CimClass (ClassUri)]
 public partial class StaticVarCompensatorInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ShuntCompensatorInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ShuntCompensatorInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#StaticVarCompensatorInfo";
@@ -9951,8 +9951,8 @@ public partial class StaticVarCompensatorInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Status
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Status";
 
@@ -9997,8 +9997,8 @@ public partial class Status
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SteamSupply
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerSystemResource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerSystemResource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#SteamSupply";
 
@@ -10020,8 +10020,8 @@ public partial class SteamSupply
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SteamTurbine
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PrimeMover (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PrimeMover (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#SteamTurbine";
 
@@ -10043,8 +10043,8 @@ public partial class SteamTurbine
 /// </summary>
 [CimClass (ClassUri)]
 public partial class StreetAddress
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#StreetAddress";
 
@@ -10078,8 +10078,8 @@ public partial class StreetAddress
 /// </summary>
 [CimClass (ClassUri)]
 public partial class StreetDetail
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#StreetDetail";
 
@@ -10143,8 +10143,8 @@ public partial class StreetDetail
 /// </summary>
 [CimClass (ClassUri)]
 public partial class StringQuantity
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#StringQuantity";
 
@@ -10180,8 +10180,8 @@ public partial class StringQuantity
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Structure
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetContainer (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetContainer (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Structure";
 
@@ -10222,8 +10222,8 @@ public partial class Structure
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SubGeographicalRegion
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#SubGeographicalRegion";
@@ -10273,8 +10273,8 @@ public partial class SubGeographicalRegion
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Subcritical
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : FossilSteamSupply (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : FossilSteamSupply (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Subcritical";
 }
@@ -10285,8 +10285,8 @@ public partial class Subcritical
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Substation
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EquipmentContainer (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EquipmentContainer (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Substation";
 
@@ -10325,8 +10325,8 @@ public partial class Substation
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Supercritical
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : FossilSteamSupply (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : FossilSteamSupply (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Supercritical";
 }
@@ -10337,8 +10337,8 @@ public partial class Supercritical
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SurgeArrester
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AuxiliaryEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AuxiliaryEquipment (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#SurgeArrester";
 }
@@ -10351,8 +10351,8 @@ public partial class SurgeArrester
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Switch
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ConductingEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ConductingEquipment (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Switch";
 
@@ -10389,8 +10389,8 @@ public partial class Switch
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SwitchInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#SwitchInfo";
 
@@ -10468,8 +10468,8 @@ public partial class SwitchInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SynchronousMachine
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : RotatingMachine (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : RotatingMachine (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#SynchronousMachine";
@@ -10701,8 +10701,8 @@ public partial class SynchronousMachine
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SynchronousMachineDetailed
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : SynchronousMachineDynamics (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : SynchronousMachineDynamics (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#SynchronousMachineDetailed";
@@ -10726,8 +10726,8 @@ public partial class SynchronousMachineDetailed
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SynchronousMachineDynamics
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : RotatingMachineDynamics (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : RotatingMachineDynamics (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#SynchronousMachineDynamics";
@@ -10767,8 +10767,8 @@ public partial class SynchronousMachineDynamics
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SynchronousMachineTimeConstantReactance
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : SynchronousMachineDetailed (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : SynchronousMachineDetailed (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#SynchronousMachineTimeConstantReactance";
@@ -10918,8 +10918,8 @@ public partial class SynchronousMachineTimeConstantReactance
 /// </summary>
 [CimClass (ClassUri)]
 public partial class SynchronousMachinelnfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : RotatingMachineInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : RotatingMachineInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#SynchronousMachinelnfo";
@@ -11018,8 +11018,8 @@ public partial class SynchronousMachinelnfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TapChanger
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PowerSystemResource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PowerSystemResource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#TapChanger";
 
@@ -11105,8 +11105,8 @@ public partial class TapChanger
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TapChangerControl
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : RegulatingControl (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : RegulatingControl (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TapChangerControl";
@@ -11128,8 +11128,8 @@ public partial class TapChangerControl
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TapChangerDependentLimitPoint
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#TapChangerDependentLimitPoint";
@@ -11166,8 +11166,8 @@ public partial class TapChangerDependentLimitPoint
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TapChangerDependentLimitTable
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : LimitDependency (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : LimitDependency (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#TapChangerDependentLimitTable";
@@ -11208,8 +11208,8 @@ public partial class TapChangerDependentLimitTable
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TapChangerTablePoint
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TapChangerTablePoint";
@@ -11290,8 +11290,8 @@ public partial class TapChangerTablePoint
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TapeShieldCableInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : CableInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : CableInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TapeShieldCableInfo";
@@ -11319,8 +11319,8 @@ public partial class TapeShieldCableInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TelephoneNumber
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TelephoneNumber";
@@ -11363,8 +11363,8 @@ public partial class TelephoneNumber
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TemperatureDependentLimitPoint
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TemperatureDependentLimitPoint";
@@ -11410,8 +11410,8 @@ public partial class TemperatureDependentLimitPoint
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TemperatureDependentLimitTable
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EnvironmentalDependentLimit (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EnvironmentalDependentLimit (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TemperatureDependentLimitTable";
@@ -11441,8 +11441,8 @@ public partial class TemperatureDependentLimitTable
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Terminal
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ACDCTerminal (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ACDCTerminal (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Terminal";
 
@@ -11570,8 +11570,8 @@ public partial class Terminal
 /// </summary>
 [CimClass (ClassUri)]
 public partial class ThermalGeneratingUnit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : GeneratingUnit (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : GeneratingUnit (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#ThermalGeneratingUnit";
@@ -11626,8 +11626,8 @@ public partial class ThermalGeneratingUnit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TimeInterval
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#TimeInterval";
 
@@ -11657,8 +11657,8 @@ public partial class TimeInterval
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TimeSchedule
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Document (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Document (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#TimeSchedule";
 
@@ -11676,8 +11676,8 @@ public partial class TimeSchedule
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TorqueSpeedCurve
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Curve (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Curve (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#TorqueSpeedCurve";
@@ -11707,8 +11707,8 @@ public partial class TorqueSpeedCurve
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Tower
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Structure (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Structure (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#Tower";
 
@@ -11734,8 +11734,8 @@ public partial class Tower
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TownDetail
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#TownDetail";
 
@@ -11787,8 +11787,8 @@ public partial class TownDetail
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TransformerCoreAdmittance
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TransformerCoreAdmittance";
@@ -11858,8 +11858,8 @@ public partial class TransformerCoreAdmittance
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TransformerEnd
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#TransformerEnd";
 
@@ -11992,8 +11992,8 @@ public partial class TransformerEnd
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TransformerEndInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TransformerEndInfo";
@@ -12132,8 +12132,8 @@ public partial class TransformerEndInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TransformerMeshImpedance
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TransformerMeshImpedance";
@@ -12205,8 +12205,8 @@ public partial class TransformerMeshImpedance
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TransformerStarImpedance
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TransformerStarImpedance";
@@ -12275,8 +12275,8 @@ public partial class TransformerStarImpedance
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TransformerTank
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Equipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Equipment (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TransformerTank";
@@ -12295,8 +12295,8 @@ public partial class TransformerTank
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TransformerTankInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TransformerTankInfo";
@@ -12331,8 +12331,8 @@ public partial class TransformerTankInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TransformerTest
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#TransformerTest";
@@ -12360,8 +12360,8 @@ public partial class TransformerTest
 /// </summary>
 [CimClass (ClassUri)]
 public partial class TurbineRegulatinglnfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#TurbineRegulatinglnfo";
@@ -12461,8 +12461,8 @@ public partial class TurbineRegulatinglnfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class UndergroundStructure
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Structure (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Structure (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#UndergroundStructure";
@@ -12491,8 +12491,8 @@ public partial class UndergroundStructure
 /// </summary>
 [CimClass (ClassUri)]
 public partial class UsagePoint
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#UsagePoint";
 
@@ -12785,8 +12785,8 @@ public partial class UsagePoint
 /// </summary>
 [CimClass (ClassUri)]
 public partial class UsagePointLocation
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Location (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Location (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#UsagePointLocation";
@@ -12840,8 +12840,8 @@ public partial class UsagePointLocation
 /// </summary>
 [CimClass (ClassUri)]
 public partial class UserAttribute
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#UserAttribute";
 
@@ -12878,8 +12878,8 @@ public partial class UserAttribute
 /// </summary>
 [CimClass (ClassUri)]
 public partial class VoltageLevel
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : EquipmentContainer (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : EquipmentContainer (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#VoltageLevel";
 
@@ -12917,8 +12917,8 @@ public partial class VoltageLevel
 /// </summary>
 [CimClass (ClassUri)]
 public partial class VoltageLimit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : OperationalLimit (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : OperationalLimit (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#VoltageLimit";
 
@@ -12948,8 +12948,8 @@ public partial class VoltageLimit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class VoltageLimitDurationCurve
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Curve (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Curve (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#VoltageLimitDurationCurve";
@@ -12972,8 +12972,8 @@ public partial class VoltageLimitDurationCurve
 /// </summary>
 [CimClass (ClassUri)]
 public partial class WaveTrap
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AuxiliaryEquipment (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AuxiliaryEquipment (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#WaveTrap";
 
@@ -12992,8 +12992,8 @@ public partial class WaveTrap
 /// </summary>
 [CimClass (ClassUri)]
 public partial class WindGeneratingUnit
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : GeneratingUnit (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : GeneratingUnit (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#WindGeneratingUnit";
@@ -13003,8 +13003,8 @@ public partial class WindGeneratingUnit
 /// </summary>
 [CimClass (ClassUri)]
 public partial class WindTurbine
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : PrimeMover (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : PrimeMover (oid, metaClass)
 {
   public new const string ClassUri
       = "http://gost.ru/2019/schema-cim01#WindTurbine";
@@ -13014,8 +13014,8 @@ public partial class WindTurbine
 /// </summary>
 [CimClass (ClassUri)]
 public partial class WireAssemblyInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#WireAssemblyInfo";
@@ -13055,8 +13055,8 @@ public partial class WireAssemblyInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class WireInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#WireInfo";
 
@@ -13159,8 +13159,8 @@ public partial class WireInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class WirePhaseInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#WirePhaseInfo";
 
@@ -13212,8 +13212,8 @@ public partial class WirePhaseInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class WirePosition
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : IdentifiedObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : IdentifiedObject (oid, metaClass)
 {
   public new const string ClassUri = "http://iec.ch/TC57/CIM100#WirePosition";
 
@@ -13266,8 +13266,8 @@ public partial class WirePosition
 /// </summary>
 [CimClass (ClassUri)]
 public partial class WireSpacingInfo
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : AssetInfo (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : AssetInfo (oid, metaClass)
 {
   public new const string ClassUri
       = "http://iec.ch/TC57/CIM100#WireSpacingInfo";
@@ -13327,8 +13327,8 @@ public partial class WireSpacingInfo
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Resource
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : ModelObject (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : ModelObject (oid, metaClass)
 {
   public const string ClassUri
       = "http://www.w3.org/2000/01/rdf-schema#Resource";
@@ -13338,8 +13338,8 @@ public partial class Resource
 /// </summary>
 [CimClass (ClassUri)]
 public partial class Description
-(IOIDDescriptor oid, ICimMetaClass metaClass, ICimDatatypeLib typeLib)
-    : Resource (oid, metaClass, typeLib)
+(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : Resource (oid, metaClass)
 {
   public new const string ClassUri
       = "http://www.w3.org/1999/02/22-rdf-syntax-ns#Description";

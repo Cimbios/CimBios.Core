@@ -6,7 +6,6 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 public class ReadOnlyModelObject (IReadOnlyModelObject modelObject) 
     : IReadOnlyModelObject
 {
-    public ICimDatatypeLib? TypeLib => ModelObject.TypeLib;
     public IOIDDescriptor OID => ModelObject.OID;
     public ICimMetaClass MetaClass => ModelObject.MetaClass;
 

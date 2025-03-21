@@ -17,8 +17,6 @@ public sealed class ModelObjectUnresolvedReference : IModelObject
 
     public ICimMetaClass MetaClass { get; }
 
-    public ICimDatatypeLib TypeLib => throw new NotImplementedException();
-
     public ModelObjectUnresolvedReference(IOIDDescriptor oid, 
         ICimMetaClass metaClass)
     {
@@ -160,9 +158,14 @@ public sealed class ModelObjectUnresolvedReference : IModelObject
         throw new NotImplementedException();
     }
 
-    public void InitializeCompoundAttribute(ICimMetaProperty metaProperty, 
-        bool reset = true)
+    public IModelObject InitializeCompoundAttribute(ICimMetaProperty metaProperty, bool reset = true)
     {
         throw new NotImplementedException();
     }
+
+    public IModelObject InitializeCompoundAttribute(string attributeName, bool reset = true)
+    {
+        throw new NotImplementedException();
+    }
+
 }

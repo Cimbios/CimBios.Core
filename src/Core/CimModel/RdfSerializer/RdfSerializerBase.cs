@@ -100,6 +100,7 @@ public abstract class RdfSerializerBase : ICanLog
 
         InitializeWriterNamespaces();
 
+        _RdfWriter.RdfIRIMode = Settings.WritingIRIMode;
         _RdfWriter.Open(streamWriter);
     }
 
@@ -855,7 +856,9 @@ public abstract class RdfSerializerBase : ICanLog
     /// <returns>Auto IModelObject or null.</returns>
     private IModelObject? MakeCompoundPropertyObject(RdfNode objectRdfNode)
     {
-        var compoundPropertyObject = RdfNodeToModelObject(objectRdfNode, true);
+        var compoundPropertyObject = RdfNodeToModelObject(objectRdfNode,
+            objectRdfNode.IsAuto);
+            
         if (compoundPropertyObject == null)
         {
             return null;

@@ -16,6 +16,6 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Core\CimModel\DataModel\CimBios.Core.CimModel.DataModel.csproj" />
+    <ProjectReference Include="..\CimBios.Tests.Infrastructure\CimBios.Tests.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

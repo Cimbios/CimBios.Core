@@ -89,6 +89,11 @@ public sealed class RdfXmlReader : RdfReaderBase
         RdfNode? rdfNode;
         while ((rdfNode = ReadNext()) != null)
         {
+            if (_XmlReader.IsEmptyElement)
+            {
+                _XmlReader.Read();
+            }
+
             yield return rdfNode;
         }
     }

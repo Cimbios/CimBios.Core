@@ -22,11 +22,6 @@ internal static class DiffsToModelHelper
                 }
                 
                 var addedObject = model.CreateObject(diff.OID, schemaMetaClass);
-                if (schemaMetaClass == null)
-                {
-                    /// exception?
-                    return;
-                }
 
                 addedObject.CopyPropertiesFrom(diff.ModifiedObject, true);
                 ResolveReferencesInModelObject(model, addedObject);

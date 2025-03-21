@@ -143,12 +143,18 @@ public class CimDatatypeLib : ICimDatatypeLib
 
         if (isRegisteredType && type!.IsAssignableTo(modelObjectFactory.ProduceType))
         {
-            return Activator.CreateInstance(type, oid, metaClass, this) 
+            return Activator.CreateInstance(type, oid, metaClass) 
                 as IModelObject;
         }
         else
         {
-            return modelObjectFactory.Create(oid, metaClass, this);
+            var instance = modelObjectFactory.Create(oid, metaClass);
+            if (instance is DynamicModelObjectBase dynamicModelObject)
+            {
+                dynamicModelObject.InternalTypeLib = this;
+            }
+
+            return instance;
         }
     }
 
@@ -164,7 +170,13 @@ public class CimDatatypeLib : ICimDatatypeLib
                 $"Class {metaClass.ShortName} cannot be created!");
         }
 
-        return Activator.CreateInstance(type, oid, metaClass, this) as T;
+        var instance = Activator.CreateInstance(type, oid, metaClass) as T;
+        if (instance is DynamicModelObjectBase dynamicModelObject)
+        {
+            dynamicModelObject.InternalTypeLib = this;
+        }
+
+        return instance;
     }
 
     public EnumValueObject? CreateEnumValueInstance(
@@ -216,6 +228,32 @@ public class CimDatatypeLib : ICimDatatypeLib
             throw new NotSupportedException(
                 $"Enum value {enumValue} does not align typelib schema!");
         }
+    }
+
+    public IModelObject? CreateCompoundInstance(
+        IModelObjectFactory modelObjectFactory, ICimMetaClass metaClass)
+    {
+        if (metaClass.IsCompound == false)
+        {
+            throw new NotSupportedException(
+                $"Meta class {metaClass.ShortName} is not compound!");
+        }
+
+        return CreateInstance(modelObjectFactory, 
+            new AutoDescriptor(), metaClass);
+    }
+
+    public T? CreateCompoundInstance<T>() where T : class, IModelObject
+    {
+        var metaClass = TypedToMetaClass<T>();
+
+        if (metaClass.IsCompound == false)
+        {
+            throw new NotSupportedException(
+                $"Meta class {metaClass.ShortName} is not compound!");
+        }
+
+        return CreateInstance<T>(new AutoDescriptor());
     }
 
     private ICimMetaClass TypedToMetaClass<T>()

@@ -30,7 +30,15 @@ public interface IModelObject : INotifyPropertyChanged, IReadOnlyModelObject
     /// </summary>
     /// <param name="metaProperty">Schema compound meta property instance.</param>
     /// <param name="reset">Recreate compound if already exists.</param>
-    public void InitializeCompoundAttribute(ICimMetaProperty metaProperty, 
+    public IModelObject InitializeCompoundAttribute(ICimMetaProperty metaProperty, 
+        bool reset = true);
+
+    /// <summary>
+    /// Create compound model object for meta property attribute.
+    /// </summary>
+    /// <param name="attributeName">Attribute name in format of '(Domain.)Attribute'.</param>
+    /// <param name="reset">Recreate compound if already exists.</param>
+    public IModelObject InitializeCompoundAttribute(string attributeName, 
         bool reset = true);
 
     /// <summary>
@@ -116,6 +124,5 @@ public interface IModelObjectFactory
     /// <param name="metaClass">Schema meta class.</param>
     /// <param name="isAuto">Is creating object auto.</param>
     /// <returns>IModelObject instance.</returns>
-    public IModelObject Create(IOIDDescriptor oid, 
-        ICimMetaClass metaClass, ICimDatatypeLib? typeLib);
+    public IModelObject Create(IOIDDescriptor oid, ICimMetaClass metaClass);
 }
