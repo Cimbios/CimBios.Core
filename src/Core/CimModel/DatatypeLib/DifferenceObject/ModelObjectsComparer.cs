@@ -7,7 +7,7 @@ public static class ModelObjectsComparer
     public static UpdatingDifferenceObject Compare (IReadOnlyModelObject leftObject, 
         IReadOnlyModelObject rightObject, bool strictlyClassAlign = false)
     {
-        if (leftObject.MetaClass != rightObject.MetaClass
+        if (leftObject.MetaClass.Equals(rightObject.MetaClass) == false
             && strictlyClassAlign == true)
         {
             throw new ArgumentException("Different meta classes!");
@@ -30,13 +30,15 @@ public static class ModelObjectsComparer
                 {
                     var leftCompound = leftVal as IReadOnlyModelObject
                         ?? new WeakModelObject(leftObject.OID, 
-                            leftObject.MetaClass);
+                            metaProperty.PropertyDatatype, 
+                            initializeProperties: true);
 
                     var rightCompound = rightVal as IReadOnlyModelObject
                         ?? new WeakModelObject(rightObject.OID, 
-                            rightObject.MetaClass);
+                            metaProperty.PropertyDatatype, 
+                            initializeProperties: true);
 
-                    var compoundDiff = Compare(leftCompound, rightCompound);
+                    var compoundDiff = Compare(leftCompound, rightCompound, true);
                     if (compoundDiff.ModifiedProperties.Count != 0)
                     {
                         diff.ChangeAttribute(metaProperty, 
@@ -58,7 +60,8 @@ public static class ModelObjectsComparer
                 }
                 else
                 {
-                    if (!(leftVal?.Equals(rightVal) ?? rightVal != null))
+                    if (!(leftVal?.Equals(rightVal) ?? rightVal != null)
+                        || !(rightVal?.Equals(leftVal) ?? leftVal != null))
                     {
                         diff.ChangeAttribute(metaProperty, leftVal, rightVal);
                     }
@@ -67,17 +70,35 @@ public static class ModelObjectsComparer
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
             {
                 var leftRef = leftObject.GetAssoc1To1(metaProperty);
-                var rightRef = rightObject.GetAssoc1To1(metaProperty);
+                var rightRef = rightObject.GetAssoc1To1(metaProperty);                
+                var leftRefOID = leftRef?.OID;
+                var rightRefOID = rightRef?.OID;
 
-                if (/*leftRef?.MetaClass != rightRef?.MetaClass
-                    ||*/ leftRef?.OID != rightRef?.OID)
+                if (!(leftRefOID != null && leftRefOID.Equals(rightRefOID) )
+                    || !(rightRefOID != null && rightRefOID.Equals(leftRefOID)))
                 {
                     diff.ChangeAssoc1(metaProperty, leftRef, rightRef);
                 }
             }
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
             {
+                var leftRefs = leftObject.GetAssoc1ToM(metaProperty)
+                    .ToDictionary(k => k.OID, v => v);
+                var rightRefs = rightObject.GetAssoc1ToM(metaProperty)
+                    .ToDictionary(k => k.OID, v => v);
 
+                var lExceptRefs = leftRefs.Keys.Except(rightRefs.Keys);
+                var rExceptRefs = rightRefs.Keys.Except(leftRefs.Keys);
+                
+                foreach (var lexcept in lExceptRefs)
+                {
+                    diff.RemoveFromAssocM(metaProperty, leftRefs[lexcept]);
+                }
+
+                foreach (var rexcept in rExceptRefs)
+                {
+                    diff.AddToAssocM(metaProperty, rightRefs[rexcept]);
+                }
             }
         }
 

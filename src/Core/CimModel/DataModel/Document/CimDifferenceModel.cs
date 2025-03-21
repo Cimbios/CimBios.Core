@@ -1,6 +1,9 @@
+using System.Collections.Concurrent;
 using System.Text;
 using CimBios.Core.CimModel.CimDataModel;
+using CimBios.Core.CimModel.CimDataModel.Utils;
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.DataModel.Utils;
@@ -9,32 +12,32 @@ using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDifferenceModel;
 
-public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
+public class CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
     IOIDDescriptorFactory oidDescriptorFactory) 
-    : CimDocumentBase(cimSchema, typeLib, oidDescriptorFactory), 
+    : CimDocumentBase (cimSchema, typeLib, oidDescriptorFactory), 
     ICimDifferenceModel
 {
-    public IReadOnlyCollection<IDifferenceObject> Differences
-         => _DifferencesCache.Values;
+    public override Model? ModelDescription => _internalDifferenceModel;
 
-    public CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
+    public IReadOnlyCollection<IDifferenceObject> Differences
+         => _DifferencesCache.Values.ToHashSet();
+
+    public CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
         ICimDataModel cimDataModel)
         : this(cimSchema, typeLib, cimDataModel.OIDDescriptorFactory)
     {
-        ExtractFromDataModel(cimDataModel);
+        SubscribeToDataModelChanges(cimDataModel);
     }
 
-     public void ApplyToDataModel(ICimDataModel cimDataModel)
-     {
-        DiffsToModelHelper.ApplyTo(cimDataModel, _DifferencesCache.Values);
-     }
-
-    public void ExtractFromDataModel(ICimDataModel cimDataModel)
+    public void ApplyToDataModel(ICimDataModel cimDataModel)
     {
-        ResetAll();
+        DiffsToModelHelper.ApplyTo(cimDataModel, _DifferencesCache.Values);
+    }
+
+    public void CompareDataModels(ICimDataModel originDataModel, 
+        ICimDataModel modifiedDataModel)
+    {
         
-        _DifferencesCache = DiffsFromModelHelper.ExtractFrom(cimDataModel);
-        ToDifferenceModel();
     }
 
     public void FitToDataModelSchema(ICimDataModel cimDataModel)
@@ -61,6 +64,9 @@ public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
 
     private void ToDifferenceModel()
     {
+        _InternalDifferenceModel.forwardDifferences.Clear();
+        _InternalDifferenceModel.reverseDifferences.Clear();
+
         _DifferencesCache.Values.AsParallel().ForAll(
             diff =>
             {
@@ -107,7 +113,7 @@ public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
                 {
                     var addDiff = new AdditionDifferenceObject(s);
 
-                    _DifferencesCache.Add(addDiff.OID, addDiff);
+                    _DifferencesCache.TryAdd(addDiff.OID, addDiff);
                 }
                 else
                 {
@@ -122,7 +128,7 @@ public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
                 {
                     var delDiff = new DeletionDifferenceObject(s);
 
-                    _DifferencesCache.Add(delDiff.OID, delDiff);
+                    _DifferencesCache.TryAdd(delDiff.OID, delDiff);
                 }
                 else
                 {
@@ -139,7 +145,7 @@ public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
 
                     var updDiff = new UpdatingDifferenceObject(s, waiting);  
 
-                    _DifferencesCache.Add(updDiff.OID, updDiff);
+                    _DifferencesCache.TryAdd(updDiff.OID, updDiff);
                 }
             }
         );
@@ -151,16 +157,174 @@ public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
                     return;
                 }
                 
-                var modified = new WeakModelObject(w.OID, 
+                var nullObj = new WeakModelObject(w.OID, 
                     descriptionMetaClass);
 
-                var updDiff = new UpdatingDifferenceObject(w, modified);
+                var updDiff = new UpdatingDifferenceObject(nullObj, w);
 
-                 _DifferencesCache.Add(updDiff.OID, updDiff);
+                 _DifferencesCache.TryAdd(updDiff.OID, updDiff);
             }
         );
     }
 
+    public void SubscribeToDataModelChanges(ICimDataModel cimDataModel)
+    {
+        _subscribedDataModel = cimDataModel;
+
+        cimDataModel.ModelObjectPropertyChanged 
+            += OnSubscribeModelObjectPropertyChanged;
+
+        cimDataModel.ModelObjectStorageChanged
+            += OnSubscribeModelObjectStorageChanged;
+    }
+
+    private void OnSubscribeModelObjectStorageChanged(ICimDataModel? sender, 
+        IModelObject modelObject, CimDataModelObjectStorageChangedEventArgs e)
+    {
+        if (_DifferencesCache.TryGetValue(modelObject.OID, 
+            out IDifferenceObject? diff) == false)
+        {
+            diff = null;
+        }
+
+        if (e.ChangeType == CimDataModelObjectStorageChangeType.Add)
+        {
+            if (diff is null)
+            {
+                diff = new AdditionDifferenceObject(
+                    modelObject.OID, modelObject.MetaClass);
+            }
+            else if (diff is DeletionDifferenceObject delDiff)
+            {
+                if (!modelObject.MetaClass.Equals(delDiff.MetaClass))
+                {
+                    throw new Exception("Meta class changed!! Impl!!");
+                }
+
+                diff = new UpdatingDifferenceObject(
+                    modelObject.OID); 
+
+                _DifferencesCache.Remove(delDiff.OID, out var _);
+            }
+            else
+            {
+                throw new NotSupportedException(
+                    "Unexpected change before adding difference!");
+            }
+        }
+        else if (e.ChangeType == CimDataModelObjectStorageChangeType.Remove)
+        {
+            if (diff is AdditionDifferenceObject)
+            {
+                _DifferencesCache.Remove(diff.OID, out var _);
+                diff = null;
+                return;
+            }
+
+            if (diff is DeletionDifferenceObject)
+            {
+                throw new NotSupportedException(
+                    "Unexpected change before removing difference!");
+            }
+            else
+            {
+                var tmpDiff = diff;
+                diff = new DeletionDifferenceObject(modelObject.OID,
+                    modelObject.MetaClass);
+                    
+                foreach (var prop in modelObject.MetaClass.AllProperties)
+                {
+                    var propValue = modelObject.TryGetPropertyValue(prop);
+                    
+                    diff.ChangePropertyValue(prop, null, propValue);
+                }
+
+                if (tmpDiff is UpdatingDifferenceObject upd)
+                {
+                    _DifferencesCache.Remove(tmpDiff.OID, out var _);
+                    foreach (var prop in upd.ModifiedProperties)
+                    {
+                        var propValue = upd.OriginalObject?.
+                            TryGetPropertyValue(prop);
+
+                        diff.ChangePropertyValue(prop, null, propValue);
+                    }
+                }
+            }
+        }
+
+        if (diff != null)
+        {
+            _DifferencesCache.TryAdd(diff.OID, diff);
+        }
+    }
+
+    private void OnSubscribeModelObjectPropertyChanged(ICimDataModel? sender, 
+        IModelObject modelObject, CimMetaPropertyChangedEventArgs e)
+    {
+        object? oldData = null;
+        object? newData = null;
+        if (e is CimMetaAttributeChangedEventArgs attrEv)
+        {
+            oldData = attrEv.OldValue;
+            newData = attrEv.NewValue;
+        }
+        else if (e is CimMetaAssocChangedEventArgs assocEv)
+        {
+            oldData = assocEv.OldModelObject;
+            newData = assocEv.NewModelObject;  
+        }
+        else
+        {
+            throw new NotSupportedException();
+        }
+
+        if (_DifferencesCache.TryGetValue(modelObject.OID, 
+            out IDifferenceObject? diff) == false)
+        {
+            diff = null;
+        }
+
+        diff ??= new UpdatingDifferenceObject(modelObject.OID);
+
+        if (diff is UpdatingDifferenceObject 
+            || diff is AdditionDifferenceObject)
+        {
+            diff.ChangePropertyValue(e.MetaProperty, oldData, newData);
+
+            if (diff.ModifiedProperties.Count == 0)
+            {
+                _DifferencesCache.Remove(diff.OID, out var _);
+                diff = null;
+            }
+        }
+        else
+        {
+            throw new NotSupportedException(
+                "Unexpected change before updating difference!");
+        } 
+
+        if (diff != null)
+        {
+            _DifferencesCache.TryAdd(diff.OID, diff);
+        }
+    }
+
+    public void UnsubscribeFromDataModelChanges()
+    {
+        if (_subscribedDataModel == null)
+        {
+            return;
+        }
+
+        _subscribedDataModel.ModelObjectPropertyChanged 
+            -= OnSubscribeModelObjectPropertyChanged;
+
+        _subscribedDataModel.ModelObjectStorageChanged
+            -= OnSubscribeModelObjectStorageChanged;
+    }
+
+    #region SaveLoadLogic
     protected override void PushDeserializedObjects(
         IEnumerable<IModelObject> cache)
     {
@@ -176,11 +340,11 @@ public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
     public override void Load(StreamReader streamReader, 
         IRdfSerializerFactory serializerFactory, ICimSchema cimSchema)
     {
-        serializerFactory.Settings = new RdfSerializerSettings()
-        {
-            UnknownClassesAllowed = true,
-            UnknownPropertiesAllowed = true
-        };
+        _internalDifferenceModel = null;
+        _DifferencesCache.Clear();
+
+        serializerFactory.Settings = RedefinedDiffSerializerSettings(
+            serializerFactory.Settings);
 
         base.Load(streamReader, serializerFactory, cimSchema);
     }
@@ -188,11 +352,10 @@ public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
     public override void Save(StreamWriter streamWriter,
         IRdfSerializerFactory serializerFactory, ICimSchema cimSchema)
     {
-        serializerFactory.Settings = new RdfSerializerSettings()
-        {
-            UnknownClassesAllowed = true,
-            UnknownPropertiesAllowed = true
-        };
+        serializerFactory.Settings = RedefinedDiffSerializerSettings(
+            serializerFactory.Settings);
+
+        ToDifferenceModel();
 
         base.Save(streamWriter, serializerFactory, cimSchema);
     }
@@ -201,14 +364,26 @@ public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
         IRdfSerializerFactory serializerFactory, 
         ICimSchema cimSchema, Encoding? encoding = null)
     {
-        serializerFactory.Settings = new RdfSerializerSettings()
-        {
-            UnknownClassesAllowed = true,
-            UnknownPropertiesAllowed = true
-        };
+        serializerFactory.Settings = RedefinedDiffSerializerSettings(
+            serializerFactory.Settings);
 
         base.Parse(content, serializerFactory, cimSchema, encoding);
     }
+
+    private static RdfSerializerSettings RedefinedDiffSerializerSettings(
+        RdfSerializerSettings rdfSerializerSettings)
+    {
+        return new RdfSerializerSettings()
+        {
+            UnknownClassesAllowed = true,
+            UnknownPropertiesAllowed = true,
+            IncludeUnresolvedReferences = rdfSerializerSettings
+                .IncludeUnresolvedReferences,
+            WritingIRIMode = rdfSerializerSettings.WritingIRIMode
+        };
+    }
+
+    #endregion SaveLoadLogic
 
     #region NotImpl
     public override IEnumerable<IModelObject> GetAllObjects()
@@ -286,7 +461,10 @@ public class CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
         }
     }
 
-    private DifferenceModel? _internalDifferenceModel = null;
+    protected DifferenceModel? _internalDifferenceModel = null;
 
-    private Dictionary<IOIDDescriptor, IDifferenceObject> _DifferencesCache = [];
+    protected ConcurrentDictionary<IOIDDescriptor, IDifferenceObject> 
+    _DifferencesCache = [];
+
+    protected ICimDataModel? _subscribedDataModel = null;
 }

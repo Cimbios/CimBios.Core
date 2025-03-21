@@ -11,17 +11,14 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 public class ModelObject : DynamicModelObjectBase, 
     IModelObject, IStatementsContainer
 {
-    public override ICimDatatypeLib? TypeLib => _TypeLib;
     public override IOIDDescriptor OID => _Oid;
     public override ICimMetaClass MetaClass => _MetaClass;
 
     public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     Statements => _Statements.AsReadOnly();
 
-    public ModelObject(IOIDDescriptor oid, ICimMetaClass metaClass,
-        ICimDatatypeLib? typeLib = null)
+    public ModelObject(IOIDDescriptor oid, ICimMetaClass metaClass)
     {
-        _TypeLib = typeLib;
         _Oid = oid;
 
         _MetaClass = metaClass;
@@ -47,11 +44,6 @@ public class ModelObject : DynamicModelObjectBase,
     {
         var data = GetDataByProperty(metaProperty, 
             CimMetaPropertyKind.Attribute);
-
-        if (data is IModelObject compound)
-        {
-            SubscribesToCompoundChanges(metaProperty, compound);
-        }
 
         return data;
     }
@@ -95,34 +87,6 @@ public class ModelObject : DynamicModelObjectBase,
 
         throw new ArgumentException(
             $"No such meta property with name {attributeName}!");
-    }
-
-    public override void InitializeCompoundAttribute(
-        ICimMetaProperty metaProperty, bool reset = true)
-    {
-        if (metaProperty.PropertyDatatype == null)
-        {
-            throw new NotSupportedException(
-                $"Undefined compound property {metaProperty.ShortName} class type!");
-        }
-
-        if (TypeLib != null)
-        {
-            var compoundObject = TypeLib.CreateInstance(
-                new ModelObjectFactory(),
-                new AutoDescriptor(),
-                metaProperty.PropertyDatatype
-            );
-
-            if (compoundObject != null)
-            {
-                SetAttribute(metaProperty, compoundObject);
-                return;
-            }
-        }
-
-        throw new NotSupportedException(
-            $"Typelib error while {metaProperty.ShortName} compound object creation!");
     }
 
     public override void SetAttribute<T>(ICimMetaProperty metaProperty, T? value) 
@@ -182,6 +146,53 @@ public class ModelObject : DynamicModelObjectBase,
         {
             SetAttribute<T>(metaProperty, value);
             return;
+        }
+
+        throw new ArgumentException(
+            $"No such meta property with name {attributeName}!");
+    }
+
+    public override IModelObject InitializeCompoundAttribute(
+        ICimMetaProperty metaProperty, bool reset = true)
+    {
+        if (metaProperty.PropertyDatatype == null)
+        {
+            throw new NotSupportedException(
+                $"Undefined compound property {metaProperty.ShortName} class type!");
+        }
+
+        if (GetAttribute(metaProperty) is IModelObject currentValue 
+            && reset == false)
+        {
+            return currentValue;
+        }
+
+        if (InternalTypeLib != null)
+        {
+            var compoundObject = InternalTypeLib.CreateCompoundInstance(
+                new ModelObjectFactory(),
+                metaProperty.PropertyDatatype
+            );
+
+            if (compoundObject != null)
+            {
+                SetAttribute(metaProperty, compoundObject);
+                SubscribesToCompoundChanges(metaProperty, compoundObject);
+                return compoundObject;
+            }
+        }
+
+        throw new NotSupportedException(
+            $"Typelib error while {metaProperty.ShortName} compound object creation!");
+    }
+
+    public override IModelObject InitializeCompoundAttribute(
+        string attributeName, bool reset = true)
+    {
+        var metaProperty = TryGetMetaPropertyByName(attributeName);
+        if (metaProperty != null)
+        {
+            return InitializeCompoundAttribute(metaProperty, reset);
         }
 
         throw new ArgumentException(
@@ -697,7 +708,6 @@ public class ModelObject : DynamicModelObjectBase,
 
     #endregion UtilsPrivate
 
-    private ICimDatatypeLib? _TypeLib;
     private IOIDDescriptor _Oid;
 
     private ICimMetaClass _MetaClass;
@@ -714,9 +724,8 @@ public class ModelObjectFactory : IModelObjectFactory
 {
     public System.Type ProduceType => typeof(ModelObject);
 
-    public IModelObject Create(IOIDDescriptor oid, ICimMetaClass metaClass,
-         ICimDatatypeLib? typeLib = null)
+    public IModelObject Create(IOIDDescriptor oid, ICimMetaClass metaClass)
     {
-        return new ModelObject(oid, metaClass, typeLib);
+        return new ModelObject(oid, metaClass);
     }
 }

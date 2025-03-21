@@ -75,4 +75,20 @@ public interface ICimDatatypeLib : ICanLog
     public EnumValueObject<TEnum>? CreateEnumValueInstance<TEnum>(
         TEnum enumValue) where TEnum: struct, Enum;
 
+    /// <summary>
+    /// Create compound meta class instance.
+    /// </summary>
+    /// <param name="modelObjectFactory">Model object factory.</param>
+    /// <param name="metaClass">Cim schema meta class.</param>
+    /// <returns></returns>
+    public IModelObject? CreateCompoundInstance(
+            IModelObjectFactory modelObjectFactory, ICimMetaClass metaClass);
+
+    /// <summary>
+    /// Create compound meta class instance of type T.
+    /// </summary>
+    /// <typeparam name="T">Type lib CIM type.</typeparam>
+    /// <returns></returns>
+    public T? CreateCompoundInstance<T>() where T : class, IModelObject;
+
 }

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF 
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+  xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" 
+  xmlns:dm="http://iec.ch/TC57/61970-552/DifferenceModel/1#" 
+  xmlns:cim="http://iec.ch/TC57/CIM100#" 
+  xmlns:rf="http://gost.ru/2019/schema-cim01#">
+  <dm:DifferenceModel rdf:about="_DifferenceModelHeader">
+    <md:Model.created>2000-01-01T00:00:00.000Z</md:Model.created>
+    <dm:forwardDifferences>
+      <!-- add new object -->
+      <cim:ConformLoad rdf:ID="_NewALoad">
+        <cim:IdentifiedObject.name>New A Load</cim:IdentifiedObject.name>
+        <cim:Equipment.normallyInService>true</cim:Equipment.normallyInService>
+        <cim:Equipment.EquipmentContainer rdf:resource="_AVoltageLevel110" />
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_1000063d-0000-0000-c000-0000006d746c" />
+        <cim:ConductingEquipment.Terminals rdf:resource="_NewALoadT1" />
+        <cim:EnergyConsumer.pfixed>0.5</cim:EnergyConsumer.pfixed>
+        <cim:EnergyConsumer.qfixed>0.25</cim:EnergyConsumer.qfixed>
+      </cim:ConformLoad>
+      <cim:Terminal rdf:ID="_NewALoadT1">
+        <cim:Terminal.ConductingEquipment rdf:resource="_NewALoad" />
+        <cim:Terminal.ConnectivityNode rdf:resource="_ACN1" />
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+      </cim:Terminal>
+      <!-- change existing objects props -->
+      <rdf:Description rdf:ID="_ACN1">
+        <cim:ConnectivityNode.Terminals rdf:resource="_NewALoadT1"/>
+      </rdf:Description>      
+      <rdf:Description rdf:ID="_SubstationA">
+        <cim:IdentifiedObject.name>Substation A [RENAMED]</cim:IdentifiedObject.name>
+      </rdf:Description>
+      <!-- from null to val -->
+      <rdf:Description rdf:ID="_ABreaker110">
+        <cim:Switch.retained>true</cim:Switch.retained>
+      </rdf:Description>
+      <!-- change enum -->
+      <rdf:Description rdf:ID="_APTEndMVT1">
+        <cim:Terminal.phases rdf:resource="cim:PhaseCode.ABC"/>
+      </rdf:Description> 
+       <!-- add compound attribute -->
+      <rdf:Description rdf:ID="_JustLonelyAsset">
+        <cim:Asset.inUseDate>
+          <cim:InUseDate>
+            <cim:InUseDate.inUseDate>2000-01-01T00:00:00Z</cim:InUseDate.inUseDate>
+          </cim:InUseDate>
+        </cim:Asset.inUseDate>
+      </rdf:Description>    
+      <!-- change compound attribute -->
+      <rdf:Description rdf:ID="_ASubstationAsset">
+        <cim:Asset.inUseDate>
+          <cim:InUseDate>
+            <cim:InUseDate.inUseDate>1995-01-01T00:00:00Z</cim:InUseDate.inUseDate>
+          </cim:InUseDate>
+        </cim:Asset.inUseDate>
+      </rdf:Description>
+    </dm:forwardDifferences>
+    <dm:reverseDifferences>
+      <!-- remove object -->
+      <cim:Asset rdf:about="_RemoveMeAsset">
+        <cim:IdentifiedObject.name>Remove me!</cim:IdentifiedObject.name>
+      </cim:Asset>
+      <rdf:Description rdf:ID="_SubstationA">
+        <cim:IdentifiedObject.name>Substation A</cim:IdentifiedObject.name>
+      </rdf:Description>
+      <!-- from val to null -->
+      <rdf:Description rdf:ID="_ACurrentTransformer1">
+        <rf:CurrentTransformer.isEmbeded>false</rf:CurrentTransformer.isEmbeded>
+      </rdf:Description>      
+      <!-- change enum -->
+      <rdf:Description rdf:ID="_APTEndMVT1">
+        <cim:Terminal.phases rdf:resource="cim:PhaseCode.ABCN"/>
+      </rdf:Description>
+      <!-- change compound attribute -->
+      <rdf:Description rdf:ID="_ASubstationAsset">
+        <cim:Asset.inUseDate>
+          <cim:InUseDate>
+            <cim:InUseDate.inUseDate>2000-01-01T00:00:00Z</cim:InUseDate.inUseDate>
+          </cim:InUseDate>
+        </cim:Asset.inUseDate>
+      </rdf:Description>
+    </dm:reverseDifferences>
+  </dm:DifferenceModel>
+</rdf:RDF>

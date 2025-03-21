@@ -2424,6 +2424,39 @@ The limit applies to all equipment and nodes contained in a given VoltageLevel. 
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
+	
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Asset">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Asset</rdfs:label>
+		<rdfs:comment>Tangible resource of the utility, including power system equipment, various end devices, cabinets, buildings, etc. For electrical network equipment, the role of the asset is defined through PowerSystemResource and its subclasses, defined mainly in the Wires model (refer to IEC61970-301 and model package IEC61970::Wires). Asset description places emphasis on the physical characteristics of the equipment fulfilling that role.</rdfs:comment>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Asset.inUseDate">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>inUseDate</rdfs:label>
+		<rdfs:comment>In use dates for this asset.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#Asset"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/CIM100#InUseDate"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#InUseDate">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>InUseDate</rdfs:label>
+		<rdfs:comment>Dates associated with asset 'in use' status. May have multiple in use dates for this device and a compound type allows a query to return multiple dates.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Assets"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#compound"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#InUseDate.inUseDate">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>inUseDate</rdfs:label>
+		<rdfs:comment>Date asset was most recently put in use.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#InUseDate"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+
 	<rdf:Description rdf:about="#Package_Base">
 		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
 		<rdfs:label>Base</rdfs:label>

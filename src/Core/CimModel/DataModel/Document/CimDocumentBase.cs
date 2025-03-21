@@ -14,7 +14,7 @@ namespace CimBios.Core.CimModel.CimDataModel;
 
 public abstract class CimDocumentBase : ICimDataModel, ICanLog
 {
-    public virtual ILogView Log => Log;
+    public virtual ILogView Log => _Log;
 
     public virtual Model? ModelDescription { get; protected set; }
 
@@ -24,9 +24,6 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
 
     public virtual IOIDDescriptorFactory OIDDescriptorFactory { get; } 
         = new UuidDescriptorFactory();
-
-    public IReadOnlyCollection<ICimDataModelChangeStatement> Changes
-        => _ChangesCache.Reverse().ToArray();
 
     /// <summary>
     /// All cached objects collection (uuid to IModelObject).
@@ -39,7 +36,6 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     {
         _Log = new PlainLogView(this);
         _Objects = [];
-        _ChangesCache = [];
 
         Schema = cimSchema;
         TypeLib = typeLib;
@@ -61,7 +57,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
 
         try
         {
-            _ChangesCache = [];
+            _Objects = [];
             deserialized = serializer.Deserialize(streamReader);
             PushDeserializedObjects(deserialized);
         }
@@ -96,8 +92,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
-        Load(new StreamReader(File.Open(path, FileMode.Open)), 
-            serializerFactory, cimSchema);
+        Load(new StreamReader(path), serializerFactory, cimSchema);
     }
 
     /// <summary>
@@ -149,9 +144,11 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
 
             serializer.BaseUri = new(OIDDescriptorFactory.Namespace);
             serializer.Serialize(streamWriter, forSerializeObjects);
+            streamWriter.Close();
         }
         catch (Exception ex)
         {
+            streamWriter.Close();
             _Log.NewMessage(
                 "CimDocument: Serialization failed.",
                 LogMessageSeverity.Critical,
@@ -204,21 +201,6 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     public abstract IModelObject CreateObject(IOIDDescriptor oid, ICimMetaClass metaClass);
     public abstract T CreateObject<T>(IOIDDescriptor oid) where T : class, IModelObject;
 
-    public virtual void DiscardLastChange()
-    {
-        throw new NotImplementedException();
-    }
-    
-    public virtual void DiscardAllChanges()
-    {
-        throw new NotImplementedException();
-    }
-
-    public virtual void CommitAllChanges()
-    {
-        _ChangesCache.Clear();
-    }
-
     public event CimDataModelObjectPropertyChangedEventHandler? 
         ModelObjectPropertyChanged;
     public event CimDataModelObjectStorageChangedEventHandler? 
@@ -238,24 +220,6 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
             return;
         }
 
-        var updateStatement = new CimDataModelObjectUpdatedStatement(
-            modelObject, cimEv);
-
-        if (_ChangesCache.TryPeek(out var lastChange)
-            && lastChange.ModelObject == modelObject
-            && lastChange is CimDataModelObjectUpdatedStatement luStatement)
-        {
-             // Discarding last change.
-            if (luStatement.NewValue == updateStatement.OldValue
-                && luStatement.OldValue == updateStatement.NewValue)
-            {
-                _ChangesCache.Pop();
-                return;
-            }
-        }
-
-        _ChangesCache.Push(updateStatement);
-
         ModelObjectPropertyChanged?.Invoke(this, modelObject, cimEv);
     }
 
@@ -272,36 +236,9 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
             return;
         }
 
-        if (_ChangesCache.TryPeek(out var lastChange)
-            && lastChange.ModelObject == modelObject)
-        {
-            // Discarding last change.
-            if ((lastChange is CimDataModelObjectAddedStatement
-                    && changeType == CimDataModelObjectStorageChangeType.Remove)
-                || (lastChange is CimDataModelObjectRemovedStatement
-                    && changeType == CimDataModelObjectStorageChangeType.Add))
-            {
-                _ChangesCache.Pop();
-                return;
-            }
-        }
-
-        if (changeType == CimDataModelObjectStorageChangeType.Add)
-        {
-            _ChangesCache.Push(
-                new CimDataModelObjectAddedStatement(modelObject));
-        }
-        if (changeType == CimDataModelObjectStorageChangeType.Remove)
-        {
-            _ChangesCache.Push(
-                new CimDataModelObjectRemovedStatement(modelObject));
-        }
-
         ModelObjectStorageChanged?.Invoke(this, modelObject, 
             new CimDataModelObjectStorageChangedEventArgs(changeType));
     }
-
-    protected Stack<ICimDataModelChangeStatement> _ChangesCache;
 
     protected readonly PlainLogView _Log;
 }

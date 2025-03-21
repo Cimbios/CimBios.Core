@@ -1,4 +1,7 @@
+using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
+using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Validation;
+using CimBios.Tests.Infrastructure;
 
 namespace CimBios.Tests.Validation;
 
@@ -7,29 +10,67 @@ public class PropertyMultiplicityValidation
     [Fact]
     public void StrictlyOne()
     {
-        var isCorrectValid = IsValidMultiplicity(
-            "testReactiveCapabilityCurve");
+        var cimDocument = ModelLoader.CreateCimModelInstance();
+        var rule = GetMultiplicityValidationRule();
 
-        Assert.True(isCorrectValid);
+        var testCNode = cimDocument.CreateObject<ConnectivityNode>(cimDocument
+            .OIDDescriptorFactory.Create("_TestCN"));    
+
+        var result1 = rule.Execute(testCNode);
+        Assert.NotNull(result1
+            .FirstOrDefault(r => r.ResultType == ValidationResultKind.Fail));
+
+        var testBay = cimDocument.CreateObject<Bay>(cimDocument
+            .OIDDescriptorFactory.Create("_TestBay"));   
+ 
+        testBay.AddToConnectivityNodes(testCNode);
+
+        var result2 = rule.Execute(testCNode);
+        Assert.NotNull(result2
+            .FirstOrDefault(r => r.ResultType == ValidationResultKind.Pass));   
     }
 
     [Fact]
     public void OneN()
     {
-        var isCorrectValid = IsValidMultiplicity(
-            "testACLineSeriesSection");
+        var cimDocument = ModelLoader.CreateCimModelInstance();
+        var rule = GetMultiplicityValidationRule();
 
-        Assert.True(isCorrectValid);
+        var IrregularIntervalScheduleMetaClass = cimDocument.Schema
+            .TryGetResource<ICimMetaClass>(
+                new ("http://iec.ch/TC57/CIM100#IrregularIntervalSchedule"));
+
+        var IrregularTimePointMetaClass = cimDocument.Schema
+            .TryGetResource<ICimMetaClass>(
+                new ("http://iec.ch/TC57/CIM100#IrregularTimePoint"));
+
+        if (IrregularIntervalScheduleMetaClass == null 
+            || IrregularTimePointMetaClass == null)
+        {
+            Assert.Fail();
+        }
+
+        var testSchedule = cimDocument.CreateObject(cimDocument
+            .OIDDescriptorFactory.Create("_TestSchedule"), 
+            IrregularIntervalScheduleMetaClass);    
+
+        var result1 = rule.Execute(testSchedule);
+        Assert.NotNull(result1
+            .FirstOrDefault(r => r.ResultType == ValidationResultKind.Fail));
+
+        var testPoint = cimDocument.CreateObject(cimDocument
+            .OIDDescriptorFactory.Create("_TestPoint"), 
+            IrregularTimePointMetaClass);   
+ 
+        testSchedule.AddAssoc1ToM("TimePoints", testPoint);
+
+        var result2 = rule.Execute(testSchedule);
+        Assert.NotNull(result2
+            .FirstOrDefault(r => r.ResultType == ValidationResultKind.Pass));   
     }
 
-    private bool IsValidMultiplicity(string inputData)
+    private static IValidationRule GetMultiplicityValidationRule()
     {
-        var cimDocument = CimDocumentLoader.LoadCimDocument(
-            $"../../../assets/{inputData}.xml",
-            "../../../assets/cimbios-testRdfsSchema.rdfs");
-
-        var objects = cimDocument.GetAllObjects().Where(x => x != null);
-
         var manager = new ValidationManager();
 
         var rules = manager.GetValidationRules;
@@ -37,19 +78,8 @@ public class PropertyMultiplicityValidation
         var multiplicityRule = rules.Where(
             r => r.GetType() ==
             typeof(PropertyMultiplicityValidationRule)
-        ).First();
+        ).Single();
 
-        var resultValidation = objects.Select(multiplicityRule.Execute);
-
-        var isCorrectValid = resultValidation.Any(
-            x =>
-            {
-                var correctResult = x.Where(
-                    y => y.ResultType == ValidationResultKind.Pass);
-                return correctResult != null;
-            }
-        );
-
-        return isCorrectValid;
+        return multiplicityRule;
     }
 }

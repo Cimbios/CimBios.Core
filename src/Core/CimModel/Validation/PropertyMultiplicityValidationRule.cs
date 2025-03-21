@@ -28,8 +28,8 @@ namespace CimBios.Core.CimModel.Validation
             var value = GetPropertyValueAsObject(modelObject, property);
 
             if (value is ICollection<object> collection
-                ? collection.Count() != 0
-                : value != null)
+                ? collection.Count() == 0 : value == null)
+            {
                 return new ValidationResult()
                 {
                     Message = "Model object does not contain reuired value " +
@@ -37,6 +37,7 @@ namespace CimBios.Core.CimModel.Validation
                     ResultType = ValidationResultKind.Fail,
                     ModelObject = modelObject
                 };
+            }
             else return new ValidationResult()
             {
                 Message = string.Empty,

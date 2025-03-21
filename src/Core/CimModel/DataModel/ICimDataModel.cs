@@ -23,9 +23,9 @@ public interface ICimDataModel : ICanLog
     public ICimSchema Schema { get; }
 
     /// <summary>
-    /// Changes collection of this model.
+    /// Current context type lib of CIM model objects.
     /// </summary>
-    public IReadOnlyCollection<ICimDataModelChangeStatement> Changes { get; }
+    public ICimDatatypeLib TypeLib { get; }
 
     /// <summary>
     /// Descriptor factory for producing objects.
@@ -104,21 +104,6 @@ public interface ICimDataModel : ICanLog
     //public IModelObject CreateObject(ICimMetaClass metaClass);
     ///public T CreateObject<T>(string oid) where T: IModelObject;
     //public T CreateObject<T>() where T: IModelObject;
-
-    /// <summary>
-    /// Discard last saved change in Changes collection.
-    /// </summary>
-    public void DiscardLastChange();
-    
-    /// <summary>
-    /// Discard all saved changes in Changes collection - returns to begining state.
-    /// </summary>
-    public void DiscardAllChanges();
-
-    /// <summary>
-    /// Commit all saved changes in Changes collection - new state of model.
-    /// </summary>
-    public void CommitAllChanges();
 
     /// <summary>
     /// Event fires on data model object property changed.

@@ -13,7 +13,6 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 public class WeakModelObject : DynamicModelObjectBase, 
     IModelObject, IStatementsContainer
 {
-    public override ICimDatatypeLib? TypeLib => _TypeLib;
     public override IOIDDescriptor OID => _Oid;
     public override ICimMetaClass MetaClass => _MetaClass;
 
@@ -25,7 +24,7 @@ public class WeakModelObject : DynamicModelObjectBase,
     /// Default weak linked object constructor.
     /// </summary>
     public WeakModelObject(IOIDDescriptor oid, 
-        ICimMetaClass metaClass, ICimDatatypeLib? typeLib = null)
+        ICimMetaClass metaClass, bool initializeProperties = false)
         : base()
     {
         if (metaClass is not CimAutoClass autoClass)
@@ -37,7 +36,14 @@ public class WeakModelObject : DynamicModelObjectBase,
             );
         }
 
-        _TypeLib = typeLib;
+        if (initializeProperties)
+        {
+            foreach (var metaProperty in metaClass.AllProperties)
+            {
+                autoClass.AddProperty(metaProperty);
+            }
+        }
+
         _Oid = oid;
         _MetaClass = autoClass;
 
@@ -49,7 +55,7 @@ public class WeakModelObject : DynamicModelObjectBase,
     /// </summary>
     /// <param name="modelObject">Model object for copy.</param>
     public WeakModelObject (IReadOnlyModelObject modelObject)
-        : this (modelObject.OID, modelObject.MetaClass, modelObject.TypeLib)
+        : this (modelObject.OID, modelObject.MetaClass)
     {
         this.CopyPropertiesFrom(modelObject, true);
     }
@@ -69,12 +75,7 @@ public class WeakModelObject : DynamicModelObjectBase,
     {
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
             && _PropertiesData.TryGetValue(metaProperty, out var value))
-        {
-            if (value is IModelObject compound)
-            {
-                SubscribesToCompoundChanges(metaProperty, compound);
-            }
-            
+        {            
             return value;
         }
 
@@ -118,12 +119,6 @@ public class WeakModelObject : DynamicModelObjectBase,
         }
 
         return default;
-    }
-
-    public override void InitializeCompoundAttribute(
-        ICimMetaProperty metaProperty, bool reset = true)
-    {
-        throw new NotImplementedException();
     }
 
     public override void SetAttribute<T>(ICimMetaProperty metaProperty, 
@@ -195,6 +190,54 @@ public class WeakModelObject : DynamicModelObjectBase,
         }
 
         SetAttribute<T>(metaProperty, value);
+    }
+
+    public override IModelObject InitializeCompoundAttribute(
+        ICimMetaProperty metaProperty, bool reset = true)
+    {
+        if (metaProperty.PropertyDatatype == null
+            || metaProperty.PropertyDatatype.IsCompound == false)
+        {
+            throw new NotSupportedException(
+                $"Undefined compound property {metaProperty.ShortName} class type!");
+        }
+
+        if (GetAttribute(metaProperty) is IModelObject currentValue 
+            && reset == false)
+        {
+            return currentValue;
+        }
+
+        IModelObject? compoundObject = null;
+
+        if (InternalTypeLib != null)
+        {
+            compoundObject = InternalTypeLib.CreateCompoundInstance(
+                new ModelObjectFactory(),
+                metaProperty.PropertyDatatype);
+        }
+        else
+        {
+            compoundObject = new WeakModelObject(new AutoDescriptor(), 
+                metaProperty.PropertyDatatype);
+        }
+
+        if (compoundObject != null)
+        {
+            SetAttribute(metaProperty, compoundObject);
+            SubscribesToCompoundChanges(metaProperty, compoundObject);
+            return compoundObject;
+        }
+
+        throw new NotSupportedException(
+            $"Weak object error while {metaProperty.ShortName} compound object creation!");
+    }
+
+    public override IModelObject InitializeCompoundAttribute(
+        string attributeName, bool reset = true)
+    {
+        // TODO Weak initialization.
+        throw new NotImplementedException();
     }
 
     public override T? GetAssoc1To1<T>(ICimMetaProperty metaProperty) 
@@ -481,7 +524,6 @@ public class WeakModelObject : DynamicModelObjectBase,
         }
     }
 
-    private ICimDatatypeLib? _TypeLib;
     private IOIDDescriptor _Oid;
     private CimAutoClass _MetaClass;
 
@@ -498,13 +540,13 @@ public class WeakModelObjectFactory : IModelObjectFactory
     public System.Type ProduceType => typeof(WeakModelObject);
 
     public IModelObject Create(IOIDDescriptor oid, 
-        ICimMetaClass metaClass, ICimDatatypeLib? typeLib = null)
+        ICimMetaClass metaClass)
     {
         if (metaClass is not CimMetaClassBase metaClassBase)
         {
             throw new InvalidCastException();
         }
 
-        return new WeakModelObject(oid, metaClass, typeLib);
+        return new WeakModelObject(oid, metaClass);
     }
 }

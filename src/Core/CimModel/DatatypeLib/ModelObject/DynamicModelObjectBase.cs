@@ -77,9 +77,10 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         return null;
     }
 
-    public abstract ICimDatatypeLib? TypeLib { get; }
     public abstract IOIDDescriptor OID { get; }
     public abstract ICimMetaClass MetaClass { get; }
+
+    internal ICimDatatypeLib? InternalTypeLib { get; set; } = null;
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public event CanCancelPropertyChangingEventHandler? PropertyChanging;
@@ -123,9 +124,6 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
 
     public abstract T? GetAttribute<T>(string attributeName);
 
-    public abstract void InitializeCompoundAttribute(
-        ICimMetaProperty metaProperty, bool reset = true);
-
     public abstract bool HasProperty(string propertyName);
 
     public abstract void RemoveAllAssocs1ToM(ICimMetaProperty metaProperty);
@@ -146,6 +144,12 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
     public abstract void SetAttribute<T>(ICimMetaProperty metaProperty, T? value);
 
     public abstract void SetAttribute<T>(string attributeName, T? value);
+
+    public abstract IModelObject InitializeCompoundAttribute(
+        ICimMetaProperty metaProperty, bool reset = true);
+
+    public abstract IModelObject InitializeCompoundAttribute(
+        string attributeName, bool reset = true);
 
     public virtual void OnPropertyChanged(CimMetaPropertyChangedEventArgs args)
     {
@@ -209,10 +213,10 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
                 }
 
                 var oldModelObjectMock = new WeakModelObject(
-                    new AutoDescriptor(), compound.MetaClass, TypeLib);
+                    new AutoDescriptor(), compound.MetaClass);
 
                 var newModelObjectMock = new WeakModelObject(
-                    new AutoDescriptor(), compound.MetaClass, TypeLib);
+                    new AutoDescriptor(), compound.MetaClass);
 
                 oldModelObjectMock.SetAttribute(eventArg.MetaProperty, 
                     eventArg.OldValue);
@@ -285,6 +289,23 @@ public static class ModelObjectCopyPropsExtension
             if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
             {
                 var copy = fromModelObject.GetAttribute(metaProperty);
+                if (metaProperty.PropertyDatatype is ICimMetaDatatype metaDatatype)
+                {
+                    copy = Convert.ChangeType(copy,
+                        metaDatatype.PrimitiveType, 
+                        System.Globalization.CultureInfo.InvariantCulture);
+                }
+                else if (metaProperty.PropertyDatatype 
+                        is ICimMetaClass cimMetaClassType 
+                    && cimMetaClassType.IsCompound
+                    && copy is IModelObject fromCompound)
+                {
+                    var newCompound = modelObject
+                        .InitializeCompoundAttribute(metaProperty);
+                    newCompound.CopyPropertiesFrom(fromCompound);
+                    copy = newCompound;
+                }
+
                 modelObject.SetAttribute(metaProperty, copy);
             }
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
@@ -296,6 +317,7 @@ public static class ModelObjectCopyPropsExtension
             }
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
             {
+                modelObject.RemoveAllAssocs1ToM(metaProperty);
                 var refCol = fromModelObject.GetAssoc1ToM(metaProperty);
                 foreach (var refCopy in refCol)
                 {

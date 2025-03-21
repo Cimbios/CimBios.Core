@@ -34,7 +34,7 @@ public abstract class DifferenceObjectBase : IDifferenceObject
             string.Empty
         );
 
-        _ModifiedObject = new WeakModelObject(oid, descriptionMetaClass, null);
+        _ModifiedObject = new WeakModelObject(oid, descriptionMetaClass);
 
         MetaClass = descriptionMetaClass;
     }
@@ -43,7 +43,7 @@ public abstract class DifferenceObjectBase : IDifferenceObject
     {
         OID = oid;
 
-        _ModifiedObject = new WeakModelObject(oid, metaClass, null);
+        _ModifiedObject = new WeakModelObject(oid, metaClass);
 
         MetaClass = metaClass;
     }

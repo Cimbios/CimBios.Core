@@ -15,7 +15,8 @@ public class RdfXmlWriter : RdfWriterBase
         {
             if (_xmlWriter == null)
             {
-                throw new InvalidOperationException("XmlWriter has not been initialized!");
+                throw new InvalidOperationException(
+                    "XmlWriter has not been initialized!");
             }
 
             return _xmlWriter;
@@ -201,18 +202,20 @@ public class RdfXmlWriter : RdfWriterBase
     /// <param name="uri"></param>
     /// <returns></returns>
     private string NormalizeIdentifier(Uri uri)
-    {
-        if (Namespaces.TryGetValue("base", out var baseUri)
-            && baseUri == uri)
-        {
-            return uri.AbsoluteUri[uri.AbsoluteUri.IndexOf('#')..];
-        } 
-        
+    {   
         if (RdfUtils.TryGetEscapedIdentifier(uri, out var rid)
-            && Namespaces.Values.Contains(uri))
+            && Namespaces.Values.Contains(uri) || uri.Scheme == "base")
         {
             var prefix = Namespaces.FirstOrDefault(ns => ns.Value == uri).Key;
-            return $"{prefix}:{rid}";
+
+            if (prefix == "base" || uri.Scheme == "base")
+            {
+                return rid;
+            }
+            else
+            {
+                return $"{prefix}:{rid}";
+            }
         }
 
         return uri.AbsoluteUri;

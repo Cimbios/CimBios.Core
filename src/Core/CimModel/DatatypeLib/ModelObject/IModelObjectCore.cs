@@ -9,11 +9,6 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 public interface IModelObjectCore
 {
     /// <summary>
-    /// Core typelib factory.
-    /// </summary>
-    public ICimDatatypeLib? TypeLib { get; }
-
-    /// <summary>
     /// Neccesary object identifier.
     /// </summary>
     public IOIDDescriptor OID { get; }

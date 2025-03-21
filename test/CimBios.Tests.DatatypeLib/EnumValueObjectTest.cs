@@ -1,9 +1,8 @@
 using System.ComponentModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
-using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
-using CimBios.Core.CimModel.Schema.RdfSchema;
+using CimBios.Tests.Infrastructure;
 
 namespace CimBios.Tests.DatatypeLib;
 
@@ -14,8 +13,6 @@ public enum TestEnum
 
 public class EnumValueObjectTest
 {
-    private const string ModelSchemaPath 
-        = "../../../../common_assets/Iec61970BaseCore-rdfs.xml";
 
     [Fact]
     public void CreateEnumValueObject ()
@@ -77,18 +74,7 @@ public class EnumValueObjectTest
 
     private static ICimDatatypeLib GetTypeLib()
     {
-        var schema = LoadCimSchema(ModelSchemaPath);
+        var schema = ModelLoader.LoadTestCimRdfSchema();
         return new CimDatatypeLib(schema);
-    }
-
-    private static ICimSchema LoadCimSchema(string path, 
-        ICimSchemaFactory? factory = null)
-    {
-        factory ??= new CimRdfSchemaXmlFactory();
-        var cimSchema = factory.CreateSchema();
-
-        cimSchema.Load(new StreamReader(path));
-
-        return cimSchema;
     }
 }
