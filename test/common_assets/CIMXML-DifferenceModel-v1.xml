@@ -22,6 +22,7 @@
         <cim:Terminal.ConductingEquipment rdf:resource="_NewALoad" />
         <cim:Terminal.ConnectivityNode rdf:resource="_ACN1" />
         <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="cim:PhaseCode.ABC"/>
       </cim:Terminal>
       <!-- change existing objects props -->
       <rdf:Description rdf:ID="_ACN1">

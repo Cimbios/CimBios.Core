@@ -161,6 +161,23 @@ public sealed class EnumValueObject<TEnum> : EnumValueObject
 public static class ModelObjectSetEnumExtension
 {
     public static void SetAttributeAsEnum(this IModelObject modelObject, 
+        ICimMetaProperty metaProperty, ICimMetaIndividual metaIndividual)
+    {
+        if (modelObject is DynamicModelObjectBase dynamicModelObject
+            && dynamicModelObject.InternalTypeLib != null)
+        {
+            var wrappedTypedEnumValue = dynamicModelObject.InternalTypeLib
+                .CreateEnumValueInstance(metaIndividual);
+
+            modelObject.SetAttribute(metaProperty, wrappedTypedEnumValue);
+            return;
+        }
+
+        var wrappedEnumValue = new EnumValueObject(metaIndividual);
+        modelObject.SetAttribute(metaProperty, wrappedEnumValue);
+    } 
+
+    public static void SetAttributeAsEnum(this IModelObject modelObject, 
         ICimMetaProperty metaProperty, Enum enumValue)
     {
         if (metaProperty.PropertyDatatype == null
@@ -175,6 +192,7 @@ public static class ModelObjectSetEnumExtension
 
         var wrappedEnumValue = new EnumValueObject(metaIndividual, 
             enumValue.GetType());
+        
         modelObject.SetAttribute(metaProperty, wrappedEnumValue);
     }
 

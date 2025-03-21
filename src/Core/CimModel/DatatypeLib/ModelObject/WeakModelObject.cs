@@ -139,7 +139,8 @@ public class WeakModelObject : DynamicModelObjectBase,
         if (value is not string 
             && value != null
             && !value.GetType().IsPrimitive
-            && !typeof(T).IsAssignableFrom(typeof(IModelObject)))
+            && !typeof(T).IsAssignableFrom(typeof(IModelObject))
+            && value is not EnumValueObject)
         {
             throw new ArgumentException(
                 $"Attribute {metaProperty.ShortName} can not be assigning by value of type {typeof(T).Name}!");
