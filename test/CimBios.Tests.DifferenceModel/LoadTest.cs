@@ -20,7 +20,7 @@ public class LoadTest
         var lDiffsProfile = cimDifferenceModel.Differences
             .Select(d => (d.OID, d.ModifiedProperties.Count)).ToList();
         
-        cimDifferenceModel.Save("~$tmpdiff.xml", new RdfXmlSerializerFactory() 
+        cimDifferenceModel.Save("~$tmpdiff-LoadTest.xml", new RdfXmlSerializerFactory() 
         { 
             Settings = new RdfSerializerSettings()
             { 
@@ -28,7 +28,7 @@ public class LoadTest
             } 
         });
 
-        cimDifferenceModel.Load("~$tmpdiff.xml", new RdfXmlSerializerFactory());
+        cimDifferenceModel.Load("~$tmpdiff-LoadTest.xml", new RdfXmlSerializerFactory());
         
         Assert.True(CheckLoadedModel(cimDifferenceModel));
 

@@ -269,19 +269,18 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
 public static class ModelObjectCopyPropsExtension
 {
     /// <summary>
-    /// Copy intersected properties from one CIM model object to another.
+    /// Copy defined properties from one CIM model object to another.
     /// </summary>
     /// <param name="toModelObject">Model object to copy.</param>
-    /// <param name="fromModelObject">Model object from copy</param>
+    /// <param name="fromModelObject">Model object from copy.</param>
+    /// <param name="propertiesSet">Set of properties to copy.</param>
     /// <param name="allowAssoc11Capture">Re-link inverse 1 to 1 assoc.</param>
     public static void CopyPropertiesFrom (this IModelObject toModelObject, 
-        IReadOnlyModelObject fromModelObject, bool allowAssoc11Capture = false)
+        IReadOnlyModelObject fromModelObject, 
+        ICollection<ICimMetaProperty> propertiesSet, 
+        bool allowAssoc11Capture = false)
     {
-        var intersectedProps = toModelObject.MetaClass.AllProperties
-            .Intersect(fromModelObject.MetaClass.AllProperties)
-            .ToList();
-
-        foreach (var metaProperty in intersectedProps)
+        foreach (var metaProperty in propertiesSet)
         {
             if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
             {
@@ -301,6 +300,24 @@ public static class ModelObjectCopyPropsExtension
                     statementsContainer2, metaProperty);
             }
         }
+    }
+
+    /// <summary>
+    /// Copy intesected properties from one CIM model object to another.
+    /// </summary>
+    /// <param name="toModelObject">Model object to copy.</param>
+    /// <param name="fromModelObject">Model object from copy.</param>
+    /// <param name="allowAssoc11Capture">Re-link inverse 1 to 1 assoc.</param>
+    public static void CopyPropertiesFrom (this IModelObject toModelObject, 
+        IReadOnlyModelObject fromModelObject, 
+        bool allowAssoc11Capture = false)
+    {
+        var intersectedProps = toModelObject.MetaClass.AllProperties
+            .Intersect(fromModelObject.MetaClass.AllProperties)
+            .ToList();
+            
+        toModelObject.CopyPropertiesFrom(fromModelObject, 
+            intersectedProps, allowAssoc11Capture);
     }
 
     private static void CopyAttribute (IModelObject toModelObject, 

@@ -21,12 +21,6 @@ public interface ICimDifferenceModel : ICanLog
     public IReadOnlyCollection<IDifferenceObject> Differences { get; }
 
     /// <summary>
-    /// Apply current differences set to CIM model.
-    /// </summary>
-    /// <param name="cimDataModel">CIM data model instance.</param>
-    public void ApplyToDataModel(ICimDataModel cimDataModel);
-
-    /// <summary>
     /// Compare CIM data models and push to current differences set.
     /// </summary>
     /// <param name="originDataModel">Origin (left) CIM data model.</param>

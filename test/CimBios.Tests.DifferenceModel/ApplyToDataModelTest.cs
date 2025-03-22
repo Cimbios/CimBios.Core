@@ -1,4 +1,5 @@
 using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
+using CimBios.Core.CimModel.DataModel.Utils;
 using CimBios.Tests.Infrastructure;
 
 namespace CimBios.Tests.DifferenceModel;
@@ -11,14 +12,21 @@ public class ApplyToDataModelTest
         var cimDifferenceModel = ModelLoader.LoadCimDiffModel_v1();
         var cimDocument = ModelLoader.LoadCimModel_v1();
 
-        cimDifferenceModel.ApplyToDataModel(cimDocument);
+        cimDocument.ApplyDifferenceModel(cimDifferenceModel);
 
-        var newTerminal = cimDocument.GetObject<Terminal>(
+        var _NewALoadT1 = cimDocument.GetObject<Terminal>(
             cimDocument.OIDDescriptorFactory.Create("_NewALoadT1"));
 
-        Assert.NotNull(newTerminal);
+        var _ACN1 = cimDocument.GetObject<ConnectivityNode>(
+            cimDocument.OIDDescriptorFactory.Create("_ACN1"));
 
-        Assert.True(newTerminal.phases == PhaseCode.ABC);
+        Assert.NotNull(_NewALoadT1);
+        Assert.NotNull(_ACN1);
+
+        Assert.Null(_NewALoadT1.name);
+        Assert.Equal(1, _NewALoadT1.sequenceNumber);
+        Assert.Equal(PhaseCode.ABC, _NewALoadT1.phases);
+        Assert.Equal(_ACN1, _NewALoadT1.ConnectivityNode);
     }
 
     [Fact]
@@ -27,8 +35,16 @@ public class ApplyToDataModelTest
         var cimDifferenceModel = ModelLoader.LoadCimDiffModel_v1();
         var cimDocument = ModelLoader.LoadCimModel_v1();
 
-        cimDifferenceModel.ApplyToDataModel(cimDocument);
+        var _RemoveMeAsset = cimDocument.GetObject<Asset>(
+            cimDocument.OIDDescriptorFactory.Create("_RemoveMeAsset"));
 
-        Assert.True(true);
+        Assert.NotNull(_RemoveMeAsset);
+
+        cimDocument.ApplyDifferenceModel(cimDifferenceModel);
+
+        var _RemoveMeAssetAfter = cimDocument.GetObject<Asset>(
+            cimDocument.OIDDescriptorFactory.Create("_RemoveMeAsset"));
+
+        Assert.Null(_RemoveMeAssetAfter);
     }
 }

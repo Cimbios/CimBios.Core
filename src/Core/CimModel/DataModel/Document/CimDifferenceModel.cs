@@ -29,11 +29,6 @@ public class CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
         SubscribeToDataModelChanges(cimDataModel);
     }
 
-    public void ApplyToDataModel(ICimDataModel cimDataModel)
-    {
-        DiffsToModelHelper.ApplyTo(cimDataModel, _DifferencesCache.Values);
-    }
-
     public void CompareDataModels(ICimDataModel originDataModel, 
         ICimDataModel modifiedDataModel)
     {
