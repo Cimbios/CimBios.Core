@@ -33,7 +33,7 @@
       </rdf:Description>
       <!-- from null to val -->
       <rdf:Description rdf:ID="_ABreaker110">
-        <cim:Switch.retained>true</cim:Switch.retained>
+        <cim:Switch.normalOpen>true</cim:Switch.normalOpen>
       </rdf:Description>
       <!-- change enum -->
       <rdf:Description rdf:ID="_APTEndMVT1">
