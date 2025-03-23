@@ -47,4 +47,9 @@ public class ApplyToDataModelTest
 
         Assert.Null(_RemoveMeAssetAfter);
     }
+
+    // updating: change attribute
+    // change compound
+    // change assoc11
+    // change assoc 1M
 }

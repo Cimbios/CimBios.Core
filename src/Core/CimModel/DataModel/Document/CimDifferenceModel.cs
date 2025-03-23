@@ -6,7 +6,6 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
-using CimBios.Core.CimModel.DataModel.Utils;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 
@@ -35,7 +34,8 @@ public class CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
         
     }
 
-    public void FitToDataModelSchema(ICimDataModel cimDataModel)
+    public void FitToDataModelSchema(ICimDataModel cimDataModel, 
+        bool removeUnresolved = false)
     {
         throw new NotImplementedException();
     }
@@ -164,6 +164,8 @@ public class CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
 
     public void SubscribeToDataModelChanges(ICimDataModel cimDataModel)
     {
+        _DifferencesCache.Clear();
+
         _subscribedDataModel = cimDataModel;
 
         cimDataModel.ModelObjectPropertyChanged 
@@ -193,11 +195,9 @@ public class CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
             {
                 if (!modelObject.MetaClass.Equals(delDiff.MetaClass))
                 {
-                    throw new Exception("Meta class changed!! Impl!!");
+                    diff = new AdditionDifferenceObject(
+                        modelObject.OID, modelObject.MetaClass);
                 }
-
-                diff = new UpdatingDifferenceObject(
-                    modelObject.OID); 
 
                 _DifferencesCache.Remove(delDiff.OID, out var _);
             }

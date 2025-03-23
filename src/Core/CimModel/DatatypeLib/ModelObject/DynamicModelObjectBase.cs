@@ -326,7 +326,7 @@ public static class ModelObjectCopyPropsExtension
         var copy = fromModelObject.GetAttribute(metaProperty);
         if (metaProperty.PropertyDatatype is ICimMetaDatatype metaDatatype)
         {
-            copy = Convert.ChangeType(copy,
+            copy = copy == null ? null : Convert.ChangeType(copy,
                 metaDatatype.PrimitiveType, 
                 System.Globalization.CultureInfo.InvariantCulture);
         }
@@ -378,7 +378,6 @@ public static class ModelObjectCopyPropsExtension
         }
         else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
         {
-            toModelObject.RemoveAllAssocs1ToM(metaProperty);
             var refCol = fromModelObject.GetAssoc1ToM(metaProperty);
             foreach (var refCopy in refCol)
             {

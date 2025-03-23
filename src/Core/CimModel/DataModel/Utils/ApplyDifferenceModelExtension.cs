@@ -26,16 +26,9 @@ public static class ApplyDifferenceModelExtension
             {
                 model.RemoveObject(diff.OID);
             }
-            else if (diff is UpdatingDifferenceObject updatingDifferenceObject
-                && getObject != null)
+            else if (diff is UpdatingDifferenceObject updatingDifferenceObject)
             {
-                var intersectedModifiedProps = getObject.MetaClass
-                    .AllProperties.Intersect(diff.ModifiedProperties).ToList();
-
-                getObject.CopyPropertiesFrom(diff.ModifiedObject,
-                    intersectedModifiedProps, true);
-                    
-                ResolveReferencesInModelObject(model, getObject);
+                ApplyUpdating(model, updatingDifferenceObject);
             }
         });
     }
@@ -83,6 +76,7 @@ public static class ApplyDifferenceModelExtension
             {
                 targetObject = getObject;
             }
+            // Class changing.
             else
             {
                 model.RemoveObject(getObject);
@@ -102,5 +96,44 @@ public static class ApplyDifferenceModelExtension
             intersectedModifiedProps, true);
             
         ResolveReferencesInModelObject(model, targetObject);
+    }
+
+    private static void ApplyUpdating(ICimDataModel model, 
+        UpdatingDifferenceObject diff)
+    {
+        var getObject = model.GetObject(diff.OID);
+
+        if (getObject == null)
+        {
+            return;
+        }
+
+        var intersectedModifiedProps = getObject.MetaClass
+            .AllProperties.Intersect(diff.ModifiedProperties).ToList();
+
+        getObject.CopyPropertiesFrom(diff.ModifiedObject,
+            intersectedModifiedProps, true);
+
+        ResolveReferencesInModelObject(model, getObject);
+
+        // reverse assocs M removing
+        if (diff.OriginalObject != null)
+        {
+            foreach (var metaProperty in intersectedModifiedProps
+                .Where(p => p.PropertyKind == CimMetaPropertyKind.Assoc1ToM))
+            {
+                var assocsToRemove = diff.OriginalObject
+                    .GetAssoc1ToM(metaProperty);
+
+                var currentAssocs = getObject.GetAssoc1ToM(metaProperty);
+                var handledAssocs = assocsToRemove.Join(currentAssocs, a1 => a1.OID, 
+                    a2 => a2.OID, (a1, a2) => a2);
+                
+                foreach (var assoc in handledAssocs)
+                {
+                    getObject.RemoveAssoc1ToM(metaProperty, assoc);
+                }
+            }
+        }
     }
 }
