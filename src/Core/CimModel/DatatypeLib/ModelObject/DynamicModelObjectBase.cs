@@ -347,8 +347,16 @@ public static class ModelObjectCopyPropsExtension
             {
                 var newCompound = toModelObject
                     .InitializeCompoundAttribute(metaProperty);
-                
-                newCompound.CopyPropertiesFrom(fromCompound);
+
+                if (!newCompound.MetaClass.AllProperties.Any())
+                {
+                    newCompound.CopyPropertiesFrom(fromCompound,
+                        [.. fromCompound.MetaClass.AllProperties]);
+                }                
+                else
+                {
+                    newCompound.CopyPropertiesFrom(fromCompound);
+                }
 
                 copy = newCompound;
             }
