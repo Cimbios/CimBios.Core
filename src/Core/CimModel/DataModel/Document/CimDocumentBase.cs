@@ -25,6 +25,10 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     public virtual IOIDDescriptorFactory OIDDescriptorFactory { get; } 
         = new UuidDescriptorFactory();
 
+
+    protected IReadOnlyCollection<ModelObjectUnresolvedReference> 
+    _UnresolvedReferences { get; set; } = [];
+
     /// <summary>
     /// All cached objects collection (uuid to IModelObject).
     /// </summary>
@@ -59,7 +63,11 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         {
             _Objects = [];
             deserialized = serializer.Deserialize(streamReader);
+            
             PushDeserializedObjects(deserialized);
+
+            _UnresolvedReferences = serializer.UnresolvedReferences
+                .ToList().AsReadOnly();
         }
         catch (Exception ex)
         {
@@ -160,7 +168,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     /// Write CIM model to stream writer.
     /// </summary>
-    public void Save(StreamWriter streamWriter, 
+    public virtual void Save(StreamWriter streamWriter, 
         IRdfSerializerFactory serializerFactory)
     {
         Save(streamWriter, serializerFactory, Schema);
@@ -169,7 +177,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     /// Save CIM model to file.
     /// </summary>
-    public void Save(string path, IRdfSerializerFactory serializerFactory,
+    public virtual void Save(string path, IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
         Save(new StreamWriter(path),serializerFactory, cimSchema);        
@@ -178,7 +186,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     /// Save CIM model to file.
     /// </summary>
-    public void Save(string path, IRdfSerializerFactory serializerFactory)
+    public virtual void Save(string path, IRdfSerializerFactory serializerFactory)
     {
         Save(new StreamWriter(path),serializerFactory, Schema);        
     }   
@@ -207,7 +215,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         ModelObjectStorageChanged;
 
     /// <summary>
-    /// Event fires on any model object proprty changed.
+    /// Event fires on any model object property changed.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -222,6 +230,19 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
 
         ModelObjectPropertyChanged?.Invoke(this, modelObject, cimEv);
     }
+
+    /// <summary>
+    /// Event fires on any model object property changing request.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    protected void OnModelObjectPropertyChanging(object? sender, 
+        CanCancelPropertyChangingEventArgs e)
+    {
+        //if (e.)
+    }
+
 
     /// <summary>
     /// Event fires on object add or removed from document storage.

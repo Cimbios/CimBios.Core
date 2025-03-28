@@ -3,6 +3,7 @@ using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using System.Collections.Concurrent;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.CimDatatypeLib.Utils;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
@@ -214,7 +215,7 @@ public class WeakModelObject : DynamicModelObjectBase,
         if (InternalTypeLib != null)
         {
             compoundObject = InternalTypeLib.CreateCompoundInstance(
-                new ModelObjectFactory(),
+                new WeakModelObjectFactory(),
                 metaProperty.PropertyDatatype);
         }
         else
@@ -234,11 +235,41 @@ public class WeakModelObject : DynamicModelObjectBase,
             $"Weak object error while {metaProperty.ShortName} compound object creation!");
     }
 
+    public IModelObject InitializeCompoundAttribute(
+        string attributeName, ICimMetaClass compoundMetaClass, bool reset = true)
+    {
+        var metaProperty = TryGetMetaPropertyByName(attributeName);
+        if (metaProperty == null)
+        {
+            var newAutoProperty = new CimAutoProperty(
+                new Uri(CimAutoSchemaSerializer.BaseSchemaUri 
+                    + "#" + attributeName),
+                attributeName.Split('.').Last(),
+                string.Empty
+            );
+
+            newAutoProperty.SetPropertyDatatype(compoundMetaClass);
+            newAutoProperty.SetPropertyKind(CimMetaPropertyKind.Attribute);
+            metaProperty = newAutoProperty;
+        }
+
+        return InitializeCompoundAttribute(metaProperty, reset);
+    }
+
     public override IModelObject InitializeCompoundAttribute(
         string attributeName, bool reset = true)
     {
-        // TODO Weak initialization.
-        throw new NotImplementedException();
+        const string AutoCompoundClassName = "_AutoCompound";
+
+        var compoundMetaClass = new CimAutoClass(
+            new Uri(CimAutoSchemaSerializer.BaseSchemaUri 
+                + "#" + AutoCompoundClassName),
+            AutoCompoundClassName, string.Empty);
+
+        compoundMetaClass.SetIsCompound(true);
+
+        return InitializeCompoundAttribute(attributeName, 
+            compoundMetaClass, reset);
     }
 
     public override T? GetAssoc1To1<T>(ICimMetaProperty metaProperty) 
@@ -355,14 +386,20 @@ public class WeakModelObject : DynamicModelObjectBase,
         }
 
         if (_PropertiesData.TryGetValue(metaProperty, out var data)
-            && data is ICollection<IModelObject> dataCollection) 
+            && data is HashSet<IModelObject> dataCollection) 
         {
+            if (dataCollection.Contains(obj))
+            {
+                return;
+            }
+
             dataCollection.Add(obj);
         }
         else
         {
             _PropertiesData.TryAdd(metaProperty, 
-                new HashSet<IModelObject>() { obj });
+                new HashSet<IModelObject>(
+                    new ModelObjectOIDEqualityComparer()) { obj });
 
             _MetaClass.AddProperty(metaProperty);
         }

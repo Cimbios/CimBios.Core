@@ -13,7 +13,7 @@ public class WeakModelObjectTests
         var cimModel = ModelLoader.LoadCimModel_v1(true);
 
         var checkObject = cimModel.GetObject<WeakModelObject>(
-            cimModel.OIDDescriptorFactory.Create("_ACurrentTransformer1")
+            cimModel.OIDDescriptorFactory.Create("_Dummy")
         );
             
         Assert.NotNull(checkObject);
@@ -36,7 +36,7 @@ public class WeakModelObjectTests
         var cimModel = ModelLoader.LoadCimModel_v1(true);
 
         var checkObject = cimModel.GetObject<WeakModelObject>(
-            new TextDescriptor("_ACurrentTransformer1"));
+            new TextDescriptor("_Dummy"));
 
         var checkAttrName = checkObject?.GetAttribute("name");
             
@@ -49,9 +49,9 @@ public class WeakModelObjectTests
         var cimModel = ModelLoader.LoadCimModel_v1(true);
 
         var checkObject = cimModel.GetObject<WeakModelObject>(
-            new TextDescriptor("_ACurrentTransformer1"));
+            new TextDescriptor("_Dummy"));
             
-        var checkAttrName = checkObject?.GetAttribute("isEmbeded");
+        var checkAttrName = checkObject?.GetAttribute("prop");
             
         Assert.NotNull(checkAttrName);
     }  
@@ -81,5 +81,22 @@ public class WeakModelObjectTests
 
         Assert.IsType<InUseDate>(checkCompound);
         Assert.True(checkCompound.OID is AutoDescriptor);
+    }
+
+    [Fact]
+    public void InitializeWeakCompound()
+    {
+        var cimModel = ModelLoader.LoadCimModel_v1(true);
+
+        var checkObject = cimModel.GetObject<WeakModelObject>(
+            cimModel.OIDDescriptorFactory.Create("_Dummy")
+        );
+
+        Assert.NotNull(checkObject);
+
+        var autoCompound = checkObject
+            .InitializeCompoundAttribute("autoCompound");
+
+        autoCompound.SetAttribute("attr", 888);
     }
 }

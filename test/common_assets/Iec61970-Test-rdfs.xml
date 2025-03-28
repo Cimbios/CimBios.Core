@@ -2783,6 +2783,13 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#GroundDisconnector">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>GroundDisconnector</rdfs:label>
+		<rdfs:comment>A manually operated or motor operated mechanical switching device used for isolating a circuit or equipment from ground.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#Switch"/>
+	</rdf:Description>
 
 	<rdf:Description rdf:about="#Package_Base">
 		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>

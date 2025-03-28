@@ -143,6 +143,16 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
                 || this.BaseUri == o.BaseUri);
     }
 
+    // public bool IsDescendantOf(ICimMetaClass metaClass, bool orEquals = false)
+    // {
+    //     if (orEquals == true && this.Equals(metaClass))
+    //     {
+    //         return true;
+    //     }
+
+
+    // }
+
     public virtual bool AddExtension(ICimMetaClass metaClass)
     {
         if (_Ancestors.Contains(metaClass))

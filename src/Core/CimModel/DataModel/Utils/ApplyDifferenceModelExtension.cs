@@ -13,8 +13,7 @@ public static class ApplyDifferenceModelExtension
     public static void ApplyDifferenceModel(this ICimDataModel model, 
         ICimDifferenceModel differenceModel)
     {
-        var differences = differenceModel.Differences;
-        differences.AsParallel().ForAll(diff =>
+        foreach (var diff in differenceModel.Differences)
         {
             var getObject = model.GetObject(diff.OID);
             
@@ -30,29 +29,46 @@ public static class ApplyDifferenceModelExtension
             {
                 ApplyUpdating(model, updatingDifferenceObject);
             }
-        });
+        }
     }
 
     private static void ResolveReferencesInModelObject(ICimDataModel model,
         IModelObject modelObject)
     {
-        foreach (var metaProperty in modelObject.MetaClass
-            .AllProperties
-            .Where(p => p.PropertyKind == CimMetaPropertyKind.Assoc1To1))
+        foreach (var metaProperty in modelObject.MetaClass.AllProperties)
         {
-            var assocObj = modelObject.GetAssoc1To1<IModelObject>(metaProperty);
-            if (assocObj is not ModelObjectUnresolvedReference)
+            var refs = new List<ModelObjectUnresolvedReference>();
+            if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+            {
+                var assocObj = modelObject.GetAssoc1To1<IModelObject>(metaProperty)
+                    as ModelObjectUnresolvedReference;
+                if (assocObj != null)
+                {
+                    refs.Add(assocObj);
+                }
+            }
+            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+            {
+                var assocObjs = modelObject.GetAssoc1ToM<IModelObject>(metaProperty)
+                    .OfType<ModelObjectUnresolvedReference>();
+
+                refs.AddRange(assocObjs);
+            }
+            else
             {
                 continue;
             }
 
-            var referenceObject = model.GetObject(assocObj.OID);
-            if (referenceObject == null)
+            foreach (var refObj in refs)
             {
-                continue;
-            }
+                var referenceObject = model.GetObject(refObj.OID);
+                if (referenceObject == null)
+                {
+                    continue;
+                }
 
-            modelObject.SetAssoc1To1(metaProperty, referenceObject);
+                refObj.ResolveWith(referenceObject);
+            }
         }
     }
 

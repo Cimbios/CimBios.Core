@@ -108,7 +108,8 @@ public interface ICimMetaClass : ICimMetaResource
     public bool IsDatatype { get; }
 
     public bool HasProperty(ICimMetaProperty metaProperty, bool inherit = true);
-    //public bool IsDescendantOf(ICimMetaClass metaClass);
+    
+    // public bool IsDescendantOf(ICimMetaClass metaClass, bool orEquals = false);
 }
 
 /// <summary>

@@ -27,13 +27,17 @@ public abstract class RdfSerializerBase : ICanLog
     { get => _schema; set => _schema = value; }
 
     /// <summary>
-    /// CIM data types library for contrete typed instances creating.
+    /// CIM data types library for concrete typed instances creating.
     /// </summary>
     public ICimDatatypeLib TypeLib
     { get => _typeLib; set => _typeLib = value; }
 
     public Uri BaseUri { get; set; } = new Uri(
         "http://cim.bios/serialization/model/rdfxml");
+
+
+    public IReadOnlyCollection<ModelObjectUnresolvedReference> 
+    UnresolvedReferences => _waitingReferenceObjects.Values;
 
     /// <summary>
     /// Rdf reader abstract entity.
@@ -401,7 +405,7 @@ public abstract class RdfSerializerBase : ICanLog
     private void ResetCache()
     {        
         _objectsCache = [];
-        _waitingReferenceObjectOIDs = [];
+        _waitingReferenceObjects = [];
         _createdAutoClassesCache = [];
         _createdAutoPropertiesCache = [];
     }
@@ -815,15 +819,15 @@ public abstract class RdfSerializerBase : ICanLog
 
         _objectsCache.TryGetValue(referenceOid, out var referenceInstance);
 
-        if (referenceInstance == null)
+        if (referenceInstance == null && Settings.IncludeUnresolvedReferences)
         {
-            referenceInstance = new ModelObjectUnresolvedReference
-                (referenceOid, Schema.ResourceSuperClass);
-
-            _waitingReferenceObjectOIDs.Add(instance.OID);
+            SetAssociationAsUnresolved(instance, property, referenceOid);
         }
 
-        SetObjectDataAsAssociation(instance, property, referenceInstance);
+        if (referenceInstance != null)
+        {
+            SetObjectDataAsAssociation(instance, property, referenceInstance);
+        }
     }
 
    private void SetObjectDataAsAssociation(IModelObject instance,
@@ -846,6 +850,30 @@ public abstract class RdfSerializerBase : ICanLog
         {
             _Log.NewMessage($"Failed set association to instance {instance.OID}", 
                 LogMessageSeverity.Error, ex.Message);
+        }
+    }
+
+    private void SetAssociationAsUnresolved(IModelObject instance,
+        ICimMetaProperty property, IOIDDescriptor unresolvedOID)
+    {
+        if (_waitingReferenceObjects.TryGetValue(
+            (unresolvedOID, property), 
+            out var existingUnresolved))
+        {
+            existingUnresolved.WaitingObjects.Add(instance);
+            SetObjectDataAsAssociation(instance, property, existingUnresolved);
+        }
+        else
+        {
+            var unresolved = new ModelObjectUnresolvedReference(
+                unresolvedOID, property);
+
+            unresolved.WaitingObjects.Add(instance);
+            
+            _waitingReferenceObjects.TryAdd(
+                (unresolvedOID, property), unresolved);
+
+            SetObjectDataAsAssociation(instance, property, unresolved);
         }
     }
 
@@ -878,7 +906,9 @@ public abstract class RdfSerializerBase : ICanLog
     private ICimDatatypeLib _typeLib;
 
     private Dictionary<IOIDDescriptor, IModelObject> _objectsCache = [];
-    private HashSet<IOIDDescriptor> _waitingReferenceObjectOIDs = [];
+
+    private Dictionary<(IOIDDescriptor, ICimMetaProperty), 
+    ModelObjectUnresolvedReference> _waitingReferenceObjects = [];
 
     private Dictionary<string, CimAutoClass> _createdAutoClassesCache = [];
     private Dictionary<string, CimAutoProperty> _createdAutoPropertiesCache = [];

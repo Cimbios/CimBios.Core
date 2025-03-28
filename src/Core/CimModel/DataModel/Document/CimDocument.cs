@@ -1,6 +1,7 @@
 using System.Data;
 using CimBios.Core.CimModel.CimDataModel.Utils;
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
@@ -94,11 +95,6 @@ public class CimDocument(ICimSchema cimSchema, ICimDatatypeLib typeLib,
             throw new ArgumentException("OID cannot be empty!");
         }   
 
-        if (_Objects.ContainsKey(oid))
-        {
-            throw new ArgumentException($"Object with OID:{oid} already exists!");
-        }
-
         var instance = TypeLib.CreateInstance(
             new ModelObjectFactory(), oid, metaClass);
 
@@ -133,11 +129,28 @@ public class CimDocument(ICimSchema cimSchema, ICimDatatypeLib typeLib,
 
     private void AddObjectToStorage(IModelObject modelObject)
     {
+        if (_Objects.ContainsKey(modelObject.OID))
+        {
+            throw new ArgumentException(
+                $"Object with OID:{modelObject.OID} already exists!");
+        }
+
         _Objects.Add(modelObject.OID, modelObject);
         modelObject.PropertyChanged += OnModelObjectPropertyChanged;
 
         OnModelObjectStorageChanged(modelObject, 
             CimDataModelObjectStorageChangeType.Add);
+
+        ResolveReferencesWithObject(modelObject);
+    }
+
+    private void ResolveReferencesWithObject(IModelObject modelObject)
+    {
+        foreach (var refObj in _UnresolvedReferences
+            .Where(o => o.OID == modelObject.OID))
+        {
+            refObj.ResolveWith(modelObject);
+        }
     }
 
     protected override void PushDeserializedObjects(
@@ -155,6 +168,7 @@ public class CimDocument(ICimSchema cimSchema, ICimDatatypeLib typeLib,
             }
 
             obj.PropertyChanged += OnModelObjectPropertyChanged;
+            obj.PropertyChanging += OnModelObjectPropertyChanging;
         }
     }
 

@@ -2,6 +2,7 @@ using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using System.Collections.Concurrent;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.CimDatatypeLib.Utils;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
@@ -321,12 +322,12 @@ public class ModelObject : DynamicModelObjectBase,
 
     public override T[] GetAssoc1ToM<T>(ICimMetaProperty metaProperty)
     {
-        return GetAssoc1ToM(metaProperty).Cast<T>().ToArray();
+        return GetAssoc1ToM(metaProperty).OfType<T>().ToArray();
     }
 
     public override T[] GetAssoc1ToM<T>(string assocName)
     {
-        return GetAssoc1ToM(assocName).Cast<T>().ToArray();
+        return GetAssoc1ToM(assocName).OfType<T>().ToArray();
     }
 
     public override void AddAssoc1ToM(ICimMetaProperty metaProperty, 
@@ -342,7 +343,8 @@ public class ModelObject : DynamicModelObjectBase,
 
         if (_PropertiesData.ContainsKey(metaProperty) == false)
         {
-            _PropertiesData.TryAdd(metaProperty, new HashSet<IModelObject>());
+            _PropertiesData.TryAdd(metaProperty, new HashSet<IModelObject>(
+                new ModelObjectOIDEqualityComparer()));
         }
 
         if (_PropertiesData.TryGetValue(metaProperty, out var value)
