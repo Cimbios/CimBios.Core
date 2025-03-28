@@ -18,6 +18,14 @@
         <cim:EnergyConsumer.pfixed>0.5</cim:EnergyConsumer.pfixed>
         <cim:EnergyConsumer.qfixed>0.25</cim:EnergyConsumer.qfixed>
       </cim:ConformLoad>
+      <!-- add & resolve -->
+      <cim:BaseVoltage rdf:about="#_1000063d-0000-0000-c000-0000006d746c">
+        <cim:IdentifiedObject.name>110 кВ</cim:IdentifiedObject.name>
+        <cim:IdentifiedObject.description>Rated voltage 110 kV</cim:IdentifiedObject.description>
+        <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+        <cim:BaseVoltage.ConductingEquipment rdf:resource="_ABreaker110" />
+        <cim:BaseVoltage.ConductingEquipment rdf:resource="_ADisconnector110" />
+      </cim:BaseVoltage>
       <cim:Terminal rdf:ID="_NewALoadT1">
         <cim:Terminal.ConductingEquipment rdf:resource="_NewALoad" />
         <cim:Terminal.ConnectivityNode rdf:resource="_ACN1" />
@@ -79,6 +87,14 @@
             <cim:InUseDate.inUseDate>2000-01-01T00:00:00Z</cim:InUseDate.inUseDate>
           </cim:InUseDate>
         </cim:Asset.inUseDate>
+      </rdf:Description>
+      <!-- remove unresolved reference -->
+      <rdf:Description rdf:ID="_APTEndMV">
+        <cim:TransformerEnd.BaseVoltage rdf:resource="#_10000662-0000-0000-c000-0000006d746c"/>
+      </rdf:Description>
+      <!-- remove existing reference -->
+      <rdf:Description rdf:ID="_AGroundDisconnector110">
+        <cim:Equipment.EquipmentContainer rdf:resource="_AInputBay110"/>
       </rdf:Description>
     </dm:reverseDifferences>
   </dm:DifferenceModel>

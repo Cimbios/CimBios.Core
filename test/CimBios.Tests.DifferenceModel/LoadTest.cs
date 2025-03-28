@@ -1,4 +1,7 @@
+using CimBios.Core.CimModel.CimDataModel;
+using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDifferenceModel;
+using CimBios.Core.CimModel.DataModel.Utils;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.RdfIOLib;
 using CimBios.Tests.Infrastructure;
@@ -37,6 +40,60 @@ public class LoadTest
 
         Assert.True(lDiffsProfile.Intersect(rDiffsProfile).Count() 
             == lDiffsProfile.Count);
+    }
+
+    [Fact]
+    public void LoadApplySaveFullModel()
+    {
+        var cimDifferenceModel = ModelLoader.LoadCimDiffModel_v1()
+            as CimDifferenceModel;
+
+        Assert.NotNull(cimDifferenceModel);
+
+        Assert.True(CheckLoadedModel(cimDifferenceModel));
+
+        var cimDocument = ModelLoader.LoadCimModel_v1() as CimDocument;
+        
+        Assert.NotNull(cimDocument);
+
+        cimDocument.ApplyDifferenceModel(cimDifferenceModel);
+        cimDocument.Save("~$tmpdiff-LoadApplySave.xml", new RdfXmlSerializerFactory() 
+        { 
+            Settings = new RdfSerializerSettings()
+            { 
+                WritingIRIMode = RdfIRIModeKind.ID
+            } 
+        });
+
+        // Load saved model
+        // compare loaded model with target ASubstation-CIMXML-FullModel-v1-changed.xml
+        // empty diffs set check
+    }
+
+    [Fact]
+    public void LoadSubscribeSaveDifferenceModel()
+    {
+        var cimDocument = ModelLoader.LoadCimModel_v1() as CimDocument;
+        Assert.NotNull(cimDocument);
+
+        var diffSchema = ModelLoader.Load552HeadersCimRdfSchema();
+        var cimDifferenceModel = new CimDifferenceModel(
+            diffSchema,
+            new CimDatatypeLib(diffSchema),
+            cimDocument
+        );
+
+        var applyDM = ModelLoader.LoadCimDiffModel_v1();
+        cimDocument.ApplyDifferenceModel(applyDM);
+
+        cimDifferenceModel.Save("~$tmpdiff-LoadSubscribeSave.xml", 
+        new RdfXmlSerializerFactory() 
+        { 
+            Settings = new RdfSerializerSettings()
+            { 
+                WritingIRIMode = RdfIRIModeKind.ID
+            } 
+        });
     }
 
     private bool CheckLoadedModel(ICimDifferenceModel cimDifferenceModel)

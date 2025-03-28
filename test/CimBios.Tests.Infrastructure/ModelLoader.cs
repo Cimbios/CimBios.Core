@@ -27,7 +27,8 @@ public static class ModelLoader
                 Settings = new RdfSerializerSettings() 
                 {  
                     UnknownClassesAllowed = allowUnknown,
-                    UnknownPropertiesAllowed = allowUnknown
+                    UnknownPropertiesAllowed = allowUnknown,
+                    IncludeUnresolvedReferences = true
                 } 
             });
 
@@ -51,7 +52,7 @@ public static class ModelLoader
 
     public static ICimSchema LoadTestCimRdfSchema()
     {
-        return LoadCimSchema(CommonAssetsPath + "Iec61970Test-rdfs.xml",
+        return LoadCimSchema(CommonAssetsPath + "Iec61970-Test-rdfs.xml",
             new CimRdfSchemaXmlFactory());
     }
 

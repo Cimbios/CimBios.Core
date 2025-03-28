@@ -265,4 +265,9 @@
   <cim:Asset rdf:ID="_RemoveMeAsset">
     <cim:IdentifiedObject.name>Remove me!</cim:IdentifiedObject.name>
   </cim:Asset>
+  <!-- Dummy is undefined CIM class for testing -->
+  <cim:Dummy rdf:ID="_Dummy">
+    <cim:IdentifiedObject.name>I'm dummy</cim:IdentifiedObject.name>
+    <cim:Dummy.prop>888</cim:Dummy.prop>
+  </cim:Dummy>
 </rdf:RDF>

@@ -51,11 +51,11 @@ public class CanCancelAttributeChangingEventArgs
 public class CanCancelAssocChangingEventArgs 
     : CanCancelPropertyChangingEventArgs
 {
-    public IModelObject ModelObject { get; }
+    public IModelObject? ModelObject { get; }
     public bool IsRemove { get; }
 
     public CanCancelAssocChangingEventArgs(
-        ICimMetaProperty metaProperty, IModelObject modelObject, bool isRemove)
+        ICimMetaProperty metaProperty, IModelObject? modelObject, bool isRemove)
         : base(metaProperty)
     {
         if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1

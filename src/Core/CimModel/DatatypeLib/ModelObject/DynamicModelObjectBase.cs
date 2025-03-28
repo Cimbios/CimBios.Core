@@ -13,6 +13,16 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
 {
     protected DynamicModelObjectBase() : base() {}
 
+    public int CompareTo(object? obj)
+    {
+        if (obj is not IModelObjectCore modelObjectCore)
+        {
+            throw new InvalidCastException("Only IModelObjectCore can be comparable!");
+        }
+
+        return OID.CompareTo(modelObjectCore.OID);
+    }
+
     public dynamic? AsDynamic()
     {
         return this;
@@ -172,12 +182,11 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
                 arg = new CanCancelAttributeChangingEventArgs(metaProperty, 
                     newValue);
             }
-            else if ((metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
+            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
                 || metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
-                && newValue is IModelObject modelObject)
             {
                 arg = new CanCancelAssocChangingEventArgs(metaProperty, 
-                    modelObject, isRemove ?? false);
+                    newValue as IModelObject, isRemove ?? false);
             }
             else
             {
@@ -338,7 +347,9 @@ public static class ModelObjectCopyPropsExtension
             {
                 var newCompound = toModelObject
                     .InitializeCompoundAttribute(metaProperty);
+                
                 newCompound.CopyPropertiesFrom(fromCompound);
+
                 copy = newCompound;
             }
             else if (cimMetaClassType.IsEnum 
@@ -374,6 +385,17 @@ public static class ModelObjectCopyPropsExtension
                 || inverse != CimMetaPropertyKind.Assoc1To1))
         {
             var refCopy = fromModelObject.GetAssoc1To1<IModelObject>(metaProperty);
+            
+            if (refCopy is ModelObjectUnresolvedReference unresolved)
+            {
+                var newUnresolved = new ModelObjectUnresolvedReference(
+                    unresolved.OID, 
+                    metaProperty);
+
+                newUnresolved.WaitingObjects.Add(toModelObject);
+                refCopy = newUnresolved;
+            }
+
             toModelObject.SetAssoc1To1(metaProperty, refCopy);                
         }
         else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
@@ -381,7 +403,18 @@ public static class ModelObjectCopyPropsExtension
             var refCol = fromModelObject.GetAssoc1ToM(metaProperty);
             foreach (var refCopy in refCol)
             {
-                toModelObject.AddAssoc1ToM(metaProperty, refCopy);
+                var _refCopy = refCopy;
+                if (refCopy is ModelObjectUnresolvedReference unresolved)
+                {
+                    var newUnresolved = new ModelObjectUnresolvedReference(
+                        unresolved.OID, 
+                        metaProperty);
+
+                    newUnresolved.WaitingObjects.Add(toModelObject);
+                    _refCopy = newUnresolved;
+                }
+
+                toModelObject.AddAssoc1ToM(metaProperty, _refCopy);
             }               
         }
     }

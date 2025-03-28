@@ -35,7 +35,12 @@ public class TextDescriptor : OIDDescriptorBase
 
     public override int CompareTo(object? obj)
     {
-        return TextOID.CompareTo(obj);
+        if (obj is not TextDescriptor textDescriptor)
+        {
+            return base.CompareTo(obj);
+        }
+
+        return TextOID.CompareTo(textDescriptor.TextOID);
     }
 }
 

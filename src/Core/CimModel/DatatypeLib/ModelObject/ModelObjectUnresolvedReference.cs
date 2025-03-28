@@ -11,17 +11,93 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 /// </summary>
 public sealed class ModelObjectUnresolvedReference : IModelObject
 {
-    public Uri Predicate => MetaClass.BaseUri;
-
     public IOIDDescriptor OID { get; }
 
     public ICimMetaClass MetaClass { get; }
 
+    public ICimMetaProperty MetaProperty { get; }
+
+    public ISet<IModelObject> WaitingObjects { get; } 
+        = new HashSet<IModelObject>();
+
     public ModelObjectUnresolvedReference(IOIDDescriptor oid, 
-        ICimMetaClass metaClass)
+        ICimMetaProperty metaProperty)
     {
+        if (metaProperty.PropertyDatatype == null)
+        {
+            throw new InvalidDataException();
+        }
+
         OID = oid;
-        MetaClass = metaClass;
+        MetaClass = metaProperty.PropertyDatatype;
+
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1
+            && metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+        {
+            throw new InvalidDataException();
+        }
+
+        MetaProperty = metaProperty;
+    }
+
+    /// <summary>
+    /// Resolve unresolved references in waiting objects.
+    /// </summary>
+    /// <param name="modelObject">Full model object.</param>
+    /// <exception cref="InvalidDataException"></exception>
+    public void ResolveWith(IModelObject modelObject)
+    {
+        if (modelObject is ModelObjectUnresolvedReference)
+        {
+            throw new InvalidDataException();
+        }
+
+        foreach (var waiting in WaitingObjects)
+        {
+            // Before resolve ref we should reset current unresolved refs in object
+            CleanInverse(modelObject, waiting);
+
+            if (MetaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+            {
+                waiting.SetAssoc1To1(MetaProperty, null);
+                waiting.SetAssoc1To1(MetaProperty, modelObject);
+            }
+            else if (MetaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+            {
+                waiting.RemoveAssoc1ToM(MetaProperty, this);
+                waiting.AddAssoc1ToM(MetaProperty, modelObject);
+            }
+        }
+
+        WaitingObjects.Clear();
+    }
+
+    private void CleanInverse(IModelObject referenceObject, 
+        IModelObject waitingObject)
+    {
+        if (MetaProperty.InverseProperty == null)
+        {
+            throw new InvalidDataException();
+        }
+
+        if (MetaProperty.InverseProperty.PropertyKind 
+            == CimMetaPropertyKind.Assoc1To1)
+        {
+            var assocNow = referenceObject.GetAssoc1To1(
+                MetaProperty.InverseProperty);
+
+            if (assocNow?.OID.Equals(waitingObject.OID) ?? false)
+            {
+                referenceObject.SetAssoc1To1(
+                    MetaProperty.InverseProperty, null);
+            }
+        }
+        else if (MetaProperty.InverseProperty.PropertyKind 
+            == CimMetaPropertyKind.Assoc1ToM)
+        {
+            referenceObject.RemoveAssoc1ToM(
+                MetaProperty.InverseProperty, waitingObject);
+        }
     }
 
     public event CanCancelPropertyChangingEventHandler? PropertyChanging

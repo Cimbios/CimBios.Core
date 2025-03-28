@@ -1,6 +1,7 @@
 
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.CimDatatypeLib.Utils;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 
@@ -83,25 +84,30 @@ public abstract class DifferenceObjectBase : IDifferenceObject
             _ModifiedProperties.Add(metaProperty);
         }
 
-        if (fromValue is IModelObject oldCompound 
-            && toValue is IModelObject newCompound)
+        if (fromValue is WeakModelObject oldCompoundMock 
+            && toValue is WeakModelObject newCompoundMock)
         {
-            ChangeCompoundAttribute(metaProperty, oldCompound, newCompound);
+            ChangeCompoundAttribute(metaProperty, 
+                oldCompoundMock, newCompoundMock);
+
+            return;
         }
 
         if (_OriginalObject?.MetaClass.HasProperty(metaProperty) == false)
         {
-             _OriginalObject.SetAttribute(metaProperty, fromValue);
+            _OriginalObject.SetAttribute(metaProperty, fromValue);
         }
 
         _ModifiedObject.SetAttribute(metaProperty, toValue);
 
         var oldVal = _OriginalObject?.GetAttribute(metaProperty);
         var newVal = _ModifiedObject.GetAttribute(metaProperty);
-
+        
         if (oldVal == newVal)
         {
             _ModifiedProperties.Remove(metaProperty);
+            _OriginalObject?.SetAttribute<object>(metaProperty, null);
+            _ModifiedObject?.SetAttribute<object>(metaProperty, null);
         }
     }
 
@@ -123,9 +129,13 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         var oldVal = _OriginalObject?.GetAssoc1To1<IModelObject>(metaProperty);
         var newVal = _ModifiedObject.GetAssoc1To1<IModelObject>(metaProperty);
 
-        if (oldVal == newVal)
+        if ((oldVal != null && oldVal.OID.Equals(newVal?.OID))
+            || (newVal != null && newVal.OID.Equals(oldVal?.OID))
+            || (oldVal == null && newVal == null))
         {
             _ModifiedProperties.Remove(metaProperty);
+            _OriginalObject?.SetAssoc1To1(metaProperty, null);
+            _ModifiedObject?.SetAssoc1To1(metaProperty, null);
         }
     }
 
@@ -142,7 +152,8 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         var oldVal = _OriginalObject?.GetAssoc1ToM<IModelObject>(metaProperty) ?? [];
         var newVal = _ModifiedObject.GetAssoc1ToM<IModelObject>(metaProperty);
 
-        if (oldVal.Intersect(newVal).Contains(modelObject))
+        if (oldVal.Intersect(newVal, new ModelObjectOIDEqualityComparer())
+            .Contains(modelObject, new ModelObjectOIDEqualityComparer()))
         {
             _ModifiedProperties.Remove(metaProperty);
         }
@@ -161,7 +172,7 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         var oldVal = _OriginalObject?.GetAssoc1ToM<IModelObject>(metaProperty) ?? [];
         var newVal = _ModifiedObject.GetAssoc1ToM<IModelObject>(metaProperty);
 
-        if (!oldVal.Except(newVal).Any())
+        if (!oldVal.Except(newVal, new ModelObjectOIDEqualityComparer()).Any())
         {
             _ModifiedProperties.Remove(metaProperty);
         }
@@ -250,9 +261,44 @@ public abstract class DifferenceObjectBase : IDifferenceObject
     }
 
     private void ChangeCompoundAttribute(ICimMetaProperty metaProperty,
-        IModelObject oldCompound, IModelObject newCompound)
+        WeakModelObject oldCompoundMock, WeakModelObject newCompoundMock)
     {
-    
+        if (_OriginalObject?.MetaClass.HasProperty(metaProperty) == false)
+        {
+            _OriginalObject.InitializeCompoundAttribute(metaProperty.ShortName,
+                oldCompoundMock.MetaClass);
+        } 
+
+        if (_ModifiedObject.MetaClass.HasProperty(metaProperty) == false)
+        {
+            _ModifiedObject.InitializeCompoundAttribute(metaProperty.ShortName,
+                newCompoundMock.MetaClass);
+        } 
+
+        _OriginalObject?.CopyPropertiesFrom(oldCompoundMock);
+        _ModifiedObject.CopyPropertiesFrom(newCompoundMock);
+        
+        var originalCompound = _OriginalObject?.GetAttribute(metaProperty) 
+            as IModelObject;
+        var modifiedCompound = _ModifiedObject.GetAttribute(metaProperty) 
+            as IModelObject;
+
+        if (originalCompound == null && modifiedCompound == null)
+        {
+            return;
+        }
+
+        if (originalCompound != null && modifiedCompound != null)
+        {
+            var compoundDiff = ModelObjectsComparer.Compare(
+                originalCompound, modifiedCompound, true);
+
+            if (compoundDiff.ModifiedProperties.Count == 0)
+            {
+                _ModifiedProperties.Remove(metaProperty);
+                return;
+            }
+        }
     }
 
     protected HashSet<ICimMetaProperty> _ModifiedProperties = [];
@@ -321,8 +367,6 @@ public class UpdatingDifferenceObject
         }
 
         _OriginalObject = new WeakModelObject(originalObject);
-
-        // TO-DO invalidate
 
         _ModifiedProperties = 
             _OriginalObject.GetNotNullProperties()

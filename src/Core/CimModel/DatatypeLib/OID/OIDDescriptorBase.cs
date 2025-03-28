@@ -11,7 +11,16 @@ public abstract class OIDDescriptorBase : IOIDDescriptor
     public virtual bool IsEmpty => AbsoluteOID.Fragment.Length == 0 
         && AbsoluteOID.LocalPath.Length == 0;
 
-    public abstract int CompareTo(object? obj);
+    public virtual int CompareTo(object? obj)
+    {
+        if (obj is not IOIDDescriptor oidDescriptor)
+        {
+            throw new InvalidCastException("Only IOIDDescriptor can be comparable!");
+        }
+
+        return AbsoluteOID.AbsoluteUri
+            .CompareTo(oidDescriptor.AbsoluteOID.AbsoluteUri);
+    }
 
     public bool Equals(IOIDDescriptor? other)
     {

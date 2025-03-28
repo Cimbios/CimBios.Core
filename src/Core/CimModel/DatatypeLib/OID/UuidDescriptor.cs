@@ -53,7 +53,12 @@ public class UuidDescriptor : OIDDescriptorBase
 
     public override int CompareTo (object? obj)
     {
-        return Uuid.CompareTo(obj);
+        if (obj is not UuidDescriptor uuidDescriptor)
+        {
+            return base.CompareTo(obj);
+        }
+
+        return Uuid.CompareTo(uuidDescriptor.Uuid);
     }
 
     public override string ToString()

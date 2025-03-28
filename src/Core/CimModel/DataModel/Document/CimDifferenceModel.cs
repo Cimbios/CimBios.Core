@@ -11,15 +11,19 @@ using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDifferenceModel;
 
-public class CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
-    IOIDDescriptorFactory oidDescriptorFactory) 
-    : CimDocumentBase (cimSchema, typeLib, oidDescriptorFactory), 
-    ICimDifferenceModel
+public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 {
     public override Model? ModelDescription => _internalDifferenceModel;
 
     public IReadOnlyCollection<IDifferenceObject> Differences
          => _DifferencesCache.Values.ToHashSet();
+
+    public CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
+        IOIDDescriptorFactory oidDescriptorFactory)
+        : base(cimSchema, typeLib, oidDescriptorFactory)
+    {
+        ResetAll();
+    }
 
     public CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
         ICimDataModel cimDataModel)
@@ -31,10 +35,10 @@ public class CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
     public void CompareDataModels(ICimDataModel originDataModel, 
         ICimDataModel modifiedDataModel)
     {
-        
+        // TODO
     }
 
-    public void FitToDataModelSchema(ICimDataModel cimDataModel, 
+    public void FitToDataModel(ICimDataModel cimDataModel, 
         bool removeUnresolved = false)
     {
         throw new NotImplementedException();
@@ -62,10 +66,34 @@ public class CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
         _InternalDifferenceModel.forwardDifferences.Clear();
         _InternalDifferenceModel.reverseDifferences.Clear();
 
-        _DifferencesCache.Values.AsParallel().ForAll(
-            diff =>
-            {
-                if (diff is AdditionDifferenceObject
+        // _DifferencesCache.Values.AsParallel().ForAll(
+        //     diff =>
+        //     {
+        //         if (diff is AdditionDifferenceObject
+        //             || diff is UpdatingDifferenceObject)
+        //         {
+        //             _InternalDifferenceModel.forwardDifferences.Add(
+        //                 new WeakModelObject(diff.ModifiedObject));
+        //         }
+
+        //         if (diff is DeletionDifferenceObject)
+        //         {
+        //             _InternalDifferenceModel.reverseDifferences.Add(
+        //                 new WeakModelObject(diff.ModifiedObject));       
+        //         }
+
+        //         if (diff is UpdatingDifferenceObject
+        //             && diff.OriginalObject is not null)
+        //         {
+        //             _InternalDifferenceModel.reverseDifferences.Add(
+        //                 new WeakModelObject(diff.OriginalObject)); 
+        //         }
+        //     }
+        // );
+
+        foreach (var diff in _DifferencesCache.Values)
+        {
+                            if (diff is AdditionDifferenceObject
                     || diff is UpdatingDifferenceObject)
                 {
                     _InternalDifferenceModel.forwardDifferences.Add(
@@ -84,8 +112,7 @@ public class CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
                     _InternalDifferenceModel.reverseDifferences.Add(
                         new WeakModelObject(diff.OriginalObject)); 
                 }
-            }
-        );
+        }
     }
 
     private void ToDifferencesCache()
@@ -354,6 +381,27 @@ public class CimDifferenceModel (ICimSchema cimSchema, ICimDatatypeLib typeLib,
 
         base.Save(streamWriter, serializerFactory, cimSchema);
     }
+
+    public override void Save(string path, IRdfSerializerFactory serializerFactory,
+        ICimSchema cimSchema)
+    {
+        serializerFactory.Settings = RedefinedDiffSerializerSettings(
+            serializerFactory.Settings);
+
+        ToDifferenceModel();
+
+        base.Save(path, serializerFactory, cimSchema);
+    }
+
+    public override void Save(string path, IRdfSerializerFactory serializerFactory)
+    {
+        serializerFactory.Settings = RedefinedDiffSerializerSettings(
+            serializerFactory.Settings);
+
+        ToDifferenceModel();
+
+        base.Save(path, serializerFactory);    
+    } 
 
     public override void Parse(string content, 
         IRdfSerializerFactory serializerFactory, 

@@ -196,7 +196,41 @@ public class ModelObjectsComparerTest
         var diff = ModelObjectsComparer.Compare(a1, a2);   
 
         Assert.Single(diff.ModifiedProperties, u => u.ShortName == "inUseDate");   
+    }
 
-        Assert.True(true);  
+    [Fact]
+    public void CompareExistingCompoundAttribute()
+    {
+        var cimDocument1 = ModelLoader.CreateCimModelInstance();
+        var cimDocument2 = ModelLoader.CreateCimModelInstance();
+        
+        var a1 = cimDocument1.CreateObject<Asset>(
+            new TextDescriptor("a1"));
+        var a2 = cimDocument2.CreateObject<Asset>(
+            new TextDescriptor("a2"));
+
+        var compoundInstance1 = cimDocument1.TypeLib
+            .CreateCompoundInstance<InUseDate>();
+
+        var compoundInstance2 = cimDocument2.TypeLib
+            .CreateCompoundInstance<InUseDate>();
+
+        if (compoundInstance1 == null || compoundInstance2 == null)
+        {
+            Assert.Fail();
+        }
+
+        a1.SetAttribute("inUseDate", compoundInstance1);
+        compoundInstance1.inUseDate = DateTime.Parse("1995-01-01T00:00:00Z");
+
+        a2.SetAttribute("inUseDate", compoundInstance2);
+        compoundInstance2.inUseDate = DateTime.Parse("2000-01-01T00:00:00Z");
+
+        var diff = ModelObjectsComparer.Compare(a1, a2);   
+
+        Assert.Single(diff.ModifiedProperties, u => u.ShortName == "inUseDate");
+        Assert.Equal(DateTime.Parse("2000-01-01T00:00:00Z"),
+            diff.ModifiedObject.GetAttribute<IModelObject>("inUseDate")?
+            .GetAttribute<DateTime>("inUseDate"));
     }
 }
