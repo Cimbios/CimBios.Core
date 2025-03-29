@@ -90,18 +90,38 @@ public class EnumValueObject : object
     public static bool operator == (EnumValueObject? left, 
         EnumValueObject? right)
     {
-        return left?.MetaEnumValue == right?.MetaEnumValue;
+        if (left is null && right is null)
+        {
+            return true;
+        }
+
+        if (left is not null)
+        {
+            return left.Equals (right);
+        }
+
+        if (right is not null)
+        {
+            return right.Equals (left);
+        }
+
+        return false;
     }
 
     public static bool operator != (EnumValueObject? left, 
         EnumValueObject? right)
     {
-        return !(left?.MetaEnumValue == right?.MetaEnumValue);
+        return !(left == right);
     }
 
     public override bool Equals(object? obj)
     {
-        return base.Equals(obj);
+        if (obj is not EnumValueObject rightEV)
+        {
+            return base.Equals(obj);
+        }
+        
+        return MetaEnumValue.Equals(rightEV.MetaEnumValue);     
     }
 
     public override int GetHashCode()
