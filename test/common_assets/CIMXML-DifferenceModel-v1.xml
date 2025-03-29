@@ -25,6 +25,7 @@
         <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
         <cim:BaseVoltage.ConductingEquipment rdf:resource="_ABreaker110" />
         <cim:BaseVoltage.ConductingEquipment rdf:resource="_ADisconnector110" />
+        <cim:BaseVoltage.VoltageLevel rdf:resource="_AVoltageLevel110" />
       </cim:BaseVoltage>
       <cim:Terminal rdf:ID="_NewALoadT1">
         <cim:Terminal.ConductingEquipment rdf:resource="_NewALoad" />

@@ -1,5 +1,6 @@
 using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.CimDifferenceModel;
 using CimBios.Core.CimModel.DataModel.Utils;
 using CimBios.Core.CimModel.RdfSerializer;
@@ -43,6 +44,25 @@ public class LoadTest
     }
 
     [Fact]
+    public void CompareModels()
+    {
+        var originModel = ModelLoader.LoadCimModel_v1() as CimDocument;
+        Assert.NotNull(originModel);
+
+        var modifiedModel = ModelLoader.LoadCimModel_v1_changed() as CimDocument;
+        Assert.NotNull(modifiedModel);
+
+        var diffSchema = ModelLoader.Load552HeadersCimRdfSchema();
+        var cimDifferenceModel = new CimDifferenceModel(
+            diffSchema,
+            new CimDatatypeLib(diffSchema),
+            new TextDescriptorFactory()
+        );
+
+        cimDifferenceModel.CompareDataModels(originModel, modifiedModel);
+    }
+
+    [Fact]
     public void LoadApplySaveFullModel()
     {
         var cimDifferenceModel = ModelLoader.LoadCimDiffModel_v1()
@@ -65,9 +85,18 @@ public class LoadTest
             } 
         });
 
-        // Load saved model
-        // compare loaded model with target ASubstation-CIMXML-FullModel-v1-changed.xml
-        // empty diffs set check
+        var modifiedModel = ModelLoader.LoadCimModel_v1_changed() as CimDocument;
+        Assert.NotNull(modifiedModel);
+
+        var diffSchema = ModelLoader.Load552HeadersCimRdfSchema();
+        var cimDifferenceModelCheck = new CimDifferenceModel(
+            diffSchema,
+            new CimDatatypeLib(diffSchema),
+            new TextDescriptorFactory()
+        );
+
+        cimDifferenceModelCheck.CompareDataModels(modifiedModel, cimDocument);  
+        Assert.Empty(cimDifferenceModelCheck.Differences);
     }
 
     [Fact]
