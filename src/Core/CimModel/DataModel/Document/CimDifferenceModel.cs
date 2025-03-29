@@ -35,7 +35,38 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
     public void CompareDataModels(ICimDataModel originDataModel, 
         ICimDataModel modifiedDataModel)
     {
-        // TODO
+        ResetAll();
+
+        foreach (var forwardObject in modifiedDataModel.GetAllObjects())
+        {
+            var originObject = originDataModel.GetObject(forwardObject.OID);
+            if (originObject == null)
+            {
+                var addingObject = new AdditionDifferenceObject(forwardObject);
+                _DifferencesCache.TryAdd(addingObject.OID, addingObject);
+            }
+            else
+            {
+                var existingDiff = ModelObjectsComparer
+                    .Compare(originObject, forwardObject);
+
+                if (existingDiff.ModifiedProperties.Count != 0)
+                {
+                    _DifferencesCache.TryAdd(existingDiff.OID, existingDiff);
+                }
+            }
+        }
+
+        foreach (var reverseObject in originDataModel.GetAllObjects())
+        {
+            if (modifiedDataModel.GetObject(reverseObject.OID) != null)
+            {
+                continue;
+            }
+
+            var deletionObject = new DeletionDifferenceObject(reverseObject);
+            _DifferencesCache.TryAdd(deletionObject.OID, deletionObject);
+        }
     }
 
     public void FitToDataModel(ICimDataModel cimDataModel, 
@@ -57,6 +88,8 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             ("dm:DifferenceModel instance initialization failed!");
         }
 
+        _internalDifferenceModel.created = DateTime.Now.ToUniversalTime();
+
         _Objects.Add(_internalDifferenceModel.OID, _internalDifferenceModel);
         _DifferencesCache.Clear();
     }
@@ -66,34 +99,10 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         _InternalDifferenceModel.forwardDifferences.Clear();
         _InternalDifferenceModel.reverseDifferences.Clear();
 
-        // _DifferencesCache.Values.AsParallel().ForAll(
-        //     diff =>
-        //     {
-        //         if (diff is AdditionDifferenceObject
-        //             || diff is UpdatingDifferenceObject)
-        //         {
-        //             _InternalDifferenceModel.forwardDifferences.Add(
-        //                 new WeakModelObject(diff.ModifiedObject));
-        //         }
-
-        //         if (diff is DeletionDifferenceObject)
-        //         {
-        //             _InternalDifferenceModel.reverseDifferences.Add(
-        //                 new WeakModelObject(diff.ModifiedObject));       
-        //         }
-
-        //         if (diff is UpdatingDifferenceObject
-        //             && diff.OriginalObject is not null)
-        //         {
-        //             _InternalDifferenceModel.reverseDifferences.Add(
-        //                 new WeakModelObject(diff.OriginalObject)); 
-        //         }
-        //     }
-        // );
-
-        foreach (var diff in _DifferencesCache.Values)
-        {
-                            if (diff is AdditionDifferenceObject
+        _DifferencesCache.Values.AsParallel().ForAll(
+            diff =>
+            {
+                if (diff is AdditionDifferenceObject
                     || diff is UpdatingDifferenceObject)
                 {
                     _InternalDifferenceModel.forwardDifferences.Add(
@@ -112,7 +121,8 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
                     _InternalDifferenceModel.reverseDifferences.Add(
                         new WeakModelObject(diff.OriginalObject)); 
                 }
-        }
+            }
+        );
     }
 
     private void ToDifferencesCache()
@@ -365,7 +375,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         _internalDifferenceModel = null;
         _DifferencesCache.Clear();
 
-        serializerFactory.Settings = RedefinedDiffSerializerSettings(
+        serializerFactory.Settings = RedefineDiffSerializerSettings(
             serializerFactory.Settings);
 
         base.Load(streamReader, serializerFactory, cimSchema);
@@ -374,7 +384,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
     public override void Save(StreamWriter streamWriter,
         IRdfSerializerFactory serializerFactory, ICimSchema cimSchema)
     {
-        serializerFactory.Settings = RedefinedDiffSerializerSettings(
+        serializerFactory.Settings = RedefineDiffSerializerSettings(
             serializerFactory.Settings);
 
         ToDifferenceModel();
@@ -385,7 +395,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
     public override void Save(string path, IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
-        serializerFactory.Settings = RedefinedDiffSerializerSettings(
+        serializerFactory.Settings = RedefineDiffSerializerSettings(
             serializerFactory.Settings);
 
         ToDifferenceModel();
@@ -395,7 +405,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
     public override void Save(string path, IRdfSerializerFactory serializerFactory)
     {
-        serializerFactory.Settings = RedefinedDiffSerializerSettings(
+        serializerFactory.Settings = RedefineDiffSerializerSettings(
             serializerFactory.Settings);
 
         ToDifferenceModel();
@@ -407,13 +417,13 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         IRdfSerializerFactory serializerFactory, 
         ICimSchema cimSchema, Encoding? encoding = null)
     {
-        serializerFactory.Settings = RedefinedDiffSerializerSettings(
+        serializerFactory.Settings = RedefineDiffSerializerSettings(
             serializerFactory.Settings);
 
         base.Parse(content, serializerFactory, cimSchema, encoding);
     }
 
-    private static RdfSerializerSettings RedefinedDiffSerializerSettings(
+    private static RdfSerializerSettings RedefineDiffSerializerSettings(
         RdfSerializerSettings rdfSerializerSettings)
     {
         return new RdfSerializerSettings()

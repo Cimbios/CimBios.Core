@@ -43,8 +43,7 @@ public interface ICimDifferenceModel : ICanLog
     /// Fit differences data according with data model and schema.
     /// </summary>
     /// <param name="cimDataModel">CIM data model.</param>
-    public void FitToDataModel(ICimDataModel cimDataModel, 
-        bool removeUnresolved);
+    public void FitToDataModel(ICimDataModel cimDataModel, bool removeUnresolved);
 
     /// <summary>
     /// Clear current differences set and internal difference model.

@@ -35,6 +35,29 @@ public static class ModelLoader
         return cimDocument;
     }
 
+    public static ICimDataModel LoadCimModel_v1_changed(bool allowUnknown = false)
+    {
+        var schema = LoadTestCimRdfSchema();
+
+        var typeLib = new CimDatatypeLib(schema);
+
+        var cimDocument = new CimDocument(schema, typeLib, 
+            new TextDescriptorFactory());
+
+        cimDocument.Load(CommonAssetsPath + "ASubstation-CIMXML-FullModel-v1-changed.xml", 
+            new RdfXmlSerializerFactory() 
+            { 
+                Settings = new RdfSerializerSettings() 
+                {  
+                    UnknownClassesAllowed = allowUnknown,
+                    UnknownPropertiesAllowed = allowUnknown,
+                    IncludeUnresolvedReferences = true
+                } 
+            });
+
+        return cimDocument;
+    }
+
     public static ICimDifferenceModel LoadCimDiffModel_v1()
     {
         var schema = Load552HeadersCimRdfSchema();
