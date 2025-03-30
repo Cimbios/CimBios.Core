@@ -35,6 +35,10 @@ public class WeakModelObject : DynamicModelObjectBase,
                 metaClass.ShortName,
                 metaClass.Description
             );
+
+            autoClass.SetIsCompound(metaClass.IsCompound);
+            autoClass.SetIsAbstract(metaClass.IsAbstract);
+            autoClass.SetIsEnum(metaClass.IsEnum);
         }
 
         if (initializeProperties)

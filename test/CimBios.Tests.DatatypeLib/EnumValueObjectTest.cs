@@ -67,7 +67,7 @@ public class EnumValueObjectTest
         }
 
         Assert.True(phaseA == _phaseA);
-        Assert.NotEqual(phaseA, _phaseA);
+        Assert.Equal(phaseA, _phaseA);
         Assert.Equal(phaseA, refphaseA);
         Assert.False(phaseA == phaseB);
     }
