@@ -1,11 +1,7 @@
-
-using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
-using CimBios.Core.CimModel.DatatypeLib;
-using CimBios.Core.CimModel.RdfSerializer;
-using CimBios.Core.CimModel.Schema;
-using CimBios.Core.CimModel.Schema.RdfSchema;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Tests.Infrastructure;
 
 namespace CimBios.Tests.DatatypeLib;
 
@@ -14,13 +10,11 @@ public class WeakModelObjectTests
     [Fact]
     public void UnkClassCreating()
     {
-        var cimModel = CreateCimModelInstance(
-            "../../../assets/test_model.xml",
-            "../../../assets/Iec61970BaseCore-rdfs.xml"
-        );
+        var cimModel = ModelLoader.LoadCimModel_v1(true);
 
-        var checkObject = cimModel
-            .GetObject<WeakModelObject>("currenttransformer1");
+        var checkObject = cimModel.GetObject<WeakModelObject>(
+            cimModel.OIDDescriptorFactory.Create("_Dummy")
+        );
             
         Assert.NotNull(checkObject);
     }
@@ -28,13 +22,10 @@ public class WeakModelObjectTests
     [Fact]
     public void JustCheckKnownClassCreating()
     {
-        var cimModel = CreateCimModelInstance(
-            "../../../assets/test_model.xml",
-            "../../../assets/Iec61970BaseCore-rdfs.xml"
-        );
+        var cimModel = ModelLoader.LoadCimModel_v1();
 
         var checkObject = cimModel
-            .GetObject<Terminal>("terminal1");
+            .GetObject<Terminal>(new TextDescriptor("_APTEndLVT1"));
             
         Assert.NotNull(checkObject);
     }
@@ -42,13 +33,10 @@ public class WeakModelObjectTests
     [Fact]
     public void UnkClassKnownProperty()
     {
-        var cimModel = CreateCimModelInstance(
-            "../../../assets/test_model.xml",
-            "../../../assets/Iec61970BaseCore-rdfs.xml"
-        );
+        var cimModel = ModelLoader.LoadCimModel_v1(true);
 
-        var checkObject = cimModel
-            .GetObject<WeakModelObject>("currenttransformer1");
+        var checkObject = cimModel.GetObject<WeakModelObject>(
+            new TextDescriptor("_Dummy"));
 
         var checkAttrName = checkObject?.GetAttribute("name");
             
@@ -58,16 +46,12 @@ public class WeakModelObjectTests
     [Fact]
     public void UnkClassUnknownProperty()
     {
-        var cimModel = CreateCimModelInstance(
-            "../../../assets/test_model.xml",
-            "../../../assets/Iec61970BaseCore-rdfs.xml"
-        );
+        var cimModel = ModelLoader.LoadCimModel_v1(true);
 
-        var checkObject = cimModel
-            .GetObject<WeakModelObject>("currenttransformer1");
+        var checkObject = cimModel.GetObject<WeakModelObject>(
+            new TextDescriptor("_Dummy"));
             
-        var checkAttrName = checkObject?
-            .GetAttribute("ratedCurrent");
+        var checkAttrName = checkObject?.GetAttribute("prop");
             
         Assert.NotNull(checkAttrName);
     }  
@@ -75,15 +59,12 @@ public class WeakModelObjectTests
     [Fact]
     public void ClassUnkRefAsAssoc()
     {
-        var cimModel = CreateCimModelInstance(
-            "../../../assets/test_model.xml",
-            "../../../assets/Iec61970BaseCore-rdfs.xml"
-        );
+        var cimModel = ModelLoader.LoadCimModel_v1(true);
 
-        var checkObject = cimModel
-            .GetObject<Terminal>("terminal1");
+        var checkObject = cimModel.GetObject<Substation>(
+            new TextDescriptor("_SubstationA"));
             
-        var checkEnumAssocType = checkObject?.GetAssoc1ToM("Type");
+        var checkEnumAssocType = checkObject?.GetAssoc1ToM("UndefinedAssoc");
             
         Assert.IsType<ModelObjectUnresolvedReference>(checkEnumAssocType?.Single());
     }  
@@ -91,48 +72,31 @@ public class WeakModelObjectTests
     [Fact]
     public void UnkCompound()
     {
-        var cimModel = CreateCimModelInstance(
-            "../../../assets/test_model.xml",
-            "../../../assets/Iec61970BaseCore-rdfs.xml"
+        var cimModel = ModelLoader.LoadCimModel_v1(true);
+
+        var checkObject = cimModel.GetObject<Asset>(
+            new TextDescriptor("_ASubstationAsset"));
+            
+        var checkCompound = checkObject?.GetAttribute<IModelObject>("inUseDate");
+
+        Assert.IsType<InUseDate>(checkCompound);
+        Assert.True(checkCompound.OID is AutoDescriptor);
+    }
+
+    [Fact]
+    public void InitializeWeakCompound()
+    {
+        var cimModel = ModelLoader.LoadCimModel_v1(true);
+
+        var checkObject = cimModel.GetObject<WeakModelObject>(
+            cimModel.OIDDescriptorFactory.Create("_Dummy")
         );
 
-        var checkObject = cimModel
-            .GetObject<WeakModelObject>("currenttransformer1");
-            
-        var checkCompound = checkObject?
-            .GetAttribute<IModelObject>("CompoundProperty");
+        Assert.NotNull(checkObject);
 
-        Assert.IsType<WeakModelObject>(checkCompound);
-        Assert.True(checkCompound.IsAuto);
-    }
+        var autoCompound = checkObject
+            .InitializeCompoundAttribute("autoCompound");
 
-    private static ICimDataModel CreateCimModelInstance(string modelPath, 
-        string schemaPath)
-    {
-        var schema = LoadCimSchema(schemaPath);
-        var rdfSerializer = new RdfXmlSerializer(schema, new CimDatatypeLib())
-        {
-            Settings = new RdfSerializerSettings()
-            {
-                UnknownClassesAllowed = true,
-                UnknownPropertiesAllowed = true
-            }
-        };
-
-        var cimDocument = new CimDocument(rdfSerializer);
-        cimDocument.Load(modelPath);
-
-        return cimDocument;
-    }
-
-    private static ICimSchema LoadCimSchema(string path, 
-        ICimSchemaFactory? factory = null)
-    {
-        factory ??= new CimRdfSchemaXmlFactory();
-        var cimSchema = factory.CreateSchema();
-
-        cimSchema.Load(new StreamReader(path));
-
-        return cimSchema;
+        autoCompound.SetAttribute("attr", 888);
     }
 }

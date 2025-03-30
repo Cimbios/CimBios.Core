@@ -143,6 +143,16 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
                 || this.BaseUri == o.BaseUri);
     }
 
+    // public bool IsDescendantOf(ICimMetaClass metaClass, bool orEquals = false)
+    // {
+    //     if (orEquals == true && this.Equals(metaClass))
+    //     {
+    //         return true;
+    //     }
+
+
+    // }
+
     public virtual bool AddExtension(ICimMetaClass metaClass)
     {
         if (_Ancestors.Contains(metaClass))
@@ -172,7 +182,7 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
     public virtual void AddProperty(ICimMetaProperty metaProperty)
     {
         if (this.Equals(metaProperty.OwnerClass)
-            && HasProperty(metaProperty, false) == false)
+            && HasProperty(metaProperty, true) == false)
         {
             _Properties.Add(metaProperty);
         }

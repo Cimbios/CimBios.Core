@@ -1,4 +1,7 @@
+using CimBios.Core.CimModel.CimDataModel.Utils;
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Utils.ClassTraits;
 
@@ -12,12 +15,22 @@ public interface ICimDataModel : ICanLog
     /// <summary>
     /// Model description.
     /// </summary>
-    public FullModel? Description { get; }
+    public Model? ModelDescription { get; }
 
     /// <summary>
     /// Applied schema to this context serializer.
     /// </summary>
-    public ICimSchema? Schema { get; }
+    public ICimSchema Schema { get; }
+
+    /// <summary>
+    /// Current context type lib of CIM model objects.
+    /// </summary>
+    public ICimDatatypeLib TypeLib { get; }
+
+    /// <summary>
+    /// Descriptor factory for producing objects.
+    /// </summary>
+    public IOIDDescriptorFactory OIDDescriptorFactory { get; } 
 
     /// <summary>
     /// Get all model objects.
@@ -40,24 +53,24 @@ public interface ICimDataModel : ICanLog
     /// <summary>
     /// Get generalized model object by uuid.
     /// </summary>
-    /// <param name="uuid"></param>
+    /// <param name="oid"></param>
     /// <returns>IModelObject instance or null.</returns>
-    public IModelObject? GetObject(string uuid);
+    public IModelObject? GetObject(IOIDDescriptor oid);
 
     /// <summary>
     /// Get typed model object by uuid.
     /// </summary>
     /// <typeparam name="T">IModelObject generalized class.</typeparam>
-    /// <param name="uuid">Model object string identifier.</param>
+    /// <param name="oid">Model object string identifier.</param>
     /// <returns>T casted IModelObject instance or null.</returns>
-    public T? GetObject<T>(string uuid) where T : IModelObject;
+    public T? GetObject<T>(IOIDDescriptor oid) where T : IModelObject;
 
     /// <summary>
     /// Remove object from model context.
     /// </summary>
-    /// <param name="uuid">Model object string identifier.</param>
+    /// <param name="oid">Model object string identifier.</param>
     /// <returns>True if object found and removed.</returns>
-    public bool RemoveObject(string uuid);
+    public bool RemoveObject(IOIDDescriptor oid);
 
     /// <summary>
     /// Remove object from model context.
@@ -71,4 +84,36 @@ public interface ICimDataModel : ICanLog
     /// </summary>
     /// <param name="modelObjects">Enumerable of model objects.</param>
     public void RemoveObjects(IEnumerable<IModelObject> modelObjects);
+
+    /// <summary>
+    /// Create IModelObject instance of meta class.
+    /// </summary>
+    /// <param name="oid">Specific object identifier.</param>
+    /// <param name="metaClass">Meta class.</param>
+    /// <returns>Create IModelObject instance.</returns>
+    public IModelObject CreateObject(IOIDDescriptor oid, ICimMetaClass metaClass);
+
+    /// <summary>
+    /// Create IModelObject instance of datatype lib meta class.
+    /// </summary>
+    /// <typeparam name="T">Datatype lib type.</typeparam>
+    /// <param name="oid">Specific object identifier.</param>
+    /// <returns>Create T : IModelObject instance.</returns>
+    public T CreateObject<T>(IOIDDescriptor oid) where T : class, IModelObject;
+
+    //public IModelObject CreateObject(ICimMetaClass metaClass);
+    ///public T CreateObject<T>(string oid) where T: IModelObject;
+    //public T CreateObject<T>() where T: IModelObject;
+
+    /// <summary>
+    /// Event fires on data model object property changed.
+    /// </summary>
+    public event CimDataModelObjectPropertyChangedEventHandler? 
+        ModelObjectPropertyChanged;
+
+    /// <summary>
+    /// Event fires on data model object storage changed - add/remove objects.
+    /// </summary>
+    public event CimDataModelObjectStorageChangedEventHandler? 
+        ModelObjectStorageChanged;
 }

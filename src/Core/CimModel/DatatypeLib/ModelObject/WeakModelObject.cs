@@ -1,27 +1,68 @@
-using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
+using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
+using System.Collections.Concurrent;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.CimDatatypeLib.Utils;
 
-namespace CimBios.Core.CimModel.DatatypeLib;
+namespace CimBios.Core.CimModel.CimDatatypeLib;
 
+/// <summary>
+/// Weak linked model object. Provides meta schema validation free IO functions.
+/// Use only to represent data in unknown schema format. Meta class always auto.
+/// </summary>
 public class WeakModelObject : DynamicModelObjectBase, 
     IModelObject, IStatementsContainer
 {
-    public override string OID => _Oid;
-
+    public override IOIDDescriptor OID => _Oid;
     public override ICimMetaClass MetaClass => _MetaClass;
 
-    public override bool IsAuto => _IsAuto;
 
     public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     Statements => _Statements.AsReadOnly();
 
-    internal WeakModelObject(string oid, CimAutoClass metaClass, bool isAuto)
+    /// <summary>
+    /// Default weak linked object constructor.
+    /// </summary>
+    public WeakModelObject(IOIDDescriptor oid, 
+        ICimMetaClass metaClass, bool initializeProperties = false)
         : base()
     {
+        if (metaClass is not CimAutoClass autoClass)
+        {
+            autoClass = new CimAutoClass(
+                metaClass.BaseUri,
+                metaClass.ShortName,
+                metaClass.Description
+            );
+
+            autoClass.SetIsCompound(metaClass.IsCompound);
+            autoClass.SetIsAbstract(metaClass.IsAbstract);
+            autoClass.SetIsEnum(metaClass.IsEnum);
+        }
+
+        if (initializeProperties)
+        {
+            foreach (var metaProperty in metaClass.AllProperties)
+            {
+                autoClass.AddProperty(metaProperty);
+            }
+        }
+
         _Oid = oid;
-        _MetaClass = metaClass;
-        _IsAuto = isAuto;
+        _MetaClass = autoClass;
+
+        InitStatementsCollections();
+    }
+
+    /// <summary>
+    /// Copy constuctor.
+    /// </summary>
+    /// <param name="modelObject">Model object for copy.</param>
+    public WeakModelObject (IReadOnlyModelObject modelObject)
+        : this (modelObject.OID, modelObject.MetaClass)
+    {
+        this.CopyPropertiesFrom(modelObject, true);
     }
 
     public override bool HasProperty(string propertyName)
@@ -39,7 +80,7 @@ public class WeakModelObject : DynamicModelObjectBase,
     {
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
             && _PropertiesData.TryGetValue(metaProperty, out var value))
-        {
+        {            
             return value;
         }
 
@@ -60,9 +101,14 @@ public class WeakModelObject : DynamicModelObjectBase,
     public override T? GetAttribute<T>(ICimMetaProperty metaProperty) 
         where T : default
     {
-        if (GetAttribute(metaProperty) is T typedValue)
+        var data = GetAttribute(metaProperty);
+        if (data is T typedValue)
         {
             return typedValue;
+        }
+        else if (data is EnumValueObject enumValueObject)
+        {
+            return (T)enumValueObject.AsEnum();
         }
 
         return default;
@@ -83,6 +129,12 @@ public class WeakModelObject : DynamicModelObjectBase,
     public override void SetAttribute<T>(ICimMetaProperty metaProperty, 
         T? value) where T : default
     {
+        if (value is Enum enumValue)
+        {
+            this.SetAttributeAsEnum(metaProperty, enumValue);
+            return;
+        }
+
         if (metaProperty.PropertyKind != CimMetaPropertyKind.Attribute)
         {
             throw new ArgumentException(
@@ -92,24 +144,27 @@ public class WeakModelObject : DynamicModelObjectBase,
         if (value is not string 
             && value != null
             && !value.GetType().IsPrimitive
-            && !typeof(T).IsAssignableFrom(typeof(IModelObject)))
+            && !typeof(T).IsAssignableFrom(typeof(IModelObject))
+            && value is not EnumValueObject)
         {
             throw new ArgumentException(
                 $"Attribute {metaProperty.ShortName} can not be assigning by value of type {typeof(T).Name}!");
         }
 
-        if (CanChangeProperty(metaProperty) == false)
+        if (CanChangeProperty(metaProperty, value) == false)
         {
             return;
         }
 
+        object? old = null;
         if (_PropertiesData.ContainsKey(metaProperty))
         {
+            old = _PropertiesData[metaProperty];
             _PropertiesData[metaProperty] = value;
         }
         else
         {
-            _PropertiesData.Add(metaProperty, value);
+            _PropertiesData.TryAdd(metaProperty, value);
             _MetaClass.AddProperty(metaProperty);
         }
 
@@ -118,8 +173,10 @@ public class WeakModelObject : DynamicModelObjectBase,
             _MetaClass.AddProperty(metaProperty);
         }
 
-        OnPropertyChanged(new 
-            CimMetaPropertyChangedEventArgs(metaProperty));
+        CleanUpNullProperty(metaProperty);
+
+        OnPropertyChanged(new CimMetaAttributeChangedEventArgs(
+            metaProperty, old, value));
     }
 
     public override void SetAttribute<T>(string attributeName, 
@@ -141,14 +198,92 @@ public class WeakModelObject : DynamicModelObjectBase,
         SetAttribute<T>(metaProperty, value);
     }
 
+    public override IModelObject InitializeCompoundAttribute(
+        ICimMetaProperty metaProperty, bool reset = true)
+    {
+        if (metaProperty.PropertyDatatype == null
+            || metaProperty.PropertyDatatype.IsCompound == false)
+        {
+            throw new NotSupportedException(
+                $"Undefined compound property {metaProperty.ShortName} class type!");
+        }
+
+        if (GetAttribute(metaProperty) is IModelObject currentValue 
+            && reset == false)
+        {
+            return currentValue;
+        }
+
+        IModelObject? compoundObject = null;
+
+        if (InternalTypeLib != null)
+        {
+            compoundObject = InternalTypeLib.CreateCompoundInstance(
+                new WeakModelObjectFactory(),
+                metaProperty.PropertyDatatype);
+        }
+        else
+        {
+            compoundObject = new WeakModelObject(new AutoDescriptor(), 
+                metaProperty.PropertyDatatype);
+        }
+
+        if (compoundObject != null)
+        {
+            SetAttribute(metaProperty, compoundObject);
+            SubscribesToCompoundChanges(metaProperty, compoundObject);
+            return compoundObject;
+        }
+
+        throw new NotSupportedException(
+            $"Weak object error while {metaProperty.ShortName} compound object creation!");
+    }
+
+    public IModelObject InitializeCompoundAttribute(
+        string attributeName, ICimMetaClass compoundMetaClass, bool reset = true)
+    {
+        var metaProperty = TryGetMetaPropertyByName(attributeName);
+        if (metaProperty == null)
+        {
+            var newAutoProperty = new CimAutoProperty(
+                new Uri(CimAutoSchemaSerializer.BaseSchemaUri 
+                    + "#" + attributeName),
+                attributeName.Split('.').Last(),
+                string.Empty
+            );
+
+            newAutoProperty.SetPropertyDatatype(compoundMetaClass);
+            newAutoProperty.SetPropertyKind(CimMetaPropertyKind.Attribute);
+            metaProperty = newAutoProperty;
+        }
+
+        return InitializeCompoundAttribute(metaProperty, reset);
+    }
+
+    public override IModelObject InitializeCompoundAttribute(
+        string attributeName, bool reset = true)
+    {
+        const string AutoCompoundClassName = "_AutoCompound";
+
+        var compoundMetaClass = new CimAutoClass(
+            new Uri(CimAutoSchemaSerializer.BaseSchemaUri 
+                + "#" + AutoCompoundClassName),
+            AutoCompoundClassName, string.Empty);
+
+        compoundMetaClass.SetIsCompound(true);
+
+        return InitializeCompoundAttribute(attributeName, 
+            compoundMetaClass, reset);
+    }
+
     public override T? GetAssoc1To1<T>(ICimMetaProperty metaProperty) 
         where T : default
     {
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
             && _PropertiesData.TryGetValue(metaProperty, out var value)
-            && value is T tObj)
+            && value is ICollection<T> tObjCol)
         {
-            return tObj;
+            return tObjCol.FirstOrDefault();
         }
 
         return default;
@@ -184,6 +319,8 @@ public class WeakModelObject : DynamicModelObjectBase,
         {
             AddAssoc1ToM(metaProperty, obj);
         }
+
+        CleanUpNullProperty(metaProperty);
     }
 
     public override void SetAssoc1To1(string assocName, IModelObject? obj)
@@ -240,26 +377,33 @@ public class WeakModelObject : DynamicModelObjectBase,
     public override void AddAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj)
     {
-        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1
+            && metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
         {
             throw new ArgumentException(
                 $"Property {metaProperty.ShortName} is not association!");
         }
 
-        if (CanChangeProperty(metaProperty) == false)
+        if (CanChangeProperty(metaProperty, obj) == false)
         {
             return;
         }
 
         if (_PropertiesData.TryGetValue(metaProperty, out var data)
-            && data is ICollection<IModelObject> dataCollection) 
+            && data is HashSet<IModelObject> dataCollection) 
         {
+            if (dataCollection.Contains(obj))
+            {
+                return;
+            }
+
             dataCollection.Add(obj);
         }
         else
         {
-            _PropertiesData.Add(metaProperty, 
-                new HashSet<IModelObject>() { obj });
+            _PropertiesData.TryAdd(metaProperty, 
+                new HashSet<IModelObject>(
+                    new ModelObjectOIDEqualityComparer()) { obj });
 
             _MetaClass.AddProperty(metaProperty);
         }
@@ -269,8 +413,10 @@ public class WeakModelObject : DynamicModelObjectBase,
             _MetaClass.AddProperty(metaProperty);
         }
 
-        OnPropertyChanged(new 
-            CimMetaPropertyChangedEventArgs(metaProperty));
+        CleanUpNullProperty(metaProperty);
+
+        OnPropertyChanged(new CimMetaAssocChangedEventArgs(
+            metaProperty, null, obj));
     }
 
     public override void AddAssoc1ToM(string assocName, IModelObject obj)
@@ -294,13 +440,14 @@ public class WeakModelObject : DynamicModelObjectBase,
     public override void RemoveAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj)
     {
-        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1
+            && metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
         {
             throw new ArgumentException(
                 $"Property {metaProperty.ShortName} is not association!");
         }
 
-        if (CanChangeProperty(metaProperty) == false)
+        if (CanChangeProperty(metaProperty, obj, true) == false)
         {
             return;
         }
@@ -311,8 +458,8 @@ public class WeakModelObject : DynamicModelObjectBase,
         {
             dataCollection.Remove(obj);
         
-            OnPropertyChanged(new 
-                CimMetaPropertyChangedEventArgs(metaProperty));
+            OnPropertyChanged(new CimMetaAssocChangedEventArgs(
+                metaProperty, obj, null));
         }
     }
 
@@ -329,24 +476,20 @@ public class WeakModelObject : DynamicModelObjectBase,
 
     public override void RemoveAllAssocs1ToM(ICimMetaProperty metaProperty)
     {
-        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1
+            && metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
         {
             throw new ArgumentException(
                 $"Property {metaProperty.ShortName} is not association!");
         }
 
-        if (CanChangeProperty(metaProperty) == false)
-        {
-            return;
-        }
-
         if (_PropertiesData.TryGetValue(metaProperty, out var data)
             && data is ICollection<IModelObject> dataCollection) 
         {
-            dataCollection.Clear();
-        
-            OnPropertyChanged(new 
-                CimMetaPropertyChangedEventArgs(metaProperty));
+            foreach (var assocObject in dataCollection)
+            {
+                RemoveAssoc1ToM(metaProperty, assocObject);
+            }
         }
     }
 
@@ -373,7 +516,7 @@ public class WeakModelObject : DynamicModelObjectBase,
         if (_Statements.TryGetValue(statementProperty, 
             out var statements) == false)
         {
-            _Statements.Add(statementProperty, 
+            _Statements.TryAdd(statementProperty, 
                 new HashSet<IModelObject>() { statement });
         }
         else if (statements.Contains(statement) == false)
@@ -392,13 +535,45 @@ public class WeakModelObject : DynamicModelObjectBase,
         }
     }
 
-    private string _Oid;
+    private void InitStatementsCollections()
+    {
+        foreach (var statementProperty in MetaClass.AllProperties
+            .Where(p => p.PropertyKind == CimMetaPropertyKind.Statements))
+        {
+            _Statements.TryAdd(statementProperty, 
+                new HashSet<IModelObject>());
+        }
+    }
+
+    private void CleanUpNullProperty (ICimMetaProperty metaProperty)
+    {
+        if (_PropertiesData.TryGetValue(metaProperty, out var data) == false)
+        {
+            return;
+        }
+
+        if ((metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
+            || metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+            && data == null)
+        {
+            _PropertiesData.Remove(metaProperty, out var _);
+        }
+        else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
+            && data is ICollection<IModelObject> dataCol
+            && dataCol.Count == 0)
+        {
+            _PropertiesData.Remove(metaProperty, out var _);
+        }
+    }
+
+    private IOIDDescriptor _Oid;
     private CimAutoClass _MetaClass;
-    private bool _IsAuto;
 
-    private readonly Dictionary<ICimMetaProperty, object?> _PropertiesData = [];
+    protected readonly ConcurrentDictionary<ICimMetaProperty, object?> 
+    _PropertiesData = [];
 
-    private readonly Dictionary<ICimMetaProperty, ICollection<IModelObject>> 
+    protected readonly 
+    ConcurrentDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     _Statements = [];
 }
 
@@ -406,14 +581,14 @@ public class WeakModelObjectFactory : IModelObjectFactory
 {
     public System.Type ProduceType => typeof(WeakModelObject);
 
-    public IModelObject Create(string uuid, 
-        ICimMetaClass metaClass, bool isAuto)
+    public IModelObject Create(IOIDDescriptor oid, 
+        ICimMetaClass metaClass)
     {
-        if (metaClass is not CimAutoClass autoMetaClass)
+        if (metaClass is not CimMetaClassBase metaClassBase)
         {
             throw new InvalidCastException();
         }
 
-        return new WeakModelObject(uuid, autoMetaClass, isAuto);
+        return new WeakModelObject(oid, metaClass);
     }
 }

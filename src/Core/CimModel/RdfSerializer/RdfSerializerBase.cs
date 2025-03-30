@@ -1,6 +1,6 @@
 using System.Globalization;
 using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.RdfIOLib;
@@ -13,8 +13,6 @@ namespace CimBios.Core.CimModel.RdfSerializer;
 /// </summary>
 public abstract class RdfSerializerBase : ICanLog
 {
-    protected const string IdentifierPrefix = "#_";
-
     public ILogView Log => _Log;
 
     /// <summary>
@@ -29,13 +27,17 @@ public abstract class RdfSerializerBase : ICanLog
     { get => _schema; set => _schema = value; }
 
     /// <summary>
-    /// CIM data types library for contrete typed instances creating.
+    /// CIM data types library for concrete typed instances creating.
     /// </summary>
     public ICimDatatypeLib TypeLib
     { get => _typeLib; set => _typeLib = value; }
 
-    public Uri BaseUri { get; set; } = 
-        new Uri("http://cim.bios/serialization/model/rdfxml");
+    public Uri BaseUri { get; set; } = new Uri(
+        "http://cim.bios/serialization/model/rdfxml");
+
+
+    public IReadOnlyCollection<ModelObjectUnresolvedReference> 
+    UnresolvedReferences => _waitingReferenceObjects.Values;
 
     /// <summary>
     /// Rdf reader abstract entity.
@@ -46,6 +48,11 @@ public abstract class RdfSerializerBase : ICanLog
     /// Rdf writer abstract entity.
     /// </summary>
     protected abstract RdfWriterBase _RdfWriter { get; }
+
+    /// <summary>
+    /// OID Descriptor factory for producing model objects.
+    /// </summary>
+    protected abstract IOIDDescriptorFactory _OIDDescriptorFactory { get; }
 
     protected RdfSerializerBase(ICimSchema schema, ICimDatatypeLib datatypeLib) 
     {
@@ -97,6 +104,7 @@ public abstract class RdfSerializerBase : ICanLog
 
         InitializeWriterNamespaces();
 
+        _RdfWriter.RdfIRIMode = Settings.WritingIRIMode;
         _RdfWriter.Open(streamWriter);
     }
 
@@ -143,14 +151,19 @@ public abstract class RdfSerializerBase : ICanLog
             return null;
         }
 
-        var rdfNode = new RdfNode(GetBasedIdentifier(modelObject.OID, 
-            IdentifierPrefix),
+        var rdfNode = new RdfNode(
+            modelObject.OID.AbsoluteOID,
             metaClass.BaseUri,
-            modelObject.IsAuto);
+            isAuto: modelObject.OID is AutoDescriptor);
 
         foreach (var schemaProperty in metaClass.AllProperties)
         {
             WriteObjectProperty(rdfNode, modelObject, schemaProperty);
+        }
+
+        if (rdfNode.Triples.Length == 0)
+        {
+            return null;
         }
 
         return rdfNode;
@@ -263,13 +276,13 @@ public abstract class RdfSerializerBase : ICanLog
             if (metaClass.IsEnum)
             {
                 var enumObject = subject.GetAttribute(attribute);
-                if (enumObject is Uri)
+                if (enumObject is EnumValueObject enumValueObject)
                 {
-                    tripleObject = enumObject as Uri;
+                    tripleObject = enumValueObject.MetaEnumValue.BaseUri;
                 }
                 else if (enumObject is Enum typedEnum)
                 {   
-                    tripleObject = Schema.GetClassIndividuals(metaClass)
+                    tripleObject = metaClass.AllIndividuals
                         .Where(i => i.ShortName == typedEnum.ToString())
                         .Select(i => i.BaseUri)
                         .FirstOrDefault();
@@ -307,7 +320,7 @@ public abstract class RdfSerializerBase : ICanLog
             return null;
         }
 
-        resultAssocObject = GetBasedIdentifier(assocObj.OID, IdentifierPrefix);
+        resultAssocObject = assocObj.OID.AbsoluteOID;
 
         return resultAssocObject;
     }
@@ -322,7 +335,7 @@ public abstract class RdfSerializerBase : ICanLog
         ICimMetaProperty assoc1ToM)
     {
         return subject.GetAssoc1ToM(assoc1ToM)
-            .Select(mo => GetBasedIdentifier(mo.OID, IdentifierPrefix));
+            .Select(mo => mo.OID.AbsoluteOID);
     }
 
     private IEnumerable<RdfNode> GetObjectAsStatements(IModelObject subject,
@@ -347,18 +360,6 @@ public abstract class RdfSerializerBase : ICanLog
         }
 
         return result;
-    }
-
-    /// <summary>
-    /// Make URI from uuid and provider source path.
-    /// </summary>
-    /// <param name="uuid">IModelObject uuid.</param>
-    /// <param name="prefix">Uuid prefix. 
-    /// '#_' for rdf:about, '_' for rdf:id.</param>
-    /// <returns></returns>
-    private Uri GetBasedIdentifier(string uuid, string prefix)
-    {
-        return new(_RdfWriter.Namespaces["base"] + $"{prefix}{uuid}");
     }
 
     /// <summary>
@@ -404,7 +405,7 @@ public abstract class RdfSerializerBase : ICanLog
     private void ResetCache()
     {        
         _objectsCache = [];
-        _waitingReferenceObjectUuids = [];
+        _waitingReferenceObjects = [];
         _createdAutoClassesCache = [];
         _createdAutoPropertiesCache = [];
     }
@@ -425,13 +426,22 @@ public abstract class RdfSerializerBase : ICanLog
         // First step - creating objects.
         foreach (var instanceNode in _RdfReader.ReadAll())
         {
-            var instance = RdfNodeToModelObject(instanceNode);
-            if (instance == null)
+            try
             {
-                continue;
-            }
+                var instance = RdfNodeToModelObject(instanceNode);
+                if (instance == null)
+                {
+                    continue;
+                }
 
-            _objectsCache.TryAdd(instance.OID, instance);
+                _objectsCache.TryAdd(instance.OID, instance);
+            }
+            catch (Exception ex)
+            {
+                _Log.NewMessage(
+                    $"Error raised while ModelObject construct {instanceNode.Identifier}.", 
+                    LogMessageSeverity.Error, ex.Message);
+            }
         }
 
         // Second step - fill objects properties.
@@ -440,15 +450,9 @@ public abstract class RdfSerializerBase : ICanLog
         InitializeRdfReader(_streamReader);
         foreach (var instanceNode in _RdfReader.ReadAll())
         {
-            if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
-                out var instanceUuid) == false)
-            {
-                // throw Critical
-                continue;
-            }
-
-            if (_objectsCache.TryGetValue(instanceUuid,
-                out var instance) == false)
+            var instanceOid = _OIDDescriptorFactory.TryCreate(instanceNode.Identifier);
+            if (instanceOid == null || _objectsCache.TryGetValue(instanceOid,
+                    out var instance) == false)
             {
                 // throw Critical
                 continue;
@@ -472,13 +476,21 @@ public abstract class RdfSerializerBase : ICanLog
     /// <param name="instanceNode">RdfNode CIM object presentation.</param>
     /// <param name="IsCompound">Is compound (inner child) node.</param>
     /// <returns>IModelObject instance or null.</returns>
-    private IModelObject? RdfNodeToModelObject(RdfNode instanceNode)
+    private IModelObject? RdfNodeToModelObject(RdfNode instanceNode, 
+        bool isAuto = false)
     {
-        if (RdfUtils.TryGetEscapedIdentifier(instanceNode.Identifier,
-            out var instanceUuid) == false)
+        IOIDDescriptor? instanceOid;
+        if (isAuto == false)
         {
-            // error cannot get identifier
-            return null;
+            instanceOid = _OIDDescriptorFactory.TryCreate(instanceNode.Identifier);
+            if (instanceOid == null)
+            {
+                throw new ArgumentException("Failed to create model object oid!");
+            }
+        }
+        else 
+        {
+            instanceOid = new AutoDescriptor();
         }
 
         var metaClass = Schema.TryGetResource<ICimMetaClass>
@@ -497,13 +509,12 @@ public abstract class RdfSerializerBase : ICanLog
             }
             else
             {
-                // warning skip unkwnow class
+                // warning skip unknown class
                 return null;      
             }
         }
 
-        return TypeLib.CreateInstance(objectFactory, instanceUuid, 
-            metaClass, instanceNode.IsAuto);
+        return TypeLib.CreateInstance(objectFactory, instanceOid, metaClass);
     }
 
     /// <summary>
@@ -642,11 +653,11 @@ public abstract class RdfSerializerBase : ICanLog
                 && maybeCompound != null 
                 && maybeCompound.IsAuto)
             {
-                var compundMetaClass = GetOrCreateAutoClass(
+                var compoundMetaClass = GetOrCreateAutoClass(
                     maybeCompound.TypeIdentifier);
-                compundMetaClass.SetIsCompound(true);
+                compoundMetaClass.SetIsCompound(true);
                 
-                metaDatatype = compundMetaClass;
+                metaDatatype = compoundMetaClass;
 
                 cimMetaPropertyKind = CimMetaPropertyKind.Attribute; 
             }
@@ -735,26 +746,14 @@ public abstract class RdfSerializerBase : ICanLog
             {
                 endData = modelObjects.Single();
             }
-            else if (dataClass.IsEnum
-                && data is Uri enumValueUri)
+            else if (dataClass.IsEnum && data is Uri enumValueUri)
             {
                 var schemaEnumValue = Schema
                     .TryGetResource<ICimMetaIndividual>(enumValueUri);
 
                 if (schemaEnumValue != null)
                 {
-                    if (TypeLib.RegisteredTypes.TryGetValue(
-                        property.PropertyDatatype.BaseUri, out var typeEnum))
-                    {
-                        var enumValue = Enum.Parse(typeEnum,
-                            schemaEnumValue!.ShortName);
-
-                        endData = enumValue;
-                    }
-                    else
-                    {
-                        endData = enumValueUri;
-                    }
+                    endData = TypeLib.CreateEnumValueInstance(schemaEnumValue);
                 }
                 else
                 {
@@ -812,24 +811,23 @@ public abstract class RdfSerializerBase : ICanLog
     private void SetObjectDataAsAssociation(IModelObject instance,
         ICimMetaProperty property, Uri referenceUri)
     {
-        string referenceUuid = string.Empty;
-        if (RdfUtils.TryGetEscapedIdentifier(referenceUri,
-            out referenceUuid) == false)
+        var referenceOid = _OIDDescriptorFactory.TryCreate(referenceUri);
+        if (referenceOid == null)
         {
             return;
         }
 
-        _objectsCache.TryGetValue(referenceUuid, out var referenceInstance);
+        _objectsCache.TryGetValue(referenceOid, out var referenceInstance);
 
-        if (referenceInstance == null)
+        if (referenceInstance == null && Settings.IncludeUnresolvedReferences)
         {
-            referenceInstance = new ModelObjectUnresolvedReference
-                (referenceUuid, Schema.ResourceSuperClass);
-
-            _waitingReferenceObjectUuids.Add(instance.OID);
+            SetAssociationAsUnresolved(instance, property, referenceOid);
         }
 
-        SetObjectDataAsAssociation(instance, property, referenceInstance);
+        if (referenceInstance != null)
+        {
+            SetObjectDataAsAssociation(instance, property, referenceInstance);
+        }
     }
 
    private void SetObjectDataAsAssociation(IModelObject instance,
@@ -855,6 +853,30 @@ public abstract class RdfSerializerBase : ICanLog
         }
     }
 
+    private void SetAssociationAsUnresolved(IModelObject instance,
+        ICimMetaProperty property, IOIDDescriptor unresolvedOID)
+    {
+        if (_waitingReferenceObjects.TryGetValue(
+            (unresolvedOID, property), 
+            out var existingUnresolved))
+        {
+            existingUnresolved.WaitingObjects.Add(instance);
+            SetObjectDataAsAssociation(instance, property, existingUnresolved);
+        }
+        else
+        {
+            var unresolved = new ModelObjectUnresolvedReference(
+                unresolvedOID, property);
+
+            unresolved.WaitingObjects.Add(instance);
+            
+            _waitingReferenceObjects.TryAdd(
+                (unresolvedOID, property), unresolved);
+
+            SetObjectDataAsAssociation(instance, property, unresolved);
+        }
+    }
+
     /// <summary>
     /// Makes auto compound object from RdfNode.
     /// </summary>
@@ -862,7 +884,9 @@ public abstract class RdfSerializerBase : ICanLog
     /// <returns>Auto IModelObject or null.</returns>
     private IModelObject? MakeCompoundPropertyObject(RdfNode objectRdfNode)
     {
-        var compoundPropertyObject = RdfNodeToModelObject(objectRdfNode);
+        var compoundPropertyObject = RdfNodeToModelObject(objectRdfNode,
+            objectRdfNode.IsAuto);
+            
         if (compoundPropertyObject == null)
         {
             return null;
@@ -881,8 +905,10 @@ public abstract class RdfSerializerBase : ICanLog
     private ICimSchema _schema;
     private ICimDatatypeLib _typeLib;
 
-    private Dictionary<string, IModelObject> _objectsCache = [];
-    private HashSet<string> _waitingReferenceObjectUuids = [];
+    private Dictionary<IOIDDescriptor, IModelObject> _objectsCache = [];
+
+    private Dictionary<(IOIDDescriptor, ICimMetaProperty), 
+    ModelObjectUnresolvedReference> _waitingReferenceObjects = [];
 
     private Dictionary<string, CimAutoClass> _createdAutoClassesCache = [];
     private Dictionary<string, CimAutoProperty> _createdAutoPropertiesCache = [];

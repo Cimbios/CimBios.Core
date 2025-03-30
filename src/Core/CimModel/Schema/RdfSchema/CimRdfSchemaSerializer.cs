@@ -283,6 +283,8 @@ public static class CimRdfSchemaStrings
 {
     public static Uri RdfDescription = 
         new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Description");
+    public static Uri RdfsResource = 
+        new("http://www.w3.org/2000/01/rdf-schema#Resource");
     public static Uri RdfType = 
         new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
     public static Uri RdfsClass = 

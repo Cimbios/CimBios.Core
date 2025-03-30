@@ -1,3 +1,5 @@
+using CimBios.Core.RdfIOLib;
+
 namespace CimBios.Core.CimModel.RdfSerializer;
 
 /// <summary>
@@ -14,7 +16,7 @@ public sealed class RdfSerializerSettings(
     bool unknownClassesAllowed = false,
     bool unknownPropertiesAllowed = false,
     bool includeUnresolvedReferences = true,
-    RdfSerializerIRIMode iriMode = RdfSerializerIRIMode.About)
+    RdfIRIModeKind iriMode = RdfIRIModeKind.About)
 {
     /// <summary>
     /// Create auto class instances of unknown classes.
@@ -37,14 +39,5 @@ public sealed class RdfSerializerSettings(
     /// <summary>
     /// rdf:_iri_ mode.
     /// </summary>
-    public RdfSerializerIRIMode IRIMode  { get; set; } = iriMode;
-}
-
-/// <summary>
-/// rdf:_iri_ mode.
-/// </summary>
-public enum RdfSerializerIRIMode
-{
-    About,
-    ID
+    public RdfIRIModeKind WritingIRIMode  { get; set; } = iriMode;
 }

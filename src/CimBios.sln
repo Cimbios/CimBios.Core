@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -47,6 +47,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tests.CimSchema", "..\test\CimBios.Tests.CimSchema\CimBios.Tests.CimSchema.csproj", "{B990F81D-CAB7-49BA-9D6B-64B6302E101B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tests.DatatypeLib", "..\test\CimBios.Tests.DatatypeLib\CimBios.Tests.DatatypeLib.csproj", "{0AF9098D-153B-4E50-9C87-89E28E7DCED1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tests.DifferenceModel", "..\test\CimBios.Tests.DifferenceModel\CimBios.Tests.DifferenceModel.csproj", "{7B6E4F45-E5FA-41D0-A731-055216C663A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CimBios.Tests.Infrastructure", "..\test\CimBios.Tests.Infrastructure\CimBios.Tests.Infrastructure.csproj", "{198B9EF5-25F1-4F95-9879-383AA57FEDCC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -118,6 +122,14 @@ Global
 		{0AF9098D-153B-4E50-9C87-89E28E7DCED1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AF9098D-153B-4E50-9C87-89E28E7DCED1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AF9098D-153B-4E50-9C87-89E28E7DCED1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B6E4F45-E5FA-41D0-A731-055216C663A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B6E4F45-E5FA-41D0-A731-055216C663A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B6E4F45-E5FA-41D0-A731-055216C663A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B6E4F45-E5FA-41D0-A731-055216C663A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{198B9EF5-25F1-4F95-9879-383AA57FEDCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{198B9EF5-25F1-4F95-9879-383AA57FEDCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{198B9EF5-25F1-4F95-9879-383AA57FEDCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{198B9EF5-25F1-4F95-9879-383AA57FEDCC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -142,6 +154,8 @@ Global
 		{86DE6960-87DB-40A2-B48A-1C3D7C04AC21} = {B2BF029E-0939-468F-BE76-7C67B7A485A8}
 		{B990F81D-CAB7-49BA-9D6B-64B6302E101B} = {B2BF029E-0939-468F-BE76-7C67B7A485A8}
 		{0AF9098D-153B-4E50-9C87-89E28E7DCED1} = {B2BF029E-0939-468F-BE76-7C67B7A485A8}
+		{7B6E4F45-E5FA-41D0-A731-055216C663A2} = {B2BF029E-0939-468F-BE76-7C67B7A485A8}
+		{198B9EF5-25F1-4F95-9879-383AA57FEDCC} = {B2BF029E-0939-468F-BE76-7C67B7A485A8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E063B80A-4158-4C3F-A567-BFB2B929BA33}

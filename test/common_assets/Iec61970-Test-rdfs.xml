@@ -5,10 +5,6 @@
 	xmlns:uml="http://langdale.com.au/2005/UML#" 
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#" 
 	xmlns:cim="http://iec.ch/TC57/CIM100#"
-	xmlns:rf="http://gost.ru/2019/schema-cim01#"
-	xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
-	xmlns:so="http://so-ups.ru/2015/schema-cim16#"
-	xmlns:me="http://monitel.com/2014/schema-cim16#"
 	xml:base="http://cim.bios/Profiles/Iec61970BaseCore/v1">
 	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#ACDCTerminal">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
@@ -2428,6 +2424,373 @@ The limit applies to all equipment and nodes contained in a given VoltageLevel. 
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
+	
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Asset">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Asset</rdfs:label>
+		<rdfs:comment>Tangible resource of the utility, including power system equipment, various end devices, cabinets, buildings, etc. For electrical network equipment, the role of the asset is defined through PowerSystemResource and its subclasses, defined mainly in the Wires model (refer to IEC61970-301 and model package IEC61970::Wires). Asset description places emphasis on the physical characteristics of the equipment fulfilling that role.</rdfs:comment>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Asset.PowerSystemResources">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>PowerSystemResources</rdfs:label>
+		<rdfs:comment>All power system resources used to electrically model this asset. For example, transformer asset is electrically modelled with a transformer and its windings and tap changer.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#Asset"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/CIM100#PowerSystemResource"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="http://iec.ch/TC57/CIM100#PowerSystemResource.Assets"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerSystemResource.Assets">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>Assets</rdfs:label>
+		<rdfs:comment>All assets represented by this power system resource. For example, multiple conductor assets are electrically modelled as a single AC line segment.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerSystemResource"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/CIM100#Asset"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="http://iec.ch/TC57/CIM100#Asset.PowerSystemResources"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Asset.inUseDate">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>inUseDate</rdfs:label>
+		<rdfs:comment>In use dates for this asset.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#Asset"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/CIM100#InUseDate"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#InUseDate">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>InUseDate</rdfs:label>
+		<rdfs:comment>Dates associated with asset 'in use' status. May have multiple in use dates for this device and a compound type allows a query to return multiple dates.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Assets"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#compound"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#InUseDate.inUseDate">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>inUseDate</rdfs:label>
+		<rdfs:comment>Date asset was most recently put in use.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#InUseDate"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Switch">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Switch</rdfs:label>
+		<rdfs:comment>A generic device designed to close, or open, or both, one or more electric circuits.  All switches are two terminal devices including grounding switches. The ACDCTerminal.connected at the two sides of the switch shall not be considered for assessing switch connectivity, i.e. only Switch.open, .normalOpen and .locked are relevant.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#ConductingEquipment"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Switch.normalOpen">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>normalOpen</rdfs:label>
+		<rdfs:comment>The attribute is used in cases when no Measurement for the status value is present. If the Switch has a status measurement the Discrete.normalValue is expected to match with the Switch.normalOpen.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#Switch"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Switch.ratedCurrent">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedCurrent</rdfs:label>
+		<rdfs:comment>The maximum continuous current carrying capacity in amps governed by the device material and construction.
+The attribute shall be a positive value.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#Switch"/>
+		<cims:dataType rdf:resource="http://iec.ch/TC57/CIM100#CurrentFlow"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#ProtectedSwitch">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>ProtectedSwitch</rdfs:label>
+		<rdfs:comment>A ProtectedSwitch is a switching device that can be operated by ProtectionEquipment.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#Switch"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Breaker">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Breaker</rdfs:label>
+		<rdfs:comment>A mechanical switching device capable of making, carrying, and breaking currents under normal circuit conditions and also making, carrying for a specified time, and breaking currents under specified abnormal circuit conditions e.g.  those of short circuit.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#ProtectedSwitch"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Disconnector">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Disconnector</rdfs:label>
+		<rdfs:comment>A manually operated or motor operated mechanical switching device used for changing the connections in a circuit, or for isolating a circuit or equipment from a source of power. It is required to open or close circuits when negligible current is broken or made.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#Switch"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformer">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>PowerTransformer</rdfs:label>
+		<rdfs:comment>An electrical device consisting of  two or more coupled windings, with or without a magnetic core, for introducing mutual coupling between electric circuits. Transformers can be used to control voltage and phase shift (active power flow).
+A power transformer may be composed of separate transformer tanks that need not be identical.
+A power transformer can be modelled with or without tanks and is intended for use in both balanced and unbalanced representations.   A power transformer typically has two terminals, but may have one (grounding), three or more terminals.
+The inherited association ConductingEquipment.BaseVoltage should not be used.  The association from TransformerEnd to BaseVoltage should be used instead.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#ConductingEquipment"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformer.PowerTransformerEnd">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>PowerTransformerEnd</rdfs:label>
+		<rdfs:comment>The ends of this power transformer.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformer"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd.PowerTransformer"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#TransformerEnd">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>TransformerEnd</rdfs:label>
+		<rdfs:comment>A conducting connection point of a power transformer. It corresponds to a physical transformer winding terminal.  In earlier CIM versions, the TransformerWinding class served a similar purpose, but this class is more flexible because it associates to terminal but is not a specialization of ConductingEquipment.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#IdentifiedObject"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#TransformerEnd.BaseVoltage">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>BaseVoltage</rdfs:label>
+		<rdfs:comment>Base voltage of the transformer end.  This is essential for PU calculation.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#TransformerEnd"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/CIM100#BaseVoltage"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="http://iec.ch/TC57/CIM100#BaseVoltage.TransformerEnds"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#TransformerEnd.Terminal">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>Terminal</rdfs:label>
+		<rdfs:comment>Terminal of the power transformer to which this transformer end belongs.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#TransformerEnd"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/CIM100#Terminal"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="http://iec.ch/TC57/CIM100#Terminal.TransformerEnd"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>PowerTransformerEnd</rdfs:label>
+		<rdfs:comment>A PowerTransformerEnd is associated with each Terminal of a PowerTransformer.
+The impedance values r, r0, x, and x0 of a PowerTransformerEnd represents a star equivalent as follows.
+1) for a two Terminal PowerTransformer the high voltage (TransformerEnd.endNumber=1) PowerTransformerEnd has non zero values on r, r0, x, and x0 while the low voltage (TransformerEnd.endNumber=2) PowerTransformerEnd has zero values for r, r0, x, and x0.  Parameters are always provided, even if the PowerTransformerEnds have the same rated voltage.  In this case, the parameters are provided at the PowerTransformerEnd which has TransformerEnd.endNumber equal to 1.
+2) for a three Terminal PowerTransformer the three PowerTransformerEnds represent a star equivalent with each leg in the star represented by r, r0, x, and x0 values.
+3) For a three Terminal transformer each PowerTransformerEnd shall have g, g0, b and b0 values corresponding to the no load losses distributed on the three PowerTransformerEnds. The total no load loss shunt impedances may also be placed at one of the PowerTransformerEnds, preferably the end numbered 1, having the shunt values on end 1.  This is the preferred way.
+4) for a PowerTransformer with more than three Terminals the PowerTransformerEnd impedance values cannot be used. Instead use the TransformerMeshImpedance or split the transformer into multiple PowerTransformers.
+Each PowerTransformerEnd must be contained by a PowerTransformer. Because a PowerTransformerEnd (or any other object) can not be contained by more than one parent, a PowerTransformerEnd can not have an association to an EquipmentContainer (Substation, VoltageLevel, etc).</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#TransformerEnd"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.PowerTransformer">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>PowerTransformer</rdfs:label>
+		<rdfs:comment>The power transformer of this power transformer end.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformer"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:inverseRoleName rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformer.PowerTransformerEnd"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.b">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>b</rdfs:label>
+		<rdfs:comment>Magnetizing branch susceptance (B mag).  The value can be positive or negative.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:dataType rdf:resource="http://iec.ch/TC57/CIM100#Susceptance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.b0">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>b0</rdfs:label>
+		<rdfs:comment>Zero sequence magnetizing branch susceptance.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:dataType rdf:resource="http://iec.ch/TC57/CIM100#Susceptance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.connectionKind">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>connectionKind</rdfs:label>
+		<rdfs:comment>Kind of connection.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/CIM100#WindingConnection"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.g">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>g</rdfs:label>
+		<rdfs:comment>Magnetizing branch conductance.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:dataType rdf:resource="http://iec.ch/TC57/CIM100#Conductance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.g0">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>g0</rdfs:label>
+		<rdfs:comment>Zero sequence magnetizing branch conductance (star-model).</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:dataType rdf:resource="http://iec.ch/TC57/CIM100#Conductance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.phaseAngleClock">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>phaseAngleClock</rdfs:label>
+		<rdfs:comment>Terminal voltage phase angle displacement where 360 degrees are represented with clock hours. The valid values are 0 to 11. For example, for the secondary side end of a transformer with vector group code of 'Dyn11', specify the connection kind as wye with neutral and specify the phase angle of the clock as 11.  The clock value of the transformer end number specified as 1, is assumed to be zero.  Note the transformer end number is not assumed to be the same as the terminal sequence number.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.r">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>r</rdfs:label>
+		<rdfs:comment>Resistance (star-model) of the transformer end.
+The attribute shall be equal to or greater than zero for non-equivalent transformers.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:dataType rdf:resource="http://iec.ch/TC57/CIM100#Resistance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.r0">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>r0</rdfs:label>
+		<rdfs:comment>Zero sequence series resistance (star-model) of the transformer end.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:dataType rdf:resource="http://iec.ch/TC57/CIM100#Resistance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.ratedS">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedS</rdfs:label>
+		<rdfs:comment>Normal apparent power rating.
+The attribute shall be a positive value. For a two-winding transformer the values for the high and low voltage sides shall be identical.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:dataType rdf:resource="http://iec.ch/TC57/CIM100#ApparentPower"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.ratedU">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedU</rdfs:label>
+		<rdfs:comment>Rated voltage: phase-phase for three-phase windings, and either phase-phase or phase-neutral for single-phase windings.
+A high voltage side, as given by TransformerEnd.endNumber, shall have a ratedU that is greater than or equal to ratedU for the lower voltage sides.
+The attribute shall be a positive value.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:dataType rdf:resource="http://iec.ch/TC57/CIM100#Voltage"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.x">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>x</rdfs:label>
+		<rdfs:comment>Positive sequence series reactance (star-model) of the transformer end.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:dataType rdf:resource="http://iec.ch/TC57/CIM100#Reactance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PowerTransformerEnd.x0">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>x0</rdfs:label>
+		<rdfs:comment>Zero sequence series reactance of the transformer end.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#PowerTransformerEnd"/>
+		<cims:dataType rdf:resource="http://iec.ch/TC57/CIM100#Reactance"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#AuxiliaryEquipment">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>AuxiliaryEquipment</rdfs:label>
+		<rdfs:comment>AuxiliaryEquipment describe equipment that is not performing any primary functions but support for the equipment performing the primary function.
+AuxiliaryEquipment is attached to primary equipment via an association with Terminal.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_AuxiliaryEquipment"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#Equipment"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#AuxiliaryEquipment.Terminal">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>Terminal</rdfs:label>
+		<rdfs:comment>The Terminal at the equipment where the AuxiliaryEquipment is attached.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#AuxiliaryEquipment"/>
+		<rdfs:range rdf:resource="http://iec.ch/TC57/CIM100#Terminal"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:inverseRoleName rdf:resource="http://iec.ch/TC57/CIM100#Terminal.AuxiliaryEquipment"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Sensor">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>Sensor</rdfs:label>
+		<rdfs:comment>This class describe devices that transform a measured quantity into signals that can be presented at displays, used in control or be recorded.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_AuxiliaryEquipment"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimabstract"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#AuxiliaryEquipment"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>CurrentTransformer</rdfs:label>
+		<cims:belongsToCategory rdf:resource="#Package_rf_58651_3"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#cimextension"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.Windings">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>Windings</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformerWinding"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
+		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformerWinding.Transformer"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.isEmbeded">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>isEmbeded</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.ratedCurrent">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedCurrent</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.ratedSecondaryCurrent">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ratedSecondaryCurrent</rdfs:label>
+		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#CurrentTransformer">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>CurrentTransformer</rdfs:label>
+		<rdfs:comment>Instrument transformer used to measure electrical qualities of the circuit that is being protected and/or monitored. Typically used as current transducer for the purpose of metering or protection. A typical secondary current rating would be 5A.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_AuxiliaryEquipment"/>
+		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#Sensor"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#CurrentTransformer.accuracyClass">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>accuracyClass</rdfs:label>
+		<rdfs:comment>CT accuracy classification.</rdfs:comment>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#CurrentTransformer"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#GroundDisconnector">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>GroundDisconnector</rdfs:label>
+		<rdfs:comment>A manually operated or motor operated mechanical switching device used for isolating a circuit or equipment from ground.</rdfs:comment>
+		<cims:belongsToCategory rdf:resource="#Package_Wires"/>
+		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#Switch"/>
+	</rdf:Description>
+
 	<rdf:Description rdf:about="#Package_Base">
 		<rdf:type rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory"/>
 		<rdfs:label>Base</rdfs:label>

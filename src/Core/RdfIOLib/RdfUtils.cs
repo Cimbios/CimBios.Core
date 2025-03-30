@@ -47,12 +47,21 @@ public static class RdfUtils
     public static bool TryGetEscapedIdentifier(Uri uri, out string identifier)
     {
         identifier = string.Empty;
+        
+        var allowedNamespaces = new HashSet<string>()
+        {
+            "urn", "base"
+        };
 
-        if (uri.Fragment != string.Empty)
+        if (allowedNamespaces.Contains(uri.Scheme))
+        {
+            identifier = uri.AbsoluteUri.Split(':').Last();
+            return true;
+        }
+        else if (uri.Fragment != string.Empty)
         {
             identifier = uri.Fragment
-                .Replace("#", "")
-                .Replace("_", "");
+                .Replace("#", "");
 
             return true;
         }

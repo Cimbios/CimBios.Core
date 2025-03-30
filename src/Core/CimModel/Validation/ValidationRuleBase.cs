@@ -33,7 +33,7 @@ public abstract class ValidationRuleBase : IValidationRule
                     GetAttribute(property);
             case CimMetaPropertyKind.Assoc1To1:
                 return modelObject.
-                    GetAssoc1ToM(property);
+                    GetAssoc1To1(property);
             case CimMetaPropertyKind.Assoc1ToM:
                 return modelObject.
                     GetAssoc1ToM(property);
