@@ -44,6 +44,26 @@ public class LoadTest
     }
 
     [Fact]
+    public void CompareEqualModels()
+    {
+        var originModel = ModelLoader.LoadCimModel_v1() as CimDocument;
+        Assert.NotNull(originModel);
+
+        var modifiedModel = ModelLoader.LoadCimModel_v1() as CimDocument;
+        Assert.NotNull(modifiedModel);
+
+        var diffSchema = ModelLoader.Load552HeadersCimRdfSchema();
+        var cimDifferenceModel = new CimDifferenceModel(
+            diffSchema,
+            new CimDatatypeLib(diffSchema),
+            new TextDescriptorFactory()
+        );
+
+        cimDifferenceModel.CompareDataModels(originModel, modifiedModel);
+        Assert.Empty(cimDifferenceModel.Differences);
+    }
+
+    [Fact]
     public void CompareModels()
     {
         var originModel = ModelLoader.LoadCimModel_v1() as CimDocument;

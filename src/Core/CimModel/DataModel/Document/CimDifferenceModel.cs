@@ -69,12 +69,6 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         }
     }
 
-    public void FitToDataModel(ICimDataModel cimDataModel, 
-        bool removeUnresolved = false)
-    {
-        throw new NotImplementedException();
-    }
-
     public void ResetAll()
     {
         _Objects.Clear();

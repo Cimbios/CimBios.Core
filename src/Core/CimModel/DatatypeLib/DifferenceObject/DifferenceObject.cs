@@ -16,6 +16,12 @@ public abstract class DifferenceObjectBase : IDifferenceObject
 
     public ICimMetaClass MetaClass { get; }
 
+    public bool HasProperty(string propertyName)
+    {
+        return ModifiedProperties.FirstOrDefault(
+            p => p.ShortName == propertyName) != null; 
+    }
+
     public IReadOnlyCollection<ICimMetaProperty> ModifiedProperties
         => _ModifiedProperties;
 
@@ -263,13 +269,13 @@ public abstract class DifferenceObjectBase : IDifferenceObject
     private void ChangeCompoundAttribute(ICimMetaProperty metaProperty,
         WeakModelObject oldCompoundMock, WeakModelObject newCompoundMock)
     {
-        if (_OriginalObject?.MetaClass.HasProperty(metaProperty) == false)
+        if (_OriginalObject?.GetAttribute(metaProperty) == null)
         {
-            _OriginalObject.InitializeCompoundAttribute(metaProperty.ShortName,
+            _OriginalObject?.InitializeCompoundAttribute(metaProperty.ShortName,
                 oldCompoundMock.MetaClass);
         } 
 
-        if (_ModifiedObject.MetaClass.HasProperty(metaProperty) == false)
+        if (_ModifiedObject.GetAttribute(metaProperty) == null)
         {
             _ModifiedObject.InitializeCompoundAttribute(metaProperty.ShortName,
                 newCompoundMock.MetaClass);
@@ -285,6 +291,7 @@ public abstract class DifferenceObjectBase : IDifferenceObject
 
         if (originalCompound == null && modifiedCompound == null)
         {
+            _ModifiedProperties.Remove(metaProperty);
             return;
         }
 
@@ -298,6 +305,27 @@ public abstract class DifferenceObjectBase : IDifferenceObject
                 _ModifiedProperties.Remove(metaProperty);
                 return;
             }
+        }
+    }
+
+    public void RemovePropertyChange(ICimMetaProperty metaProperty)
+    {
+        _ModifiedProperties.Remove(metaProperty);
+
+        if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
+        {
+            _OriginalObject?.SetAttribute<object>(metaProperty, null);
+            _ModifiedObject.SetAttribute<object>(metaProperty, null);
+        }
+        else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+        {
+            _OriginalObject?.SetAssoc1To1(metaProperty, null);
+            _ModifiedObject.SetAssoc1To1(metaProperty, null);
+        }
+        else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+        {
+            _OriginalObject?.RemoveAllAssocs1ToM(metaProperty);
+            _ModifiedObject.RemoveAllAssocs1ToM(metaProperty);
         }
     }
 

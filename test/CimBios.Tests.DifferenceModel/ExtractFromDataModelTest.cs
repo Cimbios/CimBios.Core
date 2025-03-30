@@ -98,8 +98,8 @@ public class ExtractFromDataModelTest
         var inUseDate1 = asset.InitializeCompoundAttribute("inUseDate");
         asset.inUseDate = null;
         
-        // inUseDate2.inUseDate = DateTime.Now;
-        // inUseDate2.inUseDate = DateTime.Parse("2000-01-01T00:00:00Z");
+        inUseDate2.inUseDate = DateTime.Now;
+        inUseDate2.inUseDate = DateTime.Parse("2000-01-01T00:00:00Z");
        
         Assert.Empty(cimDifferenceModel.Differences);
     }
