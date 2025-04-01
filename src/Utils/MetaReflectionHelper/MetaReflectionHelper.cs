@@ -74,7 +74,7 @@ public class MetaReflectionHelper
                 .GetCustomAttribute<MetaTypeAttribute>(false);
             if (attribute != null)
             {
-                _Types.TryAdd(attribute.Identifier, type.GetTypeInfo());
+                _Types.TryAdd(attribute.Identifier.ToLower(), type.GetTypeInfo());
 
                 CollectSerializableMembers(type.GetTypeInfo());
             }
@@ -98,7 +98,7 @@ public class MetaReflectionHelper
                 .GetCustomAttribute<MetaTypeAttribute>(false);
             if (attribute != null)
             {
-                _Members.TryAdd(attribute.Identifier, property);
+                _Members.TryAdd(attribute.Identifier.ToLower(), property);
             }
         }
     }
