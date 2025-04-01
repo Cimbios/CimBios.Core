@@ -29,7 +29,7 @@ public class RdfNode
     /// <summary>
     /// Rdf resource node identifier.
     /// </summary>
-    public Uri TypeIdentifier { get; }
+    public Uri TypeIdentifier { get; internal set; }
 
     /// <summary>
     /// Rdf node's triples collection.
@@ -127,7 +127,8 @@ public sealed class RdfTripleObjectLiteralContainer
         {
             if (RawObject is not string literalObject)
             {
-                throw new InvalidCastException("RdfTripleObjectLiteralContainer does not contain string object!");
+                throw new InvalidCastException(
+                    "RdfTripleObjectLiteralContainer does not contain string object!");
             }
 
             return literalObject;
@@ -149,7 +150,8 @@ public sealed class RdfTripleObjectUriContainer
         {
             if (RawObject is not Uri uriObject)
             {
-                throw new InvalidCastException("RdfTripleObjectUriContainer does not contain URI object!");
+                throw new InvalidCastException(
+                    "RdfTripleObjectUriContainer does not contain URI object!");
             }
 
             return uriObject;
@@ -171,7 +173,8 @@ public sealed class RdfTripleObjectStatementsContainer
         {
             if (RawObject is not ICollection<RdfNode> rdfNodes)
             {
-                throw new InvalidCastException("RdfTripleObjectStatementsContainer does not contain ICollection<RdfNode> object!");
+                throw new InvalidCastException(
+                    "RdfTripleObjectStatementsContainer does not contain ICollection<RdfNode> object!");
             }
 
             return rdfNodes;
