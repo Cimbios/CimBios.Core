@@ -119,6 +119,7 @@ public class DataSelectorViewModel : ViewModelBase
 
     private void Get()
     {
+        ResultMessage = string.Empty;
         _isWork = true;
 
         try
@@ -141,6 +142,8 @@ public class DataSelectorViewModel : ViewModelBase
 
     private void Push()
     {
+        ResultMessage = string.Empty;
+
         if (Services.ServiceLocator.GetInstance()
             .TryGetService<CimDocument>(out var modelContext) == false
             || modelContext == null)
@@ -224,7 +227,7 @@ public class DataSelectorViewModel : ViewModelBase
     {
         if (SelectedSchema == null
             || SchemasUri == null
-            || SchemasUri.Count() == 0)
+            || !SchemasUri.Any())
         {
             ResultMessage += "Schemas have not loaded. Schema provider missed?\n";
             return null;
@@ -232,16 +235,6 @@ public class DataSelectorViewModel : ViewModelBase
 
         var cimSchema = SelectedSchema.SchemaFactory.CreateSchema();
         cimSchema.Load(new StreamReader(SchemasUri.First().LocalPath));
-
-        if (SchemasUri.Count() > 1)
-        {
-            foreach (var schemaUri in SchemasUri.Skip(1))
-            {
-                var addSchema = SelectedSchema.SchemaFactory.CreateSchema();
-                addSchema.Load(new StreamReader(schemaUri.LocalPath));
-                cimSchema.Join(addSchema);
-            }
-        }
 
         return cimSchema;
     }
@@ -267,13 +260,33 @@ public class DataSelectorViewModel : ViewModelBase
         }
 
         
-        modelContext = new CimDocument(cimSchema, new CimDatatypeLib(cimSchema), 
+        var typeLib = new CimDatatypeLib(cimSchema);
+        foreach (var m in typeLib.Log.Messages)
+        {
+            ResultMessage += $"{m.CallerName}: {m.Text}\n";
+        }
+
+        modelContext = new CimDocument(cimSchema, typeLib, 
             new UuidDescriptorFactory());
 
-        modelContext.Load(SourceUri.LocalPath, 
-            SelectedDataContext.RdfSerializerFactory);
+        try
+        {
+            modelContext.Load(SourceUri.LocalPath, 
+                SelectedDataContext.RdfSerializerFactory);
 
-        ResultMessage += "Model successfully loaded!\n";
+            ResultMessage += "Model successfully loaded!\n";
+        }
+        catch (Exception ex)
+        {
+            ResultMessage += $"Failed to load model: {ex.Message}!\n";
+        }
+        finally
+        {
+            foreach (var m in modelContext.Log.Messages)
+            {
+                ResultMessage += $"{m.CallerName}: {m.Text}\n";
+            }
+        }
 
         Services.ServiceLocator.GetInstance()
             .RegisterService(modelContext);      
