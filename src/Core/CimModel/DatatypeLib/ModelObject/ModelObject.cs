@@ -514,29 +514,34 @@ public class ModelObject : DynamicModelObjectBase,
     {
         if (metaProperty.PropertyKind != callerPropertyKind)
         {
-            throw new Exception(
-                $"Invalid {metaProperty.ShortName} property kind {callerPropertyKind}");
+            throw new ArgumentException(
+                $"Invalid {metaProperty.ShortName} property kind " +
+                $"{callerPropertyKind}");
         }
 
         if (MetaClass.AllProperties.Contains(metaProperty) == false)
         {
-            throw new ArgumentException(
-                $"Property {metaProperty.ShortName} is not in {MetaClass.ShortName} class domain");
+            throw new InvalidDataException(
+                $"Property {metaProperty.ShortName} is not in " + 
+                $"{MetaClass.ShortName} class domain");
         }
 
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
             && CanAssignAttributeValue(metaProperty, value) == false)
         {
-            throw new ArgumentException(
-                $"Unable assign {value} to {metaProperty.ShortName} property of {MetaClass.ShortName} class domain");
+            throw new InvalidDataException(
+                $"Unable assign {value} to {metaProperty.ShortName} property of " + 
+                $"{MetaClass.ShortName} class domain");
         }
         else if ((metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
             || metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
             && value is IModelObject modelObject
             && CanAssignAssociationObject(metaProperty, modelObject) == false)
         {
-            throw new ArgumentException(
-                $"Unable set association {metaProperty.ShortName} of {MetaClass.ShortName} class domain with {modelObject.MetaClass.ShortName} type");
+            throw new InvalidDataException(
+                $"Unable set association {metaProperty.ShortName} of " + 
+                $"{MetaClass.ShortName} class domain with " + 
+                $"{modelObject.MetaClass.ShortName} type");
         }
     }
 
