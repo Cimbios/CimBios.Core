@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.Schema;
 
