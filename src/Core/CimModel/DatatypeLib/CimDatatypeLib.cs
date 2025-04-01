@@ -1,6 +1,6 @@
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Utils.ClassTraits;
+using CimBios.Utils.ClassTraits.CanLog;
 using System.ComponentModel;
 using System.Reflection;
 
@@ -18,7 +18,7 @@ public class CimDatatypeLib : ICimDatatypeLib
     public IReadOnlyDictionary<ICimMetaClass, System.Type> RegisteredTypes 
         => _RegisteredTypes.AsReadOnly();
 
-    public ILogView Log => _Log;
+    public ILogView Log => _Log.AsReadOnly();
 
     public CimDatatypeLib(ICimSchema cimSchema)
     {
@@ -45,11 +45,7 @@ public class CimDatatypeLib : ICimDatatypeLib
     {
         if (_Log.DebugLogMode)
         {
-            _Log.NewMessage(
-                "DatatypeLib: Loading types assembly", 
-                LogMessageSeverity.Info,
-                typesAssembly.FullName ?? string.Empty               
-            );
+            _Log.Info($"Loading types assembly {typesAssembly.FullName}");
         }
 
         if (reset == true)
@@ -73,21 +69,13 @@ public class CimDatatypeLib : ICimDatatypeLib
     {
         if (_Log.DebugLogMode)
         {
-            _Log.NewMessage(
-                "DatatypeLib: Register type", 
-                LogMessageSeverity.Info,
-                type.FullName ?? string.Empty               
-            );
+            _Log.Info($"Register type {type.FullName}");
         }
 
         var attribute = type.GetCustomAttribute<CimClassAttribute>();
         if (attribute == null)
         {
-            _Log.NewMessage(
-                "Type does not have CimClass attribute!",
-                LogMessageSeverity.Warning,
-                type.FullName ?? string.Empty
-            );
+            _Log.Warn($"Type {type.FullName} does not have CimClass attribute!");
 
             return;
         }
@@ -110,22 +98,14 @@ public class CimDatatypeLib : ICimDatatypeLib
         var iface = type.GetInterface(nameof(IModelObject));
         if (iface == null)
         {
-            _Log.NewMessage(
-                "Type does not implement IModelObject interface!",
-                LogMessageSeverity.Warning,
-                type.FullName ?? string.Empty
-            );
+            _Log.Warn($"Type {type.FullName} does not implement IModelObject interface!");
 
             return;
         }
 
-        if (_RegisteredTypes.ContainsKey(metaType))
+        if (!_RegisteredTypes.TryAdd(metaType, type))
         {
             _RegisteredTypes[metaType] = type;
-        }
-        else
-        {
-            _RegisteredTypes.Add(metaType, type);
         }
     }
 
@@ -147,10 +127,7 @@ public class CimDatatypeLib : ICimDatatypeLib
             instance = Activator.CreateInstance(type, oid, metaClass) as IModelObject;
         }
 
-        if (instance == null)
-        {
-            instance = modelObjectFactory.Create(oid, metaClass);
-        }
+        instance ??= modelObjectFactory.Create(oid, metaClass);
 
         if (instance is DynamicModelObjectBase dynamicModelObject)
         {
@@ -273,13 +250,13 @@ public class CimDatatypeLib : ICimDatatypeLib
         return metaClass;
     }
 
-    private ICimSchema _Schema;
+    private readonly ICimSchema _Schema;
 
-    private HashSet<Assembly> _LoadedAssemblies = [];
+    private readonly HashSet<Assembly> _LoadedAssemblies = [];
 
-    private Dictionary<ICimMetaClass, System.Type> _RegisteredTypes = [];
+    private readonly Dictionary<ICimMetaClass, System.Type> _RegisteredTypes = [];
 
-    private PlainLogView _Log;
+    private readonly PlainLogView _Log;
 }
 
 
