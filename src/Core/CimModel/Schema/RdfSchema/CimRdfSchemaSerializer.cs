@@ -63,17 +63,8 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
                 continue;
             }
 
-            var type = node.Triples.Where(t => RdfUtils
-                    .RdfUriEquals(t.Predicate, CimRdfSchemaStrings.RdfType))
-                .Single().Object as RdfTripleObjectUriContainer;
-
-            if (type == null)
-            {
-                continue;
-            }
-
-            if (_SerializeHelper.TryGetTypeInfo(type.UriObject.AbsoluteUri, 
-                    out var typeInfo)
+            if (_SerializeHelper.TryGetTypeInfo(node.TypeIdentifier
+                .AbsoluteUri.ToLower(), out var typeInfo)
                 && typeInfo != null)
             {
                 if (Activator.CreateInstance(typeInfo, node.Identifier) 
@@ -99,16 +90,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
     {
         foreach (var node in nodes)
         {
-            var type = node.Triples.Where(t => RdfUtils
-                .RdfUriEquals(t.Predicate, CimRdfSchemaStrings.RdfType))
-            .Single().Object as RdfTripleObjectUriContainer;
-
-            if (type == null)
-            {
-                continue;
-            }
-
-            if ((_ObjectsCache.TryGetValue(type.UriObject, out var entity)
+            if ((_ObjectsCache.TryGetValue(node.TypeIdentifier, out var entity)
                 && entity is CimRdfsClass metaClass) == false)
             {
                 continue;
@@ -140,7 +122,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
             foreach (var triple in node.Triples)
             {
                 var result = _SerializeHelper
-                    .TryGetMemberInfo(triple.Predicate.AbsoluteUri, 
+                    .TryGetMemberInfo(triple.Predicate.AbsoluteUri.ToLower(), 
                         out var memberInfo);
 
                 if (result == false || memberInfo == null)
@@ -177,8 +159,8 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
                     && value is RdfTripleObjectUriContainer valueEnumUriContainer)
                 {
                     _SerializeHelper.TryGetMemberInfo(valueEnumUriContainer
-                        .UriObject.AbsoluteUri, out var field);
-                    _SerializeHelper.TryGetTypeInfo(attribute.Identifier, 
+                        .UriObject.AbsoluteUri.ToLower(), out var field);
+                    _SerializeHelper.TryGetTypeInfo(attribute.Identifier.ToLower(), 
                         out var enumClass);
 
                     if (field != null && enumClass != null)
