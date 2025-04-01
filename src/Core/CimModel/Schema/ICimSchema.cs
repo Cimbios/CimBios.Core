@@ -1,5 +1,4 @@
-using System.Xml.Serialization;
-using CimBios.Utils.ClassTraits;
+using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Core.CimModel.Schema;
 
@@ -108,15 +107,6 @@ public interface ICimSchema : ICanLog
     /// <param name="metaClass">Meta class object.</param>
     /// <returns>Can create meta class instance bool.</returns>
     public bool CanCreateClass(ICimMetaClass metaClass);
-
-    /// <summary>
-    /// Join this CIM schema with another one.
-    /// NOTE: Joining schema objects grabs as refs 
-    /// and still can affect on this schema!
-    /// </summary>
-    /// <param name="schema">ICimSchema instance.</param>
-    /// <param name="rewriteNamespaces">Rewrite namespaces URI.</param>
-    public void Join(ICimSchema schema, bool rewriteNamespaces = false);
 
     /// <summary>
     /// Get string prefix of uri namespace.
