@@ -1,7 +1,7 @@
 using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
-using CimBios.Utils.ClassTraits;
+using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Core.CimModel.CimDifferenceModel;
 
