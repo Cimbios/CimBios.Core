@@ -579,7 +579,12 @@ public abstract class RdfSerializerBase : ICanLog
             }
             else
             {
-                // warning skip unknown prop
+                _Log.Warn(
+                        "Skip non-existing schema property "
+                        + $"{propertyTriple.Predicate.AbsoluteUri} in "
+                        + $"instance {instance.OID}", 
+                    instance);
+
                 return;
             }
         }
