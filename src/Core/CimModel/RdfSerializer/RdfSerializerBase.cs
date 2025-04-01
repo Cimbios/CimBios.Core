@@ -4,7 +4,7 @@ using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.RdfIOLib;
-using CimBios.Utils.ClassTraits;
+using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Core.CimModel.RdfSerializer;
 
@@ -70,11 +70,11 @@ public abstract class RdfSerializerBase : ICanLog
     /// </summary>
     public IEnumerable<IModelObject> Deserialize(StreamReader streamReader)
     {
+        ResetCache();
         InitializeRdfReader(streamReader);
         Schema.InvalidateAuto();
         var deserializedObjects = ReadObjects();
-        ResetCache();
-
+        
         return deserializedObjects;
     }
 
@@ -86,9 +86,9 @@ public abstract class RdfSerializerBase : ICanLog
     public void Serialize(StreamWriter streamWriter, 
         IEnumerable<IModelObject> modelObjects)
     {
+        ResetCache();
         InitializeRdfWriter(streamWriter);
         WriteObjects(modelObjects);
-        ResetCache();
     }
 
     #region SerializerBlock
@@ -144,9 +144,10 @@ public abstract class RdfSerializerBase : ICanLog
         if (Schema.TryGetResource<ICimMetaClass>(metaClass.BaseUri) == null
             && Settings.UnknownClassesAllowed == false)
         {
-            _Log.NewMessage(
-                $"Cannot write instance {modelObject.OID} - {metaClass.ShortName} does not exist in schema!", 
-                LogMessageSeverity.Error, string.Empty);
+            _Log.Error(
+                    $"Failed to write instance {modelObject.OID} to Rdf node: " + 
+                    $"Property {metaClass.ShortName} does not exist in schema!", 
+                modelObject);
 
             return null;
         }
@@ -158,7 +159,17 @@ public abstract class RdfSerializerBase : ICanLog
 
         foreach (var schemaProperty in metaClass.AllProperties)
         {
-            WriteObjectProperty(rdfNode, modelObject, schemaProperty);
+            try
+            {
+                WriteObjectProperty(rdfNode, modelObject, schemaProperty);
+            }
+            catch(Exception ex)
+            {
+                _Log.Error(
+                    $"Failed to write property {schemaProperty.ShortName} " + 
+                    $"of instance {modelObject.OID} to Rdf node: {ex.Message}",
+                modelObject);
+            }
         }
 
         if (rdfNode.Triples.Length == 0)
@@ -338,7 +349,7 @@ public abstract class RdfSerializerBase : ICanLog
             .Select(mo => mo.OID.AbsoluteOID);
     }
 
-    private IEnumerable<RdfNode> GetObjectAsStatements(IModelObject subject,
+    private List<RdfNode> GetObjectAsStatements(IModelObject subject,
         ICimMetaProperty statementsProperty)
     {
         var result = new List<RdfNode>();
@@ -438,9 +449,10 @@ public abstract class RdfSerializerBase : ICanLog
             }
             catch (Exception ex)
             {
-                _Log.NewMessage(
-                    $"Error raised while ModelObject construct {instanceNode.Identifier}.", 
-                    LogMessageSeverity.Error, ex.Message);
+                _Log.Error(
+                        $"Error raised while {instanceNode.Identifier} " + 
+                        $"ModelObject constructing: {ex.Message}.", 
+                    instanceNode);
             }
         }
 
@@ -454,7 +466,6 @@ public abstract class RdfSerializerBase : ICanLog
             if (instanceOid == null || _objectsCache.TryGetValue(instanceOid,
                     out var instance) == false)
             {
-                // throw Critical
                 continue;
             }
 
@@ -710,7 +721,6 @@ public abstract class RdfSerializerBase : ICanLog
             return literalContainer.LiteralObject;
         }
 
-        // log
         return null;
     }
 
@@ -733,9 +743,11 @@ public abstract class RdfSerializerBase : ICanLog
             }
             else
             {
-                _Log.NewMessage(
-                    $"Unnable to convert {data} value to {dataType.PrimitiveType.Name} for {property.ShortName} of instance {instance.OID}!", 
-                    LogMessageSeverity.Error, string.Empty);
+                _Log.Error(
+                        $"Unnable to convert {data} value to " +
+                        $"{dataType.PrimitiveType.Name} for {property.ShortName}" + 
+                        $"of instance {instance.OID}!", 
+                    instance);
             }
         }
         else if (property.PropertyDatatype is ICimMetaClass dataClass)
@@ -757,9 +769,10 @@ public abstract class RdfSerializerBase : ICanLog
                 }
                 else
                 {
-                    _Log.NewMessage(
-                        $"Enum value {enumValueUri} of instance {instance.OID} does not exist in schema!", 
-                        LogMessageSeverity.Error, string.Empty);
+                    _Log.Error(
+                            $"Enum value {enumValueUri} of instance " +
+                            $"{instance.OID} does not exist in schema!", 
+                        instance);
                 }
             }
         }
@@ -773,8 +786,8 @@ public abstract class RdfSerializerBase : ICanLog
         }
         catch (Exception ex)
         {
-            _Log.NewMessage($"Failed set attribute to instance {instance.OID}", 
-                LogMessageSeverity.Error, ex.Message);
+            _Log.Error("Failed set attribute to instance " +
+                $"{instance.OID}: {ex.Message}", instance);
         }
     }
 
@@ -848,8 +861,10 @@ public abstract class RdfSerializerBase : ICanLog
         }
         catch (Exception ex)
         {
-            _Log.NewMessage($"Failed set association to instance {instance.OID}", 
-                LogMessageSeverity.Error, ex.Message);
+            _Log.Error(
+                    "Failed to set association between instances " +
+                    $"{instance.OID} and {referenceInstance.OID}: {ex.Message}", 
+                instance);
         }
     }
 
@@ -916,5 +931,5 @@ public abstract class RdfSerializerBase : ICanLog
     private StreamReader? _streamReader;
     private StreamWriter? _streamWriter;
 
-    private PlainLogView _Log;
+    private readonly PlainLogView _Log;
 }
