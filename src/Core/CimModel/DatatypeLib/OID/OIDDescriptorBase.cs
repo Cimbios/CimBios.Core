@@ -22,7 +22,7 @@ public abstract class OIDDescriptorBase : IOIDDescriptor
             .CompareTo(oidDescriptor.AbsoluteOID.AbsoluteUri);
     }
 
-    public bool Equals(IOIDDescriptor? other)
+    public virtual bool Equals(IOIDDescriptor? other)
     {
         return AbsoluteOID.AbsoluteUri == other?.AbsoluteOID.AbsoluteUri;
     }
