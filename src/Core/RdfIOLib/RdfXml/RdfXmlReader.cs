@@ -134,10 +134,18 @@ public sealed class RdfXmlReader : RdfReaderBase
             var predicateInfo = ReadNodeHeader();
             if (predicateInfo.AttributesMap.ContainsKey(rdf + "resource"))
             {
-                rdfNode.NewTriple(
-                    NameToUri(predicateInfo.TypeIdentifier), 
-                    new RdfTripleObjectUriContainer(
-                        NameToUri(predicateInfo.Identifier)));
+                var resourceIRI = NameToUri(predicateInfo.Identifier);
+                var predicateTypeIRI = NameToUri(predicateInfo.TypeIdentifier);
+
+                if (predicateTypeIRI.AbsoluteUri == rdf + "type")
+                {
+                    rdfNode.TypeIdentifier = resourceIRI;
+                }
+                else
+                {
+                    rdfNode.NewTriple(predicateTypeIRI, 
+                        new RdfTripleObjectUriContainer(resourceIRI));
+                }
             }
             else if (subtreeReader.Read() 
                 && subtreeReader.NodeType == XmlNodeType.Text)
