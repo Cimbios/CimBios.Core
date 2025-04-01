@@ -8,7 +8,7 @@ using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Utils.ClassTraits;
+using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Core.CimModel.CimDataModel;
 
@@ -62,25 +62,22 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         try
         {
             _Objects = [];
-            deserialized = serializer.Deserialize(streamReader);
-            
-            PushDeserializedObjects(deserialized);
-
-            _UnresolvedReferences = serializer.UnresolvedReferences
-                .ToList().AsReadOnly();
+            deserialized = serializer.Deserialize(streamReader);   
+            PushDeserializedObjects(deserialized);         
         }
         catch (Exception ex)
         {
-            streamReader.Close();
-            _Log.NewMessage(
-                "CimDocument: Deserialization failed.",
-                LogMessageSeverity.Critical,
-                ex.Message
-            );
+            _Log.Critical($"Deserialization failed: {ex.Message}");
+            throw;
         }
         finally
         {        
             streamReader.Close();
+
+            _UnresolvedReferences = serializer.UnresolvedReferences
+                .ToList().AsReadOnly();
+
+            _Log.FlushFrom(serializer.Log);
         }
     }
 
@@ -145,23 +142,24 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
             forSerializeObjects.Add(ModelDescription);
         }
 
+        var serializer = serializerFactory.Create(cimSchema, 
+            TypeLib, OIDDescriptorFactory);
+
         try
         {
-            var serializer = serializerFactory.Create(cimSchema, 
-                TypeLib, OIDDescriptorFactory);
-
             serializer.BaseUri = new(OIDDescriptorFactory.Namespace);
             serializer.Serialize(streamWriter, forSerializeObjects);
-            streamWriter.Close();
         }
         catch (Exception ex)
         {
+            _Log.Critical($"Serialization failed: {ex.Message}");
+            throw;
+        }
+        finally
+        {
             streamWriter.Close();
-            _Log.NewMessage(
-                "CimDocument: Serialization failed.",
-                LogMessageSeverity.Critical,
-                ex.Message
-            );
+
+            _Log.FlushFrom(serializer.Log);
         }
     }
 
