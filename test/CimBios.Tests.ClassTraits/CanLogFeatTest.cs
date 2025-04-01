@@ -1,10 +1,10 @@
-using CimBios.Utils.ClassTraits;
+using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Tests.ClassTraits;
 
 internal class CanLog : ICanLog
 {
-    public ILogView Log => _Log;
+    public ILogView Log => _Log.AsReadOnly();
 
     public CanLog()
     {
@@ -24,7 +24,7 @@ public class CanLogFeatTest
     [Fact]
     public void EmptyLog()
     {
-        Assert.Empty(GetCanLog().Log.Log);
+        Assert.Empty(GetCanLog().Log.Messages);
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public class CanLogFeatTest
         Assert.True(raised);
     }
 
-    private CanLog GetCanLog()
+    private static CanLog GetCanLog()
     {
         return new CanLog();
     }
