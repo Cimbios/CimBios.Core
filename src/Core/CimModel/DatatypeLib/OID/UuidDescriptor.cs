@@ -18,7 +18,7 @@ public class UuidDescriptor : OIDDescriptorBase
             && Guid.TryParse(oid.Replace(UuidPrefix, ""), out var uuid))
         {
             Uuid = uuid;
-            AbsoluteOID = new Uri(DefaultNamespace + UuidPrefix 
+            AbsoluteOID = new(DefaultNamespace + UuidPrefix 
                 + uuid.ToString().ToLower());
     
             return;
@@ -31,7 +31,7 @@ public class UuidDescriptor : OIDDescriptorBase
     {        
         Uuid = value;
 
-        AbsoluteOID = new Uri(ns + this);
+        AbsoluteOID = new(DefaultNamespace + UuidPrefix + ToString().ToLower());
     }  
 
     public UuidDescriptor (Guid value) : this (value, DefaultNamespace)
@@ -59,6 +59,16 @@ public class UuidDescriptor : OIDDescriptorBase
         }
 
         return Uuid.CompareTo(uuidDescriptor.Uuid);
+    }
+
+    public override bool Equals(IOIDDescriptor? other)
+    {
+        if (other is not UuidDescriptor uuidDescriptor)
+        {
+            return base.Equals(other);
+        }
+
+        return Uuid.Equals(uuidDescriptor.Uuid);
     }
 
     public override string ToString()
