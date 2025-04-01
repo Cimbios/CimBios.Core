@@ -1,7 +1,7 @@
 using System.Reflection;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Utils.ClassTraits;
+using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
