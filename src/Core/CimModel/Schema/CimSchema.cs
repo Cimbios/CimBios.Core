@@ -1,7 +1,7 @@
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Core.RdfIOLib;
-using CimBios.Utils.ClassTraits;
+using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Core.CimModel.Schema;
 
@@ -52,8 +52,7 @@ public class CimSchema : ICimSchema
     {
         if (_Serializer == null)
         {
-            _Log.NewMessage("Schema serializer has not been initialized", 
-                LogMessageSeverity.Error);
+            _Log.Error("Schema serializer has not been initialized", this);
 
             return;
         }
@@ -85,11 +84,7 @@ public class CimSchema : ICimSchema
             details = baseUri.AbsoluteUri;
         }
 
-        _Log.NewMessage(
-            "Schema: Rdf schema has been loaded.",
-            LogMessageSeverity.Info,
-            details
-        );
+        _Log.Info($"Schema has been loaded. Base = {details}", this);
     }
 
     public void Load(TextReader textReader, 
@@ -198,31 +193,6 @@ public class CimSchema : ICimSchema
         return true;
     }
 
-    public void Join(ICimSchema schema, bool rewriteNamespaces = false)
-    {
-        InvalidateAuto();
-
-        var details = string.Empty;
-        if (schema.Namespaces.TryGetValue("base", out var baseUri))
-        {
-            details = baseUri.AbsoluteUri;
-        }
-
-        _Log.NewMessage(
-            "Schema: Rdf schemas are joining.",
-            LogMessageSeverity.Info,
-            details
-        );
-
-        JoinNamespaces(schema.Namespaces, rewriteNamespaces);
-        JoinClasses(schema.Classes); 
-
-        if (TieSameNameEnums)
-        {
-            TieEnumExtensions();
-        }
-    }
-
     public string GetUriNamespacePrefix(Uri uri)
     {
         foreach (var ns in Namespaces)
@@ -275,23 +245,6 @@ public class CimSchema : ICimSchema
         return extensions;
     }
 
-    private void JoinNamespaces(IReadOnlyDictionary<string, Uri> namespaces, 
-        bool rewriteNamespaces)
-    {
-        foreach (var ns in namespaces)
-        {
-            if (_Namespaces.ContainsKey(ns.Key)
-                && rewriteNamespaces == true)
-            {
-                _Namespaces[ns.Key] = ns.Value;
-            }
-            else
-            {
-                _Namespaces.TryAdd(ns.Key, ns.Value);
-            }
-        }
-    }
-
     /// <summary>
     /// Tie the same name enum instances through extension link.
     /// </summary>
@@ -335,124 +288,6 @@ public class CimSchema : ICimSchema
                 extensibleEnum.AddExtension(enumClass);
             }
         }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="classes"></param>
-    private void JoinClasses(IEnumerable<ICimMetaClass> classes)
-    {
-        var addClassDelegate = (ICimMetaClass metaClass) => 
-        {
-            if (_All.ContainsKey(metaClass.BaseUri) == false)
-            {
-                if (metaClass.ParentClass != null 
-                    && !metaClass.ParentClass.Equals(ResourceSuperClass))
-                {
-                    var parentLeftClass = TryGetResource<ICimMetaClass>
-                        (metaClass.ParentClass.BaseUri);
-                        
-                    if (parentLeftClass != null &&
-                        !parentLeftClass.Equals(ResourceSuperClass))
-                    {
-                        metaClass.ParentClass = parentLeftClass;
-                    }
-                }
-                else
-                {
-                    metaClass.ParentClass = ResourceSuperClass;
-                }
-                
-                _All.Add(metaClass.BaseUri, metaClass);
-            }
-
-            JoinProperties(metaClass.SelfProperties);
-            JoinIndividuals(metaClass.SelfIndividuals);
-        };
-
-        foreach (var metaClass in classes)
-        {
-            var thisMetaClass = TryGetResource<ICimMetaClass>(metaClass.BaseUri);
-            addClassDelegate(metaClass);
-
-            if (thisMetaClass != null)
-            {
-                if (thisMetaClass.ParentClass == ResourceSuperClass 
-                    && metaClass.ParentClass != null
-                    && !metaClass.ParentClass.Equals(ResourceSuperClass))
-                {
-                    addClassDelegate(metaClass.ParentClass);
-                    thisMetaClass.ParentClass = metaClass.ParentClass;                    
-                }
-
-                foreach (var ext in metaClass.Extensions)
-                {
-                    if (thisMetaClass.Extensions.Contains(ext) == false
-                        && thisMetaClass is ICimMetaExtensible extClass)
-                    {
-                        addClassDelegate(ext);
-                        if (ext != null)
-                        {
-                            extClass.AddExtension(ext);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="properties"></param>
-    private void JoinProperties(IEnumerable<ICimMetaProperty> properties)
-    {
-        foreach (var metaProperty in properties.ToArray())
-        {
-            if (_All.ContainsKey(metaProperty.BaseUri) == false)
-            {
-                _All.Add(metaProperty.BaseUri, metaProperty);
-            }
-
-            if (metaProperty.OwnerClass != null)
-            {
-                var ownerLeftClass = TryGetResource<ICimMetaClass>
-                    (metaProperty.OwnerClass.BaseUri);
-
-                if (ownerLeftClass is ICimMetaExtensible extClass)
-                {
-                    extClass.RemoveProperty(metaProperty);
-                    extClass.AddProperty(metaProperty);
-                }
-            }   
-        }  
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="properties"></param>
-    private void JoinIndividuals(IEnumerable<ICimMetaIndividual> individuals)
-    {
-        foreach (var metaIndividual in individuals.ToArray())
-        {
-            if (_All.ContainsKey(metaIndividual.BaseUri) == false)
-            {
-                _All.Add(metaIndividual.BaseUri, metaIndividual);
-
-                if (metaIndividual.InstanceOf != null)
-                {
-                    var ownerLeftClass = TryGetResource<ICimMetaClass>
-                        (metaIndividual.InstanceOf.BaseUri); 
-
-                    if (ownerLeftClass is ICimMetaExtensible extClass)
-                    {
-                        extClass.AddIndividual(metaIndividual);
-                    }
-                }
-            }
-        }  
     }
 
     private void CreateSuperDescriptionClass()
