@@ -11,7 +11,7 @@ public class PropertyMultiplicityValidation
     public void StrictlyOne()
     {
         var cimDocument = ModelLoader.CreateCimModelInstance();
-        var rule = GetMultiplicityValidationRule();
+        var rule = new PropertyMultiplicityValidationRule();
 
         var testCNode = cimDocument.CreateObject<ConnectivityNode>(cimDocument
             .OIDDescriptorFactory.Create("_TestCN"));    
@@ -34,7 +34,7 @@ public class PropertyMultiplicityValidation
     public void OneN()
     {
         var cimDocument = ModelLoader.CreateCimModelInstance();
-        var rule = GetMultiplicityValidationRule();
+        var rule = new PropertyMultiplicityValidationRule();
 
         var IrregularIntervalScheduleMetaClass = cimDocument.Schema
             .TryGetResource<ICimMetaClass>(
@@ -52,7 +52,7 @@ public class PropertyMultiplicityValidation
 
         var testSchedule = cimDocument.CreateObject(cimDocument
             .OIDDescriptorFactory.Create("_TestSchedule"), 
-            IrregularIntervalScheduleMetaClass);    
+            IrregularIntervalScheduleMetaClass);
 
         var result1 = rule.Execute(testSchedule);
         Assert.NotNull(result1
@@ -67,19 +67,5 @@ public class PropertyMultiplicityValidation
         var result2 = rule.Execute(testSchedule);
         Assert.NotNull(result2
             .FirstOrDefault(r => r.ResultType == ValidationResultKind.Pass));   
-    }
-
-    private static IValidationRule GetMultiplicityValidationRule()
-    {
-        var manager = new ValidationManager();
-
-        var rules = manager.GetValidationRules;
-
-        var multiplicityRule = rules.Where(
-            r => r.GetType() ==
-            typeof(PropertyMultiplicityValidationRule)
-        ).Single();
-
-        return multiplicityRule;
     }
 }
