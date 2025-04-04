@@ -12,6 +12,7 @@ using CimBios.Core.RdfIOLib;
 using CimBios.Tools.ModelDebug.Models;
 using CimBios.Tools.ModelDebug.Services;
 using CommunityToolkit.Mvvm.Input;
+using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
@@ -116,9 +117,11 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
                 {
                     var idx = new IndexPath([classRow, objectRow]);
                     CimObjectsSource.Expand(idx);
+                    CimObjectsSource.RowSelection!.Select(idx);
+                    dataGrid.InvalidateArrange();
+                    dataGrid.InvalidateVisual();
                     var rowId = dataGrid.Rows!.ModelIndexToRowIndex(idx);
                     dataGrid.RowsPresenter!.BringIntoView(rowId);
-                    CimObjectsSource.RowSelection!.Select(idx);
 
                     return;
                 }
@@ -183,7 +186,9 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
 
         SelectedUuid = dataFacade.OID.ToString();
 
-        foreach (var attrName in dataFacade.MetaClass.AllProperties.Where(p => p.PropertyKind == Core.CimModel.Schema.CimMetaPropertyKind.Attribute).Select(p => p.ShortName))
+        foreach (var attrName in dataFacade.MetaClass.AllProperties
+            .Where(p => p.PropertyKind == CimMetaPropertyKind.Attribute)
+            .Select(p => p.ShortName))
         {
             var attrValue = dataFacade.GetAttribute<object>(attrName);
             var attrValueStr = attrValue?.ToString();
@@ -201,7 +206,9 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             
             if (attrValue is IModelObject compoundAttr)
             {
-                 foreach (var compoundAttrName in compoundAttr.MetaClass.AllProperties.Where(p => p.PropertyKind == Core.CimModel.Schema.CimMetaPropertyKind.Attribute).Select(p => p.ShortName))
+                 foreach (var compoundAttrName in compoundAttr.MetaClass.AllProperties
+                    .Where(p => p.PropertyKind == CimMetaPropertyKind.Attribute)
+                    .Select(p => p.ShortName))
                 {
                     var compoundAttrValue = compoundAttr.GetAttribute<object>(compoundAttrName);
                     var compoundAttrValueStr = compoundAttrValue?.ToString();
@@ -224,7 +231,9 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             _PropCache.Add(attrNode);
         }
 
-        foreach (var assoc11Name in dataFacade.MetaClass.AllProperties.Where(p => p.PropertyKind == Core.CimModel.Schema.CimMetaPropertyKind.Assoc1To1).Select(p => p.ShortName))
+        foreach (var assoc11Name in dataFacade.MetaClass.AllProperties
+            .Where(p => p.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+            .Select(p => p.ShortName))
         {
             var assoc11Ref = dataFacade.GetAssoc1To1<IModelObject>(assoc11Name);
             string assoc11RefStr = "null";
@@ -237,7 +246,9 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
                 { Name = assoc11Name, Value = assoc11RefStr });
         }
         
-        foreach (var assoc1MName in dataFacade.MetaClass.AllProperties.Where(p => p.PropertyKind == Core.CimModel.Schema.CimMetaPropertyKind.Assoc1ToM).Select(p => p.ShortName))
+        foreach (var assoc1MName in dataFacade.MetaClass.AllProperties
+            .Where(p => p.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+            .Select(p => p.ShortName))
         {
             var assoc1MArray = dataFacade.GetAssoc1ToM(assoc1MName);
             if (assoc1MArray == null)
