@@ -282,10 +282,10 @@ public class DataSelectorViewModel : ViewModelBase
         }
         finally
         {
-            foreach (var m in modelContext.Log.Messages)
-            {
-                ResultMessage += $"{m.CallerName}: {m.Text}\n";
-            }
+            // foreach (var m in modelContext.Log.Messages)
+            // {
+            //     ResultMessage += $"{m.CallerName}: {m.Text}\n";
+            // }
         }
 
         Services.ServiceLocator.GetInstance()
