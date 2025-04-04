@@ -238,9 +238,20 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     protected void OnModelObjectPropertyChanging(object? sender, 
         CanCancelPropertyChangingEventArgs e)
     {
-        //if (e.)
+        if (e is CanCancelAssocChangingEventArgs assocChanging)
+        {
+            if (assocChanging.ModelObject != null)
+            {
+                if (GetObject(assocChanging.ModelObject.OID) 
+                    != assocChanging.ModelObject)
+                {
+                    e.Cancel = true;
+                    throw new InvalidDataException(
+                        "This context does not contains sending association object!");
+                }
+            }
+        }
     }
-
 
     /// <summary>
     /// Event fires on object add or removed from document storage.
