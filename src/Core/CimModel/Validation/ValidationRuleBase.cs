@@ -6,39 +6,41 @@ namespace CimBios.Core.CimModel.Validation;
 public abstract class ValidationRuleBase : IValidationRule
 {
     /// <inheritdoc/>
-    public abstract IEnumerable<ValidationResult> Execute(
-        IModelObject modelObject);
+    public abstract IEnumerable<IValidationResult> Execute(
+        IReadOnlyModelObject modelObject);
+
+    /// <inheritdoc/>
+    public abstract bool NeedExecute(IReadOnlyModelObject modelObject);
 
     /// <summary>
     /// Конструктор класса ValidationRuleBase
     /// </summary>
     protected ValidationRuleBase()
     {
-
     }
+}
 
+///
+internal static class GetGenericPropExtension
+{
     /// <summary>
     /// Get any value (attribute or assoc) of model object by meta property.
     /// </summary>
     /// <param name="modelObject">Model object instance.</param>
     /// <param name="property">Meta property.</param>
     /// <returns>Object value or null if property value does not exist.</returns>
-    protected object? GetPropertyValueAsObject(
-        IModelObject modelObject, ICimMetaProperty property)
+    internal static object? GetPropertyValueAsObject(
+        this IReadOnlyModelObject modelObject, ICimMetaProperty property)
     {
-        switch (property.PropertyKind)
+        return property.PropertyKind switch
         {
-            case CimMetaPropertyKind.Attribute:
-                return modelObject.
-                    GetAttribute(property);
-            case CimMetaPropertyKind.Assoc1To1:
-                return modelObject.
-                    GetAssoc1To1(property);
-            case CimMetaPropertyKind.Assoc1ToM:
-                return modelObject.
-                    GetAssoc1ToM(property);
-        }
-
-        return null;
-    }
+            CimMetaPropertyKind.Attribute => modelObject.
+                                GetAttribute(property),
+            CimMetaPropertyKind.Assoc1To1 => modelObject.
+                                GetAssoc1To1(property),
+            CimMetaPropertyKind.Assoc1ToM => modelObject.
+                                GetAssoc1ToM(property),
+            _ => null,
+        };
+    }    
 }
