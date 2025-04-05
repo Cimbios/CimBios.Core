@@ -240,7 +240,8 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     {
         if (e is CanCancelAssocChangingEventArgs assocChanging)
         {
-            if (assocChanging.ModelObject != null)
+            if (assocChanging.ModelObject != null 
+                && assocChanging.ModelObject is not ModelObjectUnresolvedReference)
             {
                 if (GetObject(assocChanging.ModelObject.OID) 
                     != assocChanging.ModelObject)
