@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using CimBios.Tools.ModelDebug.Views;
 using CommunityToolkit.Mvvm.Input;
 
@@ -7,7 +6,8 @@ namespace CimBios.Tools.ModelDebug.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    public AsyncRelayCommand ShowDataProviderSelectorCommand { get; }
+    public RelayCommand ShowModelLoadDialogCommand { get; }
+    public RelayCommand ShowModelSaveDialogCommand { get; }
 
     public Avalonia.Visual OwnerView { get; }
 
@@ -15,18 +15,59 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         OwnerView = ownerView;
 
-        ShowDataProviderSelectorCommand = 
-            new AsyncRelayCommand(ShowDataProviderSelectorWindow);
+        ShowModelLoadDialogCommand = new RelayCommand(ShowModelLoadDialog);
+        ShowModelSaveDialogCommand = new RelayCommand(ShowModelSaveDialog);
     }
 
-    private Task ShowDataProviderSelectorWindow()
+    private async void ShowModelLoadDialog()
     {
         if (OwnerView is Window ownerWindow == false)
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        var dpsWindow = new DataSelectorWindow();
-        return dpsWindow.ShowDialog(ownerWindow);
+        var dialog = new CimModelOpenSaveWindow(
+            CimModelOpenSaveWindow.DialogMode.Load);
+
+        await dialog.ShowDialog(ownerWindow);
+
+        if (dialog.DialogState == false)
+        {
+            return;
+        }
+
+        try
+        {
+            var model = CimDataModelProvider.LoadFromFile(
+                dialog.ModelPath, dialog.SchemaPath, 
+                dialog.DescriptorFactory, dialog.SchemaFactory, 
+                dialog.RdfSerializerFactory, dialog.SerializerSettings,
+                out var log
+            );
+        }
+        catch
+        {
+
+        }
+        finally
+        {
+
+        }
+
+        return;
+    }
+
+    private async void ShowModelSaveDialog()
+    {
+        if (OwnerView is Window ownerWindow == false)
+        {
+            return;
+        }
+
+        await new CimModelOpenSaveWindow(CimModelOpenSaveWindow.DialogMode.Save)
+            .ShowDialog(ownerWindow);
+
+        // Make initialization.
+        return;
     }
 }
