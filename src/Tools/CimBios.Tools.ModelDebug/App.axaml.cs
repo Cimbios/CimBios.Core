@@ -12,7 +12,10 @@ public partial class App : Application
     public override void Initialize()
     {
          Services.ServiceLocator.GetInstance()
-            .RegisterService(new NotifierService()); 
+            .RegisterService(new CimModelLoaderService()); 
+
+         Services.ServiceLocator.GetInstance()
+            .RegisterService(new ProtocolService()); 
 
         AvaloniaXamlLoader.Load(this);
     }

@@ -1,12 +1,13 @@
 using System.Collections.Generic;
-using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace CimBios.Tools.ModelDebug.Models;
 
 public class LinkedNodeModel : ObservableObject
 {
-    public LinkedNodeModel[] SubNodes { get => _SubNodes.ToArray(); }
+    public IReadOnlyCollection<LinkedNodeModel> SubNodes 
+        => _SubNodes.AsReadOnly();
+
     public LinkedNodeModel? ParentNode 
     { 
         get => _ParentNode; 
@@ -40,6 +41,6 @@ public class LinkedNodeModel : ObservableObject
 
     protected LinkedNodeModel() {}
 
-    private List<LinkedNodeModel> _SubNodes = new List<LinkedNodeModel>();
+    private List<LinkedNodeModel> _SubNodes = [];
     private LinkedNodeModel? _ParentNode = null;
 }

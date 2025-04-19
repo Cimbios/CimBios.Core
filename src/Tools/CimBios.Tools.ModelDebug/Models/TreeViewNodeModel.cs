@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Avalonia.Media.Imaging;
 
 namespace CimBios.Tools.ModelDebug.Models;
@@ -51,9 +50,6 @@ public class TreeViewNodeModel : LinkedNodeModel
         : base()
     {
     }
-
-    private Dictionary<string, object> _Fields 
-        = new Dictionary<string, object>();
 
     private bool _IsExpanded = false;
     private bool _IsVisible = true;

@@ -16,7 +16,7 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="Auto, Auto, *">
+    <Grid RowDefinitions="Auto, Auto, 3*, Auto, *">
         <Menu Grid.Row="0">
             <MenuItem Header="_Model">
                 <MenuItem Header="_Load..." Command="{Binding ShowModelLoadDialogCommand}"/>
@@ -43,10 +43,31 @@
             </Grid.ColumnDefinitions>
             <v:CimObjectsObserverControl Grid.Column="0"/>
             <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
-            <Rectangle Grid.Column="2" Fill="SteelBlue"/>
+            <TabControl Grid.Column="2">
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Height="10" Width="10" Fill="Black" />
+                            <TextBlock Margin="3">Scripts</TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <StackPanel>
+                            <RadioButton IsChecked="True">Diffs</RadioButton>
+                            <RadioButton>Test</RadioButton>
+                            <RadioButton>Test</RadioButton>
+                        </StackPanel>
+                    </TabItem.Content>
+                </TabItem>
+            </TabControl>
             <GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
             <v:CimSchemaTreeUserControl Grid.Column="4"/>
         </Grid>
+
+        <GridSplitter Grid.Row="3" ResizeDirection="Rows"/>
+
+        <v:ProtocolUserControl Grid.Row="4"/>
+
     </Grid>
 
 </Window>

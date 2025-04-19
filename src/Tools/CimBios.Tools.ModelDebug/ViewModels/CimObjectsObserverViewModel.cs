@@ -30,7 +30,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
     public AsyncRelayCommand ExpandAllNodesCommand { get; }
     public AsyncRelayCommand UnexpandAllNodesCommand { get; }
     
-    private CimDocument? _CimModelDocument { get; set; }
+    private ICimDataModel? _CimModelDocument { get; set; }
 
     public string SearchString 
     { 
@@ -65,7 +65,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
                     new TextColumn<TreeViewNodeModel, string>("Title", 
                         x => x.Title), 
                     x => x.SubNodes.Cast<TreeViewNodeModel>(), 
-                    null, 
+                    x => x.SubNodes.Count != 0, 
                     x => x.IsExpanded),
             }
         };
@@ -272,23 +272,23 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
     private void SubscribeModelContextLoad()
     {
         if (Services.ServiceLocator.GetInstance()
-            .TryGetService<NotifierService>(out var notifier) == false
-            || notifier == null)
+            .TryGetService<CimModelLoaderService>(out var loaderService) == false
+            || loaderService == null)
         {
             return;
         }
 
-        notifier.Fired += ModelContext_ModelLoaded;
+        loaderService.PropertyChanged += ModelContext_ModelLoaded;
     }
 
     private void ModelContext_ModelLoaded(object? sender, EventArgs e)
     {
-        if (sender is CimDocument modelContext == false)
+        if (sender is not CimModelLoaderService loaderService)
         {
             return;
         }
 
-        _CimModelDocument = modelContext;
+        _CimModelDocument = loaderService.DataContext;
         FillData();
     }
 

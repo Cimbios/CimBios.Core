@@ -1,5 +1,9 @@
-﻿using Avalonia.Controls;
+﻿using System;
+using System.Linq;
+using Avalonia.Controls;
+using CimBios.Tools.ModelDebug.Services;
 using CimBios.Tools.ModelDebug.Views;
+using CimBios.Utils.ClassTraits.CanLog;
 using CommunityToolkit.Mvvm.Input;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
@@ -10,6 +14,21 @@ public partial class MainWindowViewModel : ViewModelBase
     public RelayCommand ShowModelSaveDialogCommand { get; }
 
     public Avalonia.Visual OwnerView { get; }
+
+    private ProtocolService _ProtocolService  
+    {
+        get
+        {
+            if (ServiceLocator.GetInstance().TryGetService<ProtocolService>(
+                out var protocolService) == false || protocolService == null)
+            {
+                throw new NotSupportedException(
+                    "Protocol service has not been initialized!");
+            }
+
+            return protocolService;
+        }
+    }
 
     public MainWindowViewModel(Avalonia.Visual ownerView)
     {
@@ -36,22 +55,42 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
+        ILog? log = null;
         try
         {
-            var model = CimDataModelProvider.LoadFromFile(
+            if (Services.ServiceLocator.GetInstance()
+                .TryGetService<CimModelLoaderService>(out var loaderService) == false
+                || loaderService == null)
+            {
+                throw new NotSupportedException(
+                    "Loader service has not been initiaized!");
+            }
+
+            loaderService.LoadFromFile(
                 dialog.ModelPath, dialog.SchemaPath, 
                 dialog.DescriptorFactory, dialog.SchemaFactory, 
                 dialog.RdfSerializerFactory, dialog.SerializerSettings,
-                out var log
+                out log
             );
         }
-        catch
+        catch (Exception ex)
         {
-
+            _ProtocolService.Error($"Loading CIM failed: {ex.Message}", "");
         }
         finally
         {
+            if (log != null)
+            {
+                var groupDescriptor = new GroupDescriptor(
+                    $"Load CIM model {dialog.ModelPath}");
 
+                foreach (var logMessage in log.Messages
+                    .Select(m => CanLogMessagesConverter
+                        .Convert(m, groupDescriptor)))
+                {
+                    _ProtocolService.AddMessage(logMessage);
+                }
+            }
         }
 
         return;

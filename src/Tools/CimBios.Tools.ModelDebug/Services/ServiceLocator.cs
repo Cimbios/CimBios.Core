@@ -73,7 +73,7 @@ public class ServiceLocator
             else
             {
                 var sel = list.Where(s => s.GetHashCode() == hash);
-                if (sel.Count() == 0)
+                if (!sel.Any())
                 {
                     return false;
                 }
@@ -93,9 +93,8 @@ public class ServiceLocator
         return false;
     }
 
-    private Dictionary<System.Type, List<object>> _services 
-        = new Dictionary<System.Type, List<object>>();
+    private Dictionary<System.Type, List<object>> _services = [];
 
     private static ServiceLocator? _locator;
-    private static object syncRoot = new object();
+    private static object syncRoot = new();
 }

@@ -115,14 +115,14 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
 
     private void SubscribeModelContextLoad()
     {
-        if (Services.ServiceLocator.GetInstance()
-            .TryGetService<NotifierService>(out var notifier) == false
-            || notifier == null)
-        {
-            return;
-        }
+        // if (Services.ServiceLocator.GetInstance()
+        //     .TryGetService<NotifierService>(out var notifier) == false
+        //     || notifier == null)
+        // {
+        //     return;
+        // }
 
-        notifier.Fired += ModelContext_ModelLoaded;
+        // notifier.Fired += ModelContext_ModelLoaded;
     }
 
     private void ModelContext_ModelLoaded(object? sender, EventArgs e)

@@ -5,12 +5,28 @@ using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Utils.ClassTraits.CanLog;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace CimBios.Tools.ModelDebug;
+namespace CimBios.Tools.ModelDebug.Services;
 
-public static class CimDataModelProvider
+public class CimModelLoaderService : ObservableObject
 {
-    public static ICimDataModel LoadFromFile(
+    public ICimDataModel? DataContext 
+    {
+        get => _DataContext;
+        private set
+        {
+            if (_DataContext == value)
+            {
+                return;
+            }
+
+            _DataContext = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public void LoadFromFile(
         string modelPath, string schemaPath,
         IOIDDescriptorFactory descriptorFactory,
         ICimSchemaFactory schemaFactory, 
@@ -33,6 +49,8 @@ public static class CimDataModelProvider
         log.FlushFrom(typeLib.Log);
         log.FlushFrom(model.Log);
 
-        return model;
+        DataContext = model;
     }
+
+    private ICimDataModel? _DataContext = null;
 }
