@@ -12,8 +12,8 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*" MinHeight="100"/>
-      <RowDefinition Height="1"/>
-      <RowDefinition Height="*"/>
+      <!-- <RowDefinition Height="1"/>
+      <RowDefinition Height="*"/> -->
     </Grid.RowDefinitions>
 
     <TextBox  Grid.Row="0"
@@ -21,6 +21,20 @@
               Text="{Binding SearchString}" 
               Watermark="Search..." 
               TextAlignment="Start">
+
+      <TextBox.InnerLeftContent>
+        <StackPanel Orientation="Horizontal">
+          <Button Theme="{DynamicResource BorderlessButton}" 
+                  Classes="Small, Secondary">
+            <Image Source="/Assets/left.png" Width="16" Height="16"/>
+          </Button>
+          <Button Theme="{DynamicResource BorderlessButton}" 
+                  Classes="Small, Secondary">
+            <Image Source="/Assets/right.png" Width="16" Height="16"/>
+          </Button>
+        </StackPanel>
+      </TextBox.InnerLeftContent>
+
       <TextBox.InnerRightContent>
         <Button Theme="{DynamicResource BorderlessButton}" 
                 Classes="Small, Secondary"
@@ -30,25 +44,38 @@
       </TextBox.InnerRightContent>
     </TextBox>
 
-    <TreeDataGrid x:Name="dataGrid" 
-                  Grid.Row="1"  
-                  Source="{Binding CimObjectsSource}"
-                  FontSize="10"
-                  CanUserSortColumns="False" 
-                  ShowColumnHeaders="False">
-      <TreeDataGrid.Styles>
-        <Style Selector="TreeDataGridRow:pointerover">
-          <Setter Property="Background" Value="#80808080"/>
-        </Style>
-        <Style Selector="TreeDataGridRow">
-          <Setter Property="MinHeight" Value="20"/>
-        </Style>
-      </TreeDataGrid.Styles>
-    </TreeDataGrid>
+    <DockPanel Grid.Row="1" LastChildFill="True">
+      <Border BorderThickness="0,0,0.3,0" BorderBrush="Gray">
+        <StackPanel DockPanel.Dock="Left" >
+          <Button Theme="{DynamicResource BorderlessButton}" >
+            <Image Source="/Assets/openfile.png" Width="16" Height="16"/>
+          </Button>
+          <Button Theme="{DynamicResource BorderlessButton}" >
+            <Image Source="/Assets/savefile.png" Width="16" Height="16"/>
+          </Button>
+          <Separator/>
+        </StackPanel>
+      </Border>
+      <TreeDataGrid x:Name="dataGrid" 
+                    Grid.Row="1"  
+                    Source="{Binding CimObjectsSource}"
+                    FontSize="10"
+                    CanUserSortColumns="False" 
+                    ShowColumnHeaders="False">
+        <TreeDataGrid.Styles>
+          <Style Selector="TreeDataGridRow:pointerover">
+            <Setter Property="Background" Value="#80808080"/>
+          </Style>
+          <Style Selector="TreeDataGridRow">
+            <Setter Property="MinHeight" Value="20"/>
+          </Style>
+        </TreeDataGrid.Styles>
+      </TreeDataGrid>
+    </DockPanel>
 
-    <GridSplitter Grid.Row="2" ResizeDirection="Rows"/>
+    <!-- <GridSplitter Grid.Row="2" ResizeDirection="Rows"/> -->
 
-    <Grid Grid.Row="3" RowDefinitions="Auto, *">
+    <!-- <Grid Grid.Row="3" RowDefinitions="Auto, *">
       <TextBox  Grid.Row="0" FontSize="10"
                 Classes="Small, Bordered" 
                 Text="{Binding SelectedUuid}" 
@@ -71,7 +98,7 @@
           </ContextMenu>
         </TreeDataGrid.ContextMenu>
       </TreeDataGrid>
-    </Grid>
+    </Grid> -->
   </Grid>
 
 </UserControl>

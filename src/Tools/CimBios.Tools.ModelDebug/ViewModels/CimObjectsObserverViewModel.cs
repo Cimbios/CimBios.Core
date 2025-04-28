@@ -326,6 +326,8 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         }
     }
 
+
+
     private string _SearchString = string.Empty;
 
     private string _SelectedUuid = string.Empty;
