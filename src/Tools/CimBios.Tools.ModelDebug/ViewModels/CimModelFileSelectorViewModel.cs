@@ -1,21 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDataModel;
-using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Tools.ModelDebug.Models;
-using CimBios.Tools.ModelDebug.Services;
 using CommunityToolkit.Mvvm.Input;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Platform.Storage;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;

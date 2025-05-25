@@ -29,6 +29,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
 
     public AsyncRelayCommand ExpandAllNodesCommand { get; }
     public AsyncRelayCommand UnexpandAllNodesCommand { get; }
+    public RelayCommand ShowModelLoadDialogCommand { get; }
     
     private ICimDataModel? _CimModelDocument { get; set; }
 
@@ -52,7 +53,22 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             OnPropertyChanged(nameof(SelectedUuid));
 
         }
-    }    
+    }
+
+    private DialogsService _DialogService  
+    {
+        get
+        {
+            if (ServiceLocator.GetInstance().TryGetService<DialogsService>(
+                out var dialogService) == false || dialogService == null)
+            {
+                throw new NotSupportedException(
+                    "Dialog service has not been initialized!");
+            }
+
+            return dialogService;
+        }
+    }
 
     public CimObjectsObserverViewModel()
     {
@@ -95,6 +111,9 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
 
         UnexpandAllNodesCommand = new AsyncRelayCommand
             (() => DoExpandAllNodes(false));
+
+        ShowModelLoadDialogCommand = new RelayCommand
+            (_DialogService.ShowModelLoadDialog);
 
         SubscribeModelContextLoad();
     }

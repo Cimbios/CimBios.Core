@@ -6,10 +6,10 @@ using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Tools.ModelDebug.Services;
 
-public class DialogsService
+public class DialogsService (Avalonia.Visual ownerView)
 {
-    public Avalonia.Visual OwnerView { get; }
-    
+    public Avalonia.Visual OwnerView { get; } = ownerView;
+
     private ProtocolService _ProtocolService  
     {
         get
@@ -37,7 +37,7 @@ public class DialogsService
 
         await dialog.ShowDialog(ownerWindow);
 
-        if (dialog.DialogState == false)
+        if ((dialog.DialogState ?? false) == false)
         {
             return;
         }
@@ -82,4 +82,6 @@ public class DialogsService
 
         return;
     } 
+
+
 }

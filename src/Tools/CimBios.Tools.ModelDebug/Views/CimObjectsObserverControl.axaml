@@ -45,9 +45,10 @@
     </TextBox>
 
     <DockPanel Grid.Row="1" LastChildFill="True">
-      <Border BorderThickness="0,0,0.3,0" BorderBrush="Gray">
+      <Border BorderThickness="0,0,1,0" BorderBrush="Gray">
         <StackPanel DockPanel.Dock="Left" >
-          <Button Theme="{DynamicResource BorderlessButton}" >
+          <Button Theme="{DynamicResource BorderlessButton}" 
+                  Command="{Binding ShowModelLoadDialogCommand}">
             <Image Source="/Assets/openfile.png" Width="16" Height="16"/>
           </Button>
           <Button Theme="{DynamicResource BorderlessButton}" >

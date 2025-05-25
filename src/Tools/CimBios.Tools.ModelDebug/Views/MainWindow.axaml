@@ -17,21 +17,6 @@
     </Design.DataContext>
 
     <Grid RowDefinitions="3*, Auto, *">
-        <!-- <Menu Grid.Row="0">
-            <MenuItem Header="_Model">
-                <MenuItem Header="_Load..." Command="{Binding ShowModelLoadDialogCommand}"/>
-                <MenuItem Header="_Save..." Command="{Binding ShowModelSaveDialogCommand}"/>
-            </MenuItem>
-            <MenuItem Header="_Schema" />
-            <MenuItem Header="_Diffs">
-                <MenuItem Header="_Load..."/>
-                <MenuItem Header="_Compare with..."/>
-                <MenuItem Header="_Show current diffs..."/>
-            </MenuItem>
-            <MenuItem Header="_Validate" />
-        </Menu>
-
-        <Separator Grid.Row="1"/> -->
         
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
@@ -52,11 +37,26 @@
                         </StackPanel>
                     </TabItem.Header>
                     <TabItem.Content>
-                        <StackPanel>
-                            <RadioButton IsChecked="True">Diffs</RadioButton>
-                            <RadioButton>Test</RadioButton>
-                            <RadioButton>Test</RadioButton>
+                    </TabItem.Content>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Height="10" Width="10" Fill="Tomato" />
+                            <TextBlock Margin="3">Diffs</TextBlock>
                         </StackPanel>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                    </TabItem.Content>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Height="10" Width="10" Fill="Green" />
+                            <TextBlock Margin="3">Validation</TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <TabItem.Content>
                     </TabItem.Content>
                 </TabItem>
             </TabControl>
