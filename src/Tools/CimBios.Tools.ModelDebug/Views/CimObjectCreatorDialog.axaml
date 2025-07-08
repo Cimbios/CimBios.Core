@@ -1,0 +1,19 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
+        mc:Ignorable="d"
+        CanResize="False"
+        SizeToContent="WidthAndHeight"
+        x:Class="CimBios.Tools.ModelDebug.Views.CimObjectCreatorDialog"
+        x:DataType="vm:CimObjectCreatorViewModel"
+        Title="CimObjectCreatorDialog">
+
+    <Grid>
+        <StackPanel Orientation="Horizontal">
+            <Button Content="Ok" Command="{Binding Ok}" />
+            <Button Content="Cancel" Command="{Binding Cancel}" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,146 +1,156 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
-using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDataModel;
+using CimBios.Core.CimModel.CimDataModel.Utils;
+using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.RdfIOLib;
 using CimBios.Tools.ModelDebug.Models;
 using CimBios.Tools.ModelDebug.Services;
+using CimBios.Tools.ModelDebug.Views;
 using CommunityToolkit.Mvvm.Input;
-using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
 public class CimObjectsObserverViewModel : TreeViewModelBase
 {
-    public override IEnumerable<TreeViewNodeModel> Nodes 
-    {  get => _NodesCache; }
+    private readonly ObservableCollection<TreeViewNodeModel> _nodesCache = [];
 
-    public HierarchicalTreeDataGridSource<TreeViewNodeModel> CimObjectsSource 
-    { get; }
+    private string _searchString = string.Empty;
 
-    public HierarchicalTreeDataGridSource<CimObjectPropertyModel> PropertySource 
-    { get; }
-
-    public AsyncRelayCommand ExpandAllNodesCommand { get; }
-    public AsyncRelayCommand UnexpandAllNodesCommand { get; }
-    public RelayCommand ShowModelLoadDialogCommand { get; }
-    
-    private ICimDataModel? _CimModelDocument { get; set; }
-
-    public string SearchString 
-    { 
-        get => _SearchString; 
-        set
-        {
-            _SearchString = value;
-            OnPropertyChanged(nameof(SearchString));
-
-        }
-    } 
-
-    public string SelectedUuid 
-    { 
-        get => _SelectedUuid; 
-        set
-        {
-            _SelectedUuid = value;
-            OnPropertyChanged(nameof(SelectedUuid));
-
-        }
-    }
-
-    private DialogsService _DialogService  
+    public CimObjectsObserverViewModel(TreeDataGrid? dataGrid)
     {
-        get
-        {
-            if (ServiceLocator.GetInstance().TryGetService<DialogsService>(
-                out var dialogService) == false || dialogService == null)
-            {
-                throw new NotSupportedException(
-                    "Dialog service has not been initialized!");
-            }
+        DataGridControl = dataGrid;
 
-            return dialogService;
-        }
-    }
-
-    public CimObjectsObserverViewModel()
-    {
-        CimObjectsSource = new 
-        HierarchicalTreeDataGridSource<TreeViewNodeModel>(_NodesCache)
-        {
-            Columns = 
+        CimObjectsSource = new
+            HierarchicalTreeDataGridSource<TreeViewNodeModel>(_nodesCache)
             {
-                new HierarchicalExpanderColumn<TreeViewNodeModel>(
-                    new TextColumn<TreeViewNodeModel, string>("Title", 
-                        x => x.Title), 
-                    x => x.SubNodes.Cast<TreeViewNodeModel>(), 
-                    x => x.SubNodes.Count != 0, 
-                    x => x.IsExpanded),
-            }
-        };
+                Columns =
+                {
+                    new HierarchicalExpanderColumn<TreeViewNodeModel>(
+                        new TextColumn<TreeViewNodeModel, string>("Title",
+                            x => x.Title),
+                        x => x.SubNodes.Cast<TreeViewNodeModel>(),
+                        x => x.SubNodes.Count != 0,
+                        x => x.IsExpanded)
+                }
+            };
 
         CimObjectsSource.RowSelection!.SingleSelect = true;
+        CimObjectsSource.RowSelection!.SelectionChanged
+            += CellSelectionOnSelectionChanged;
 
-        CimObjectsSource.RowSelection!.SelectionChanged 
-            += CellSelection_SelectionChanged;
+        ForwardNavigateCommand = new RelayCommand(ForwardNavigate,
+            () => ForwardObjectsStack.Count != 0);
 
-        PropertySource = new HierarchicalTreeDataGridSource<CimObjectPropertyModel>(_PropCache)
-        {
-            Columns =
-            {
-                new HierarchicalExpanderColumn<CimObjectPropertyModel>(
-                    new TextColumn<CimObjectPropertyModel, string>
-                        ("Name", x => x.Name),
-                    x => x.SubNodes.Cast<CimObjectPropertyModel>()),
-                new TextColumn<CimObjectPropertyModel, string>
-                    ("Value", x => x.Value),
-            },
-        };
-
-        PropertySource.RowSelection!.SingleSelect = true;
-
-        ExpandAllNodesCommand = new AsyncRelayCommand
-            (() => DoExpandAllNodes(true));
-
-        UnexpandAllNodesCommand = new AsyncRelayCommand
-            (() => DoExpandAllNodes(false));
-
-        ShowModelLoadDialogCommand = new RelayCommand
-            (_DialogService.ShowModelLoadDialog);
+        BackNavigateCommand = new RelayCommand(BackNavigate,
+            () => ReverseObjectsStack.Count != 0);
 
         SubscribeModelContextLoad();
+
+        var navigationService = new NavigationService(this);
+        ServiceLocator.GetInstance().RegisterService(navigationService);
     }
 
-    public void Find(TreeDataGrid? dataGrid)
-    {   
-        if (SearchString == string.Empty
-            || dataGrid == null)
+    public override IEnumerable<TreeViewNodeModel> Nodes => _nodesCache;
+
+    public HierarchicalTreeDataGridSource<TreeViewNodeModel> CimObjectsSource { get; set; }
+
+    public RelayCommand BackNavigateCommand { get; }
+    public RelayCommand ForwardNavigateCommand { get; }
+
+    private Stack<IModelObject> ForwardObjectsStack { get; } = [];
+    private Stack<IModelObject> ReverseObjectsStack { get; } = [];
+
+    private TreeDataGrid? DataGridControl { get; }
+    private ICimDataModel? CimModelDocument { get; set; }
+
+    public string SearchString
+    {
+        get => _searchString;
+        set
         {
+            _searchString = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private void CellSelectionOnSelectionChanged(object? sender,
+        TreeSelectionModelSelectionChangedEventArgs<TreeViewNodeModel> e)
+    {
+        var selectedItem = e.SelectedItems.FirstOrDefault();
+        var deselectedItem = e.DeselectedItems.FirstOrDefault();
+
+        if (selectedItem is not CimObjectDataTreeModel selectedCimObjectItem
+            || deselectedItem is not CimObjectDataTreeModel deselectedCimObjectItem)
+        {
+            BackNavigateCommand.NotifyCanExecuteChanged();
+            ForwardNavigateCommand.NotifyCanExecuteChanged();
+
             return;
         }
 
-        int classRow = 0;
+        if (ReverseObjectsStack.TryPeek(out var lastBack)
+            && lastBack == selectedCimObjectItem.ModelObject)
+        {
+            ReverseObjectsStack.Pop();
+            ForwardObjectsStack.Push(deselectedCimObjectItem.ModelObject);
+
+            BackNavigateCommand.NotifyCanExecuteChanged();
+            ForwardNavigateCommand.NotifyCanExecuteChanged();
+
+            return;
+        }
+
+        if (ForwardObjectsStack.TryPeek(out var lastForward)
+            && lastForward == selectedCimObjectItem.ModelObject)
+            ForwardObjectsStack.Pop();
+
+        ReverseObjectsStack.Push(deselectedCimObjectItem.ModelObject);
+
+        BackNavigateCommand.NotifyCanExecuteChanged();
+        ForwardNavigateCommand.NotifyCanExecuteChanged();
+    }
+
+    private void ForwardNavigate()
+    {
+        if (ForwardObjectsStack.TryPeek(out var obj)) Find(obj.OID.ToString());
+    }
+
+    private void BackNavigate()
+    {
+        if (ReverseObjectsStack.TryPeek(out var obj)) Find(obj.OID.ToString());
+    }
+
+    public void Find(string searchString)
+    {
+        if (searchString == string.Empty
+            || DataGridControl == null)
+            return;
+
+        var classRow = 0;
         foreach (var item in CimObjectsSource.Items)
         {
-            int objectRow = 0;
+            var objectRow = 0;
             foreach (var subItem in item.SubNodes.OfType<TreeViewNodeModel>())
             {
-                if (subItem.Title.Contains(SearchString))
+                if (subItem.Title.Contains(searchString.Trim(),
+                        StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var idx = new IndexPath([classRow, objectRow]);
+                    var idx = new IndexPath(classRow, objectRow);
                     CimObjectsSource.Expand(idx);
                     CimObjectsSource.RowSelection!.Select(idx);
-                    dataGrid.InvalidateArrange();
-                    dataGrid.InvalidateVisual();
-                    var rowId = dataGrid.Rows!.ModelIndexToRowIndex(idx);
-                    dataGrid.RowsPresenter!.BringIntoView(rowId);
+                    DataGridControl.InvalidateArrange();
+                    DataGridControl.InvalidateVisual();
+                    var rowId = DataGridControl.Rows!.ModelIndexToRowIndex(idx);
+                    DataGridControl.RowsPresenter!.BringIntoView(rowId);
+                    DataGridControl.TryGetRow(rowId)?.Focus();
 
                     return;
                 }
@@ -150,180 +160,181 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
 
             ++classRow;
         }
-       
-        return;
     }
 
-    public void Navigate(TreeDataGrid? dataGrid)
+    public async Task LoadModel()
     {
-        if (PropertySource.RowSelection!.SelectedItem 
-            is not CimObjectPropertyModel selectedProp)
-        {
-            return;
-        }
+        var result = await GlobalServices.DialogService.ShowModelSaveLoadDialog(
+            CimModelOpenSaveWindow.DialogMode.Load);
+        if (result == null) return;
 
-        var mObj = _CimModelDocument?.GetObject(_CimModelDocument!.
-            OIDDescriptorFactory.Create(selectedProp.Value));
-            
-        if (mObj != null)
-        {
-            var tmpSearchString = SearchString;
-            SearchString = mObj.OID.ToString();
-            Find(dataGrid);
-            SearchString = tmpSearchString;
-        }
-
-        return;
+        GlobalServices.LoaderService.LoadModelFromFile(
+            result.ModelPath, result.SchemaPath,
+            result.DescriptorFactory, result.SchemaFactory,
+            result.RdfSerializerFactory, result.SerializerSettings,
+            out _
+        );
     }
 
-    private void CellSelection_SelectionChanged(object? sender, 
-        TreeSelectionModelSelectionChangedEventArgs<TreeViewNodeModel> e)
+    public async Task SaveModel()
     {
-        if (CimObjectsSource.RowSelection == null)
-        {
-            SelectedItem = null;
-            return;
-        }
+        var result = await GlobalServices.DialogService.ShowModelSaveLoadDialog(
+            CimModelOpenSaveWindow.DialogMode.Save);
+        if (result == null) return;
 
-        SelectedItem = e.SelectedItems.FirstOrDefault();
-
-        ShowSelectedProperties();
+        GlobalServices.LoaderService.SaveModelToFile(
+            result.ModelPath, result.SchemaPath, result.SchemaFactory,
+            result.RdfSerializerFactory, result.SerializerSettings,
+            out _
+        );
     }
 
-    private void ShowSelectedProperties()
+    public void RemoveSelectedObject()
     {
-        _PropCache.Clear();
-        SelectedUuid = string.Empty;
-
-        if (SelectedItem == null
-            || SelectedItem is not CimObjectDataTreeModel cimObjectItem)
-        {
+        if (GlobalServices.NavigationService.SelectedObject == null
+            || CimModelDocument == null)
             return;
-        }
 
-        var dataFacade = cimObjectItem.ModelObject;
+        CimModelDocument.RemoveObject(
+            GlobalServices.NavigationService.SelectedObject);
+    }
 
-        SelectedUuid = dataFacade.OID.ToString();
+    public void ImportDiff()
+    {
+    }
 
-        foreach (var attrName in dataFacade.MetaClass.AllProperties
-            .Where(p => p.PropertyKind == CimMetaPropertyKind.Attribute)
-            .Select(p => p.ShortName))
-        {
-            var attrValue = dataFacade.GetAttribute<object>(attrName);
-            var attrValueStr = attrValue?.ToString();
-            if (attrValueStr == null)
-            {
-                attrValueStr = "null";
-            }
-            else
-            {
-                attrValueStr += $" ({attrValue?.GetType().Name})";
-            }
+    public void CreateNewObject()
+    {
+        if (CimModelDocument == null) return;
 
-            var attrNode = new CimObjectPropertyModel() 
-                { Name = attrName, Value = attrValueStr };
-            
-            if (attrValue is IModelObject compoundAttr)
-            {
-                 foreach (var compoundAttrName in compoundAttr.MetaClass.AllProperties
-                    .Where(p => p.PropertyKind == CimMetaPropertyKind.Attribute)
-                    .Select(p => p.ShortName))
-                {
-                    var compoundAttrValue = compoundAttr.GetAttribute<object>(compoundAttrName);
-                    var compoundAttrValueStr = compoundAttrValue?.ToString();
-                    if (compoundAttrValueStr == null)
-                    {
-                        compoundAttrValueStr = "null";
-                    }
-                    else
-                    {
-                        compoundAttrValueStr += $" ({compoundAttrValue?.GetType().Name})";
-                    }
+        GlobalServices.DialogService.ShowCreateObjectDialog();
 
-                    var compoundAttrNode = new CimObjectPropertyModel() 
-                        { Name = compoundAttrName, Value = compoundAttrValueStr };
-                    
-                    attrNode.AddChild(compoundAttrNode);
-                }
-            }
-
-            _PropCache.Add(attrNode);
-        }
-
-        foreach (var assoc11Name in dataFacade.MetaClass.AllProperties
-            .Where(p => p.PropertyKind == CimMetaPropertyKind.Assoc1To1)
-            .Select(p => p.ShortName))
-        {
-            var assoc11Ref = dataFacade.GetAssoc1To1<IModelObject>(assoc11Name);
-            string assoc11RefStr = "null";
-            if (assoc11Ref != null)
-            {
-                assoc11RefStr = assoc11Ref.OID.ToString();
-            }
-
-            _PropCache.Add(new CimObjectPropertyModel() 
-                { Name = assoc11Name, Value = assoc11RefStr });
-        }
-        
-        foreach (var assoc1MName in dataFacade.MetaClass.AllProperties
-            .Where(p => p.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
-            .Select(p => p.ShortName))
-        {
-            var assoc1MArray = dataFacade.GetAssoc1ToM(assoc1MName);
-            if (assoc1MArray == null)
-            {
-                continue;
-            }
-
-            var assoc1MNode = new CimObjectPropertyModel() 
-                { Name = assoc1MName, Value = $"Count: {assoc1MArray.Count()}" };
-
-            foreach (var assoc1MRef in assoc1MArray.OfType<IModelObject>())
-            {
-                assoc1MNode.AddChild(new CimObjectPropertyModel() 
-                { Name = string.Empty, Value = assoc1MRef.OID.ToString() });
-            }
-
-            _PropCache.Add(assoc1MNode);
-        }    
+        // var metaClass = CimModelDocument
+        //     .Schema.TryGetResource<ICimMetaClass>(
+        //         new Uri("http://iec.ch/TC57/CIM100#Breaker"));
+        //
+        // var oid = CimModelDocument.OIDDescriptorFactory.Create();
+        //
+        // var newObject = CimModelDocument.CreateObject<Breaker>(oid);
+        // newObject.name = $"New breaker {oid}";
     }
 
     private void SubscribeModelContextLoad()
     {
-        if (Services.ServiceLocator.GetInstance()
-            .TryGetService<CimModelLoaderService>(out var loaderService) == false
-            || loaderService == null)
-        {
-            return;
-        }
-
-        loaderService.PropertyChanged += ModelContext_ModelLoaded;
+        GlobalServices.LoaderService.PropertyChanged += ModelContext_ModelLoaded;
     }
 
     private void ModelContext_ModelLoaded(object? sender, EventArgs e)
     {
-        if (sender is not CimModelLoaderService loaderService)
-        {
-            return;
-        }
+        ReverseObjectsStack.Clear();
+        ForwardObjectsStack.Clear();
 
-        _CimModelDocument = loaderService.DataContext;
-        FillData();
+        if (sender is not CimModelLoaderService loaderService) return;
+
+        CimModelDocument = loaderService.DataContext;
+
+        if (CimModelDocument == null) return;
+
+        LoadObjectsCache();
+
+        CimModelDocument.ModelObjectStorageChanged
+            += CimModelDocumentOnModelObjectStorageChanged;
     }
 
-    private void FillData()
+    private void CimModelDocumentOnModelObjectStorageChanged(ICimDataModel? sender,
+        IModelObject modelObject, CimDataModelObjectStorageChangedEventArgs e)
     {
-        _NodesCache.Clear();
-
-        if (_CimModelDocument == null)
+        switch (e.ChangeType)
         {
+            case CimDataModelObjectStorageChangeType.Remove:
+            {
+                var row = OidToRow(modelObject.OID);
+                if (row == null) return;
+
+                RemoveObjectRow(row);
+
+                break;
+            }
+            case CimDataModelObjectStorageChangeType.Add:
+            {
+                CreateObjectRow(modelObject);
+
+                break;
+            }
+        }
+
+        OnPropertyChanged(nameof(CimObjectsSource));
+    }
+
+    private void RemoveObjectRow(CimObjectDataTreeModel row)
+    {
+        if (row.ParentNode == null)
+        {
+            _nodesCache.Remove(row);
             return;
         }
 
-        var schemaClassesUri = 
+        var root = row.ParentNode;
+        while (root.ParentNode != null) root = root.ParentNode;
+
+        if (root is not TreeViewNodeModel rootModel) throw new Exception("Root node is not a TreeViewNodeModel");
+
+        var id = _nodesCache.IndexOf(rootModel);
+        _nodesCache.RemoveAt(id);
+        row.ParentNode = null;
+        _nodesCache.Insert(id, rootModel);
+
+        if (rootModel.SubNodes.Count == 0) _nodesCache.Remove(rootModel);
+    }
+
+    private void CreateObjectRow(IModelObject modelObject)
+    {
+        var classUri = modelObject.MetaClass.BaseUri.AbsoluteUri;
+        var findClassNode = _nodesCache.FirstOrDefault(cn => cn.Title == classUri);
+
+        if (findClassNode == null)
+        {
+            findClassNode = new TreeViewNodeModel { Title = classUri };
+            _nodesCache.Add(findClassNode);
+        }
+
+        var id = _nodesCache.IndexOf(findClassNode);
+        _nodesCache.RemoveAt(id);
+        findClassNode.AddChild(
+            new CimObjectDataTreeModel(modelObject));
+        _nodesCache.Insert(id, findClassNode);
+
+        Find(modelObject.OID.ToString());
+    }
+
+    private CimObjectDataTreeModel? OidToRow(IOIDDescriptor descriptor)
+    {
+        foreach (var node in _nodesCache)
+        {
+            var deepSearch = new Stack<LinkedNodeModel>(node.SubNodes);
+            deepSearch.Push(node);
+
+            while (deepSearch.TryPop(out var subNode))
+            {
+                if (subNode is not CimObjectDataTreeModel cimNode) continue;
+
+                if (cimNode.ModelObject.OID == descriptor) return cimNode;
+            }
+        }
+
+        return null;
+    }
+
+    private void LoadObjectsCache()
+    {
+        _nodesCache.Clear();
+
+        if (CimModelDocument == null) return;
+
+        var schemaClassesUri =
             new Dictionary<Uri, TreeViewNodeModel>(new RdfUriComparer());
 
-        foreach (var cimObj in _CimModelDocument.GetAllObjects())
+        foreach (var cimObj in CimModelDocument.GetAllObjects())
         {
             var cimObjNode = new CimObjectDataTreeModel(cimObj);
 
@@ -334,27 +345,14 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             }
             else
             {
-                var newClassNode = new TreeViewNodeModel() 
+                var newClassNode = new TreeViewNodeModel
                     { Title = classUri.AbsoluteUri };
-                
+
                 newClassNode.AddChild(cimObjNode);
 
-                _NodesCache.Add(newClassNode);
+                _nodesCache.Add(newClassNode);
                 schemaClassesUri.Add(classUri, newClassNode);
             }
         }
     }
-
-
-
-    private string _SearchString = string.Empty;
-
-    private string _SelectedUuid = string.Empty;
-
-    private ObservableCollection<TreeViewNodeModel> _NodesCache 
-        = new ObservableCollection<TreeViewNodeModel>();
-
-    private ObservableCollection<CimObjectPropertyModel> _PropCache 
-        = new ObservableCollection<CimObjectPropertyModel>();
-
 }

@@ -4,55 +4,51 @@ namespace CimBios.Tools.ModelDebug.Models;
 
 public class TreeViewNodeModel : LinkedNodeModel
 {
+    private string _Description = string.Empty;
+
+    private bool _IsExpanded;
+    private bool _IsVisible = true;
+    private string _Title = string.Empty;
+
     public string Title
-    { 
-        get => _Title; 
+    {
+        get => _Title;
         set
         {
             _Title = value;
-            OnPropertyChanged(nameof(Title));
+            OnPropertyChanged();
         }
     }
 
     public string Description
-    { 
-        get => _Description; 
+    {
+        get => _Description;
         set
         {
             _Description = value;
-            OnPropertyChanged(nameof(Description));
+            OnPropertyChanged();
         }
     }
 
     public Bitmap? Image { get; set; }
 
-    public bool IsExpanded 
-    { 
-        get => _IsExpanded; 
+    public bool IsExpanded
+    {
+        get => _IsExpanded;
         set
         {
             _IsExpanded = value;
-            OnPropertyChanged(nameof(IsExpanded));
+            OnPropertyChanged();
         }
     }
 
     public bool IsVisible
-    { 
-        get => _IsVisible; 
+    {
+        get => _IsVisible;
         set
         {
             _IsVisible = value;
-            OnPropertyChanged(nameof(IsVisible));
+            OnPropertyChanged();
         }
     }
-
-    public TreeViewNodeModel()
-        : base()
-    {
-    }
-
-    private bool _IsExpanded = false;
-    private bool _IsVisible = true;
-    private string _Title = string.Empty;
-    private string _Description = string.Empty;
 }

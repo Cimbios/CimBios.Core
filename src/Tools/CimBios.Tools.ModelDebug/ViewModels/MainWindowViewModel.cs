@@ -1,29 +1,16 @@
 ﻿using System;
-using CimBios.Tools.ModelDebug.Services;
+using Avalonia;
+using CommunityToolkit.Mvvm.Input;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase
+public class MainWindowViewModel(Visual ownerView) : ViewModelBase
 {
-    public Avalonia.Visual OwnerView { get; }
+    public Visual OwnerView { get; } = ownerView;
 
-    private ProtocolService _ProtocolService  
+    public RelayCommand SaveLocalDiffs { get; } = new(() =>
     {
-        get
-        {
-            if (ServiceLocator.GetInstance().TryGetService<ProtocolService>(
-                out var protocolService) == false || protocolService == null)
-            {
-                throw new NotSupportedException(
-                    "Protocol service has not been initialized!");
-            }
-
-            return protocolService;
-        }
-    }
-
-    public MainWindowViewModel(Avalonia.Visual ownerView)
-    {
-        OwnerView = ownerView;
-    }
+        GlobalServices.LoaderService
+            .SaveLocalDifferencesToFile($"ld-{DateTime.Now.ToFileTime()}.xml");
+    });
 }

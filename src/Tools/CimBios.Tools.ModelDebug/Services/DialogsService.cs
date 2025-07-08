@@ -1,87 +1,36 @@
-using System;
-using System.Linq;
+using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using CimBios.Tools.ModelDebug.Views;
-using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Tools.ModelDebug.Services;
 
-public class DialogsService (Avalonia.Visual ownerView)
+public class DialogsService(Visual ownerView)
 {
-    public Avalonia.Visual OwnerView { get; } = ownerView;
+    private Visual OwnerView { get; } = ownerView;
 
-    private ProtocolService _ProtocolService  
+    public async Task<CimModelOpenSaveResult?> ShowModelSaveLoadDialog(
+        CimModelOpenSaveWindow.DialogMode dialogMode)
     {
-        get
-        {
-            if (ServiceLocator.GetInstance().TryGetService<ProtocolService>(
-                out var protocolService) == false || protocolService == null)
-            {
-                throw new NotSupportedException(
-                    "Protocol service has not been initialized!");
-            }
+        if (OwnerView is Window ownerWindow == false) return null;
 
-            return protocolService;
-        }
+        var dialog = new CimModelOpenSaveWindow(dialogMode);
+
+        await dialog.ShowDialog(ownerWindow);
+
+        return dialog.DialogState == false ? null : dialog.Result;
     }
 
-    public async void ShowModelLoadDialog()
+    public async void ShowCreateObjectDialog()
     {
-        if (OwnerView is Window ownerWindow == false)
-        {
-            return;
-        }
+        if (OwnerView is Window ownerWindow == false) return;
 
-        var dialog = new CimModelOpenSaveWindow(
-            CimModelOpenSaveWindow.DialogMode.Load);
+        var dialog = new CimObjectCreatorDialog();
 
         await dialog.ShowDialog(ownerWindow);
 
         if ((dialog.DialogState ?? false) == false)
         {
-            return;
         }
-
-        ILog? log = null;
-        try
-        {
-            if (Services.ServiceLocator.GetInstance()
-                .TryGetService<CimModelLoaderService>(out var loaderService) == false
-                || loaderService == null)
-            {
-                throw new NotSupportedException(
-                    "Loader service has not been initiaized!");
-            }
-
-            loaderService.LoadFromFile(
-                dialog.ModelPath, dialog.SchemaPath, 
-                dialog.DescriptorFactory, dialog.SchemaFactory, 
-                dialog.RdfSerializerFactory, dialog.SerializerSettings,
-                out log
-            );
-        }
-        catch (Exception ex)
-        {
-            _ProtocolService.Error($"Loading CIM failed: {ex.Message}", "");
-        }
-        finally
-        {
-            if (log != null)
-            {
-                var groupDescriptor = new GroupDescriptor(
-                    $"Load CIM model {dialog.ModelPath}");
-
-                foreach (var logMessage in log.Messages
-                    .Select(m => CanLogMessagesConverter
-                        .Convert(m, groupDescriptor)))
-                {
-                    _ProtocolService.AddMessage(logMessage);
-                }
-            }
-        }
-
-        return;
-    } 
-
-
+    }
 }

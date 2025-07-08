@@ -8,8 +8,8 @@ public partial class MainWindow : Window
 {
     public MainWindow()
     {
-        Services.ServiceLocator.GetInstance()
-            .RegisterService(new DialogsService(this)); 
+        ServiceLocator.GetInstance()
+            .RegisterService(new DialogsService(this));
 
         DataContext = new MainWindowViewModel(this);
         InitializeComponent();

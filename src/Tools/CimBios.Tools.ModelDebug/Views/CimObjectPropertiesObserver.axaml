@@ -1,8 +1,35 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="CimBios.Tools.ModelDebug.Views.CimObjectPropertiesObserver">
-  Welcome to Avalonia!
+             x:Class="CimBios.Tools.ModelDebug.Views.CimObjectPropertiesObserver"
+             x:DataType="vm:CimObjectPropertiesObserverViewModel">
+
+    <Grid RowDefinitions="Auto, *">
+        <TextBox Grid.Row="0" FontSize="10"
+                 Classes="Small, Bordered"
+                 Text="{Binding SelectedUuid}"
+                 IsReadOnly="True"
+                 TextAlignment="Start" />
+
+        <TreeDataGrid Grid.Row="1" Source="{Binding PropertySource}"
+                      FontSize="10"
+                      CanUserSortColumns="False" VerticalAlignment="Stretch">
+            <TreeDataGrid.Styles>
+                <Style Selector="TreeDataGridRow">
+                    <Setter Property="MinHeight" Value="20" />
+                </Style>
+            </TreeDataGrid.Styles>
+            <TreeDataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Navigate"
+                              Command="{Binding Navigate}"
+                              CommandParameter="{Binding SelectedUuid}" />
+                </ContextMenu>
+            </TreeDataGrid.ContextMenu>
+        </TreeDataGrid>
+    </Grid>
+
 </UserControl>

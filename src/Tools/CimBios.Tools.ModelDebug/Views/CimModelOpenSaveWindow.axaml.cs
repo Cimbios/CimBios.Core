@@ -9,37 +9,49 @@ namespace CimBios.Tools.ModelDebug.Views;
 
 public partial class CimModelOpenSaveWindow : Window
 {
-    public bool? DialogState => _Model.DialogState;
-    public string ModelPath => _Model.CimModelFilePath;
-    public string SchemaPath => _Model.CimSerializerFilePath;
-    public IRdfSerializerFactory RdfSerializerFactory 
-        => _Model.SelectedModelSerializer?.RdfSerializerFactory 
-            ?? throw new InvalidOperationException("No selected Rdf serializer!");
-    public ICimSchemaFactory SchemaFactory
-        => _Model.SelectedSchema?.SchemaFactory 
-            ?? throw new InvalidOperationException("No selected schema type!");
-    public IOIDDescriptorFactory DescriptorFactory
-        => _Model.SelectedOIDDescriptor?.OIDDescriptorFactory 
-            ?? throw new InvalidOperationException("No selected OID descriptor type!");  
-    public RdfSerializerSettings SerializerSettings
-        => _Model.SelectedRdfsSerializerSetting;
+    public enum DialogMode
+    {
+        Load,
+        Save
+    }
 
-    protected CimModelFileSelectorViewModel _Model;
+    private readonly CimModelFileSelectorViewModel _model;
 
     public CimModelOpenSaveWindow(DialogMode dialogMode)
     {
-        _Model = new CimModelFileSelectorViewModel(this)
+        _model = new CimModelFileSelectorViewModel(this)
         {
             SaveMode = dialogMode == DialogMode.Save
         };
 
-        DataContext = _Model;
+        DataContext = _model;
 
         InitializeComponent();
     }
 
-    public enum DialogMode
-    {
-        Load, Save
-    }
+    public CimModelOpenSaveResult Result => new(_model);
+    public bool? DialogState => _model.DialogState;
+}
+
+public class CimModelOpenSaveResult(CimModelFileSelectorViewModel model)
+{
+    public string ModelPath { get; } = model.CimModelFilePath;
+
+    public string SchemaPath { get; } = model.CimSerializerFilePath;
+
+    public IRdfSerializerFactory RdfSerializerFactory { get; } =
+        model.SelectedModelSerializer?
+            .RdfSerializerFactory
+        ?? throw new InvalidOperationException("No selected Rdf serializer!");
+
+    public ICimSchemaFactory SchemaFactory { get; } =
+        model.SelectedSchema?.SchemaFactory
+        ?? throw new InvalidOperationException("No selected schema type!");
+
+    public IOIDDescriptorFactory DescriptorFactory { get; } =
+        model.SelectedOIDDescriptor?.OIDDescriptorFactory
+        ?? throw new InvalidOperationException("No selected OID descriptor type!");
+
+    public RdfSerializerSettings SerializerSettings { get; }
+        = model.SelectedRdfsSerializerSetting;
 }

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data;
 using System.IO;
 using System.Linq;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using CimBios.Tools.ModelDebug.Models;
@@ -16,26 +14,11 @@ public class ProtocolViewModel : ViewModelBase
 {
     public HierarchicalTreeDataGridSource<TreeViewNodeModel> DataSource 
     { get; }
-
-    private ProtocolService _ProtocolService  
-    {
-        get
-        {
-            if (ServiceLocator.GetInstance().TryGetService<ProtocolService>(
-                out var protocolService) == false || protocolService == null)
-            {
-                throw new NotSupportedException(
-                    "Protocol service has not been initialized!");
-            }
-
-            return protocolService;
-        }
-    }
-
+    
     public ProtocolViewModel()
     {
         DataSource = new 
-        HierarchicalTreeDataGridSource<TreeViewNodeModel>(_Cache)
+        HierarchicalTreeDataGridSource<TreeViewNodeModel>(_cache)
         {
             Columns = 
             {
@@ -50,24 +33,26 @@ public class ProtocolViewModel : ViewModelBase
             }
         };
 
-        _ProtocolService.OnMessageAdded += ProtocolServiceMessageAdded;
+        GlobalServices.ProtocolService.OnMessageAdded 
+            += ProtocolServiceMessageAdded;
 
-        _ProtocolService.Info("Protocol view intialized.", "Protocol");
+        GlobalServices.ProtocolService.Info(
+            "Protocol view initialized.", "Protocol");
     }
 
     public void ClearView()
     {
-        _Cache.Clear();
-        _GroupMap.Clear();
+        _cache.Clear();
+        _groupMap.Clear();
     }
 
     public void SaveToFile()
     {
         var path = $"{Directory.GetCurrentDirectory()}\\log-{DateTime.Now.ToFileTime()}.csv";
 
-        _ProtocolService.SaveToFile(path);
+        GlobalServices.ProtocolService.SaveToFile(path);
 
-        _Cache.Add(new ProtocolMessageModel(
+        _cache.Add(new ProtocolMessageModel(
             new ProtocolMessage($"[S] Log saved to {path}", "Protocol", 
             ProtocolMessageKind.Info)
         ));
@@ -83,11 +68,11 @@ public class ProtocolViewModel : ViewModelBase
         var newProtocolMessage = new ProtocolMessageModel(pe.Message);
         if (pe.Message.GroupDescriptor == null)
         {
-            _Cache.Add(newProtocolMessage);
+            _cache.Add(newProtocolMessage);
             return;
         }
 
-        if (_GroupMap.TryGetValue(pe.Message.GroupDescriptor, 
+        if (_groupMap.TryGetValue(pe.Message.GroupDescriptor, 
             out var groupNode))
         {
             groupNode.AddChild(newProtocolMessage);
@@ -100,8 +85,8 @@ public class ProtocolViewModel : ViewModelBase
             };
             newGroupNode.AddChild(newProtocolMessage);
 
-            _Cache.Add(newGroupNode);
-            _GroupMap.Add(pe.Message.GroupDescriptor, newGroupNode);
+            _cache.Add(newGroupNode);
+            _groupMap.Add(pe.Message.GroupDescriptor, newGroupNode);
         }
     }
 
@@ -128,12 +113,12 @@ public class ProtocolViewModel : ViewModelBase
     {
         if (node is ProtocolMessageModel pmm)
         {
-            return pmm.Message.Source.ToString();
+            return pmm.Message.Source;
         }
 
         return "[Unk]";
     }
 
-    private readonly ObservableCollection<TreeViewNodeModel> _Cache = [];
-    private readonly Dictionary<GroupDescriptor, TreeViewNodeModel> _GroupMap = [];
+    private readonly ObservableCollection<TreeViewNodeModel> _cache = [];
+    private readonly Dictionary<GroupDescriptor, TreeViewNodeModel> _groupMap = [];
 }

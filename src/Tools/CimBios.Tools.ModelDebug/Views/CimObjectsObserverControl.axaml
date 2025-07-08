@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
-             xmlns:m="using:CimBios.Tools.ModelDebug.Models"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="CimBios.Tools.ModelDebug.Views.CimObjectsObserverControl"
@@ -12,8 +11,6 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*" MinHeight="100"/>
-      <!-- <RowDefinition Height="1"/>
-      <RowDefinition Height="*"/> -->
     </Grid.RowDefinitions>
 
     <TextBox  Grid.Row="0"
@@ -25,10 +22,12 @@
       <TextBox.InnerLeftContent>
         <StackPanel Orientation="Horizontal">
           <Button Theme="{DynamicResource BorderlessButton}" 
+                  Command="{Binding BackNavigateCommand}"
                   Classes="Small, Secondary">
             <Image Source="/Assets/left.png" Width="16" Height="16"/>
           </Button>
           <Button Theme="{DynamicResource BorderlessButton}" 
+                  Command="{Binding ForwardNavigateCommand}"
                   Classes="Small, Secondary">
             <Image Source="/Assets/right.png" Width="16" Height="16"/>
           </Button>
@@ -40,7 +39,7 @@
                 Classes="Small, Secondary"
                 Content="🔍"
                 Command="{Binding Find}"
-                CommandParameter="{Binding #dataGrid}"/>
+                CommandParameter="{Binding SearchString}"/>
       </TextBox.InnerRightContent>
     </TextBox>
 
@@ -48,13 +47,25 @@
       <Border BorderThickness="0,0,1,0" BorderBrush="Gray">
         <StackPanel DockPanel.Dock="Left" >
           <Button Theme="{DynamicResource BorderlessButton}" 
-                  Command="{Binding ShowModelLoadDialogCommand}">
+                  Command="{Binding LoadModel}">
             <Image Source="/Assets/openfile.png" Width="16" Height="16"/>
           </Button>
-          <Button Theme="{DynamicResource BorderlessButton}" >
+          <Button Theme="{DynamicResource BorderlessButton}" 
+                  Command="{Binding SaveModel}">
             <Image Source="/Assets/savefile.png" Width="16" Height="16"/>
           </Button>
           <Separator/>
+          <Button Content="+" Theme="{DynamicResource BorderlessButton}"
+                  Command="{Binding CreateNewObject}">
+          </Button>
+          <Button Content="-" Theme="{DynamicResource BorderlessButton}"
+                  Command="{Binding RemoveSelectedObject}">
+          </Button>
+          <Separator/>
+          <Button Theme="{DynamicResource BorderlessButton}"
+                  Command="{Binding ImportDiff}">
+            <Image Source="/Assets/diff.png" Width="16" Height="16"/>
+          </Button>
         </StackPanel>
       </Border>
       <TreeDataGrid x:Name="dataGrid" 
@@ -74,32 +85,6 @@
       </TreeDataGrid>
     </DockPanel>
 
-    <!-- <GridSplitter Grid.Row="2" ResizeDirection="Rows"/> -->
-
-    <!-- <Grid Grid.Row="3" RowDefinitions="Auto, *">
-      <TextBox  Grid.Row="0" FontSize="10"
-                Classes="Small, Bordered" 
-                Text="{Binding SelectedUuid}" 
-                IsReadOnly="True" 
-                TextAlignment="Start"/>
-
-      <TreeDataGrid Grid.Row="1"  Source="{Binding PropertySource}"
-                      FontSize="10"
-                      CanUserSortColumns="False" VerticalAlignment="Stretch">
-        <TreeDataGrid.Styles>
-          <Style Selector="TreeDataGridRow">
-            <Setter Property="MinHeight" Value="20"/>
-          </Style>
-        </TreeDataGrid.Styles>
-        <TreeDataGrid.ContextMenu>
-          <ContextMenu>
-            <MenuItem Header="Navigate" 
-                      Command="{Binding Navigate}"
-                      CommandParameter="{Binding #dataGrid}"/>
-          </ContextMenu>
-        </TreeDataGrid.ContextMenu>
-      </TreeDataGrid>
-    </Grid> -->
   </Grid>
 
 </UserControl>
