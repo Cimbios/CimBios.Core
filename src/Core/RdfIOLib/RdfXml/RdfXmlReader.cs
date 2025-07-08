@@ -1,35 +1,26 @@
-using System.Xml;
-using System.Text;
 using System.Collections.ObjectModel;
+using System.Text;
+using System.Xml;
 
 namespace CimBios.Core.RdfIOLib;
 
 /// <summary>
-/// Reader for rdf/xml formatted data.
-/// Presents data in RDF-Triple format.
+///     Reader for rdf/xml formatted data.
+///     Presents data in RDF-Triple format.
 /// </summary>
 public sealed class RdfXmlReader : RdfReaderBase
 {
-    private XmlReader _XmlReader
-    {
-        get
-        {
-            if (_xmlReader == null)
-            {
-                throw new InvalidOperationException("XmlReader has not been initialized!");
-            }
+    private XmlReader? _xmlReader;
 
-            return _xmlReader;
-        }
+    /// <summary>
+    ///     Default constructor.
+    /// </summary>
+    public RdfXmlReader()
+    {
     }
 
     /// <summary>
-    /// Default constructor.
-    /// </summary>
-    public RdfXmlReader() { }
-
-    /// <summary>
-    /// Constructor sets base namespace.
+    ///     Constructor sets base namespace.
     /// </summary>
     /// <param name="baseNamespace">Base namespace for local identified objects.</param>
     public RdfXmlReader(Uri baseNamespace)
@@ -37,7 +28,17 @@ public sealed class RdfXmlReader : RdfReaderBase
         AddNamespace("base", baseNamespace);
     }
 
-    public override void Parse(string content, 
+    private XmlReader _XmlReader
+    {
+        get
+        {
+            if (_xmlReader == null) throw new InvalidOperationException("XmlReader has not been initialized!");
+
+            return _xmlReader;
+        }
+    }
+
+    public override void Parse(string content,
         Encoding? encoding = null)
     {
         encoding ??= Encoding.Default;
@@ -51,10 +52,10 @@ public sealed class RdfXmlReader : RdfReaderBase
     public override void Load(TextReader textReader)
     {
         var xmlReader = XmlReader.Create(textReader,
-            new XmlReaderSettings()
+            new XmlReaderSettings
             {
                 IgnoreWhitespace = true,
-                IgnoreComments = true,
+                IgnoreComments = true
             }
         );
 
@@ -68,14 +69,9 @@ public sealed class RdfXmlReader : RdfReaderBase
 
         if (_XmlReader.ReadState != ReadState.Initial
             && _XmlReader.ReadState != ReadState.Interactive)
-        {
             throw new Exception("XmlReader has not been initialized!");
-        }
 
-        if (ReadRdfRootNode() == false)
-        {
-            throw new Exception("Xml document does not contains rdf:RDF root node!");
-        }
+        if (ReadRdfRootNode() == false) throw new Exception("Xml document does not contains rdf:RDF root node!");
     }
 
     public override void Close()
@@ -83,16 +79,13 @@ public sealed class RdfXmlReader : RdfReaderBase
         ClearNamespaces();
         _xmlReader?.Close();
     }
-    
+
     public override IEnumerable<RdfNode> ReadAll()
     {
         RdfNode? rdfNode;
         while ((rdfNode = ReadNext()) != null)
         {
-            if (_XmlReader.IsEmptyElement)
-            {
-                _XmlReader.Read();
-            }
+            if (_XmlReader.IsEmptyElement) _XmlReader.Read();
 
             yield return rdfNode;
         }
@@ -100,15 +93,9 @@ public sealed class RdfXmlReader : RdfReaderBase
 
     public override RdfNode? ReadNext()
     {
-        if (CanReadNext() == false)
-        {
-            return null;
-        }
+        if (CanReadNext() == false) return null;
 
-        if (SkipToNextElement() == false)
-        {
-            return null;
-        }
+        if (SkipToNextElement() == false) return null;
 
         var subtreeReader = _XmlReader.ReadSubtree();
         subtreeReader.Read();
@@ -120,16 +107,11 @@ public sealed class RdfXmlReader : RdfReaderBase
 
         while (subtreeReader.Read())
         {
-            if (subtreeReader.NodeType == XmlNodeType.EndElement 
+            if (subtreeReader.NodeType == XmlNodeType.EndElement
                 && subtreeReader.Depth == 0)
-            {
                 break;
-            }
 
-            if (SkipToNextElement(subtreeReader) == false)
-            {
-                break;
-            }
+            if (SkipToNextElement(subtreeReader) == false) break;
 
             var predicateInfo = ReadNodeHeader();
             if (predicateInfo.AttributesMap.ContainsKey(rdf + "resource"))
@@ -138,20 +120,16 @@ public sealed class RdfXmlReader : RdfReaderBase
                 var predicateTypeIRI = NameToUri(predicateInfo.TypeIdentifier);
 
                 if (predicateTypeIRI.AbsoluteUri == rdf + "type")
-                {
                     rdfNode.TypeIdentifier = resourceIRI;
-                }
                 else
-                {
-                    rdfNode.NewTriple(predicateTypeIRI, 
+                    rdfNode.NewTriple(predicateTypeIRI,
                         new RdfTripleObjectUriContainer(resourceIRI));
-                }
             }
-            else if (subtreeReader.Read() 
-                && subtreeReader.NodeType == XmlNodeType.Text)
+            else if (subtreeReader.Read()
+                     && subtreeReader.NodeType == XmlNodeType.Text)
             {
                 rdfNode.NewTriple(
-                    NameToUri(predicateInfo.TypeIdentifier), 
+                    NameToUri(predicateInfo.TypeIdentifier),
                     new RdfTripleObjectLiteralContainer(subtreeReader.Value));
             }
             else if (subtreeReader.NodeType == XmlNodeType.Element)
@@ -159,21 +137,14 @@ public sealed class RdfXmlReader : RdfReaderBase
                 var rdfNodesCollection = new List<RdfNode>();
                 do
                 {
-                    if (subtreeReader.NodeType == XmlNodeType.EndElement)
-                    {
-                        break;
-                    }
+                    if (subtreeReader.NodeType == XmlNodeType.EndElement) break;
 
                     var nextNode = ReadNext();
-                    if (nextNode != null)
-                    {
-                        rdfNodesCollection.Add(nextNode);
-                    }
-                }
-                while (subtreeReader.Read());
+                    if (nextNode != null) rdfNodesCollection.Add(nextNode);
+                } while (subtreeReader.Read());
 
                 rdfNode.NewTriple(
-                    NameToUri(predicateInfo.TypeIdentifier), 
+                    NameToUri(predicateInfo.TypeIdentifier),
                     new RdfTripleObjectStatementsContainer(rdfNodesCollection));
             }
         }
@@ -182,7 +153,7 @@ public sealed class RdfXmlReader : RdfReaderBase
     }
 
     /// <summary>
-    /// Skip while Element not found or eof
+    ///     Skip while Element not found or eof
     /// </summary>
     /// <returns>True if next element reached.</returns>
     private bool SkipToNextElement()
@@ -191,37 +162,30 @@ public sealed class RdfXmlReader : RdfReaderBase
     }
 
     /// <summary>
-    /// Skip while Element not found or eof with special reader.
+    ///     Skip while Element not found or eof with special reader.
     /// </summary>
     /// <param name="xmlReader">Xml reader</param>
     /// <returns>True if next element reached.</returns>
     private bool SkipToNextElement(XmlReader xmlReader)
     {
         while (xmlReader.NodeType != XmlNodeType.Element)
-        {   
             if (xmlReader.Read() == false)
-            {
                 return false;
-            }
-        }
 
         return true;
     }
 
     /// <summary>
-    /// Get element identifier from rdf:about/id. 
-    /// Makes auto identifier in case of unidetified element.
+    ///     Get element identifier from rdf:about/id.
+    ///     Makes auto identifier in case of unidetified element.
     /// </summary>
     /// <returns>dcd</returns>
     private RdfXmlNodeInfo ReadNodeHeader()
     {
         var sharperNamespace = _XmlReader.NamespaceURI;
-        if (_XmlReader.NamespaceURI.LastOrDefault() != '#')
-        {
-            sharperNamespace += '#';
-        }
+        if (_XmlReader.NamespaceURI.LastOrDefault() != '#') sharperNamespace += '#';
 
-        var info = new RdfXmlNodeInfo()
+        var info = new RdfXmlNodeInfo
         {
             TypeIdentifier = sharperNamespace + _XmlReader.LocalName,
             IsEmpty = _XmlReader.IsEmptyElement,
@@ -253,29 +217,26 @@ public sealed class RdfXmlReader : RdfReaderBase
     }
 
     /// <summary>
-    /// Get reading ability status.
+    ///     Get reading ability status.
     /// </summary>
     /// <returns>True if reading is available.</returns>
     private bool CanReadNext()
     {
         return _xmlReader != null
-            && _xmlReader.ReadState != ReadState.Closed
-            && _xmlReader.ReadState != ReadState.Error
-            && _xmlReader.ReadState != ReadState.EndOfFile;
+               && _xmlReader.ReadState != ReadState.Closed
+               && _xmlReader.ReadState != ReadState.Error
+               && _xmlReader.ReadState != ReadState.EndOfFile;
     }
 
     /// <summary>
-    /// Read attributes from element node.
+    ///     Read attributes from element node.
     /// </summary>
     /// <returns>Pairs (attr uri, value) set.</returns>
     private Dictionary<string, string> ReadNodeAttributes()
     {
         var result = new Dictionary<string, string>();
 
-        if (_XmlReader.HasAttributes == false)
-        {
-            return result;
-        }
+        if (_XmlReader.HasAttributes == false) return result;
 
         while (_XmlReader.MoveToNextAttribute())
         {
@@ -287,7 +248,7 @@ public sealed class RdfXmlReader : RdfReaderBase
     }
 
     /// <summary>
-    /// Get rdf:RDF root node.
+    ///     Get rdf:RDF root node.
     /// </summary>
     private bool ReadRdfRootNode()
     {
@@ -302,7 +263,7 @@ public sealed class RdfXmlReader : RdfReaderBase
     }
 
     /// <summary>
-    /// Parse all root namespaces.
+    ///     Parse all root namespaces.
     /// </summary>
     private void ParseXmlns()
     {
@@ -310,15 +271,11 @@ public sealed class RdfXmlReader : RdfReaderBase
         {
             if (_XmlReader.NamespaceURI != xmlns
                 && _XmlReader.Name != "xml:base")
-            {
                 continue;
-            }
 
             AddNamespace(_XmlReader.LocalName, new Uri(_XmlReader.Value));
         }
     }
-
-    private XmlReader? _xmlReader = null;
 
     private struct RdfXmlNodeInfo
     {

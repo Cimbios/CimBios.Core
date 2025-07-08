@@ -1,11 +1,8 @@
-
 namespace CimBios.Core.CimModel.CimDatatypeLib.OID;
 
 public class AutoDescriptor : OIDDescriptorBase
 {
     private const string BaseNamespace = "base:";
-
-    public override Uri AbsoluteOID { get; }
 
     public AutoDescriptor()
     {
@@ -13,6 +10,8 @@ public class AutoDescriptor : OIDDescriptorBase
 
         AbsoluteOID = new Uri(BaseNamespace + oid);
     }
+
+    public override Uri AbsoluteOID { get; }
 
     public override int CompareTo(object? obj)
     {

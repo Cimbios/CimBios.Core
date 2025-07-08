@@ -23,24 +23,24 @@ public class LoadTest
 
         var lDiffsProfile = cimDifferenceModel.Differences
             .Select(d => (d.OID, d.ModifiedProperties.Count)).ToList();
-        
-        cimDifferenceModel.Save("~$tmpdiff-LoadTest.xml", new RdfXmlSerializerFactory() 
-        { 
-            Settings = new RdfSerializerSettings()
-            { 
-                WritingIRIMode = RdfIRIModeKind.ID 
-            } 
+
+        cimDifferenceModel.Save("~$tmpdiff-LoadTest.xml", new RdfXmlSerializerFactory
+        {
+            Settings = new RdfSerializerSettings
+            {
+                WritingIRIMode = RdfIRIModeKind.ID
+            }
         });
 
         cimDifferenceModel.Load("~$tmpdiff-LoadTest.xml", new RdfXmlSerializerFactory());
-        
+
         Assert.True(CheckLoadedModel(cimDifferenceModel));
 
         var rDiffsProfile = cimDifferenceModel.Differences
             .Select(d => (d.OID, d.ModifiedProperties.Count)).ToList();
 
-        Assert.True(lDiffsProfile.Intersect(rDiffsProfile).Count() 
-            == lDiffsProfile.Count);
+        Assert.True(lDiffsProfile.Intersect(rDiffsProfile).Count()
+                    == lDiffsProfile.Count);
     }
 
     [Fact]
@@ -93,16 +93,16 @@ public class LoadTest
         Assert.True(CheckLoadedModel(cimDifferenceModel));
 
         var cimDocument = ModelLoader.LoadCimModel_v1() as CimDocument;
-        
+
         Assert.NotNull(cimDocument);
 
         cimDocument.ApplyDifferenceModel(cimDifferenceModel);
-        cimDocument.Save("~$tmpdiff-LoadApplySave.xml", new RdfXmlSerializerFactory() 
-        { 
-            Settings = new RdfSerializerSettings()
-            { 
+        cimDocument.Save("~$tmpdiff-LoadApplySave.xml", new RdfXmlSerializerFactory
+        {
+            Settings = new RdfSerializerSettings
+            {
                 WritingIRIMode = RdfIRIModeKind.ID
-            } 
+            }
         });
 
         var modifiedModel = ModelLoader.LoadCimModel_v1_changed() as CimDocument;
@@ -115,7 +115,7 @@ public class LoadTest
             new TextDescriptorFactory()
         );
 
-        cimDifferenceModelCheck.CompareDataModels(modifiedModel, cimDocument);  
+        cimDifferenceModelCheck.CompareDataModels(modifiedModel, cimDocument);
         Assert.Empty(cimDifferenceModelCheck.Differences);
     }
 
@@ -135,29 +135,24 @@ public class LoadTest
         var applyDM = ModelLoader.LoadCimDiffModel_v1();
         cimDocument.ApplyDifferenceModel(applyDM);
 
-        cimDifferenceModel.Save("~$tmpdiff-LoadSubscribeSave.xml", 
-        new RdfXmlSerializerFactory() 
-        { 
-            Settings = new RdfSerializerSettings()
-            { 
-                WritingIRIMode = RdfIRIModeKind.ID
-            } 
-        });
+        cimDifferenceModel.Save("~$tmpdiff-LoadSubscribeSave.xml",
+            new RdfXmlSerializerFactory
+            {
+                Settings = new RdfSerializerSettings
+                {
+                    WritingIRIMode = RdfIRIModeKind.ID
+                }
+            });
     }
 
     private bool CheckLoadedModel(ICimDifferenceModel cimDifferenceModel)
     {
         if (cimDifferenceModel.ModelDescription == null
             || cimDifferenceModel.ModelDescription.OID.ToString()
-                != "_DifferenceModelHeader")
-        {
+            != "_DifferenceModelHeader")
             throw new InvalidDataException("dm header is not defined!");
-        }
 
-        if (cimDifferenceModel.Differences.Count == 0)
-        {
-            throw new InvalidDataException("diffs set is empty!");
-        }
+        if (cimDifferenceModel.Differences.Count == 0) throw new InvalidDataException("diffs set is empty!");
 
         return true;
     }

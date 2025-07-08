@@ -1,24 +1,23 @@
+using System.ComponentModel;
+using System.Reflection;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Utils.ClassTraits.CanLog;
-using System.ComponentModel;
-using System.Reflection;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
 /// <summary>
-/// Concrete model objects types library class.
+///     Concrete model objects types library class.
 /// </summary>
 public class CimDatatypeLib : ICimDatatypeLib
 {
-    /// <summary>
-    /// Runtime attached typelib assemblies.
-    /// </summary>
-    public ICollection<Assembly> LoadedAssemblies => _LoadedAssemblies;
-    public IReadOnlyDictionary<ICimMetaClass, System.Type> RegisteredTypes 
-        => _RegisteredTypes.AsReadOnly();
+    private readonly HashSet<Assembly> _LoadedAssemblies = [];
 
-    public ILogView Log => _Log.AsReadOnly();
+    private readonly PlainLogView _Log;
+
+    private readonly Dictionary<ICimMetaClass, Type> _RegisteredTypes = [];
+
+    private readonly ICimSchema _Schema;
 
     public CimDatatypeLib(ICimSchema cimSchema)
     {
@@ -29,11 +28,21 @@ public class CimDatatypeLib : ICimDatatypeLib
         LoadAssembly(Assembly.GetExecutingAssembly());
     }
 
-    public CimDatatypeLib(string typesAssemblyPath, ICimSchema cimSchema) 
+    public CimDatatypeLib(string typesAssemblyPath, ICimSchema cimSchema)
         : this(cimSchema)
     {
         LoadAssembly(typesAssemblyPath);
     }
+
+    /// <summary>
+    ///     Runtime attached typelib assemblies.
+    /// </summary>
+    public ICollection<Assembly> LoadedAssemblies => _LoadedAssemblies;
+
+    public IReadOnlyDictionary<ICimMetaClass, Type> RegisteredTypes
+        => _RegisteredTypes.AsReadOnly();
+
+    public ILogView Log => _Log.AsReadOnly();
 
     public void LoadAssembly(string typesAssemblyPath, bool reset = true)
     {
@@ -43,12 +52,9 @@ public class CimDatatypeLib : ICimDatatypeLib
 
     public void LoadAssembly(Assembly typesAssembly, bool reset = true)
     {
-        if (_Log.DebugLogMode)
-        {
-            _Log.Info($"Loading types assembly {typesAssembly.FullName}");
-        }
+        if (_Log.DebugLogMode) _Log.Info($"Loading types assembly {typesAssembly.FullName}");
 
-        if (reset == true)
+        if (reset)
         {
             _LoadedAssemblies.Clear();
             _RegisteredTypes.Clear();
@@ -59,18 +65,12 @@ public class CimDatatypeLib : ICimDatatypeLib
         var cimTypes = typesAssembly.GetTypes()
             .Where(t => t.IsDefined(typeof(CimClassAttribute), true));
 
-        foreach (var type in cimTypes)
-        {
-            RegisterType(type);
-        }
+        foreach (var type in cimTypes) RegisterType(type);
     }
 
-    public void RegisterType(System.Type type)
+    public void RegisterType(Type type)
     {
-        if (_Log.DebugLogMode)
-        {
-            _Log.Info($"Register type {type.FullName}");
-        }
+        if (_Log.DebugLogMode) _Log.Info($"Register type {type.FullName}");
 
         var attribute = type.GetCustomAttribute<CimClassAttribute>();
         if (attribute == null)
@@ -84,10 +84,7 @@ public class CimDatatypeLib : ICimDatatypeLib
         var metaType = _Schema.TryGetResource<ICimMetaClass>(typeUri);
 
         // Not registered in schema.
-        if (metaType == null)
-        {
-            return;
-        }
+        if (metaType == null) return;
 
         if (type.IsEnum)
         {
@@ -103,122 +100,93 @@ public class CimDatatypeLib : ICimDatatypeLib
             return;
         }
 
-        if (!_RegisteredTypes.TryAdd(metaType, type))
-        {
-            _RegisteredTypes[metaType] = type;
-        }
+        if (!_RegisteredTypes.TryAdd(metaType, type)) _RegisteredTypes[metaType] = type;
     }
 
     public IModelObject? CreateInstance(IModelObjectFactory modelObjectFactory,
         IOIDDescriptor oid, ICimMetaClass metaClass)
     {
         if (_Schema.CanCreateClass(metaClass) == false)
-        {
             throw new NotSupportedException(
                 $"Class {metaClass.ShortName} cannot be created!");
-        }
 
         var isRegisteredType = RegisteredTypes
             .TryGetValue(metaClass, out var type);
 
         IModelObject? instance = null;
         if (isRegisteredType && type!.IsAssignableTo(modelObjectFactory.ProduceType))
-        {
             instance = Activator.CreateInstance(type, oid, metaClass) as IModelObject;
-        }
 
         instance ??= modelObjectFactory.Create(oid, metaClass);
 
-        if (instance is DynamicModelObjectBase dynamicModelObject)
-        {
-            dynamicModelObject.InternalTypeLib = this;
-        }
+        if (instance is DynamicModelObjectBase dynamicModelObject) dynamicModelObject.InternalTypeLib = this;
 
         return instance;
     }
 
-    public T? CreateInstance<T>(IOIDDescriptor oid) 
+    public T? CreateInstance<T>(IOIDDescriptor oid)
         where T : class, IModelObject
-    {   
+    {
         var metaClass = TypedToMetaClass<T>();
         var type = RegisteredTypes[metaClass];
 
         if (_Schema.CanCreateClass(metaClass) == false)
-        {
             throw new NotSupportedException(
                 $"Class {metaClass.ShortName} cannot be created!");
-        }
 
         var instance = Activator.CreateInstance(type, oid, metaClass) as T;
-        if (instance is DynamicModelObjectBase dynamicModelObject)
-        {
-            dynamicModelObject.InternalTypeLib = this;
-        }
+        if (instance is DynamicModelObjectBase dynamicModelObject) dynamicModelObject.InternalTypeLib = this;
 
         return instance;
     }
 
     public EnumValueObject? CreateEnumValueInstance(
-        ICimMetaIndividual metaIndividual) 
+        ICimMetaIndividual metaIndividual)
     {
         if (metaIndividual.InstanceOf == null)
-        {
             throw new InvalidEnumArgumentException(
                 $"Invalid meta enum value {metaIndividual.ShortName}!");
-        }
 
-        if (RegisteredTypes.TryGetValue(metaIndividual.InstanceOf, 
-            out var enumType))
+        if (RegisteredTypes.TryGetValue(metaIndividual.InstanceOf,
+                out var enumType))
         {
             var constructType = typeof(EnumValueObject<>)
                 .MakeGenericType(enumType);
 
-            var enumValuenNstance = Activator.CreateInstance(constructType, 
-                BindingFlags.NonPublic | BindingFlags.Instance, 
+            var enumValuenNstance = Activator.CreateInstance(constructType,
+                BindingFlags.NonPublic | BindingFlags.Instance,
                 null, [metaIndividual], null);
 
             return enumValuenNstance as EnumValueObject;
         }
-        else if (_Schema.Individuals.Contains(metaIndividual))
-        {
-            return new EnumValueObject(metaIndividual);
-        }
-        else
-        {
-            throw new NotSupportedException(
-                $"Enum value {metaIndividual.ShortName} is not registered!");
-        }
+
+        if (_Schema.Individuals.Contains(metaIndividual)) return new EnumValueObject(metaIndividual);
+
+        throw new NotSupportedException(
+            $"Enum value {metaIndividual.ShortName} is not registered!");
     }
 
     public EnumValueObject<TEnum>? CreateEnumValueInstance<TEnum>(
-        TEnum enumValue) where TEnum: struct, Enum
+        TEnum enumValue) where TEnum : struct, Enum
     {
         var metaClass = TypedToMetaClass<TEnum>();
         var metaIndividual = metaClass
-            .AllIndividuals.FirstOrDefault(
-                i => i.ShortName == enumValue.ToString());
+            .AllIndividuals.FirstOrDefault(i => i.ShortName == enumValue.ToString());
 
-        if (metaIndividual != null)
-        {
-            return new EnumValueObject<TEnum>(metaIndividual);
-        }
-        else
-        {
-            throw new NotSupportedException(
-                $"Enum value {enumValue} does not align typelib schema!");
-        }
+        if (metaIndividual != null) return new EnumValueObject<TEnum>(metaIndividual);
+
+        throw new NotSupportedException(
+            $"Enum value {enumValue} does not align typelib schema!");
     }
 
     public IModelObject? CreateCompoundInstance(
         IModelObjectFactory modelObjectFactory, ICimMetaClass metaClass)
     {
         if (metaClass.IsCompound == false)
-        {
             throw new NotSupportedException(
                 $"Meta class {metaClass.ShortName} is not compound!");
-        }
 
-        return CreateInstance(modelObjectFactory, 
+        return CreateInstance(modelObjectFactory,
             new AutoDescriptor(), metaClass);
     }
 
@@ -227,10 +195,8 @@ public class CimDatatypeLib : ICimDatatypeLib
         var metaClass = TypedToMetaClass<T>();
 
         if (metaClass.IsCompound == false)
-        {
             throw new NotSupportedException(
                 $"Meta class {metaClass.ShortName} is not compound!");
-        }
 
         return CreateInstance<T>(new AutoDescriptor());
     }
@@ -242,33 +208,22 @@ public class CimDatatypeLib : ICimDatatypeLib
             .FirstOrDefault();
 
         if (metaClass == null)
-        {
             throw new NotSupportedException(
                 $"Meta class of type {typeof(T).Name} is not registered!");
-        }
 
         return metaClass;
     }
-
-    private readonly ICimSchema _Schema;
-
-    private readonly HashSet<Assembly> _LoadedAssemblies = [];
-
-    private readonly Dictionary<ICimMetaClass, System.Type> _RegisteredTypes = [];
-
-    private readonly PlainLogView _Log;
 }
 
-
 /// <summary>
-/// Attribute for mark CIM concrete class type.
+///     Attribute for mark CIM concrete class type.
 /// </summary>
 public class CimClassAttribute : Attribute
 {
-    public string AbsoluteUri { get; set; }
-
     public CimClassAttribute(string absoluteUri)
     {
         AbsoluteUri = absoluteUri;
     }
+
+    public string AbsoluteUri { get; set; }
 }

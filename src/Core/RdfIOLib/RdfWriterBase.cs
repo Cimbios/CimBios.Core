@@ -5,29 +5,27 @@ namespace CimBios.Core.RdfIOLib;
 
 public abstract class RdfWriterBase : RdfNamespacesContainerBase
 {
-    protected RdfWriterBase() { }
-
     public RdfIRIModeKind RdfIRIMode { get; set; } = RdfIRIModeKind.About;
 
     /// <summary>
-    /// Open rdf/xml content from TextWriter.
+    ///     Open rdf/xml content from TextWriter.
     /// </summary>
     public abstract void Open(TextWriter textWriter,
         bool excludeBase = true, Encoding? encoding = null);
 
     /// <summary>
-    /// Open rdf/xml content from XmlWriter.
+    ///     Open rdf/xml content from XmlWriter.
     /// </summary>
     public abstract void Open(XmlWriter xmlWriter,
         bool excludeBase = true);
 
     /// <summary>
-    /// End of rdf document writing.
+    ///     End of rdf document writing.
     /// </summary>
     public abstract void Close();
 
     /// <summary>
-    /// Write RdfNode to XmlWriter stream
+    ///     Write RdfNode to XmlWriter stream
     /// </summary>
     /// <param name="rdfNode"></param>
     /// <param name="excludeBase"></param>
@@ -35,7 +33,7 @@ public abstract class RdfWriterBase : RdfNamespacesContainerBase
     public abstract void Write(RdfNode rdfNode);
 
     /// <summary>
-    /// Writes RdfNodes list to XmlWriter stream
+    ///     Writes RdfNodes list to XmlWriter stream
     /// </summary>
     /// <param name="rdfNodes"></param>
     /// <param name="excludeBase"></param>

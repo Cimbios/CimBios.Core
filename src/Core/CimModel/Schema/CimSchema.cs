@@ -7,29 +7,16 @@ namespace CimBios.Core.CimModel.Schema;
 
 public class CimSchema : ICimSchema
 {
-    public ILogView Log => _Log;
+    private readonly PlainLogView _Log;
 
-    public IReadOnlyDictionary<string, Uri> Namespaces 
-        => _Namespaces;
-    public IEnumerable<ICimMetaClass> Classes 
-        => _All.Values.OfType<ICimMetaClass>();
-    public IEnumerable<ICimMetaClass> Extensions 
-        => GetExtensions();
-    public IEnumerable<ICimMetaProperty> Properties 
-        => _All.Values.OfType<ICimMetaProperty>();
-    public IEnumerable<ICimMetaIndividual> Individuals 
-        => _All.Values.OfType<ICimMetaIndividual>(); 
-    public IEnumerable<ICimMetaDatatype> Datatypes 
-        => _All.Values.OfType<ICimMetaDatatype>();
+    private Dictionary<Uri, ICimMetaResource> _All;
 
-    public bool TieSameNameEnums { get; set; } = true;
+    private Dictionary<string, Uri> _Namespaces;
 
-    public ICimMetaClass ResourceSuperClass => _ResourceSuperClass;
-
-    private ICimSchemaSerializer? _Serializer { get; set; }
+    public ICimMetaClass _ResourceSuperClass;
 
     public CimSchema()
-    {   
+    {
         _Log = new PlainLogView(this);
 
         _All = [];
@@ -39,7 +26,7 @@ public class CimSchema : ICimSchema
             CimRdfSchemaStrings.RdfsResource,
             "Resource", "Root rdfs:Resource meta instance.");
         resourceSuperClass.SetIsAbstract(true);
-        _ResourceSuperClass = resourceSuperClass;   
+        _ResourceSuperClass = resourceSuperClass;
     }
 
     public CimSchema(ICimSchemaSerializerFactory serializerFactory)
@@ -47,6 +34,31 @@ public class CimSchema : ICimSchema
     {
         _Serializer = serializerFactory.CreateSerializer();
     }
+
+    private ICimSchemaSerializer? _Serializer { get; set; }
+    public ILogView Log => _Log;
+
+    public IReadOnlyDictionary<string, Uri> Namespaces
+        => _Namespaces;
+
+    public IEnumerable<ICimMetaClass> Classes
+        => _All.Values.OfType<ICimMetaClass>();
+
+    public IEnumerable<ICimMetaClass> Extensions
+        => GetExtensions();
+
+    public IEnumerable<ICimMetaProperty> Properties
+        => _All.Values.OfType<ICimMetaProperty>();
+
+    public IEnumerable<ICimMetaIndividual> Individuals
+        => _All.Values.OfType<ICimMetaIndividual>();
+
+    public IEnumerable<ICimMetaDatatype> Datatypes
+        => _All.Values.OfType<ICimMetaDatatype>();
+
+    public bool TieSameNameEnums { get; set; } = true;
+
+    public ICimMetaClass ResourceSuperClass => _ResourceSuperClass;
 
     public void Load(TextReader textReader)
     {
@@ -62,32 +74,26 @@ public class CimSchema : ICimSchema
         _All = _Serializer.Deserialize();
         _All.Add(_ResourceSuperClass.BaseUri, _ResourceSuperClass);
 
-        _All.Add(CimRdfSchemaStrings.RdfDescription, 
+        _All.Add(CimRdfSchemaStrings.RdfDescription,
             new CimAutoClass(
-                CimRdfSchemaStrings.RdfDescription, 
-                "Description", 
+                CimRdfSchemaStrings.RdfDescription,
+                "Description",
                 "rdf:Description meta instance.")
-            );
+        );
 
         _Namespaces = _Serializer.Namespaces.ToDictionary();
 
-        if (TieSameNameEnums)
-        {
-            TieEnumExtensions();
-        }
+        if (TieSameNameEnums) TieEnumExtensions();
 
         CreateSuperDescriptionClass();
 
         var details = string.Empty;
-        if (_Namespaces.TryGetValue("base", out var baseUri))
-        {
-            details = baseUri.AbsoluteUri;
-        }
+        if (_Namespaces.TryGetValue("base", out var baseUri)) details = baseUri.AbsoluteUri;
 
         _Log.Info($"Schema has been loaded. Base = {details}", this);
     }
 
-    public void Load(TextReader textReader, 
+    public void Load(TextReader textReader,
         ICimSchemaSerializerFactory serializerFactory)
     {
         _Serializer = serializerFactory.CreateSerializer();
@@ -101,27 +107,20 @@ public class CimSchema : ICimSchema
     {
         var result = new List<ICimMetaProperty>();
 
-        ICimMetaClass? nextClass = metaClass;
+        var nextClass = metaClass;
 
         do
         {
-            foreach (var prop in Properties.Where(p => 
-                nextClass == p.OwnerClass))
-            {
+            foreach (var prop in Properties.Where(p =>
+                         nextClass == p.OwnerClass))
                 result.Add(prop);
-            }
 
-            if (extensions == true)
-            {         
+            if (extensions)
                 foreach (var extClass in nextClass.Extensions)
-                {
                     result.AddRange(GetClassProperties(extClass, false, false));
-                }
-            }
 
             nextClass = nextClass?.ParentClass;
-        }
-        while (inherit == true && nextClass != null);
+        } while (inherit && nextClass != null);
 
         return result;
     }
@@ -134,24 +133,14 @@ public class CimSchema : ICimSchema
 
         foreach (var individual in Individuals)
         {
-            if (individual.InstanceOf == null)
-            {
-                continue;
-            }
+            if (individual.InstanceOf == null) continue;
 
-            if (metaClass.Equals(individual.InstanceOf))
-            {
-                result.Add(individual);
-            }
+            if (metaClass.Equals(individual.InstanceOf)) result.Add(individual);
         }
 
-        if (extensions == true)
-        {
+        if (extensions)
             foreach (var ext in metaClass.Extensions)
-            {
                 result.AddRange(GetClassIndividuals(ext, false));
-            }
-        }
 
         return result;
     }
@@ -160,9 +149,7 @@ public class CimSchema : ICimSchema
     {
         if (_All.TryGetValue(uri, out var metaDescription)
             && metaDescription is T meta)
-        {
             return meta;
-        }
 
         return default;
     }
@@ -174,20 +161,13 @@ public class CimSchema : ICimSchema
 
     public bool CanCreateClass(ICimMetaClass metaClass)
     {
-        if (metaClass.IsAbstract || metaClass.IsDatatype || metaClass.IsEnum)
-        {
-            return false;
-        }
+        if (metaClass.IsAbstract || metaClass.IsDatatype || metaClass.IsEnum) return false;
 
         if (metaClass.IsExtension)
         {
-            var extendedBy = Classes.Where(
-                c => c.Extensions.Contains(metaClass));
-                
-            if (extendedBy.Any(c => c.BaseUri != metaClass.BaseUri))
-            {
-                return false;
-            }
+            var extendedBy = Classes.Where(c => c.Extensions.Contains(metaClass));
+
+            if (extendedBy.Any(c => c.BaseUri != metaClass.BaseUri)) return false;
         }
 
         return true;
@@ -196,12 +176,8 @@ public class CimSchema : ICimSchema
     public string GetUriNamespacePrefix(Uri uri)
     {
         foreach (var ns in Namespaces)
-        {
             if (ns.Value.AbsolutePath == uri.AbsolutePath)
-            {
                 return ns.Key;
-            }
-        }
 
         return "_";
     }
@@ -209,20 +185,13 @@ public class CimSchema : ICimSchema
     public void InvalidateAuto()
     {
         foreach (var metaClass in Classes)
+        foreach (var metaProperty in metaClass.SelfProperties)
         {
-            foreach (var metaProperty in metaClass.SelfProperties)
-            {
-                if (TryGetResource<ICimMetaProperty>(
+            if (TryGetResource<ICimMetaProperty>(
                     metaProperty.BaseUri) != null)
-                {
-                    continue;
-                }
+                continue;
 
-                if (metaClass is ICimMetaExtensible extClass)
-                {
-                    extClass.RemoveProperty(metaProperty);
-                }
-            }
+            if (metaClass is ICimMetaExtensible extClass) extClass.RemoveProperty(metaProperty);
         }
     }
 
@@ -230,23 +199,18 @@ public class CimSchema : ICimSchema
     {
         var extensions = new HashSet<ICimMetaClass>();
         foreach (var metaClass in Classes)
+        foreach (var extension in metaClass.Extensions)
         {
-            foreach (var extension in metaClass.Extensions)
-            {
-                if (extensions.Contains(extension))
-                {
-                    continue;
-                }
-                
-                extensions.Add(extension);
-            }
+            if (extensions.Contains(extension)) continue;
+
+            extensions.Add(extension);
         }
 
         return extensions;
     }
 
     /// <summary>
-    /// Tie the same name enum instances through extension link.
+    ///     Tie the same name enum instances through extension link.
     /// </summary>
     private void TieEnumExtensions()
     {
@@ -256,59 +220,40 @@ public class CimSchema : ICimSchema
         var enumsMap = new Dictionary<string, ICimMetaClass>();
         foreach (var property in enumProperties)
         {
-            if (property.PropertyDatatype is not ICimMetaClass enumClass)
-            {
-                continue;
-            }
+            if (property.PropertyDatatype is not ICimMetaClass enumClass) continue;
 
             if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
-                out var enumName) == false)
-            {
+                    out var enumName) == false)
                 continue;
-            }
 
             enumsMap.TryAdd(enumName, enumClass);
         }
 
         var enums = _All.Values.OfType<ICimMetaClass>()
-            .Where(o => o.IsEnum == true);
+            .Where(o => o.IsEnum);
 
         foreach (var enumClass in enums)
         {
             if (RdfUtils.TryGetEscapedIdentifier(enumClass.BaseUri,
-                out var enumName) == false)
-            {
+                    out var enumName) == false)
                 continue;
-            }
 
             if (enumsMap.TryGetValue(enumName, out var baseEnum)
                 && baseEnum != enumClass
                 && baseEnum is ICimMetaExtensible extensibleEnum)
-            {
                 extensibleEnum.AddExtension(enumClass);
-            }
         }
     }
 
     private void CreateSuperDescriptionClass()
     {
         var extensionsCache = Extensions;
-        foreach (var quasiSuper in Classes.Where(c => 
-            c != ResourceSuperClass
-            && c.SuperClass 
-            && !c.IsEnum 
-            && c is not ICimMetaDatatype
-            && !extensionsCache.Contains(c)))
-        {
+        foreach (var quasiSuper in Classes.Where(c =>
+                     c != ResourceSuperClass
+                     && c.SuperClass
+                     && !c.IsEnum
+                     && c is not ICimMetaDatatype
+                     && !extensionsCache.Contains(c)))
             quasiSuper.ParentClass = ResourceSuperClass;
-        }
     }
-
-    private Dictionary<Uri, ICimMetaResource> _All;
-
-    private Dictionary<string, Uri> _Namespaces;
-
-    public ICimMetaClass _ResourceSuperClass;
-
-    private readonly PlainLogView _Log;
 }

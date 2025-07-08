@@ -6,12 +6,7 @@ public class TextDescriptor : OIDDescriptorBase
 {
     public const string DefaultNamespace = "base:";
 
-    public string TextOID { get; }
-    public override Uri AbsoluteOID { get; }
-
-    public override bool IsEmpty => TextOID.Length == 0;
-
-    public TextDescriptor (Uri absoluteOID)
+    public TextDescriptor(Uri absoluteOID)
     {
         if (RdfUtils.TryGetEscapedIdentifier(absoluteOID, out var oid))
         {
@@ -23,10 +18,15 @@ public class TextDescriptor : OIDDescriptorBase
         throw new ArgumentException($"Incorrect UUID uri {absoluteOID}!");
     }
 
-    public TextDescriptor (string value)
-        : this (new Uri(DefaultNamespace + value))
+    public TextDescriptor(string value)
+        : this(new Uri(DefaultNamespace + value))
     {
     }
+
+    public string TextOID { get; }
+    public override Uri AbsoluteOID { get; }
+
+    public override bool IsEmpty => TextOID.Length == 0;
 
     public override string ToString()
     {
@@ -35,10 +35,7 @@ public class TextDescriptor : OIDDescriptorBase
 
     public override int CompareTo(object? obj)
     {
-        if (obj is not TextDescriptor textDescriptor)
-        {
-            return base.CompareTo(obj);
-        }
+        if (obj is not TextDescriptor textDescriptor) return base.CompareTo(obj);
 
         return TextOID.CompareTo(textDescriptor.TextOID);
     }

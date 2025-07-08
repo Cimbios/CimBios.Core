@@ -99,7 +99,7 @@ public class ModelObject : DynamicModelObjectBase,
             return;
         }
 
-        ValidatePropertyValueAssignition(metaProperty, 
+        ValidatePropertyValueAssign(metaProperty, 
             value, CimMetaPropertyKind.Attribute);
 
         if (CanChangeProperty(metaProperty, value) == false)
@@ -232,7 +232,7 @@ public class ModelObject : DynamicModelObjectBase,
      public override void SetAssoc1To1(ICimMetaProperty metaProperty, 
         IModelObject? obj)
      {
-        ValidatePropertyValueAssignition(metaProperty, 
+        ValidatePropertyValueAssign(metaProperty, 
             obj, CimMetaPropertyKind.Assoc1To1);
 
         if (CanChangeProperty(metaProperty, obj) == false)
@@ -333,7 +333,7 @@ public class ModelObject : DynamicModelObjectBase,
     public override void AddAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj)
     {
-        ValidatePropertyValueAssignition(metaProperty, 
+        ValidatePropertyValueAssign(metaProperty, 
             obj, CimMetaPropertyKind.Assoc1ToM);
 
         if (CanChangeProperty(metaProperty, obj, false) == false)
@@ -373,7 +373,6 @@ public class ModelObject : DynamicModelObjectBase,
         if (metaProperty != null)
         {
             AddAssoc1ToM(metaProperty, obj);
-            return;
         }
         else
         {
@@ -427,7 +426,7 @@ public class ModelObject : DynamicModelObjectBase,
 
     public override void RemoveAllAssocs1ToM(ICimMetaProperty metaProperty)
     {
-        if (MetaClass.AllProperties.Contains(metaProperty) == true
+        if (MetaClass.AllProperties.Contains(metaProperty)
             && _PropertiesData.ContainsKey(metaProperty) == false)
         {
             return;
@@ -509,7 +508,7 @@ public class ModelObject : DynamicModelObjectBase,
     /// <param name="callerPropertyKind">Property kind.</param>
     /// <exception cref="Exception"></exception>
     /// <exception cref="ArgumentException"></exception>
-    private void ValidatePropertyValueAssignition(ICimMetaProperty metaProperty, 
+    private void ValidatePropertyValueAssign(ICimMetaProperty metaProperty, 
         object? value, CimMetaPropertyKind callerPropertyKind)
     {
         if (metaProperty.PropertyKind != callerPropertyKind)
@@ -564,7 +563,7 @@ public class ModelObject : DynamicModelObjectBase,
             return true;
         }
 
-        System.Type primitiveType = typeof(string);
+        Type primitiveType = typeof(string);
         if (metaProperty.PropertyDatatype is ICimMetaDatatype datatype)
         {
             primitiveType = datatype.PrimitiveType;

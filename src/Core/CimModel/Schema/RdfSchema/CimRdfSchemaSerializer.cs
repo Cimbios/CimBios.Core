@@ -5,10 +5,20 @@ using CimBios.Utils.MetaReflectionHelper;
 
 namespace CimBios.Core.CimModel.Schema.RdfSchema;
 
-public class CimRdfSchemaSerializer(RdfReaderBase rdfReader) 
+public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
     : ICimSchemaSerializer
 {
-    public ReadOnlyDictionary <string, Uri> Namespaces 
+    private readonly Dictionary<string, Uri> _Namespaces = [];
+
+    private readonly Dictionary<Uri, ICimMetaResource> _ObjectsCache
+        = new(new RdfUriComparer());
+
+    private readonly RdfReaderBase _RdfReader = rdfReader;
+
+    private readonly MetaReflectionHelper _SerializeHelper
+        = new(Assembly.GetExecutingAssembly());
+
+    public ReadOnlyDictionary<string, Uri> Namespaces
         => _Namespaces.AsReadOnly();
 
     public void Load(TextReader reader)
@@ -38,19 +48,16 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
     }
 
     /// <summary>
-    /// Move namespaces from reader doc.
+    ///     Move namespaces from reader doc.
     /// </summary>
     private void ForwardReaderNamespaces()
     {
-        foreach (var item in _RdfReader.Namespaces)
-        {
-            _Namespaces.Add(item.Key, item.Value);
-        }
+        foreach (var item in _RdfReader.Namespaces) _Namespaces.Add(item.Key, item.Value);
     }
 
     /// <summary>
-    /// Serialization read of rdf description nodes.
-    /// <param name="descriptionTypedNodes">RdfNode object.</param>
+    ///     Serialization read of rdf description nodes.
+    ///     <param name="descriptionTypedNodes">RdfNode object.</param>
     /// </summary>
     private void ReadObjects(IEnumerable<RdfNode> descriptionTypedNodes)
     {
@@ -58,20 +65,15 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
 
         foreach (var node in descriptionTypedNodes)
         {
-            if (_ObjectsCache.ContainsKey(node.Identifier))
-            {
-                continue;
-            }
+            if (_ObjectsCache.ContainsKey(node.Identifier)) continue;
 
             if (_SerializeHelper.TryGetTypeInfo(node.TypeIdentifier
-                .AbsoluteUri.ToLower(), out var typeInfo)
+                    .AbsoluteUri.ToLower(), out var typeInfo)
                 && typeInfo != null)
             {
-                if (Activator.CreateInstance(typeInfo, node.Identifier) 
+                if (Activator.CreateInstance(typeInfo, node.Identifier)
                     is ICimRdfDescription instance)
-                {
                     _ObjectsCache.Add(node.Identifier, instance);
-                }
             }
             else
             {
@@ -83,90 +85,78 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
     }
 
     /// <summary>
-    /// Create schema individuals.
-    /// <param name="nodes">List of description RDF nodes.</param>
+    ///     Create schema individuals.
+    ///     <param name="nodes">List of description RDF nodes.</param>
     /// </summary>
     private void CreateIndividuals(IEnumerable<RdfNode> nodes)
     {
         foreach (var node in nodes)
         {
             if ((_ObjectsCache.TryGetValue(node.TypeIdentifier, out var entity)
-                && entity is CimRdfsClass metaClass) == false)
-            {
+                 && entity is CimRdfsClass metaClass) == false)
                 continue;
-            }
 
-            _ObjectsCache.Add(node.Identifier, 
+            _ObjectsCache.Add(node.Identifier,
                 new CimRdfsIndividual(node.Identifier)
-            {
-                InstanceOf = metaClass
-            });
+                {
+                    InstanceOf = metaClass
+                });
         }
     }
 
     /// <summary>
-    /// Fill property reference instances.
-    /// <param name="descriptionTypedNodes">List of description RDF nodes.</param>
+    ///     Fill property reference instances.
+    ///     <param name="descriptionTypedNodes">List of description RDF nodes.</param>
     /// </summary>
     private void ResolveReferences(IEnumerable<RdfNode> descriptionTypedNodes)
     {
         foreach (var node in descriptionTypedNodes)
         {
-            if (_ObjectsCache.TryGetValue(node.Identifier, 
-                    out ICimMetaResource? metaDescription) == false
+            if (_ObjectsCache.TryGetValue(node.Identifier,
+                    out var metaDescription) == false
                 || metaDescription is ICimRdfDescription == false)
-            {
                 continue;
-            }
 
             foreach (var triple in node.Triples)
             {
                 var result = _SerializeHelper
-                    .TryGetMemberInfo(triple.Predicate.AbsoluteUri.ToLower(), 
+                    .TryGetMemberInfo(triple.Predicate.AbsoluteUri.ToLower(),
                         out var memberInfo);
 
-                if (result == false || memberInfo == null)
-                {
-                    continue;
-                }
+                if (result == false || memberInfo == null) continue;
 
                 var attribute = memberInfo
                     .GetCustomAttribute<CimSchemaSerializableAttribute>(true);
                 var value = triple.Object;
 
-                if (attribute == null || value == null)
-                {
-                    continue;
-                }
+                if (attribute == null || value == null) continue;
 
-                if (attribute.FieldType == MetaFieldType.ByRef 
+                if (attribute.FieldType == MetaFieldType.ByRef
                     && value is RdfTripleObjectUriContainer valueRefUriContainer)
                 {
-                    if (_ObjectsCache.TryGetValue(valueRefUriContainer.UriObject, 
-                        out var description))
-                    {
-                        _SerializeHelper.SetMetaMemberValue(metaDescription, 
+                    if (_ObjectsCache.TryGetValue(valueRefUriContainer.UriObject,
+                            out var description))
+                        _SerializeHelper.SetMetaMemberValue(metaDescription,
                             memberInfo, description);
-                    }
                 }
-                else if (attribute.FieldType == MetaFieldType.Value 
-                    && value is RdfTripleObjectLiteralContainer literalContainer)
+                else if (attribute.FieldType == MetaFieldType.Value
+                         && value is RdfTripleObjectLiteralContainer literalContainer)
                 {
-                    _SerializeHelper.SetMetaMemberValue(metaDescription, 
+                    _SerializeHelper.SetMetaMemberValue(metaDescription,
                         memberInfo, literalContainer.LiteralObject);
                 }
-                else if (attribute.FieldType == MetaFieldType.Enum 
-                    && value is RdfTripleObjectUriContainer valueEnumUriContainer)
+                else if (attribute.FieldType == MetaFieldType.Enum
+                         && value is RdfTripleObjectUriContainer valueEnumUriContainer)
                 {
                     _SerializeHelper.TryGetMemberInfo(valueEnumUriContainer
                         .UriObject.AbsoluteUri.ToLower(), out var field);
-                    _SerializeHelper.TryGetTypeInfo(attribute.Identifier.ToLower(), 
+                    _SerializeHelper.TryGetTypeInfo(attribute.Identifier.ToLower(),
                         out var enumClass);
 
                     if (field != null && enumClass != null)
                     {
                         var enumValue = Enum.Parse(enumClass, field.Name);
-                        _SerializeHelper.SetMetaMemberValue(metaDescription, 
+                        _SerializeHelper.SetMetaMemberValue(metaDescription,
                             memberInfo, enumValue);
                     }
                 }
@@ -175,7 +165,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
     }
 
     /// <summary>
-    /// Build internal schema datatypes.
+    ///     Build internal schema datatypes.
     /// </summary>
     private void BuildInternalDatatypes()
     {
@@ -198,38 +188,33 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
         // Build rdf:Statement
         var rdfStatement = new CimRdfsClass(CimRdfSchemaStrings.RdfStatement)
         {
-            Label = "Statement",
+            Label = "Statement"
         };
         rdfStatement.Stereotypes.Add(UMLStereotype.CIMAbstract);
         _ObjectsCache.Add(rdfStatement.BaseUri, rdfStatement);
     }
 
     /// <summary>
-    /// Build external schema-in datatypes.
+    ///     Build external schema-in datatypes.
     /// </summary>
     private void BuildExternalDatatypes()
     {
         foreach (var metaClass in _ObjectsCache.Values
-            .OfType<CimRdfsClass>().Where(o => o.IsDatatype))
+                     .OfType<CimRdfsClass>().Where(o => o.IsDatatype))
         {
             var uri = metaClass.BaseUri;
-            if (XmlDatatypesMapping.UriSystemTypes.ContainsKey(uri.AbsoluteUri))
-            {
-                continue;
-            }
+            if (XmlDatatypesMapping.UriSystemTypes.ContainsKey(uri.AbsoluteUri)) continue;
 
             var valueProperty = _ObjectsCache.Values.OfType<CimRdfsProperty>()
                 .Where(p => RdfUtils.RdfUriEquals(
                     p.BaseUri, new Uri(uri.AbsoluteUri + ".value")))
                 .FirstOrDefault();
 
-            System.Type type = typeof(string);
+            var type = typeof(string);
 
             if (valueProperty?.Datatype is CimRdfsDatatype cimRdfsDatatype
                 && cimRdfsDatatype.SystemType != null)
-            {
                 type = cimRdfsDatatype.SystemType;
-            }
 
             var metaDatatype = new CimRdfsDatatype(metaClass)
             {
@@ -237,43 +222,36 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
             };
 
             foreach (var targetProperty in _ObjectsCache.Values
-                .OfType<CimRdfsProperty>()
-                .Where(p => p.Datatype == metaClass))
-            {
+                         .OfType<CimRdfsProperty>()
+                         .Where(p => p.Datatype == metaClass))
                 targetProperty.Datatype = metaDatatype;
-            }
 
             _ObjectsCache[uri] = metaDatatype;
         }
     }
-
-    private readonly MetaReflectionHelper _SerializeHelper
-        = new(Assembly.GetExecutingAssembly());
-
-    private readonly RdfReaderBase _RdfReader = rdfReader;
-
-    private readonly Dictionary<Uri, ICimMetaResource> _ObjectsCache 
-        = new(new RdfUriComparer());
-
-    private readonly Dictionary <string, Uri> _Namespaces = [];
 }
 
 /// <summary>
-/// Pre-defined schemas URIs.
+///     Pre-defined schemas URIs.
 /// </summary>
 public static class CimRdfSchemaStrings
 {
-    public static Uri RdfDescription = 
+    public static Uri RdfDescription =
         new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Description");
-    public static Uri RdfsResource = 
+
+    public static Uri RdfsResource =
         new("http://www.w3.org/2000/01/rdf-schema#Resource");
-    public static Uri RdfType = 
+
+    public static Uri RdfType =
         new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-    public static Uri RdfsClass = 
+
+    public static Uri RdfsClass =
         new("http://www.w3.org/2000/01/rdf-schema#Class");
-    public static Uri RdfProperty = 
+
+    public static Uri RdfProperty =
         new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Property");
-    public static Uri RdfStatement = 
+
+    public static Uri RdfStatement =
         new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement");
 }
 

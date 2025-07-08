@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xml:base="http://cim.bios/tests">
-	<Node rdf:about="#_Node1">
-		<Node.Statements>
-			<Statement rdf:about="#_Statement1" />
-			<Statement rdf:about="#_Statement2" />
-			<Statement rdf:about="#_Statement3" />
-			<Statement rdf:about="#_Statement4" />
-		</Node.Statements>
-	</Node>
+    <Node rdf:about="#_Node1">
+        <Node.Statements>
+            <Statement rdf:about="#_Statement1"/>
+            <Statement rdf:about="#_Statement2"/>
+            <Statement rdf:about="#_Statement3"/>
+            <Statement rdf:about="#_Statement4"/>
+        </Node.Statements>
+    </Node>
 </rdf:RDF>
