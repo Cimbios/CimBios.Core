@@ -21,6 +21,9 @@ public class TextDescriptor : OIDDescriptorBase
     public TextDescriptor(string value)
         : this(new Uri(DefaultNamespace + value))
     {
+        if (value == string.Empty)
+            throw new NotSupportedException(
+                "TextDescriptor cannot be empty string.");
     }
 
     public string TextOID { get; }
