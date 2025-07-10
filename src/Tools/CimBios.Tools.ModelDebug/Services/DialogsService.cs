@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -9,28 +10,22 @@ public class DialogsService(Visual ownerView)
 {
     private Visual OwnerView { get; } = ownerView;
 
-    public async Task<CimModelOpenSaveResult?> ShowModelSaveLoadDialog(
-        CimModelOpenSaveWindow.DialogMode dialogMode)
+    public async Task<IDialogResult> ShowDialog<D>(params object[]? args)
+        where D : IDialog
     {
-        if (OwnerView is Window ownerWindow == false) return null;
+        if (OwnerView is Window ownerWindow == false)
+            return new FailedDialogResult();
 
-        var dialog = new CimModelOpenSaveWindow(dialogMode);
+        var dialog = Activator.CreateInstance<D>();
 
-        await dialog.ShowDialog(ownerWindow);
+        await dialog.Show(ownerWindow, args);
 
-        return dialog.DialogState == false ? null : dialog.Result;
+        return dialog.Result;
     }
 
-    public async void ShowCreateObjectDialog()
+    public async Task<IDialogResult> ShowDialog<D>()
+        where D : IDialog
     {
-        if (OwnerView is Window ownerWindow == false) return;
-
-        var dialog = new CimObjectCreatorDialog();
-
-        await dialog.ShowDialog(ownerWindow);
-
-        if ((dialog.DialogState ?? false) == false)
-        {
-        }
+        return await ShowDialog<D>(null);
     }
 }
