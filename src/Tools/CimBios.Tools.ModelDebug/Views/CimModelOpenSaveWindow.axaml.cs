@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
@@ -7,7 +9,7 @@ using CimBios.Tools.ModelDebug.ViewModels;
 
 namespace CimBios.Tools.ModelDebug.Views;
 
-public partial class CimModelOpenSaveWindow : Window
+public partial class CimModelOpenSaveWindow : Window, IDialog
 {
     public enum DialogMode
     {
@@ -17,23 +19,30 @@ public partial class CimModelOpenSaveWindow : Window
 
     private readonly CimModelFileSelectorViewModel _model;
 
-    public CimModelOpenSaveWindow(DialogMode dialogMode)
+    public CimModelOpenSaveWindow()
     {
-        _model = new CimModelFileSelectorViewModel(this)
-        {
-            SaveMode = dialogMode == DialogMode.Save
-        };
+        _model = new CimModelFileSelectorViewModel(this);
 
         DataContext = _model;
 
         InitializeComponent();
     }
 
-    public CimModelOpenSaveResult Result => new(_model);
-    public bool? DialogState => _model.DialogState;
+    public IDialogResult Result => new CimModelOpenSaveResult(_model);
+
+    public Task Show(Window owner, params object[]? args)
+    {
+        if (args != null && args.Length > 0 && args[0] is DialogMode mode)
+        {
+            _model.SaveMode = mode == DialogMode.Save;
+        }
+
+        return this.ShowDialog(owner);
+    }
 }
 
 public class CimModelOpenSaveResult(CimModelFileSelectorViewModel model)
+    : IDialogResult
 {
     public string ModelPath { get; } = model.CimModelFilePath;
 
@@ -54,4 +63,6 @@ public class CimModelOpenSaveResult(CimModelFileSelectorViewModel model)
 
     public RdfSerializerSettings SerializerSettings { get; }
         = model.SelectedRdfsSerializerSetting;
+
+    public bool Succeed => model.DialogState ?? false;
 }

@@ -164,27 +164,39 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
 
     public async Task LoadModel()
     {
-        var result = await GlobalServices.DialogService.ShowModelSaveLoadDialog(
-            CimModelOpenSaveWindow.DialogMode.Load);
-        if (result == null) return;
+        var result = await GlobalServices.DialogService
+            .ShowDialog<CimModelOpenSaveWindow>(
+                CimModelOpenSaveWindow.DialogMode.Load);
+
+        if (result is not CimModelOpenSaveResult openSaveResult
+            || !openSaveResult.Succeed) return;
 
         GlobalServices.LoaderService.LoadModelFromFile(
-            result.ModelPath, result.SchemaPath,
-            result.DescriptorFactory, result.SchemaFactory,
-            result.RdfSerializerFactory, result.SerializerSettings,
+            openSaveResult.ModelPath,
+            openSaveResult.SchemaPath,
+            openSaveResult.DescriptorFactory,
+            openSaveResult.SchemaFactory,
+            openSaveResult.RdfSerializerFactory,
+            openSaveResult.SerializerSettings,
             out _
         );
     }
 
     public async Task SaveModel()
     {
-        var result = await GlobalServices.DialogService.ShowModelSaveLoadDialog(
-            CimModelOpenSaveWindow.DialogMode.Save);
-        if (result == null) return;
+        var result = await GlobalServices.DialogService
+            .ShowDialog<CimModelOpenSaveWindow>(
+                CimModelOpenSaveWindow.DialogMode.Save);
+
+        if (result is not CimModelOpenSaveResult openSaveResult
+            || !openSaveResult.Succeed) return;
 
         GlobalServices.LoaderService.SaveModelToFile(
-            result.ModelPath, result.SchemaPath, result.SchemaFactory,
-            result.RdfSerializerFactory, result.SerializerSettings,
+            openSaveResult.ModelPath,
+            openSaveResult.SchemaPath,
+            openSaveResult.SchemaFactory,
+            openSaveResult.RdfSerializerFactory,
+            openSaveResult.SerializerSettings,
             out _
         );
     }
@@ -203,20 +215,18 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
     {
     }
 
-    public void CreateNewObject()
+    public async Task CreateNewObject()
     {
         if (CimModelDocument == null) return;
 
-        GlobalServices.DialogService.ShowCreateObjectDialog();
+        var result = await GlobalServices.DialogService
+            .ShowDialog<CimObjectCreatorDialog>();
 
-        // var metaClass = CimModelDocument
-        //     .Schema.TryGetResource<ICimMetaClass>(
-        //         new Uri("http://iec.ch/TC57/CIM100#Breaker"));
-        //
-        // var oid = CimModelDocument.OIDDescriptorFactory.Create();
-        //
-        // var newObject = CimModelDocument.CreateObject<Breaker>(oid);
-        // newObject.name = $"New breaker {oid}";
+        if (result is not CimObjectCreatorResult creatorResult
+            || !creatorResult.Succeed) return;
+
+        CimModelDocument.CreateObject(creatorResult.Descriptor,
+            creatorResult.MetaClass);
     }
 
     private void SubscribeModelContextLoad()
