@@ -34,7 +34,7 @@ public class CimDocument(
     public override IModelObject? GetObject(IOIDDescriptor oid)
     {
         if (_Objects.TryGetValue(oid, out var instance)
-            && instance is not AutoDescriptor
+            && instance.OID is not AutoDescriptor
             && !instance.MetaClass.IsCompound)
             return instance;
 
@@ -44,7 +44,7 @@ public class CimDocument(
     public override T? GetObject<T>(IOIDDescriptor oid) where T : default
     {
         var modelObject = GetObject(oid);
-        if (modelObject != null && modelObject is T typedObject) return typedObject;
+        if (modelObject is T typedObject) return typedObject;
 
         return default;
     }

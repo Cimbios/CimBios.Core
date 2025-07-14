@@ -107,10 +107,10 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         _subscribedDataModel = cimDataModel;
 
         cimDataModel.ModelObjectPropertyChanged
-            += OnSubscribeModelObjectPropertyChanged;
+            += OnModelObjectPropertyChanged;
 
         cimDataModel.ModelObjectStorageChanged
-            += OnSubscribeModelObjectStorageChanged;
+            += OnModelObjectStorageChanged;
     }
 
     public void UnsubscribeFromDataModelChanges()
@@ -118,10 +118,10 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         if (_subscribedDataModel == null) return;
 
         _subscribedDataModel.ModelObjectPropertyChanged
-            -= OnSubscribeModelObjectPropertyChanged;
+            -= OnModelObjectPropertyChanged;
 
         _subscribedDataModel.ModelObjectStorageChanged
-            -= OnSubscribeModelObjectStorageChanged;
+            -= OnModelObjectStorageChanged;
     }
 
     private void ToDifferenceModel()
@@ -213,7 +213,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         );
     }
 
-    private void OnSubscribeModelObjectStorageChanged(ICimDataModel? sender,
+    private void OnModelObjectStorageChanged(ICimDataModel? sender,
         IModelObject modelObject, CimDataModelObjectStorageChangedEventArgs e)
     {
         var diff = _DifferencesCache.GetValueOrDefault(modelObject.OID);
@@ -285,7 +285,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         if (diff != null) _DifferencesCache.TryAdd(diff.OID, diff);
     }
 
-    private void OnSubscribeModelObjectPropertyChanged(ICimDataModel? sender,
+    private void OnModelObjectPropertyChanged(ICimDataModel? sender,
         IModelObject modelObject, CimMetaPropertyChangedEventArgs e)
     {
         object? oldData = null;
@@ -305,14 +305,11 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             throw new NotSupportedException();
         }
 
-        if (_DifferencesCache.TryGetValue(modelObject.OID,
-                out var diff) == false)
-            diff = null;
+        var diff = _DifferencesCache.GetValueOrDefault(modelObject.OID);
 
         diff ??= new UpdatingDifferenceObject(modelObject.OID);
 
-        if (diff is UpdatingDifferenceObject
-            || diff is AdditionDifferenceObject)
+        if (diff is UpdatingDifferenceObject or AdditionDifferenceObject)
         {
             diff.ChangePropertyValue(e.MetaProperty, oldData, newData);
 
