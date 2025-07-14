@@ -34,6 +34,13 @@ public class CimObjectCreatorViewModel : ViewModelBase
             return;
         }
 
+        var autoOID = GlobalServices.LoaderService.DataContext
+            .OIDDescriptorFactory.TryCreate();
+        if (autoOID is not null)
+        {
+            TextOID = autoOID.ToString();
+        }
+
         var schema = GlobalServices.LoaderService.DataContext.Schema;
 
         foreach (var metaClass in schema.Classes.Where(schema.CanCreateClass))
