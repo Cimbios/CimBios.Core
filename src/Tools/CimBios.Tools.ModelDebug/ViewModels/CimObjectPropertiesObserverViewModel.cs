@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Controls;
@@ -59,11 +60,11 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
     private void SubscribeToNavigationService()
     {
         GlobalServices.NavigationService.OnSelectionChanged += 
-            (s, e) => ShowSelectedProperties(
+            (s, e) => OnObjectSelectionChanged(
                 (e as CimObjectSelectionChangedArgs)?.ModelObject);
     }
 
-    private void ShowSelectedProperties(IModelObject? selectedObject)
+    private void OnObjectSelectionChanged(IModelObject? selectedObject)
     {
         _propCache.Clear();
         SelectedUuid = string.Empty;
@@ -76,88 +77,70 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
         }
 
         SelectedUuid = selectedObject.OID.ToString();
+        ShowSelectedObjectProperties(selectedObject);
+    }
 
-        foreach (var attrName in selectedObject.MetaClass.AllProperties
-            .Where(p => p.PropertyKind == CimMetaPropertyKind.Attribute)
-            .Select(p => p.ShortName))
+    private void ShowSelectedObjectProperties(IModelObject selectedObject, 
+        TreeViewNodeModel? parent=null)
+    {
+        var sortedProps =  selectedObject.MetaClass
+            .AllProperties.OrderBy(p => p.PropertyKind)
+                .ThenBy(p => p.ShortName);
+
+        foreach (var prop in sortedProps)
         {
-            var attrValue = selectedObject.GetAttribute<object>(attrName);
-            var attrValueStr = attrValue?.ToString();
-            if (attrValueStr == null)
-            {
-                attrValueStr = "null";
-            }
-            else
-            {
-                attrValueStr += $" ({attrValue?.GetType().Name})";
-            }
-
-            var attrNode = new CimObjectPropertyModel() 
-                { Name = attrName, Value = attrValueStr };
+            var propName = prop.ShortName;
             
-            if (attrValue is IModelObject compoundAttr)
+            var propNode = new CimObjectPropertyModel() 
+                { Name = propName, Value = "null" };
+            
+            if (prop.PropertyKind == CimMetaPropertyKind.Attribute)
             {
-                 foreach (var compoundAttrName in compoundAttr.MetaClass.AllProperties
-                    .Where(p => p.PropertyKind == CimMetaPropertyKind.Attribute)
-                    .Select(p => p.ShortName))
+                var propValueObject = selectedObject.GetAttribute<object>(prop);
+                if (propValueObject is IModelObject compound)
                 {
-                    var compoundAttrValue = compoundAttr.GetAttribute<object>(compoundAttrName);
-                    var compoundAttrValueStr = compoundAttrValue?.ToString();
-                    if (compoundAttrValueStr == null)
-                    {
-                        compoundAttrValueStr = "null";
-                    }
-                    else
-                    {
-                        compoundAttrValueStr += $" ({compoundAttrValue?.GetType().Name})";
-                    }
+                    propNode.Value = compound.MetaClass.ShortName;
+                    ShowSelectedObjectProperties(compound, propNode);
+                }
+                else
+                {
+                    propNode.Value = selectedObject.GetAttribute<object>(prop)?
+                        .ToString() ?? "null";
+                }
+            }
+            else if (prop.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+            {
+                var propValueRef1 = selectedObject.GetAssoc1To1(prop);
+                if (propValueRef1 != null)
+                {
+                    propNode.Value = propValueRef1.OID.ToString();
+                }
+            }
+            else if (prop.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+            {
+                var propValueRefM = selectedObject.GetAssoc1ToM(prop);
+                propNode.Value = $"Count: {propValueRefM.Length}";
+                foreach (var propRef in propValueRefM)
+                {
+                    var refMNode = new CimObjectPropertyModel() 
+                        { Name = String.Empty, Value = propRef.OID.ToString() };
 
-                    var compoundAttrNode = new CimObjectPropertyModel() 
-                        { Name = compoundAttrName, Value = compoundAttrValueStr };
-                    
-                    attrNode.AddChild(compoundAttrNode);
+                    propNode.AddChild(refMNode);
                 }
             }
 
-            _propCache.Add(attrNode);
-        }
-
-        foreach (var assoc11Name in selectedObject.MetaClass.AllProperties
-            .Where(p => p.PropertyKind == CimMetaPropertyKind.Assoc1To1)
-            .Select(p => p.ShortName))
-        {
-            var assoc11Ref = selectedObject.GetAssoc1To1<IModelObject>(assoc11Name);
-            string assoc11RefStr = "null";
-            if (assoc11Ref != null)
+            if (parent == null)
             {
-                assoc11RefStr = assoc11Ref.OID.ToString();
+                _propCache.Add(propNode);
             }
-
-            _propCache.Add(new CimObjectPropertyModel() 
-                { Name = assoc11Name, Value = assoc11RefStr });
-        }
-        
-        foreach (var assoc1MName in selectedObject.MetaClass.AllProperties
-            .Where(p => p.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
-            .Select(p => p.ShortName))
-        {
-            var assoc1MArray = selectedObject
-                .GetAssoc1ToM(assoc1MName);
-
-            var assoc1MNode = new CimObjectPropertyModel() 
-                { Name = assoc1MName, Value = $"Count: {assoc1MArray.Count()}" };
-
-            foreach (var assoc1MRef in assoc1MArray.OfType<IModelObject>())
+            else
             {
-                assoc1MNode.AddChild(new CimObjectPropertyModel() 
-                { Name = string.Empty, Value = assoc1MRef.OID.ToString() });
+                parent.AddChild(propNode);
             }
-
-            _propCache.Add(assoc1MNode);
-        }    
+        }
     }
 
-    private ObservableCollection<CimObjectPropertyModel> _propCache = [];
+    private readonly ObservableCollection<CimObjectPropertyModel> _propCache = [];
 
     private string _selectedUuid = string.Empty;
 }
