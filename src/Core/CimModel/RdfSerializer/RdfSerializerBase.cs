@@ -172,7 +172,8 @@ public abstract class RdfSerializerBase : ICanLog
                     modelObject);
             }
 
-        if (rdfNode.Triples.Length == 0) return null;
+        // Note: need more tests...
+        //if (rdfNode.Triples.Length == 0) return null;
 
         return rdfNode;
     }
@@ -180,8 +181,9 @@ public abstract class RdfSerializerBase : ICanLog
     /// <summary>
     ///     Converts properties into RdfNodes.
     /// </summary>
-    /// <param name="modelObject">Rdf triple object - CIM object.</param>
-    /// <param name="properties">CIM meta properties set.</param>
+    /// <param name="objectNode">Rdf triple object - CIM object.</param>
+    /// <param name="modelObject"></param>
+    /// <param name="property">CIM meta properties set.</param>
     /// <returns>Set of Rdf property triples.</returns>
     private void WriteObjectProperty(RdfNode objectNode,
         IModelObject modelObject,
