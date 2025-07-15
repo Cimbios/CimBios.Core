@@ -1,12 +1,14 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Tools.ModelDebug.Models;
 using CimBios.Tools.ModelDebug.Services;
+using CimBios.Tools.ModelDebug.Views;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
@@ -57,9 +59,18 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
         GlobalServices.NavigationService.Select(selectedProp.Value);
     }
 
+    public async Task EditPropertyValue()
+    {
+        var result = await GlobalServices.DialogService
+            .ShowDialog<CimPropertyValueEditorDialog>();
+
+        if (result is not CimPropertyValueEditorDialogResult openSaveResult
+            || !openSaveResult.Succeed) return;
+    }
+
     private void SubscribeToNavigationService()
     {
-        GlobalServices.NavigationService.OnSelectionChanged += 
+        GlobalServices.NavigationService.OnSelectionChanged +=
             (s, e) => OnObjectSelectionChanged(
                 (e as CimObjectSelectionChangedArgs)?.ModelObject);
     }
@@ -89,11 +100,11 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
 
         foreach (var prop in sortedProps)
         {
-            var propName = prop.ShortName;
+            var propName = $"{prop.OwnerClass?.ShortName}.{prop.ShortName}";
             
             var propNode = new CimObjectPropertyModel() 
                 { Name = propName, Value = "null" };
-            
+
             if (prop.PropertyKind == CimMetaPropertyKind.Attribute)
             {
                 var propValueObject = selectedObject.GetAttribute<object>(prop);
@@ -122,11 +133,32 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
                 propNode.Value = $"Count: {propValueRefM.Length}";
                 foreach (var propRef in propValueRefM)
                 {
-                    var refMNode = new CimObjectPropertyModel() 
+                    var refMNode = new CimObjectPropertyModel()
                         { Name = String.Empty, Value = propRef.OID.ToString() };
 
                     propNode.AddChild(refMNode);
                 }
+            }
+            else if (prop.PropertyKind == CimMetaPropertyKind.Statements)
+            {
+                if (selectedObject is IStatementsContainer statementsContainer)
+                {
+                    propNode.Value = $"Statements: {statementsContainer.Statements.Count}";
+                    
+                    foreach (var statementObject in statementsContainer.Statements[prop])
+                    {
+                        var statementNode = new CimObjectPropertyModel()
+                            { Name = "Statement", Value = statementObject.MetaClass.ShortName };
+                            
+                        ShowSelectedObjectProperties(statementObject, statementNode);
+
+                        propNode.AddChild(statementNode);
+                    }
+                }
+            }
+            else
+            {
+                propNode.Value = "<Not supported>";
             }
 
             if (parent == null)

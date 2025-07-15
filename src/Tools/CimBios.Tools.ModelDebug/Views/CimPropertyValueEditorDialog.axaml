@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:v="using:CimBios.Tools.ModelDebug.Views"
+        mc:Ignorable="d"
+        CanResize="False"
+        SizeToContent="WidthAndHeight"
+        x:Class="CimBios.Tools.ModelDebug.Views.CimPropertyValueEditorDialog"
+        Title="CimPropertyValueEditorDialog">
+
+  <Grid Width="500">
+
+    <StackPanel Orientation="Vertical" Margin="5" Spacing="5">
+
+      <TextBlock Text="Property data:" />
+
+      <Grid ColumnDefinitions="*, Auto">
+        <TextBox Grid.Column="0" Classes="Small, Bordered" Text="Text" VerticalAlignment="Stretch"/>
+        <ComboBox Grid.Column="1" HorizontalAlignment="Right" 
+          SelectedIndex="{Binding $parent[v:CimPropertyValueEditorDialog].SelectedOperationId}">
+          <ComboBoxItem>Edit</ComboBoxItem>
+          <ComboBoxItem>+Reference</ComboBoxItem>
+          <ComboBoxItem>-Reference</ComboBoxItem>
+          <ComboBoxItem>Clear</ComboBoxItem>
+          <ComboBoxItem>InitCmpd</ComboBoxItem>
+        </ComboBox>
+      </Grid>
+
+      <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right" >
+        <Button Classes="Small" Content="Ok" Command="{Binding $parent[v:CimPropertyValueEditorDialog].Ok}" />
+        <Button Classes="Small" Content="Cancel" Command="{Binding $parent[v:CimPropertyValueEditorDialog].Cancel}" />
+      </StackPanel>
+
+    </StackPanel>
+    
+  </Grid>
+
+</Window>

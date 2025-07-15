@@ -24,9 +24,8 @@
             </TreeDataGrid.Styles>
             <TreeDataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Navigate"
-                              Command="{Binding Navigate}"
-                              CommandParameter="{Binding SelectedUuid}" />
+                    <MenuItem Header="Navigate" Command="{Binding Navigate}" />
+                    <MenuItem Header="Edit..." Command="{Binding EditPropertyValue}" />
                 </ContextMenu>
             </TreeDataGrid.ContextMenu>
         </TreeDataGrid>
