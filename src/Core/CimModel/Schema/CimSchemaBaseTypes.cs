@@ -198,7 +198,7 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
 
     protected virtual HashSet<ICimMetaProperty> GetAllProperties()
     {
-        HashSet<ICimMetaProperty> properties = [];
+        HashSet<ICimMetaProperty> properties = new(new CimMetaResourceComparer());
 
         ICimMetaClass? nextClass = this;
         while (nextClass != null)
@@ -228,7 +228,7 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
 
     protected virtual HashSet<ICimMetaIndividual> GetAllIndividuals()
     {
-        HashSet<ICimMetaIndividual> individuals = [];
+        HashSet<ICimMetaIndividual> individuals = new(new CimMetaResourceComparer());
 
         ICimMetaClass? nextClass = this;
         while (nextClass != null)
@@ -321,5 +321,22 @@ public abstract class CimMetaIndividualBase : CimMetaResourceBase,
             _InstanceOf = value;
             (_InstanceOf as ICimMetaExtensible)?.AddIndividual(this);
         }
+    }
+}
+
+/// <summary>
+/// 
+/// </summary>
+public class CimMetaResourceComparer : EqualityComparer<ICimMetaResource>
+{
+    public override bool Equals(ICimMetaResource? lResource,
+        ICimMetaResource? rResource)
+    {
+        return RdfUtils.RdfUriEquals(lResource?.BaseUri, rResource?.BaseUri);
+    }
+
+    public override int GetHashCode(ICimMetaResource resource)
+    {
+        return resource.GetHashCode();
     }
 }
