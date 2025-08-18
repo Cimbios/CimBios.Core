@@ -211,8 +211,9 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             GlobalServices.NavigationService.SelectedObject);
     }
 
-    public void ImportDiff()
+    public void CompareWithModel()
     {
+        
     }
 
     public async Task CreateNewObject()
@@ -225,8 +226,11 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         if (result is not CimObjectCreatorResult creatorResult
             || !creatorResult.Succeed) return;
 
-        CimModelDocument.CreateObject(creatorResult.Descriptor,
+        var modelObject = CimModelDocument.CreateObject(
+            creatorResult.Descriptor,
             creatorResult.MetaClass);
+        
+        Find(modelObject.OID.ToString());
     }
 
     private void SubscribeModelContextLoad()
@@ -313,8 +317,6 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
         findClassNode.AddChild(
             new CimObjectDataTreeModel(modelObject));
         _nodesCache.Insert(id, findClassNode);
-
-        Find(modelObject.OID.ToString());
     }
 
     private CimObjectDataTreeModel? OidToRow(IOIDDescriptor descriptor)

@@ -1,0 +1,48 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:v="using:CimBios.Tools.ModelDebug.Views"
+             xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="CimBios.Tools.ModelDebug.Views.DiffObjectsObserverControl"
+             x:DataType="vm:DiffObjectsViewModel">
+
+    <Grid RowDefinitions="Auto, 2*, Auto, *">
+        
+        <StackPanel Orientation="Horizontal" Spacing="5">
+            <Button Classes="Small" Content="Load Diffs" Command="{Binding LoadDifferenceModelFromFile}">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="From file..." Command="{Binding LoadDifferenceModelFromFile}"/>
+                        <MenuItem Header="Local diffs" Command="{Binding SwitchDataToLocalDiffs}" />
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <Button Classes="Small" Content="Save Local Diffs" Command="{Binding SaveDiffs}" />
+            <Button Classes="Small" Content="Apply To Model" Command="{Binding ApplyDiffsToModel}" />
+            <Button Classes="Small" Content="Compare" Command="{Binding CompareModels}"/>
+        </StackPanel>
+        
+        <TreeDataGrid Grid.Row="1" x:Name="DiffsDataGrid"  
+                      Source="{Binding TreeSource}"
+                      FontSize="10"
+                      CanUserSortColumns="False" 
+                      ShowColumnHeaders="True">
+            <TreeDataGrid.Styles>
+                <Style Selector="TreeDataGridRow:pointerover">
+                    <Setter Property="Background" Value="#80808080"/>
+                </Style>
+                <Style Selector="TreeDataGridRow">
+                    <Setter Property="MinHeight" Value="20"/>
+                </Style>
+            </TreeDataGrid.Styles>
+        </TreeDataGrid>
+        
+        <GridSplitter Grid.Row="2" />
+
+        <v:PropertyDiffsObserverControl Grid.Row="3" x:Name="PropertyControl" />
+
+    </Grid>
+    
+</UserControl>

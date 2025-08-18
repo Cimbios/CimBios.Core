@@ -63,7 +63,7 @@
           </Button>
           <Separator/>
           <Button Theme="{DynamicResource BorderlessButton}"
-                  Command="{Binding ImportDiff}">
+                  Command="{Binding CompareWithModel}">
             <Image Source="/Assets/diff.png" Width="16" Height="16"/>
           </Button>
         </StackPanel>

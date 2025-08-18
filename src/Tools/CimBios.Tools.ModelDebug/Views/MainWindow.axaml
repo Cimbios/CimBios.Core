@@ -31,41 +31,20 @@
                         </StackPanel>
                     </TabItem.Header>
                     <TabItem.Content>
-                        <!---->
+                        <v:UserScriptsControl />
                     </TabItem.Content>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <Ellipse Height="10" Width="10" Fill="Tomato" />
-                            <TextBlock Margin="3">Local Diffs</TextBlock>
+                            <TextBlock Margin="3">Diffs</TextBlock>
                         </StackPanel>
                     </TabItem.Header>
                     <TabItem.Content>
-                        <Button Content="Save Local Diffs"
-                                Command="{Binding SaveLocalDiffs}" />
-                    </TabItem.Content>
-                </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <Ellipse Height="10" Width="10" Fill="Green" />
-                            <TextBlock Margin="3">Schema</TextBlock>
-                        </StackPanel>
-                    </TabItem.Header>
-                    <TabItem.Content>
-                        <v:CimSchemaTreeUserControl />
-                    </TabItem.Content>
-                </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <Ellipse Height="10" Width="10" Fill="DimGray" />
-                            <TextBlock Margin="3">Aggregation Tree</TextBlock>
-                        </StackPanel>
-                    </TabItem.Header>
-                    <TabItem.Content>
-                        <!---->
+                        <v:DiffObjectsObserverControl />
+                        <!-- <Button Content="Save Local Diffs" -->
+                        <!--         Command="{Binding SaveLocalDiffs}" /> -->
                     </TabItem.Content>
                 </TabItem>
                 <TabItem>
@@ -77,6 +56,17 @@
                     </TabItem.Header>
                     <TabItem.Content>
                         <!---->
+                    </TabItem.Content>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Height="10" Width="10" Fill="Green" />
+                            <TextBlock Margin="3">Schema</TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <v:CimSchemaTreeUserControl />
                     </TabItem.Content>
                 </TabItem>
             </TabControl>

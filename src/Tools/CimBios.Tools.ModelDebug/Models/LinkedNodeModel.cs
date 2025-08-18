@@ -58,4 +58,12 @@ public class LinkedNodeModel : ObservableObject
             OnPropertyChanged(nameof(SubNodes));
         }
     }
+
+    public void RemoveAllChildren()
+    {
+        foreach (var child in _SubNodes)
+        {
+            RemoveChild(child);
+        }
+    }
 }

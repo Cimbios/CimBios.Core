@@ -13,19 +13,15 @@
 
     <StackPanel Orientation="Vertical" Margin="5" Spacing="5">
 
+      <TextBlock x:Name="OidTextBlock" Text="{Binding $parent[v:CimPropertyValueEditorDialog].EditObject.ModelObject.OID}" />
+      <TextBlock x:Name="PropertyUriTextBlock" Text="{Binding $parent[v:CimPropertyValueEditorDialog].EditObject.MetaProperty.BaseUri.AbsoluteUri}" />
+      
+      <GridSplitter />
+      
       <TextBlock Text="Property data:" />
 
-      <Grid ColumnDefinitions="*, Auto">
-        <TextBox Grid.Column="0" Classes="Small, Bordered" Text="Text" VerticalAlignment="Stretch"/>
-        <ComboBox Grid.Column="1" HorizontalAlignment="Right" 
-          SelectedIndex="{Binding $parent[v:CimPropertyValueEditorDialog].SelectedOperationId}">
-          <ComboBoxItem>Edit</ComboBoxItem>
-          <ComboBoxItem>+Reference</ComboBoxItem>
-          <ComboBoxItem>-Reference</ComboBoxItem>
-          <ComboBoxItem>Clear</ComboBoxItem>
-          <ComboBoxItem>InitCmpd</ComboBoxItem>
-        </ComboBox>
-      </Grid>
+      <TextBox x:Name="PropertyValueTextBlock" Grid.Column="0" Classes="Small, Bordered" 
+               Text="{Binding $parent[v:CimPropertyValueEditorDialog].PropertyValue}" VerticalAlignment="Stretch"/>
 
       <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right" >
         <Button Classes="Small" Content="Ok" Command="{Binding $parent[v:CimPropertyValueEditorDialog].Ok}" />

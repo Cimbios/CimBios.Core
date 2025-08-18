@@ -16,7 +16,8 @@
     <Application.Styles>
         <semi:SemiTheme />
         <semi:SemiTheme Locale="ru-ru" />
-        <StyleInclude Source="avares://Semi.Avalonia.TreeDataGrid/Index.axaml" />
+        <semi:TreeDataGridSemiTheme />
+        <semi:AvaloniaEditSemiTheme />
     </Application.Styles>
 
 </Application>

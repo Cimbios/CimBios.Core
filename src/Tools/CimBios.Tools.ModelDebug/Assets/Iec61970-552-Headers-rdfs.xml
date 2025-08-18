@@ -3,6 +3,7 @@
         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
         xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#"
         xmlns:cim="http://iec.ch/TC57/CIM100#"
+        xmlns:rf="http://gost.ru/2019/schema-cim01#"
         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
         xmlns:dm="http://iec.ch/TC57/61970-552/DifferenceModel/1#"
         xml:base="http://cim.bios/Profiles/v1">

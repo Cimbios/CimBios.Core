@@ -20,7 +20,9 @@
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.1"/>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="4.14.0" />
         <PackageReference Include="Semi.Avalonia" Version="11.2.1.8"/>
+        <PackageReference Include="Semi.Avalonia.AvaloniaEdit" Version="11.2.0.1" />
         <PackageReference Include="Semi.Avalonia.TreeDataGrid" Version="11.0.10.4"/>
     </ItemGroup>
     <ItemGroup>
@@ -32,5 +34,10 @@
         <Compile Update="Views/DataSelectorWindow.axaml.cs">
             <DependentUpon>DataSelectorWindow.axaml</DependentUpon>
         </Compile>
+        <Compile Update="Views\DiffObjectsObserverControl.axaml.cs">
+          <DependentUpon>DiffObjectsObserverControl.axaml</DependentUpon>
+          <SubType>Code</SubType>
+        </Compile>
+        <Compile Remove="Assets\AggregationTree.cs" />
     </ItemGroup>
 </Project>

@@ -1,10 +1,12 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Tools.ModelDebug.Models;
 using CimBios.Tools.ModelDebug.Services;
@@ -17,16 +19,16 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
     public HierarchicalTreeDataGridSource<CimObjectPropertyModel> PropertySource 
     { get; }
 
-    public string SelectedUuid 
-    { 
-        get => _selectedUuid; 
-        set
+    public IModelObject? SelectedObject
+    {
+        get => _selectedObject;
+        private set
         {
-            _selectedUuid = value;
+            _selectedObject = value;
             OnPropertyChanged();
         }
     }
-
+    
     public CimObjectPropertiesObserverViewModel()
     {
         PropertySource = new HierarchicalTreeDataGridSource
@@ -36,8 +38,10 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
             {
                 new HierarchicalExpanderColumn<CimObjectPropertyModel>(
                     new TextColumn<CimObjectPropertyModel, string>
-                        ("Name", x => x.Name),
-                    x => x.SubNodes.Cast<CimObjectPropertyModel>()),
+                        ("Name", x 
+                            => $"{x.MetaProperty.OwnerClass.ShortName}.{x.MetaProperty.ShortName}"),
+                    x => x.SubNodes.Cast<CimObjectPropertyModel>(), 
+                    x => x.SubNodes.Count != 0),
                 new TextColumn<CimObjectPropertyModel, string>
                     ("Value", x => x.Value),
             },
@@ -48,7 +52,7 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
         SubscribeToNavigationService();
     }
 
-    public void Navigate()
+    public void ClearPropertyValue()
     {
         if (PropertySource.RowSelection!.SelectedItem 
             is not { } selectedProp)
@@ -56,16 +60,233 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
             return;
         }
 
-        GlobalServices.NavigationService.Select(selectedProp.Value);
+        if (selectedProp.MetaProperty.PropertyKind
+            == CimMetaPropertyKind.Attribute)
+        {
+            selectedProp.ModelObject.SetAttribute<object>(
+                selectedProp.MetaProperty, null);
+        }
+        else if (selectedProp.MetaProperty.PropertyKind 
+                 == CimMetaPropertyKind.Assoc1To1)
+        {
+            selectedProp.ModelObject.SetAssoc1To1(
+                selectedProp.MetaProperty, null);
+        }
+        else if (selectedProp.MetaProperty.PropertyKind 
+                 == CimMetaPropertyKind.Assoc1ToM)
+        {
+            selectedProp.ModelObject.RemoveAllAssocs1ToM(
+                selectedProp.MetaProperty);
+        }
+        
+        _propCache.Clear();
+        ShowSelectedObjectProperties(SelectedObject!);
+    }
+
+    public void SetDefaultPropertyValue()
+    {
+        if (PropertySource.RowSelection!.SelectedItem 
+            is not { } selectedProp)
+        {
+            return;
+        }
+        
+        if (selectedProp.MetaProperty.PropertyKind 
+            == CimMetaPropertyKind.Attribute)
+        {
+            if (selectedProp.MetaProperty.PropertyDatatype?.IsCompound ?? false)
+            {
+                selectedProp.ModelObject.InitializeCompoundAttribute(
+                    selectedProp.MetaProperty);
+
+                return;
+            }
+
+            if (selectedProp.MetaProperty.PropertyDatatype is not null)
+            {
+                object? defaultValue = null;
+                
+                if (selectedProp.MetaProperty.PropertyDatatype
+                    is ICimMetaDatatype datatype)
+                {
+                    defaultValue = GetDefaultValue(datatype.PrimitiveType);
+                }
+                else if (selectedProp.MetaProperty.PropertyDatatype.IsEnum)
+                {
+                    var defaultEnum = selectedProp.MetaProperty
+                        .PropertyDatatype.AllIndividuals.FirstOrDefault();
+
+                    if (defaultEnum is not null)
+                    {
+                        selectedProp.ModelObject.SetAttributeAsEnum(
+                            selectedProp.MetaProperty, defaultEnum);
+                        return;
+                    }
+                }
+                
+                selectedProp.ModelObject.SetAttribute<object>(
+                    selectedProp.MetaProperty, defaultValue);
+            }
+        }
+        
+        _propCache.Clear();
+        ShowSelectedObjectProperties(SelectedObject!);
+    }
+    
+    private static object? GetDefaultValue(Type t)
+    {
+        if (t == typeof(string))
+        {
+            return string.Empty;
+        }
+        
+        return t.IsValueType ? Activator.CreateInstance(t) : null;
+    }
+
+    public void Navigate()
+    {
+        IModelObject? refObject = null;
+        if (PropertySource.RowSelection!.SelectedItem 
+            is CimAssocPropertyModel assocProp)
+        {
+            refObject = assocProp.AssocObject;
+        }
+        else if (PropertySource.RowSelection!.SelectedItem 
+                 is { } selectedProp)
+        {
+            refObject = selectedProp.ModelObject
+                .GetAssoc1To1(selectedProp.MetaProperty);
+        }
+        
+        if (refObject == null) return;
+        
+        GlobalServices.NavigationService
+            .Select(refObject.OID.ToString());
     }
 
     public async Task EditPropertyValue()
     {
+        var dataContext = GlobalServices.LoaderService.DataContext;
+        if (dataContext == null) return;
+        
+        if (PropertySource.RowSelection!.SelectedItem 
+            is not { } selectedProp)
+        {
+            return;
+        }
+
+        if (selectedProp.MetaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1
+            && selectedProp.MetaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM
+            && selectedProp.MetaProperty.PropertyKind != CimMetaPropertyKind.Attribute)
+        {
+            return;
+        }
+
+        if (selectedProp.MetaProperty.PropertyDatatype?.IsCompound ?? true)
+        {
+            return;
+        }
+        
         var result = await GlobalServices.DialogService
-            .ShowDialog<CimPropertyValueEditorDialog>();
+            .ShowDialog<CimPropertyValueEditorDialog>(selectedProp);
 
         if (result is not CimPropertyValueEditorDialogResult openSaveResult
             || !openSaveResult.Succeed) return;
+
+        try
+        {
+            if (selectedProp.MetaProperty is
+                {
+                    PropertyKind: CimMetaPropertyKind.Attribute, 
+                    PropertyDatatype: ICimMetaDatatype datatype,
+                    PropertyDatatype.IsEnum: false
+                })
+            {
+                EditPrimitiveAttribute(openSaveResult, datatype, selectedProp);
+            }
+
+            if (selectedProp.MetaProperty is
+                {
+                    PropertyKind: CimMetaPropertyKind.Attribute,
+                    PropertyDatatype.IsEnum: true
+                })
+            {
+                EditEnumAttribute(selectedProp, openSaveResult);
+            }
+
+            if (selectedProp.MetaProperty is
+                {
+                    PropertyKind: CimMetaPropertyKind.Assoc1To1,
+                })
+            {
+                var oid11 = dataContext.OIDDescriptorFactory
+                    .Create(openSaveResult.Value.Trim());
+                var refObj = dataContext.GetObject(oid11);
+                if (refObj == null) return;
+                
+                selectedProp.ModelObject
+                    .SetAssoc1To1(selectedProp.MetaProperty, refObj);
+            }
+            
+            if (selectedProp.MetaProperty is
+                {
+                    PropertyKind: CimMetaPropertyKind.Assoc1ToM,
+                })
+            {
+                var oids1M = openSaveResult.Value
+                    .Trim().Split(';')
+                    .Select(s => 
+                        dataContext.OIDDescriptorFactory.Create(s.Trim()))
+                    .ToArray();
+
+                var currentOidsM = selectedProp.ModelObject
+                    .GetAssoc1ToM(selectedProp.MetaProperty)
+                    .Select(o => o.OID).ToArray();
+                
+                var forRemoveOids = currentOidsM.Except(oids1M);
+                var forAddOids = oids1M.Except(currentOidsM);
+                
+                foreach (var oid in forRemoveOids)
+                    selectedProp.ModelObject.RemoveAssoc1ToM(
+                        selectedProp.MetaProperty, dataContext.GetObject(oid));
+                
+                foreach (var oid in forAddOids)
+                    selectedProp.ModelObject.AddAssoc1ToM(
+                        selectedProp.MetaProperty, dataContext.GetObject(oid));
+            }
+        }
+        catch (Exception e)
+        {
+            GlobalServices.ProtocolService
+                .Error(e.Message, 
+                    "CimObjectPropertiesObserverViewModel.EditPropertyValue");
+        }
+    }
+
+    private static void EditEnumAttribute(CimObjectPropertyModel selectedProp,
+        CimPropertyValueEditorDialogResult openSaveResult)
+    {
+        var cimMetaIndividual = selectedProp.MetaProperty.PropertyDatatype
+            .AllIndividuals.FirstOrDefault(
+                i => i.ShortName == openSaveResult.Value);
+
+        if (cimMetaIndividual != null)
+        {
+            selectedProp.ModelObject.SetAttributeAsEnum(
+                selectedProp.MetaProperty, cimMetaIndividual);
+        }
+    }
+
+    private static void EditPrimitiveAttribute(
+        CimPropertyValueEditorDialogResult openSaveResult, 
+        ICimMetaDatatype datatype,
+        CimObjectPropertyModel selectedProp)
+    {
+        var convertedValue = Convert.ChangeType(openSaveResult.Value,
+            datatype.PrimitiveType, CultureInfo.InvariantCulture);
+
+        selectedProp.ModelObject.SetAttribute(
+            selectedProp.MetaProperty, convertedValue);
     }
 
     private void SubscribeToNavigationService()
@@ -78,7 +299,7 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
     private void OnObjectSelectionChanged(IModelObject? selectedObject)
     {
         _propCache.Clear();
-        SelectedUuid = string.Empty;
+        SelectedObject = null;
         
         OnPropertyChanged(nameof(PropertySource));
 
@@ -87,12 +308,11 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
             return;
         }
 
-        SelectedUuid = selectedObject.OID.ToString();
+        SelectedObject = selectedObject;
         ShowSelectedObjectProperties(selectedObject);
     }
 
-    private void ShowSelectedObjectProperties(IModelObject selectedObject, 
-        TreeViewNodeModel? parent=null)
+    private void ShowSelectedObjectProperties(IModelObject selectedObject)
     {
         var sortedProps =  selectedObject.MetaClass
             .AllProperties.OrderBy(p => p.PropertyKind)
@@ -100,79 +320,12 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
 
         foreach (var prop in sortedProps)
         {
-            var propName = $"{prop.OwnerClass?.ShortName}.{prop.ShortName}";
-            
-            var propNode = new CimObjectPropertyModel() 
-                { Name = propName, Value = "null" };
-
-            if (prop.PropertyKind == CimMetaPropertyKind.Attribute)
-            {
-                var propValueObject = selectedObject.GetAttribute<object>(prop);
-                if (propValueObject is IModelObject compound)
-                {
-                    propNode.Value = compound.MetaClass.ShortName;
-                    ShowSelectedObjectProperties(compound, propNode);
-                }
-                else
-                {
-                    propNode.Value = selectedObject.GetAttribute<object>(prop)?
-                        .ToString() ?? "null";
-                }
-            }
-            else if (prop.PropertyKind == CimMetaPropertyKind.Assoc1To1)
-            {
-                var propValueRef1 = selectedObject.GetAssoc1To1(prop);
-                if (propValueRef1 != null)
-                {
-                    propNode.Value = propValueRef1.OID.ToString();
-                }
-            }
-            else if (prop.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
-            {
-                var propValueRefM = selectedObject.GetAssoc1ToM(prop);
-                propNode.Value = $"Count: {propValueRefM.Length}";
-                foreach (var propRef in propValueRefM)
-                {
-                    var refMNode = new CimObjectPropertyModel()
-                        { Name = String.Empty, Value = propRef.OID.ToString() };
-
-                    propNode.AddChild(refMNode);
-                }
-            }
-            else if (prop.PropertyKind == CimMetaPropertyKind.Statements)
-            {
-                if (selectedObject is IStatementsContainer statementsContainer)
-                {
-                    propNode.Value = $"Statements: {statementsContainer.Statements.Count}";
-                    
-                    foreach (var statementObject in statementsContainer.Statements[prop])
-                    {
-                        var statementNode = new CimObjectPropertyModel()
-                            { Name = "Statement", Value = statementObject.MetaClass.ShortName };
-                            
-                        ShowSelectedObjectProperties(statementObject, statementNode);
-
-                        propNode.AddChild(statementNode);
-                    }
-                }
-            }
-            else
-            {
-                propNode.Value = "<Not supported>";
-            }
-
-            if (parent == null)
-            {
-                _propCache.Add(propNode);
-            }
-            else
-            {
-                parent.AddChild(propNode);
-            }
+            var propNode = new CimObjectPropertyModel(selectedObject, prop, true);
+            _propCache.Add(propNode);
         }
     }
 
     private readonly ObservableCollection<CimObjectPropertyModel> _propCache = [];
-
-    private string _selectedUuid = string.Empty;
+    
+    private IModelObject? _selectedObject = null;
 }
