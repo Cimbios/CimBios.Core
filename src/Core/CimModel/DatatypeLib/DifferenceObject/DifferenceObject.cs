@@ -101,7 +101,8 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         var oldVal = _OriginalObject?.GetAttribute(metaProperty);
         var newVal = _ModifiedObject.GetAttribute(metaProperty);
 
-        if (oldVal == newVal)
+        if (newVal is null && oldVal is null 
+            || newVal is not null && newVal.Equals(oldVal))
         {
             _ModifiedProperties.Remove(metaProperty);
             _OriginalObject?.SetAttribute<object>(metaProperty, null);
@@ -135,29 +136,44 @@ public abstract class DifferenceObjectBase : IDifferenceObject
     public virtual void AddToAssocM(ICimMetaProperty metaProperty,
         IModelObject modelObject)
     {
-        if (_ModifiedProperties.Contains(metaProperty) == false) _ModifiedProperties.Add(metaProperty);
+        var comparer = new ModelObjectOIDEqualityComparer();
+        
+        _ModifiedProperties.Add(metaProperty);
 
-        _ModifiedObject.AddAssoc1ToM(metaProperty, modelObject);
+        if (_OriginalObject?.GetAssoc1ToM(metaProperty)
+                .Contains(modelObject, comparer) ?? false)
+            _OriginalObject.RemoveAssoc1ToM(metaProperty, modelObject);
+        else
+            _ModifiedObject.AddAssoc1ToM(metaProperty, modelObject);
 
         var oldVal = _OriginalObject?.GetAssoc1ToM<IModelObject>(metaProperty) ?? [];
         var newVal = _ModifiedObject.GetAssoc1ToM<IModelObject>(metaProperty);
 
-        if (oldVal.Intersect(newVal, new ModelObjectOIDEqualityComparer())
-            .Contains(modelObject, new ModelObjectOIDEqualityComparer()))
+        // if (oldVal.Intersect(newVal, comparer)
+        //     .Contains(modelObject, comparer))
+        if(oldVal.Length == 0 && newVal.Length == 0)
             _ModifiedProperties.Remove(metaProperty);
     }
 
     public virtual void RemoveFromAssocM(ICimMetaProperty metaProperty,
         IModelObject modelObject)
     {
-        if (_ModifiedProperties.Contains(metaProperty) == false) _ModifiedProperties.Add(metaProperty);
-
-        _OriginalObject?.AddAssoc1ToM(metaProperty, modelObject);
+        var comparer = new ModelObjectOIDEqualityComparer();
+        
+        _ModifiedProperties.Add(metaProperty);
+        
+        if (_ModifiedObject.GetAssoc1ToM(metaProperty)
+                .Contains(modelObject, comparer))
+            _ModifiedObject.RemoveAssoc1ToM(metaProperty, modelObject);
+        else
+            _OriginalObject?.AddAssoc1ToM(metaProperty, modelObject);
 
         var oldVal = _OriginalObject?.GetAssoc1ToM<IModelObject>(metaProperty) ?? [];
         var newVal = _ModifiedObject.GetAssoc1ToM<IModelObject>(metaProperty);
 
-        if (!oldVal.Except(newVal, new ModelObjectOIDEqualityComparer()).Any())
+        // if (!oldVal.Except(newVal, new ModelObjectOIDEqualityComparer()).Any())
+        //     _ModifiedProperties.Remove(metaProperty);
+        if(oldVal.Length == 0 && newVal.Length == 0)
             _ModifiedProperties.Remove(metaProperty);
     }
 
@@ -252,35 +268,28 @@ public abstract class DifferenceObjectBase : IDifferenceObject
     private void ChangeCompoundAttribute(ICimMetaProperty metaProperty,
         WeakModelObject oldCompoundMock, WeakModelObject newCompoundMock)
     {
-        if (_OriginalObject?.GetAttribute(metaProperty) == null)
-            _OriginalObject?.InitializeCompoundAttribute(metaProperty.ShortName,
-                oldCompoundMock.MetaClass);
-
-        if (_ModifiedObject.GetAttribute(metaProperty) == null)
-            _ModifiedObject.InitializeCompoundAttribute(metaProperty.ShortName,
-                newCompoundMock.MetaClass);
-
-        _OriginalObject?.CopyPropertiesFrom(oldCompoundMock);
-        _ModifiedObject.CopyPropertiesFrom(newCompoundMock);
-
-        var originalCompound = _OriginalObject?.GetAttribute(metaProperty)
-            as IModelObject;
         var modifiedCompound = _ModifiedObject.GetAttribute(metaProperty)
             as IModelObject;
-
-        if (originalCompound == null && modifiedCompound == null)
+        modifiedCompound ??= _ModifiedObject
+            .InitializeCompoundAttribute(metaProperty, false);
+        modifiedCompound.CopyPropertiesFrom(newCompoundMock);
+        
+        var originalCompound = _OriginalObject?.GetAttribute(metaProperty)
+            as IModelObject;
+        if (originalCompound == null)
         {
+            originalCompound = _OriginalObject?
+                .InitializeCompoundAttribute(metaProperty, false);
+            originalCompound?.CopyPropertiesFrom(oldCompoundMock);
+        }
+        
+        if (originalCompound == null) return;
+        
+        var compoundDiff = ModelObjectsComparer.Compare(
+            originalCompound, modifiedCompound, true);
+
+        if (compoundDiff.ModifiedProperties.Count == 0) 
             _ModifiedProperties.Remove(metaProperty);
-            return;
-        }
-
-        if (originalCompound != null && modifiedCompound != null)
-        {
-            var compoundDiff = ModelObjectsComparer.Compare(
-                originalCompound, modifiedCompound, true);
-
-            if (compoundDiff.ModifiedProperties.Count == 0) _ModifiedProperties.Remove(metaProperty);
-        }
     }
 }
 
@@ -293,11 +302,11 @@ public class AdditionDifferenceObject : DifferenceObjectBase
     {
     }
 
-    public AdditionDifferenceObject(IModelObject modifiedMOdelObject)
-        : base(modifiedMOdelObject)
+    public AdditionDifferenceObject(IModelObject modifiedModelObject)
+        : base(modifiedModelObject)
     {
     }
-
+    
     protected override WeakModelObject? _OriginalObject => null;
 }
 

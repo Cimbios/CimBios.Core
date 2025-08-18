@@ -13,13 +13,16 @@ namespace CimBios.Core.CimModel.CimDifferenceModel;
 
 public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 {
-    protected ConcurrentDictionary<IOIDDescriptor, IDifferenceObject>
-        _DifferencesCache = [];
+    protected readonly ConcurrentDictionary<IOIDDescriptor, IDifferenceObject>
+        DifferencesCache = [];
 
-    protected DifferenceModel? _internalDifferenceModel;
+    private DifferenceModel? _internalDifferenceModel;
 
-    protected ICimDataModel? _subscribedDataModel;
+    private ICimDataModel? _subscribedDataModel;
 
+    public event CimDifferenceModelStorageChangedEventHandler?
+        DifferencesStorageChanged;
+    
     public CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
         IOIDDescriptorFactory oidDescriptorFactory)
         : base(cimSchema, typeLib, oidDescriptorFactory)
@@ -34,7 +37,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         SubscribeToDataModelChanges(cimDataModel);
     }
 
-    private DifferenceModel _InternalDifferenceModel
+    private DifferenceModel InternalDifferenceModel
     {
         get
         {
@@ -49,7 +52,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
     public override Model? ModelDescription => _internalDifferenceModel;
 
     public IReadOnlyCollection<IDifferenceObject> Differences
-        => _DifferencesCache.Values.ToHashSet();
+        => DifferencesCache.Values.ToHashSet();
 
     public void CompareDataModels(ICimDataModel originDataModel,
         ICimDataModel modifiedDataModel)
@@ -62,7 +65,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             if (originObject == null)
             {
                 var addingObject = new AdditionDifferenceObject(forwardObject);
-                _DifferencesCache.TryAdd(addingObject.OID, addingObject);
+                DifferencesCache.TryAdd(addingObject.OID, addingObject);
             }
             else
             {
@@ -70,7 +73,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
                     .Compare(originObject, forwardObject);
 
                 if (existingDiff.ModifiedProperties.Count != 0)
-                    _DifferencesCache.TryAdd(existingDiff.OID, existingDiff);
+                    DifferencesCache.TryAdd(existingDiff.OID, existingDiff);
             }
         }
 
@@ -79,7 +82,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             if (modifiedDataModel.GetObject(reverseObject.OID) != null) continue;
 
             var deletionObject = new DeletionDifferenceObject(reverseObject);
-            _DifferencesCache.TryAdd(deletionObject.OID, deletionObject);
+            DifferencesCache.TryAdd(deletionObject.OID, deletionObject);
         }
     }
 
@@ -97,12 +100,12 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         _internalDifferenceModel.created = DateTime.Now.ToUniversalTime();
 
         _Objects.Add(_internalDifferenceModel.OID, _internalDifferenceModel);
-        _DifferencesCache.Clear();
+        DifferencesCache.Clear();
     }
 
     public void SubscribeToDataModelChanges(ICimDataModel cimDataModel)
     {
-        _DifferencesCache.Clear();
+        DifferencesCache.Clear();
 
         _subscribedDataModel = cimDataModel;
 
@@ -126,51 +129,50 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
     private void ToDifferenceModel()
     {
-        _InternalDifferenceModel.forwardDifferences.Clear();
-        _InternalDifferenceModel.reverseDifferences.Clear();
+        InternalDifferenceModel.forwardDifferences.Clear();
+        InternalDifferenceModel.reverseDifferences.Clear();
 
-        _DifferencesCache.Values.AsParallel().ForAll(diff =>
+        foreach (var diff in DifferencesCache.Values)
+        {
+            switch (diff)
             {
-                switch (diff)
-                {
-                    case AdditionDifferenceObject:
-                    case UpdatingDifferenceObject:
-                        _InternalDifferenceModel.forwardDifferences.Add(
-                            new WeakModelObject(diff.ModifiedObject));
-                        break;
-                    case DeletionDifferenceObject:
-                        _InternalDifferenceModel.reverseDifferences.Add(
-                            new WeakModelObject(diff.ModifiedObject));
-                        break;
-                }
-
-                if (diff is UpdatingDifferenceObject
-                    && diff.OriginalObject is not null)
-                    _InternalDifferenceModel.reverseDifferences.Add(
-                        new WeakModelObject(diff.OriginalObject));
+                case AdditionDifferenceObject:
+                case UpdatingDifferenceObject:
+                    InternalDifferenceModel.AddTo_forwardDifferences(
+                        new WeakModelObject(diff.ModifiedObject));
+                    break;
+                case DeletionDifferenceObject:
+                    InternalDifferenceModel.AddTo_reverseDifferences(
+                        new WeakModelObject(diff.ModifiedObject));
+                    break;
             }
-        );
+
+            if (diff is UpdatingDifferenceObject
+                && diff.OriginalObject is not null)
+                InternalDifferenceModel.AddTo_reverseDifferences(
+                    new WeakModelObject(diff.OriginalObject));
+        }
     }
 
     private void ToDifferencesCache()
     {
-        _DifferencesCache.Clear();
+        DifferencesCache.Clear();
 
         var descriptionMetaClass = Schema.TryGetResource<ICimMetaClass>(
             new Uri(Description.ClassUri));
 
         if (descriptionMetaClass == null)
             throw new NotSupportedException(
-                "Schema does not contains neccessary rdf:Description class!");
+                "Schema does not contains necessary rdf:Description class!");
 
         var waitingForwardUpdates = new Dictionary<IOIDDescriptor, IModelObject>();
-        _InternalDifferenceModel.forwardDifferences.AsParallel().ForAll(s =>
+        InternalDifferenceModel.forwardDifferences.AsParallel().ForAll(s =>
             {
                 if (s.MetaClass != descriptionMetaClass)
                 {
                     var addDiff = new AdditionDifferenceObject(s);
 
-                    _DifferencesCache.TryAdd(addDiff.OID, addDiff);
+                    DifferencesCache.TryAdd(addDiff.OID, addDiff);
                 }
                 else
                 {
@@ -179,13 +181,13 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             }
         );
 
-        _InternalDifferenceModel.reverseDifferences.AsParallel().ForAll(s =>
+        InternalDifferenceModel.reverseDifferences.AsParallel().ForAll(s =>
             {
                 if (s.MetaClass != descriptionMetaClass)
                 {
                     var delDiff = new DeletionDifferenceObject(s);
 
-                    _DifferencesCache.TryAdd(delDiff.OID, delDiff);
+                    DifferencesCache.TryAdd(delDiff.OID, delDiff);
                 }
                 else
                 {
@@ -196,7 +198,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
                     var updDiff = new UpdatingDifferenceObject(s, waiting);
 
-                    _DifferencesCache.TryAdd(updDiff.OID, updDiff);
+                    DifferencesCache.TryAdd(updDiff.OID, updDiff);
                 }
             }
         );
@@ -208,7 +210,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
                 var updDiff = new UpdatingDifferenceObject(nullObj, w);
 
-                _DifferencesCache.TryAdd(updDiff.OID, updDiff);
+                DifferencesCache.TryAdd(updDiff.OID, updDiff);
             }
         );
     }
@@ -216,7 +218,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
     private void OnModelObjectStorageChanged(ICimDataModel? sender,
         IModelObject modelObject, CimDataModelObjectStorageChangedEventArgs e)
     {
-        var diff = _DifferencesCache.GetValueOrDefault(modelObject.OID);
+        var diff = DifferencesCache.GetValueOrDefault(modelObject.OID);
 
         switch (e.ChangeType)
         {
@@ -233,7 +235,11 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
                         diff = new AdditionDifferenceObject(
                             modelObject.OID, modelObject.MetaClass);
 
-                    _DifferencesCache.Remove(delDiff.OID, out _);
+                    if (DifferencesCache.Remove(delDiff.OID, out _))
+                        DifferencesStorageChanged?.Invoke(this, 
+                            diff, 
+                            new CimDataModelObjectStorageChangedEventArgs(
+                                CimDataModelObjectStorageChangeType.Remove));
                 }
                 else
                 {
@@ -247,8 +253,12 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             {
                 if (diff is AdditionDifferenceObject)
                 {
-                    _DifferencesCache.Remove(diff.OID, out _);
-                    diff = null;
+                    if (DifferencesCache.Remove(diff.OID, out _))
+                        DifferencesStorageChanged?.Invoke(this, 
+                            diff, 
+                            new CimDataModelObjectStorageChangedEventArgs(
+                                CimDataModelObjectStorageChangeType.Remove));
+                    
                     return;
                 }
 
@@ -269,7 +279,12 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
                 if (tmpDiff is UpdatingDifferenceObject upd)
                 {
-                    _DifferencesCache.Remove(tmpDiff.OID, out _);
+                    if (DifferencesCache.Remove(tmpDiff.OID, out _))
+                        DifferencesStorageChanged?.Invoke(this, 
+                            diff, 
+                            new CimDataModelObjectStorageChangedEventArgs(
+                                CimDataModelObjectStorageChangeType.Remove));
+                    
                     foreach (var prop in upd.ModifiedProperties)
                     {
                         var propValue = upd.OriginalObject?.TryGetPropertyValue(prop);
@@ -282,7 +297,13 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             }
         }
 
-        if (diff != null) _DifferencesCache.TryAdd(diff.OID, diff);
+        if (diff == null) return;
+        
+        if (DifferencesCache.TryAdd(diff.OID, diff))
+            DifferencesStorageChanged?.Invoke(this, 
+                diff, 
+                new CimDataModelObjectStorageChangedEventArgs(
+                    CimDataModelObjectStorageChangeType.Add));
     }
 
     private void OnModelObjectPropertyChanged(ICimDataModel? sender,
@@ -305,7 +326,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             throw new NotSupportedException();
         }
 
-        var diff = _DifferencesCache.GetValueOrDefault(modelObject.OID);
+        var diff = DifferencesCache.GetValueOrDefault(modelObject.OID);
 
         diff ??= new UpdatingDifferenceObject(modelObject.OID);
 
@@ -315,7 +336,12 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
             if (diff.ModifiedProperties.Count == 0)
             {
-                _DifferencesCache.Remove(diff.OID, out _);
+                if (DifferencesCache.Remove(diff.OID, out _))
+                    DifferencesStorageChanged?.Invoke(this, 
+                        diff, 
+                        new CimDataModelObjectStorageChangedEventArgs(
+                            CimDataModelObjectStorageChangeType.Remove));
+                
                 diff = null;
             }
         }
@@ -325,7 +351,13 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
                 "Unexpected change before updating difference!");
         }
 
-        if (diff != null) _DifferencesCache.TryAdd(diff.OID, diff);
+        if (diff == null) return;
+        
+        if (DifferencesCache.TryAdd(diff.OID, diff))
+            DifferencesStorageChanged?.Invoke(this, 
+                diff, 
+                new CimDataModelObjectStorageChangedEventArgs(
+                    CimDataModelObjectStorageChangeType.Add));
     }
 
     #region SaveLoadLogic
@@ -346,7 +378,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         IRdfSerializerFactory serializerFactory, ICimSchema cimSchema)
     {
         _internalDifferenceModel = null;
-        _DifferencesCache.Clear();
+        DifferencesCache.Clear();
 
         serializerFactory.Settings = RedefineDiffSerializerSettings(
             serializerFactory.Settings);

@@ -28,10 +28,10 @@ public class RdfXmlSerializer : RdfSerializerBase
             _oidDescriptorFactory = oidDescriptorFactory;
     }
 
-    protected override RdfReaderBase _RdfReader => _rdfReader;
-    protected override RdfWriterBase _RdfWriter => _rdfWriter;
+    protected override RdfReaderBase RdfReader => _rdfReader;
+    protected override RdfWriterBase RdfWriter => _rdfWriter;
 
-    protected override IOIDDescriptorFactory _OIDDescriptorFactory
+    protected override IOIDDescriptorFactory OidDescriptorFactory
         => _oidDescriptorFactory;
 }
 

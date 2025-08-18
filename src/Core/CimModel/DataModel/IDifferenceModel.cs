@@ -1,4 +1,5 @@
 using CimBios.Core.CimModel.CimDataModel;
+using CimBios.Core.CimModel.CimDataModel.Utils;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Utils.ClassTraits.CanLog;
@@ -43,4 +44,10 @@ public interface ICimDifferenceModel : ICanLog
     ///     Clear current differences set and internal difference model.
     /// </summary>
     public void ResetAll();
+    
+    /// <summary>
+    ///     Event fires on data model object storage changed - add/remove objects.
+    /// </summary>
+    public event CimDifferenceModelStorageChangedEventHandler?
+        DifferencesStorageChanged;
 }

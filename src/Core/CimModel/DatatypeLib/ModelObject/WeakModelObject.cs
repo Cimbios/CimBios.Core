@@ -59,7 +59,7 @@ public class WeakModelObject : DynamicModelObjectBase,
     /// </summary>
     /// <param name="modelObject">Model object for copy.</param>
     public WeakModelObject(IReadOnlyModelObject modelObject)
-        : this(modelObject.OID, modelObject.MetaClass)
+        : this(modelObject.OID, modelObject.MetaClass, true)
     {
         this.CopyPropertiesFrom(modelObject, true);
     }
@@ -135,19 +135,33 @@ public class WeakModelObject : DynamicModelObjectBase,
 
         if (CanChangeProperty(metaProperty, value) == false) return;
 
-        object? old = null;
-        if (_PropertiesData.ContainsKey(metaProperty))
+        if (_PropertiesData.TryGetValue(metaProperty, out var old))
         {
-            old = _PropertiesData[metaProperty];
+            if (value == null && old == null || old?.Equals(value) == true)
+            {
+                return;
+            }
+            
             _PropertiesData[metaProperty] = value;
+            
+            if (value is IModelObject compound)
+            {
+                SubscribeToCompoundChanges(metaProperty, compound);
+            }
         }
         else
         {
             _PropertiesData.TryAdd(metaProperty, value);
             _MetaClass.AddProperty(metaProperty);
+            
+            if (value is IModelObject compound)
+            {
+                SubscribeToCompoundChanges(metaProperty, compound);
+            }
         }
 
-        if (_MetaClass.HasProperty(metaProperty) == false) _MetaClass.AddProperty(metaProperty);
+        if (_MetaClass.HasProperty(metaProperty) == false) 
+            _MetaClass.AddProperty(metaProperty);
 
         CleanUpNullProperty(metaProperty);
 
@@ -194,12 +208,11 @@ public class WeakModelObject : DynamicModelObjectBase,
                 metaProperty.PropertyDatatype);
         else
             compoundObject = new WeakModelObject(new AutoDescriptor(),
-                metaProperty.PropertyDatatype);
+                metaProperty.PropertyDatatype, true);
 
         if (compoundObject != null)
         {
             SetAttribute(metaProperty, compoundObject);
-            SubscribesToCompoundChanges(metaProperty, compoundObject);
             return compoundObject;
         }
 

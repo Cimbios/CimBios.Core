@@ -35,8 +35,17 @@ public class DifferenceModel(IOIDDescriptor oid, ICimMetaClass metaClass)
                 && Statements.TryGetValue(statementProperty, out var statements))
                 return statements;
 
-            throw new Exception($"No {nameof(forwardDifferences)} statements property!");
+            return [];
         }
+    }
+
+    public void AddTo_forwardDifferences(IModelObject modelObject)
+    {
+        var statementProperty = TryGetMetaPropertyByName(
+            nameof(forwardDifferences));
+        
+        if (statementProperty != null) 
+            AddToStatements(statementProperty, modelObject);
     }
 
     public ICollection<IModelObject> reverseDifferences
@@ -50,8 +59,17 @@ public class DifferenceModel(IOIDDescriptor oid, ICimMetaClass metaClass)
                 && Statements.TryGetValue(statementProperty, out var statements))
                 return statements;
 
-            throw new Exception($"No {nameof(reverseDifferences)} statements property!");
+            return [];
         }
+    }
+    
+    public void AddTo_reverseDifferences(IModelObject modelObject)
+    {
+        var statementProperty = TryGetMetaPropertyByName(
+            nameof(reverseDifferences));
+        
+        if (statementProperty != null) 
+            AddToStatements(statementProperty, modelObject);
     }
 }
 

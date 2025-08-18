@@ -114,7 +114,8 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
-        Load(new StreamReader(path), serializerFactory, cimSchema);
+        Load(new StreamReader(path, Encoding.Default), 
+            serializerFactory, cimSchema);
     }
 
     /// <summary>
@@ -235,15 +236,18 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         CanCancelPropertyChangingEventArgs e)
     {
         if (e is CanCancelAssocChangingEventArgs assocChanging)
+        {
             if (assocChanging.ModelObject != null
                 && assocChanging.ModelObject is not ModelObjectUnresolvedReference)
-                if (GetObject(assocChanging.ModelObject.OID)
-                    != assocChanging.ModelObject)
-                {
-                    e.Cancel = true;
-                    throw new InvalidDataException(
-                        "This context does not contains sending association object!");
-                }
+            {
+                var contextObject = GetObject(assocChanging.ModelObject.OID);
+                if (assocChanging.ModelObject.Equals(contextObject)) return;
+                
+                e.Cancel = true;
+                throw new InvalidDataException(
+                    "This context does not contains sending association object!");
+            }
+        }
     }
 
     /// <summary>

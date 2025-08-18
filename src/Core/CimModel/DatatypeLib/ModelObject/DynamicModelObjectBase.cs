@@ -204,7 +204,7 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         return true;
     }
 
-    protected void SubscribesToCompoundChanges(ICimMetaProperty metaProperty,
+    protected void SubscribeToCompoundChanges(ICimMetaProperty metaProperty,
         IModelObject compoundObject)
     {
         if (compoundObject.MetaClass.IsCompound == false)
@@ -298,7 +298,7 @@ public static class ModelObjectCopyPropsExtension
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
                 || metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
             {
-                CopyAssocs(toModelObject, fromModelObject, 
+                CopyAssoc(toModelObject, fromModelObject, 
                     metaProperty, allowAssoc11Capture);           
             }
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Statements
@@ -381,7 +381,7 @@ public static class ModelObjectCopyPropsExtension
         toModelObject.SetAttribute(metaProperty, copy);
     }
 
-    private static void CopyAssocs(IModelObject toModelObject, 
+    private static void CopyAssoc (IModelObject toModelObject, 
         IReadOnlyModelObject fromModelObject, ICimMetaProperty metaProperty,
         bool recaptureAssoc11 = false)
     {
@@ -393,15 +393,11 @@ public static class ModelObjectCopyPropsExtension
                 || inverse != CimMetaPropertyKind.Assoc1To1))
         {
             var refCopy = fromModelObject.GetAssoc1To1<IModelObject>(metaProperty);
-            
-            if (refCopy is ModelObjectUnresolvedReference unresolved)
-            {
-                var newUnresolved = new ModelObjectUnresolvedReference(
-                    unresolved.OID, 
-                    metaProperty);
 
-                newUnresolved.WaitingObjects.Add(toModelObject);
-                refCopy = newUnresolved;
+            if (refCopy is not null)
+            {
+                refCopy = new ModelObjectUnresolvedReference(
+                    refCopy.OID, metaProperty);
             }
 
             toModelObject.SetAssoc1To1(metaProperty, refCopy);                
@@ -411,18 +407,11 @@ public static class ModelObjectCopyPropsExtension
             var refCol = fromModelObject.GetAssoc1ToM(metaProperty);
             foreach (var refCopy in refCol)
             {
-                var _refCopy = refCopy;
-                if (refCopy is ModelObjectUnresolvedReference unresolved)
-                {
-                    var newUnresolved = new ModelObjectUnresolvedReference(
-                        unresolved.OID, 
-                        metaProperty);
-
-                    newUnresolved.WaitingObjects.Add(toModelObject);
-                    _refCopy = newUnresolved;
-                }
-
-                toModelObject.AddAssoc1ToM(metaProperty, _refCopy);
+                var unresolvedCopy = new ModelObjectUnresolvedReference(
+                    refCopy.OID, 
+                    metaProperty);
+                
+                toModelObject.AddAssoc1ToM(metaProperty, unresolvedCopy);
             }               
         }
     }

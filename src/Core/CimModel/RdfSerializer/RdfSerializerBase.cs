@@ -13,7 +13,8 @@ namespace CimBios.Core.CimModel.RdfSerializer;
 /// </summary>
 public abstract class RdfSerializerBase : ICanLog
 {
-    private readonly PlainLogView _Log;
+    private protected const string RdfDescription = "http://www.w3.org/1999/02/22-rdf-syntax-ns#Description";
+    private readonly PlainLogView _log;
 
     private Dictionary<string, CimAutoClass> _createdAutoClassesCache = [];
     private Dictionary<string, CimAutoProperty> _createdAutoPropertiesCache = [];
@@ -30,7 +31,7 @@ public abstract class RdfSerializerBase : ICanLog
     {
         Schema = schema;
         TypeLib = datatypeLib;
-        _Log = new PlainLogView(this);
+        _log = new PlainLogView(this);
 
         Settings = new RdfSerializerSettings();
     }
@@ -60,23 +61,22 @@ public abstract class RdfSerializerBase : ICanLog
     /// <summary>
     ///     Rdf reader abstract entity.
     /// </summary>
-    protected abstract RdfReaderBase _RdfReader { get; }
+    protected abstract RdfReaderBase RdfReader { get; }
 
     /// <summary>
     ///     Rdf writer abstract entity.
     /// </summary>
-    protected abstract RdfWriterBase _RdfWriter { get; }
+    protected abstract RdfWriterBase RdfWriter { get; }
 
     /// <summary>
     ///     OID Descriptor factory for producing model objects.
     /// </summary>
-    protected abstract IOIDDescriptorFactory _OIDDescriptorFactory { get; }
+    protected abstract IOIDDescriptorFactory OidDescriptorFactory { get; }
 
-    public ILogView Log => _Log;
+    public ILogView Log => _log;
 
     /// <summary>
     ///     Deserialize data provider data to IModelObject instances.
-    ///     <param name="settings">Serializer settings.</param>
     ///     <returns>Deserializer IModelObject collection.</returns>
     /// </summary>
     public IEnumerable<IModelObject> Deserialize(StreamReader streamReader)
@@ -92,7 +92,6 @@ public abstract class RdfSerializerBase : ICanLog
     /// <summary>
     ///     Serialize IModelObject instances to data provider source.
     ///     <param name="modelObjects">IModelObject collection for serialization.</param>
-    ///     <param name="settings">Serializer settings.</param>
     /// </summary>
     public void Serialize(StreamWriter streamWriter,
         IEnumerable<IModelObject> modelObjects)
@@ -106,14 +105,12 @@ public abstract class RdfSerializerBase : ICanLog
 
     private void InitializeRdfWriter(StreamWriter streamWriter)
     {
-        if (streamWriter == null) throw new Exception("No data stream for write!");
-
-        _streamWriter = streamWriter;
+        _streamWriter = streamWriter ?? throw new Exception("No data stream for write!");
 
         InitializeWriterNamespaces();
 
-        _RdfWriter.RdfIRIMode = Settings.WritingIRIMode;
-        _RdfWriter.Open(streamWriter);
+        RdfWriter.RdfIRIMode = Settings.WritingIRIMode;
+        RdfWriter.Open(streamWriter);
     }
 
     private void WriteObjects(IEnumerable<IModelObject> modelObjects)
@@ -129,8 +126,8 @@ public abstract class RdfSerializerBase : ICanLog
             objsToWrite.Add(moNode);
         }
 
-        _RdfWriter.WriteAll(objsToWrite);
-        _RdfWriter.Close();
+        RdfWriter.WriteAll(objsToWrite);
+        RdfWriter.Close();
     }
 
     /// <summary>
@@ -146,7 +143,7 @@ public abstract class RdfSerializerBase : ICanLog
         if (Schema.TryGetResource<ICimMetaClass>(metaClass.BaseUri) == null
             && Settings.UnknownClassesAllowed == false)
         {
-            _Log.Error(
+            _log.Error(
                 $"Failed to write instance {modelObject.OID} to Rdf node: " +
                 $"Property {metaClass.ShortName} does not exist in schema!",
                 modelObject);
@@ -166,14 +163,11 @@ public abstract class RdfSerializerBase : ICanLog
             }
             catch (Exception ex)
             {
-                _Log.Error(
+                _log.Error(
                     $"Failed to write property {schemaProperty.ShortName} " +
                     $"of instance {modelObject.OID} to Rdf node: {ex.Message}",
                     modelObject);
             }
-
-        // Note: need more tests...
-        //if (rdfNode.Triples.Length == 0) return null;
 
         return rdfNode;
     }
@@ -250,7 +244,7 @@ public abstract class RdfSerializerBase : ICanLog
             return dateTimeValue.ToUniversalTime()
                 .ToString("yyyy-MM-ddTHH:mm:ssZ");
 
-        if (value is double || value is float)
+        if (value is double or float)
             return (string)Convert.ChangeType(value,
                 typeof(string), CultureInfo.InvariantCulture);
 
@@ -271,7 +265,7 @@ public abstract class RdfSerializerBase : ICanLog
         {
             tripleObject = subject.GetAttribute(attribute);
         }
-        else if (attribute.PropertyDatatype is ICimMetaClass metaClass)
+        else if (attribute.PropertyDatatype is { } metaClass)
         {
             if (metaClass.IsEnum)
             {
@@ -305,12 +299,9 @@ public abstract class RdfSerializerBase : ICanLog
     private static Uri? GetObjectAsAssoc1To1(IModelObject subject,
         ICimMetaProperty assoc1To1)
     {
-        Uri resultAssocObject;
-
         var assocObj = subject.GetAssoc1To1<IModelObject>(assoc1To1);
-        if (assocObj == null) return null;
 
-        resultAssocObject = assocObj.OID.AbsoluteOID;
+        var resultAssocObject = assocObj?.OID.AbsoluteOID;
 
         return resultAssocObject;
     }
@@ -340,7 +331,9 @@ public abstract class RdfSerializerBase : ICanLog
             foreach (var statement in statements)
             {
                 var rdfNode = ModelObjectToRdfNode(statement);
-                if (rdfNode == null) continue;
+                if (rdfNode == null 
+                    || rdfNode.TypeIdentifier.AbsoluteUri == RdfDescription 
+                    && rdfNode.Triples.Length == 0) continue;
 
                 result.Add(rdfNode);
             }
@@ -358,10 +351,10 @@ public abstract class RdfSerializerBase : ICanLog
         {
             if (ns.Key == "base") continue;
 
-            _RdfWriter.AddNamespace(ns.Key, ns.Value);
+            RdfWriter.AddNamespace(ns.Key, ns.Value);
         }
 
-        _RdfWriter.AddNamespace("base", BaseUri);
+        RdfWriter.AddNamespace("base", BaseUri);
     }
 
     #endregion
@@ -375,8 +368,8 @@ public abstract class RdfSerializerBase : ICanLog
             throw new Exception("No data stream for read!");
 
         _streamReader = streamReader;
-        _RdfReader.Load(streamReader);
-        _RdfReader.AddNamespace("base", BaseUri);
+        RdfReader.Load(streamReader);
+        RdfReader.AddNamespace("base", BaseUri);
     }
 
     private void ResetCache()
@@ -398,7 +391,7 @@ public abstract class RdfSerializerBase : ICanLog
         if (_streamReader == null) throw new Exception("Serializer reader has not been intialized!");
 
         // First step - creating objects.
-        foreach (var instanceNode in _RdfReader.ReadAll())
+        foreach (var instanceNode in RdfReader.ReadAll())
             try
             {
                 var instance = RdfNodeToModelObject(instanceNode);
@@ -408,7 +401,7 @@ public abstract class RdfSerializerBase : ICanLog
             }
             catch (Exception ex)
             {
-                _Log.Error(
+                _log.Error(
                     $"Error raised while {instanceNode.Identifier} " +
                     $"ModelObject constructing: {ex.Message}.",
                     instanceNode);
@@ -418,9 +411,9 @@ public abstract class RdfSerializerBase : ICanLog
         _streamReader.BaseStream.Position = 0;
         _streamReader.DiscardBufferedData();
         InitializeRdfReader(_streamReader);
-        foreach (var instanceNode in _RdfReader.ReadAll())
+        foreach (var instanceNode in RdfReader.ReadAll())
         {
-            var instanceOid = _OIDDescriptorFactory.TryCreate(instanceNode.Identifier);
+            var instanceOid = OidDescriptorFactory.TryCreate(instanceNode.Identifier);
             if (instanceOid == null || _objectsCache.TryGetValue(instanceOid,
                     out var instance) == false)
                 continue;
@@ -428,7 +421,7 @@ public abstract class RdfSerializerBase : ICanLog
             foreach (var property in instanceNode.Triples) ReadObjectProperty(instance, property);
         }
 
-        _RdfReader.Close();
+        RdfReader.Close();
         _streamReader.Close();
 
         return [.. _objectsCache.Values];
@@ -439,6 +432,7 @@ public abstract class RdfSerializerBase : ICanLog
     /// </summary>
     /// <param name="instanceNode">RdfNode CIM object presentation.</param>
     /// <param name="IsCompound">Is compound (inner child) node.</param>
+    /// <param name="isAuto"></param>
     /// <returns>IModelObject instance or null.</returns>
     private IModelObject? RdfNodeToModelObject(RdfNode instanceNode,
         bool isAuto = false)
@@ -446,7 +440,7 @@ public abstract class RdfSerializerBase : ICanLog
         IOIDDescriptor? instanceOid;
         if (isAuto == false)
         {
-            instanceOid = _OIDDescriptorFactory.TryCreate(instanceNode.Identifier);
+            instanceOid = OidDescriptorFactory.TryCreate(instanceNode.Identifier);
             if (instanceOid == null) throw new ArgumentException("Failed to create model object oid!");
         }
         else
@@ -524,7 +518,7 @@ public abstract class RdfSerializerBase : ICanLog
             }
             else
             {
-                _Log.Warn(
+                _log.Warn(
                     "Skip non-existing schema property "
                     + $"{propertyTriple.Predicate.AbsoluteUri} in "
                     + $"instance {instance.OID}",
@@ -674,7 +668,7 @@ public abstract class RdfSerializerBase : ICanLog
                     out var convertedValue))
                 endData = convertedValue;
             else
-                _Log.Error(
+                _log.Error(
                     $"Unnable to convert {data} value to " +
                     $"{dataType.PrimitiveType.Name} for {property.ShortName}" +
                     $"of instance {instance.OID}!",
@@ -696,7 +690,7 @@ public abstract class RdfSerializerBase : ICanLog
                 if (schemaEnumValue != null)
                     endData = TypeLib.CreateEnumValueInstance(schemaEnumValue);
                 else
-                    _Log.Error(
+                    _log.Error(
                         $"Enum value {enumValueUri} of instance " +
                         $"{instance.OID} does not exist in schema!",
                         instance);
@@ -709,7 +703,7 @@ public abstract class RdfSerializerBase : ICanLog
         }
         catch (Exception ex)
         {
-            _Log.Error("Failed set attribute to instance " +
+            _log.Error("Failed set attribute to instance " +
                        $"{instance.OID}: {ex.Message}", instance);
         }
     }
@@ -747,7 +741,7 @@ public abstract class RdfSerializerBase : ICanLog
     private void SetObjectDataAsAssociation(IModelObject instance,
         ICimMetaProperty property, Uri referenceUri)
     {
-        var referenceOid = _OIDDescriptorFactory.TryCreate(referenceUri);
+        var referenceOid = OidDescriptorFactory.TryCreate(referenceUri);
         if (referenceOid == null) return;
 
         _objectsCache.TryGetValue(referenceOid, out var referenceInstance);
@@ -772,7 +766,7 @@ public abstract class RdfSerializerBase : ICanLog
         }
         catch (Exception ex)
         {
-            _Log.Error(
+            _log.Error(
                 "Failed to set association between instances " +
                 $"{instance.OID} and {referenceInstance.OID}: {ex.Message}",
                 instance);

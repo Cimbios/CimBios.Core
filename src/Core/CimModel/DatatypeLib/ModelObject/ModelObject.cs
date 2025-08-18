@@ -12,20 +12,21 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 public class ModelObject : DynamicModelObjectBase, 
     IModelObject, IStatementsContainer
 {
-    public override IOIDDescriptor OID => _Oid;
-    public override ICimMetaClass MetaClass => _MetaClass;
+    public override IOIDDescriptor OID { get; }
+
+    public override ICimMetaClass MetaClass { get; }
 
     public IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> 
     Statements => _Statements.AsReadOnly();
 
     public ModelObject(IOIDDescriptor oid, ICimMetaClass metaClass)
     {
-        _Oid = oid;
+        OID = oid;
 
-        _MetaClass = metaClass;
+        MetaClass = metaClass;
         _PropertiesData = [];
 
-        InitStatementsCollections();
+        //InitStatementsCollections();
     }
 
     public override bool HasProperty(string propertyName)
@@ -112,14 +113,13 @@ public class ModelObject : DynamicModelObjectBase,
             _PropertiesData.TryAdd(metaProperty, null);
         }
 
-        if (_PropertiesData.ContainsKey(metaProperty))
+        if (_PropertiesData.TryGetValue(metaProperty, out var old))
         {
-            if (value == null && _PropertiesData[metaProperty] == null)
+            if (value == null && old == null || old?.Equals(value) == true)
             {
                 return;
             }
 
-            var old = _PropertiesData[metaProperty];
             if (value == null)
             {
                 _PropertiesData.Remove(metaProperty, out var _);
@@ -127,6 +127,11 @@ public class ModelObject : DynamicModelObjectBase,
             else
             {
                 _PropertiesData[metaProperty] = value;
+
+                if (value is IModelObject compound)
+                {
+                    SubscribeToCompoundChanges(metaProperty, compound);
+                }
             }
 
             OnPropertyChanged(new CimMetaAttributeChangedEventArgs(
@@ -178,7 +183,6 @@ public class ModelObject : DynamicModelObjectBase,
             if (compoundObject != null)
             {
                 SetAttribute(metaProperty, compoundObject);
-                SubscribesToCompoundChanges(metaProperty, compoundObject);
                 return compoundObject;
             }
         }
@@ -252,14 +256,20 @@ public class ModelObject : DynamicModelObjectBase,
             }
         }
 
-        if (_PropertiesData.ContainsKey(metaProperty))
+        if (_PropertiesData.TryGetValue(metaProperty, out var value))
         {
+            if (value is IModelObject referenceObject
+                && referenceObject.OID.Equals(obj?.OID))
+            {
+                return;
+            }
+            
             if (_PropertiesData[metaProperty] == obj)
             {
                 return;
             }
 
-            var assocObj = _PropertiesData[metaProperty] as IModelObject;
+            var assocObj = value as IModelObject;
 
             SetAssociationWithInverse(metaProperty, assocObj, obj);
 
@@ -384,6 +394,9 @@ public class ModelObject : DynamicModelObjectBase,
     public override void RemoveAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj)
     {       
+        ValidatePropertyValueAssign(metaProperty, 
+            obj, CimMetaPropertyKind.Assoc1ToM);
+        
         if (CanChangeProperty(metaProperty, obj, true) == false)
         {
             return;
@@ -402,11 +415,6 @@ public class ModelObject : DynamicModelObjectBase,
                             
             OnPropertyChanged(new CimMetaAssocChangedEventArgs(
                 metaProperty, obj, null));
-        }
-        else
-        {
-            throw new ArgumentException(
-                $"Association 1 to M {metaProperty.ShortName} does not exist!"); 
         }
     }
 
@@ -545,7 +553,7 @@ public class ModelObject : DynamicModelObjectBase,
     }
 
     /// <summary>
-    /// Check attribute data complience to set.
+    /// Check attribute data compliance to set.
     /// </summary>
     /// <param name="metaProperty">Meta property.</param>
     /// <param name="value">Value to assigning.</param>
@@ -713,10 +721,6 @@ public class ModelObject : DynamicModelObjectBase,
     }
 
     #endregion UtilsPrivate
-
-    private IOIDDescriptor _Oid;
-
-    private ICimMetaClass _MetaClass;
 
     private readonly ConcurrentDictionary<ICimMetaProperty, object?> 
     _PropertiesData;

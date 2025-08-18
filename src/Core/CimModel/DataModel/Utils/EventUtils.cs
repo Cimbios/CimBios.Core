@@ -25,8 +25,19 @@ public delegate void CimDataModelObjectStorageChangedEventHandler(
 
 /// <summary>
 /// </summary>
+/// <param name="sender"></param>
+/// <param name="differenceObject"></param>
+/// <param name="e"></param>
+public delegate void CimDifferenceModelStorageChangedEventHandler(
+    ICimDataModel? sender,
+    IDifferenceObject differenceObject,
+    CimDataModelObjectStorageChangedEventArgs e);
+
+/// <summary>
+/// </summary>
 /// <param name="changeType"></param>
-public class CimDataModelObjectStorageChangedEventArgs(CimDataModelObjectStorageChangeType changeType)
+public class CimDataModelObjectStorageChangedEventArgs(
+    CimDataModelObjectStorageChangeType changeType)
     : EventArgs
 {
     public CimDataModelObjectStorageChangeType ChangeType { get; } = changeType;

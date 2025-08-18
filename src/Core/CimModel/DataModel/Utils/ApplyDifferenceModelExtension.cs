@@ -55,6 +55,7 @@ public static class ApplyDifferenceModelExtension
                 var referenceObject = model.GetObject(refObj.OID);
                 if (referenceObject == null) continue;
 
+                refObj.WaitingObjects.Add(modelObject);
                 refObj.ResolveWith(referenceObject);
             }
         }

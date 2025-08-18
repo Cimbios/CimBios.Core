@@ -153,11 +153,11 @@ public class CimDatatypeLib : ICimDatatypeLib
             var constructType = typeof(EnumValueObject<>)
                 .MakeGenericType(enumType);
 
-            var enumValuenNstance = Activator.CreateInstance(constructType,
+            var enumValueInstance = Activator.CreateInstance(constructType,
                 BindingFlags.NonPublic | BindingFlags.Instance,
                 null, [metaIndividual], null);
 
-            return enumValuenNstance as EnumValueObject;
+            return enumValueInstance as EnumValueObject;
         }
 
         if (_Schema.Individuals.Contains(metaIndividual)) return new EnumValueObject(metaIndividual);
