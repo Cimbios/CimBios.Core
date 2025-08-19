@@ -43,8 +43,6 @@
                     </TabItem.Header>
                     <TabItem.Content>
                         <v:DiffObjectsObserverControl />
-                        <!-- <Button Content="Save Local Diffs" -->
-                        <!--         Command="{Binding SaveLocalDiffs}" /> -->
                     </TabItem.Content>
                 </TabItem>
                 <TabItem>
@@ -55,7 +53,7 @@
                         </StackPanel>
                     </TabItem.Header>
                     <TabItem.Content>
-                        <!---->
+                        <v:ValidationControl />
                     </TabItem.Content>
                 </TabItem>
                 <TabItem>
