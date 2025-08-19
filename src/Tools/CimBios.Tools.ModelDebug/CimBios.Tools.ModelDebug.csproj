@@ -8,27 +8,28 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     </PropertyGroup>
     <ItemGroup>
-        <Folder Include="Models\"/>
-        <AvaloniaResource Include="Assets\**"/>
+        <Folder Include="Models\" />
+        <AvaloniaResource Include="Assets\**" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.1"/>
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.1"/>
-        <PackageReference Include="Avalonia.Templates" Version="11.2.7"/>
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0"/>
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.1"/>
+        <PackageReference Include="Avalonia" Version="11.3.1" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.1" />
+        <PackageReference Include="Avalonia.Templates" Version="11.2.7" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.1" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.1"/>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.1" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="4.14.0" />
-        <PackageReference Include="Semi.Avalonia" Version="11.2.1.8"/>
+        <PackageReference Include="Semi.Avalonia" Version="11.2.1.8" />
         <PackageReference Include="Semi.Avalonia.AvaloniaEdit" Version="11.2.0.1" />
-        <PackageReference Include="Semi.Avalonia.TreeDataGrid" Version="11.0.10.4"/>
+        <PackageReference Include="Semi.Avalonia.TreeDataGrid" Version="11.0.10.4" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\Core\CimModel\DataModel\CimBios.Core.CimModel.DataModel.csproj"/>
-        <ProjectReference Include="..\..\Core\DataProvider\CimBios.Core.DataProvider.csproj"/>
-        <ProjectReference Include="..\..\Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj"/>
+        <ProjectReference Include="..\..\Core\CimModel\DataModel\CimBios.Core.CimModel.DataModel.csproj" />
+        <ProjectReference Include="..\..\Core\CimModel\Validation\CimBios.Core.CimModel.Validation.csproj" />
+        <ProjectReference Include="..\..\Core\DataProvider\CimBios.Core.DataProvider.csproj" />
+        <ProjectReference Include="..\..\Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Compile Update="Views/DataSelectorWindow.axaml.cs">
