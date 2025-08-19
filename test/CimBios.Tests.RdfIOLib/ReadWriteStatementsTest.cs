@@ -14,23 +14,17 @@ public class ReadWriteStatementsTest
         var rdfDocument = rdfReader.ReadAll().ToList();
 
         var Node = rdfDocument.FirstOrDefault();
-        if (Node == null)
-        {
-            Assert.Fail("Rdf doc is empty.");
-        }
+        if (Node == null) Assert.Fail("Rdf doc is empty.");
 
         var NodeStatements = Node.Triples
-            .FirstOrDefault(t => 
-                t.Predicate.AbsoluteUri 
-                    == "http://cim.bios/tests#Node.Statements");
-        if (NodeStatements == null)
-        {
-            Assert.Fail("Rdf doc does not contain Node.Statements.");
-        }
+            .FirstOrDefault(t =>
+                t.Predicate.AbsoluteUri
+                == "http://cim.bios/tests#Node.Statements");
+        if (NodeStatements == null) Assert.Fail("Rdf doc does not contain Node.Statements.");
 
-        Assert.True(NodeStatements.Object 
-                is RdfTripleObjectStatementsContainer statementsContainer
-            && statementsContainer.RdfNodesObject.Count == 4);
+        Assert.True(NodeStatements.Object
+                        is RdfTripleObjectStatementsContainer statementsContainer
+                    && statementsContainer.RdfNodesObject.Count == 4);
     }
 
     [Fact]
@@ -43,10 +37,7 @@ public class ReadWriteStatementsTest
         var rdfDocument = rdfReader.ReadAll().ToList();
 
         var rdfWriter = new RdfXmlWriter();
-        foreach (var (prefix, nsUri) in rdfReader.Namespaces)
-        {
-            rdfWriter.AddNamespace(prefix, nsUri);
-        }
+        foreach (var (prefix, nsUri) in rdfReader.Namespaces) rdfWriter.AddNamespace(prefix, nsUri);
 
         var stringBuilder = new StringBuilder();
         var stringWriter = new StringWriter(stringBuilder);
@@ -60,22 +51,16 @@ public class ReadWriteStatementsTest
         var postRdfDocument = postRdfReader.ReadAll().ToList();
 
         var Node = postRdfDocument.FirstOrDefault();
-        if (Node == null)
-        {
-            Assert.Fail("Rdf doc is empty.");
-        }
+        if (Node == null) Assert.Fail("Rdf doc is empty.");
 
         var NodeStatements = Node.Triples
-            .FirstOrDefault(t => 
-                t.Predicate.AbsoluteUri 
-                    == "http://cim.bios/tests#Node.Statements");
-        if (NodeStatements == null)
-        {
-            Assert.Fail("Rdf doc does not contain Node.Statements.");
-        }
+            .FirstOrDefault(t =>
+                t.Predicate.AbsoluteUri
+                == "http://cim.bios/tests#Node.Statements");
+        if (NodeStatements == null) Assert.Fail("Rdf doc does not contain Node.Statements.");
 
-        Assert.True(NodeStatements.Object 
-                is RdfTripleObjectStatementsContainer statementsContainer
-            && statementsContainer.RdfNodesObject.Count == 4);      
-    }    
+        Assert.True(NodeStatements.Object
+                        is RdfTripleObjectStatementsContainer statementsContainer
+                    && statementsContainer.RdfNodesObject.Count == 4);
+    }
 }

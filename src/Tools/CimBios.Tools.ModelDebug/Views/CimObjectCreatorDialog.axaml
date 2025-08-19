@@ -1,0 +1,29 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
+        mc:Ignorable="d"
+        CanResize="False"
+        SizeToContent="WidthAndHeight"
+        x:Class="CimBios.Tools.ModelDebug.Views.CimObjectCreatorDialog"
+        x:DataType="vm:CimObjectCreatorViewModel"
+        Title="CimObjectCreatorDialog">
+
+    <Grid Width="500">
+        <StackPanel Orientation="Vertical" Margin="5" Spacing="5">
+
+            <TextBlock Text="Object Identifier:" />
+            <TextBox Classes="Small, Bordered" Text="{Binding TextOID}" />
+
+            <TextBlock Text="Schema class URI:" />
+            <AutoCompleteBox FilterMode="Contains" HorizontalAlignment="Stretch" ItemsSource="{Binding MetaClassesList}" Text="{Binding TextMetaClass}" />
+
+            <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right" >
+                <Button Classes="Small" Content="Ok" Command="{Binding Ok}" />
+                <Button Classes="Small" Content="Cancel" Command="{Binding Cancel}" />
+            </StackPanel>
+
+        </StackPanel>
+    </Grid>
+</Window>

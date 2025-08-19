@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
 using CimBios.Tools.ModelDebug.Models;
@@ -115,24 +114,18 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
 
     private void SubscribeModelContextLoad()
     {
-        if (Services.ServiceLocator.GetInstance()
-            .TryGetService<NotifierService>(out var notifier) == false
-            || notifier == null)
-        {
-            return;
-        }
-
-        notifier.Fired += ModelContext_ModelLoaded;
+        GlobalServices.LoaderService.PropertyChanged 
+            += ModelContext_ModelLoaded;
     }
 
     private void ModelContext_ModelLoaded(object? sender, EventArgs e)
     {
-        if (sender is CimDocument modelContext == false)
+        if (sender is not CimModelLoaderService loaderService)
         {
             return;
         }
 
-        CimSchemaContext = modelContext.Schema;
+        CimSchemaContext = loaderService.DataContext?.Schema;
         FillData();
     }
 

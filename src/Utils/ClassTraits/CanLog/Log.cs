@@ -5,96 +5,94 @@ using static CimBios.Utils.ClassTraits.CanLog.ILogView;
 namespace CimBios.Utils.ClassTraits.CanLog;
 
 /// <summary>
-/// Log messages interface. Provides log messages logging access.
+///     Log messages interface. Provides log messages logging access.
 /// </summary>
 public interface ILog : ILogView
 {
     /// <summary>
-    /// Set debug mode - log debug messages.
+    ///     Set debug mode - log debug messages.
     /// </summary>
     public bool DebugLogMode { get; set; }
 
     /// <summary>
-    /// Add new message method.
+    ///     Add new message method.
     /// </summary>
     /// <param name="message">ILogMessage instance.</param>
     public void NewMessage(ILogMessage message);
 
     /// <summary>
-    /// Add new message method.
+    ///     Add new message method.
     /// </summary>
     /// <returns>New added message instance.</returns>
-    public ILogMessage NewMessage(string text, LogMessageSeverity severity, 
+    public ILogMessage NewMessage(string text, LogMessageSeverity severity,
         object? senderObject = null, [CallerMemberName] string callerName = "");
 
     /// <summary>
-    /// Add new info message method.
+    ///     Add new info message method.
     /// </summary>
     /// <returns>New added message instance.</returns>
-    public ILogMessage Info(string text, object? senderObject = null, 
+    public ILogMessage Info(string text, object? senderObject = null,
         [CallerMemberName] string callerName = "");
 
     /// <summary>
-    /// Add new warning message method.
+    ///     Add new warning message method.
     /// </summary>
     /// <returns>New added message instance.</returns>
     public ILogMessage Warn(string text, object? senderObject = null,
         [CallerMemberName] string callerName = "");
 
     /// <summary>
-    /// Add new error message method.
+    ///     Add new error message method.
     /// </summary>
     /// <returns>New added message instance.</returns>
     public ILogMessage Error(string text, object? senderObject = null,
         [CallerMemberName] string callerName = "");
 
     /// <summary>
-    /// Add new critical message method.
+    ///     Add new critical message method.
     /// </summary>
     /// <returns>New added message instance.</returns>
     public ILogMessage Critical(string text, object? senderObject = null,
         [CallerMemberName] string callerName = "");
 
     /// <summary>
-    /// Return read-only log view wrapper.
+    ///     Return read-only log view wrapper.
     /// </summary>
     /// <returns>Read only wrapper.</returns>
     public ILogView AsReadOnly();
 
     /// <summary>
-    /// 
     /// </summary>
     public void Clear();
 
     /// <summary>
-    /// 
     /// </summary>
     public void FlushFrom(ILogView logView, bool silent = false);
 }
 
 /// <summary>
-/// Simple plain log. Provides logs set and events logic.
+///     Simple plain log. Provides logs set and events logic.
 /// </summary>
 public class PlainLogView : ILog
 {
-    public IReadOnlyCollection<ILogMessage> Messages { get => _Log; }
-    public object Source { get; }
-    public bool DebugLogMode { get; set; } = false;
-
-    public event MessageAddedEventHandler? MessageAdded;
+    protected BlockingCollection<ILogMessage> _Log = [];
 
     public PlainLogView(object source)
     {
         Source = source;
 
         if (DebugLogMode)
-        {
             NewMessage(
-                $"{source.GetType().FullName}: Log view initialized", 
-                LogMessageSeverity.Info             
+                $"{source.GetType().FullName}: Log view initialized",
+                LogMessageSeverity.Info
             );
-        }
     }
+
+    public IReadOnlyCollection<ILogMessage> Messages => _Log;
+    public object Source { get; }
+    public bool DebugLogMode { get; set; } = false;
+
+    public event MessageAddedEventHandler? MessageAdded;
 
     public void NewMessage(ILogMessage message)
     {
@@ -103,7 +101,7 @@ public class PlainLogView : ILog
         MessageAdded?.Invoke(this, message);
     }
 
-    public ILogMessage NewMessage(string text, LogMessageSeverity severity, 
+    public ILogMessage NewMessage(string text, LogMessageSeverity severity,
         object? senderObject = null, [CallerMemberName] string callerName = "")
     {
         var message = new LogMessage(text, severity, senderObject, callerName);
@@ -114,30 +112,42 @@ public class PlainLogView : ILog
 
     public ILogMessage Info(string text, object? senderObject = null,
         [CallerMemberName] string callerName = "")
-        => NewMessage(text, LogMessageSeverity.Info,
+    {
+        return NewMessage(text, LogMessageSeverity.Info,
             senderObject, callerName);
+    }
 
     public ILogMessage Warn(string text, object? senderObject = null,
         [CallerMemberName] string callerName = "")
-        => NewMessage(text, LogMessageSeverity.Warning,
+    {
+        return NewMessage(text, LogMessageSeverity.Warning,
             senderObject, callerName);
+    }
 
     public ILogMessage Error(string text, object? senderObject = null,
         [CallerMemberName] string callerName = "")
-        => NewMessage(text, LogMessageSeverity.Error,
+    {
+        return NewMessage(text, LogMessageSeverity.Error,
             senderObject, callerName);
+    }
 
     public ILogMessage Critical(string text, object? senderObject = null,
         [CallerMemberName] string callerName = "")
-        => NewMessage(text, LogMessageSeverity.Critical, 
+    {
+        return NewMessage(text, LogMessageSeverity.Critical,
             senderObject, callerName);
+    }
 
-    public ILogView AsReadOnly() => new ReadOnlyLogView(this);
+    public ILogView AsReadOnly()
+    {
+        return new ReadOnlyLogView(this);
+    }
 
     public void Clear()
     {
         while (_Log.TryTake(out _))
-        {  }
+        {
+        }
     }
 
     public void FlushFrom(ILogView logView, bool silent = false)
@@ -146,12 +156,7 @@ public class PlainLogView : ILog
         {
             _Log.Add(message);
 
-            if (!silent)
-            {
-                MessageAdded?.Invoke(this, message);
-            }
+            if (!silent) MessageAdded?.Invoke(this, message);
         }
     }
-
-    protected BlockingCollection<ILogMessage> _Log = [];
 }

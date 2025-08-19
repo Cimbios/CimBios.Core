@@ -3,28 +3,21 @@
              x:Class="CimBios.Tools.ModelDebug.App"
              xmlns:local="using:CimBios.Tools.ModelDebug"
              RequestedThemeVariant="Default"
-             xmlns:semi="https://irihi.tech/semi"
-             xmlns:locale="avares://Semi.Avalonia/Locale">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             xmlns:semi="https://irihi.tech/semi">
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
-        <local:ViewLocator/>
+        <local:ViewLocator />
     </Application.DataTemplates>
 
-    <!-- <Application.Styles>
-        <semi:SemiTheme Locale="ru-ru"/>
-    </Application.Styles> -->
-    
     <Application.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceInclude Source="avares://Semi.Avalonia/Locale/en-us.axaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+
     </Application.Resources>
     <Application.Styles>
-        <StyleInclude Source="avares://Semi.Avalonia/Themes/Index.axaml" />
-        <StyleInclude Source="avares://Semi.Avalonia.TreeDataGrid/Index.axaml" />
+        <semi:SemiTheme />
+        <semi:SemiTheme Locale="ru-ru" />
+        <semi:TreeDataGridSemiTheme />
+        <semi:AvaloniaEditSemiTheme />
     </Application.Styles>
 
 </Application>

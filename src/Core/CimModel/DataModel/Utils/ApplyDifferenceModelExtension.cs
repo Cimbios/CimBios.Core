@@ -6,29 +6,23 @@ using CimBios.Core.CimModel.Schema;
 namespace CimBios.Core.CimModel.DataModel.Utils;
 
 /// <summary>
-/// Apply diffs to ICimModelObject helper.
+///     Apply diffs to ICimModelObject helper.
 /// </summary>
 public static class ApplyDifferenceModelExtension
 {
-    public static void ApplyDifferenceModel(this ICimDataModel model, 
+    public static void ApplyDifferenceModel(this ICimDataModel model,
         ICimDifferenceModel differenceModel)
     {
         foreach (var diff in differenceModel.Differences)
         {
             var getObject = model.GetObject(diff.OID);
-            
+
             if (diff is AdditionDifferenceObject addDiff)
-            {
                 ApplyAddition(model, addDiff);
-            }
             else if (diff is DeletionDifferenceObject)
-            {
                 model.RemoveObject(diff.OID);
-            }
             else if (diff is UpdatingDifferenceObject updatingDifferenceObject)
-            {
                 ApplyUpdating(model, updatingDifferenceObject);
-            }
         }
     }
 
@@ -42,10 +36,7 @@ public static class ApplyDifferenceModelExtension
             {
                 var assocObj = modelObject.GetAssoc1To1<IModelObject>(metaProperty)
                     as ModelObjectUnresolvedReference;
-                if (assocObj != null)
-                {
-                    refs.Add(assocObj);
-                }
+                if (assocObj != null) refs.Add(assocObj);
             }
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
             {
@@ -62,28 +53,23 @@ public static class ApplyDifferenceModelExtension
             foreach (var refObj in refs)
             {
                 var referenceObject = model.GetObject(refObj.OID);
-                if (referenceObject == null)
-                {
-                    continue;
-                }
+                if (referenceObject == null) continue;
 
+                refObj.WaitingObjects.Add(modelObject);
                 refObj.ResolveWith(referenceObject);
             }
         }
     }
 
-    private static void ApplyAddition(ICimDataModel model, 
+    private static void ApplyAddition(ICimDataModel model,
         AdditionDifferenceObject diff)
     {
         var getObject = model.GetObject(diff.OID);
-        
+
         var schemaMetaClass = model.Schema
             .TryGetResource<ICimMetaClass>(diff.MetaClass.BaseUri);
-        
-        if (schemaMetaClass == null)
-        {
-            return;
-        }
+
+        if (schemaMetaClass == null) return;
 
         IModelObject targetObject;
         if (getObject != null)
@@ -96,7 +82,7 @@ public static class ApplyDifferenceModelExtension
             else
             {
                 model.RemoveObject(getObject);
-                targetObject = model.CreateObject(diff.OID, 
+                targetObject = model.CreateObject(diff.OID,
                     schemaMetaClass);
             }
         }
@@ -110,19 +96,16 @@ public static class ApplyDifferenceModelExtension
 
         targetObject.CopyPropertiesFrom(diff.ModifiedObject,
             intersectedModifiedProps, true);
-            
+
         ResolveReferencesInModelObject(model, targetObject);
     }
 
-    private static void ApplyUpdating(ICimDataModel model, 
+    private static void ApplyUpdating(ICimDataModel model,
         UpdatingDifferenceObject diff)
     {
         var getObject = model.GetObject(diff.OID);
 
-        if (getObject == null)
-        {
-            return;
-        }
+        if (getObject == null) return;
 
         var intersectedModifiedProps = getObject.MetaClass
             .AllProperties.Intersect(diff.ModifiedProperties).ToList();
@@ -134,22 +117,17 @@ public static class ApplyDifferenceModelExtension
 
         // reverse assocs M removing
         if (diff.OriginalObject != null)
-        {
             foreach (var metaProperty in intersectedModifiedProps
-                .Where(p => p.PropertyKind == CimMetaPropertyKind.Assoc1ToM))
+                         .Where(p => p.PropertyKind == CimMetaPropertyKind.Assoc1ToM))
             {
                 var assocsToRemove = diff.OriginalObject
                     .GetAssoc1ToM(metaProperty);
 
                 var currentAssocs = getObject.GetAssoc1ToM(metaProperty);
-                var handledAssocs = assocsToRemove.Join(currentAssocs, a1 => a1.OID, 
+                var handledAssocs = assocsToRemove.Join(currentAssocs, a1 => a1.OID,
                     a2 => a2.OID, (a1, a2) => a2);
-                
-                foreach (var assoc in handledAssocs)
-                {
-                    getObject.RemoveAssoc1ToM(metaProperty, assoc);
-                }
+
+                foreach (var assoc in handledAssocs) getObject.RemoveAssoc1ToM(metaProperty, assoc);
             }
-        }
     }
 }

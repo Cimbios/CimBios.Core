@@ -1,4 +1,3 @@
-using System.Data;
 using CimBios.Core.CimModel.CimDataModel.Utils;
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
@@ -8,11 +7,13 @@ using CimBios.Core.CimModel.Schema;
 namespace CimBios.Core.CimModel.CimDataModel;
 
 /// <summary>
-/// Instance of CIM model in Rdf/* format.
-/// Supports input and output operations for CIM objects.
+///     Instance of CIM model in Rdf/* format.
+///     Supports input and output operations for CIM objects.
 /// </summary>
-public class CimDocument(ICimSchema cimSchema, ICimDatatypeLib typeLib, 
-    IOIDDescriptorFactory oidDescriptorFactory) 
+public class CimDocument(
+    ICimSchema cimSchema,
+    ICimDatatypeLib typeLib,
+    IOIDDescriptorFactory oidDescriptorFactory)
     : CimDocumentBase(cimSchema, typeLib, oidDescriptorFactory), ICimDataModel
 {
     public override IEnumerable<IModelObject> GetAllObjects()
@@ -33,39 +34,33 @@ public class CimDocument(ICimSchema cimSchema, ICimDatatypeLib typeLib,
     public override IModelObject? GetObject(IOIDDescriptor oid)
     {
         if (_Objects.TryGetValue(oid, out var instance)
-            && instance is not AutoDescriptor
+            && instance.OID is not AutoDescriptor
             && !instance.MetaClass.IsCompound)
-        {
             return instance;
-        }
-        else
-        {
-            return null;
-        }
+
+        return null;
     }
 
     public override T? GetObject<T>(IOIDDescriptor oid) where T : default
     {
-        IModelObject? modelObject = GetObject(oid);
-        if (modelObject != null && modelObject is T typedObject)
-        {
-            return typedObject;
-        }
+        var modelObject = GetObject(oid);
+        if (modelObject is T typedObject) return typedObject;
 
         return default;
     }
 
     public override bool RemoveObject(IOIDDescriptor oid)
     {
-        if (_Objects.TryGetValue(oid, out var removingObject)
-            && _Objects.Remove(oid) == true)
-        { 
+        if (_Objects.TryGetValue(oid, out var removingObject))
+        {
             UnlinkAllModelObjectAssocs(removingObject);
 
-            removingObject.PropertyChanged -= OnModelObjectPropertyChanged;
+            _Objects.Remove(oid);
 
-            OnModelObjectStorageChanged(removingObject, 
+            OnModelObjectStorageChanged(removingObject,
                 CimDataModelObjectStorageChangeType.Remove);
+
+            removingObject.PropertyChanged -= OnModelObjectPropertyChanged;
 
             return true;
         }
@@ -80,27 +75,18 @@ public class CimDocument(ICimSchema cimSchema, ICimDatatypeLib typeLib,
 
     public override void RemoveObjects(IEnumerable<IModelObject> modelObjects)
     {
-        foreach (var modelObject in modelObjects)
-        {
-            RemoveObject(modelObject);
-        }
+        foreach (var modelObject in modelObjects) RemoveObject(modelObject);
     }
 
-    public override IModelObject CreateObject(IOIDDescriptor oid, 
+    public override IModelObject CreateObject(IOIDDescriptor oid,
         ICimMetaClass metaClass)
     {
-        if (oid.IsEmpty)
-        {
-            throw new ArgumentException("OID cannot be empty!");
-        }   
+        if (oid.IsEmpty) throw new ArgumentException("OID cannot be empty!");
 
         var instance = TypeLib.CreateInstance(
             new ModelObjectFactory(), oid, metaClass);
 
-        if (instance == null)
-        {
-            throw new NotSupportedException("TypeLib instance creation failed!");
-        }
+        if (instance == null) throw new NotSupportedException("TypeLib instance creation failed!");
 
         AddObjectToStorage(instance);
 
@@ -109,17 +95,11 @@ public class CimDocument(ICimSchema cimSchema, ICimDatatypeLib typeLib,
 
     public override T CreateObject<T>(IOIDDescriptor oid) where T : class
     {
-        if (oid.IsEmpty)
-        {
-            throw new ArgumentException("OID cannot be empty!");
-        }   
+        if (oid.IsEmpty) throw new ArgumentException("OID cannot be empty!");
 
         var instance = TypeLib.CreateInstance<T>(oid);
 
-        if (instance == null)
-        {
-            throw new NotSupportedException("TypeLib instance creation failed!");
-        }
+        if (instance == null) throw new NotSupportedException("TypeLib instance creation failed!");
 
         AddObjectToStorage(instance);
 
@@ -129,15 +109,13 @@ public class CimDocument(ICimSchema cimSchema, ICimDatatypeLib typeLib,
     private void AddObjectToStorage(IModelObject modelObject)
     {
         if (_Objects.ContainsKey(modelObject.OID))
-        {
             throw new ArgumentException(
                 $"Object with OID:{modelObject.OID} already exists!");
-        }
 
         _Objects.Add(modelObject.OID, modelObject);
         modelObject.PropertyChanged += OnModelObjectPropertyChanged;
 
-        OnModelObjectStorageChanged(modelObject, 
+        OnModelObjectStorageChanged(modelObject,
             CimDataModelObjectStorageChangeType.Add);
 
         ResolveReferencesWithObject(modelObject);
@@ -146,10 +124,8 @@ public class CimDocument(ICimSchema cimSchema, ICimDatatypeLib typeLib,
     private void ResolveReferencesWithObject(IModelObject modelObject)
     {
         foreach (var refObj in _UnresolvedReferences
-            .Where(o => o.OID == modelObject.OID))
-        {
+                     .Where(o => o.OID == modelObject.OID))
             refObj.ResolveWith(modelObject);
-        }
     }
 
     protected override void PushDeserializedObjects(
@@ -174,15 +150,8 @@ public class CimDocument(ICimSchema cimSchema, ICimDatatypeLib typeLib,
     private static void UnlinkAllModelObjectAssocs(IModelObject modelObject)
     {
         foreach (var assoc in modelObject.MetaClass.AllProperties)
-        {
             if (assoc.PropertyKind == CimMetaPropertyKind.Assoc1To1)
-            {
                 modelObject.SetAssoc1To1(assoc, null);
-            }
-            else if (assoc.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
-            {
-                modelObject.RemoveAllAssocs1ToM(assoc);
-            }
-        }
+            else if (assoc.PropertyKind == CimMetaPropertyKind.Assoc1ToM) modelObject.RemoveAllAssocs1ToM(assoc);
     }
 }

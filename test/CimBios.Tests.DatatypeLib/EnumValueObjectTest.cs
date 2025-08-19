@@ -13,9 +13,8 @@ public enum TestEnum
 
 public class EnumValueObjectTest
 {
-
     [Fact]
-    public void CreateEnumValueObject ()
+    public void CreateEnumValueObject()
     {
         var typeLib = GetTypeLib();
 
@@ -34,25 +33,22 @@ public class EnumValueObjectTest
     }
 
     [Fact]
-    public void CreateNoExistEnumValueObject ()
+    public void CreateNoExistEnumValueObject()
     {
         var typeLib = GetTypeLib();
-        
-        Assert.Throws<NotSupportedException>(
-            () => typeLib.CreateEnumValueInstance(TestEnum.EnumValue));
+
+        Assert.Throws<NotSupportedException>(() => typeLib.CreateEnumValueInstance(TestEnum.EnumValue));
 
         var autoIndividual = new CimAutoIndividual(
-            new ("urn:unk:enum"), "NoExist", string.Empty);
+            new Uri("urn:unk:enum"), "NoExist", string.Empty);
 
-        Assert.Throws<InvalidEnumArgumentException>(
-            () => typeLib.CreateEnumValueInstance(autoIndividual)); 
+        Assert.Throws<InvalidEnumArgumentException>(() => typeLib.CreateEnumValueInstance(autoIndividual));
 
-        Assert.Throws<NotSupportedException>(
-            () => typeLib.CreateEnumValueInstance(PotentialTransformerKind.inductive));
-    }    
+        Assert.Throws<NotSupportedException>(() => typeLib.CreateEnumValueInstance(PotentialTransformerKind.inductive));
+    }
 
     [Fact]
-    public void Equalities ()
+    public void Equalities()
     {
         var typeLib = GetTypeLib();
 
@@ -61,10 +57,7 @@ public class EnumValueObjectTest
         var refphaseA = phaseA;
         var phaseB = typeLib.CreateEnumValueInstance(PhaseCode.B);
 
-        if (phaseA == null || _phaseA == null || phaseB == null)
-        {
-            Assert.Fail();
-        }
+        if (phaseA == null || _phaseA == null || phaseB == null) Assert.Fail();
 
         Assert.True(phaseA == _phaseA);
         Assert.Equal(phaseA, _phaseA);

@@ -1,15 +1,16 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using CimBios.Tools.ModelDebug.ViewModels;
 
 namespace CimBios.Tools.ModelDebug.Views;
 
-public partial class DataSelectorWindow : Window
+public partial class UserScriptsControl : UserControl
 {
-    public DataSelectorWindow()
+    public UserScriptsControl()
     {
-        DataContext = new DataSelectorViewModel(this);
         InitializeComponent();
+
+        DataContext = new UserScriptsViewModel();
     }
 }

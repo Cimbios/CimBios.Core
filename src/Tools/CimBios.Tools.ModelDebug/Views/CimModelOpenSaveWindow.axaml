@@ -1,0 +1,96 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CimBios.Tools.ModelDebug.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        CanResize="False"
+        SizeToContent="WidthAndHeight"
+        x:Class="CimBios.Tools.ModelDebug.Views.CimModelOpenSaveWindow"
+        x:DataType="vm:CimModelFileSelectorViewModel"
+        Title="DataProviderSelectorWindow">
+
+    <StackPanel Orientation="Vertical" Margin="5" Spacing="5" Width="500">
+
+        <TextBlock Text="Data context:" />
+
+        <ComboBox SelectedItem="{Binding SelectedModelSerializer}"
+                  ItemsSource="{Binding CimModelSerializers}"
+                  HorizontalAlignment="Stretch"
+                  Classes="Small">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Title}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <TextBox Classes="Small, Bordered"
+                 Text="{Binding CimModelFilePath}"
+                 Watermark="CIM model path ...">
+            <TextBox.InnerRightContent>
+                <Button Theme="{DynamicResource BorderlessButton}"
+                        Classes="Small, Secondary"
+                        Content="..."
+                        Command="{Binding SelectCimModelFilePathCommand}" />
+            </TextBox.InnerRightContent>
+        </TextBox>
+
+        <TextBlock Text="CIM Schema:" />
+
+        <ComboBox SelectedItem="{Binding SelectedSchema}"
+                  ItemsSource="{Binding CimSchemaSerializers}"
+                  HorizontalAlignment="Stretch"
+                  Classes="Small">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Title}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <TextBox Classes="Small, Bordered"
+                 Text="{Binding CimSerializerFilePath}"
+                 Watermark="Schema path ...">
+            <TextBox.InnerRightContent>
+                <Button Theme="{DynamicResource BorderlessButton}"
+                        Classes="Small, Secondary"
+                        Content="..."
+                        Command="{Binding SelectCimSchemaFilePathCommand}" />
+            </TextBox.InnerRightContent>
+        </TextBox>
+
+        <TextBlock Text="OID Descriptor:" />
+
+        <ComboBox SelectedItem="{Binding SelectedOIDDescriptor}"
+                  ItemsSource="{Binding OIDDescriptors}"
+                  HorizontalAlignment="Stretch"
+                  Classes="Small">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Title}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <TextBlock Text="Settings:" />
+
+        <StackPanel HorizontalAlignment="Left" Spacing="5" Orientation="Horizontal">
+            <CheckBox Content="Unknown classes"
+                      IsChecked="{Binding SelectedRdfsSerializerSetting.UnknownClassesAllowed}" />
+            <CheckBox Content="Unknown properties"
+                      IsChecked="{Binding SelectedRdfsSerializerSetting.UnknownPropertiesAllowed}" />
+            <CheckBox Content="Unresolved refs"
+                      IsChecked="{Binding SelectedRdfsSerializerSetting.IncludeUnresolvedReferences}" />
+        </StackPanel>
+
+        <GridSplitter />
+
+        <StackPanel HorizontalAlignment="Right" Spacing="5" Orientation="Horizontal">
+            <Button Classes="Small" Content="Ok" Command="{Binding OkCommand}" />
+            <Button Classes="Small" Content="Cancel" Command="{Binding CancelCommand}" />
+        </StackPanel>
+
+    </StackPanel>
+
+</Window>

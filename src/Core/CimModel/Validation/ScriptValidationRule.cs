@@ -10,5 +10,8 @@ public class ScriptValidationRule : ValidationRuleBase
         throw new NotImplementedException();
     }
 
-    public override bool NeedExecute(IReadOnlyModelObject modelObject) => true;
+    public override bool NeedExecute(IReadOnlyModelObject modelObject)
+    {
+        return true;
+    }
 }

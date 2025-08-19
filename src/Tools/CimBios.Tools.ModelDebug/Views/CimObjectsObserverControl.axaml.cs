@@ -9,6 +9,7 @@ public partial class CimObjectsObserverControl : UserControl
     {
         InitializeComponent();
 
-        this.DataContext = new CimObjectsObserverViewModel();
+        var dataGrid = this.FindControl<TreeDataGrid>("dataGrid");
+        DataContext = new CimObjectsObserverViewModel(dataGrid);
     }
 }

@@ -5,12 +5,12 @@ using CimBios.Core.CimModel.Schema;
 namespace CimBios.Core.CimModel.RdfSerializer;
 
 /// <summary>
-/// Serializer factory.
+///     Serializer factory.
 /// </summary>
 public interface IRdfSerializerFactory
 {
     public RdfSerializerSettings Settings { get; set; }
 
-    public RdfSerializerBase Create(ICimSchema cimSchema, 
+    public RdfSerializerBase Create(ICimSchema cimSchema,
         ICimDatatypeLib typeLib, IOIDDescriptorFactory? oidDescriptorFactory);
 }

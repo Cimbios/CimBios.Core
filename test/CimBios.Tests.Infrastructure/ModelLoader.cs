@@ -18,18 +18,18 @@ public static class ModelLoader
 
         var typeLib = new CimDatatypeLib(schema);
 
-        var cimDocument = new CimDocument(schema, typeLib, 
+        var cimDocument = new CimDocument(schema, typeLib,
             new TextDescriptorFactory());
 
-        cimDocument.Load(CommonAssetsPath + "ASubstation-CIMXML-FullModel-v1.xml", 
-            new RdfXmlSerializerFactory() 
-            { 
-                Settings = new RdfSerializerSettings() 
-                {  
+        cimDocument.Load(CommonAssetsPath + "ASubstation-CIMXML-FullModel-v1.xml",
+            new RdfXmlSerializerFactory
+            {
+                Settings = new RdfSerializerSettings
+                {
                     UnknownClassesAllowed = allowUnknown,
                     UnknownPropertiesAllowed = allowUnknown,
                     IncludeUnresolvedReferences = true
-                } 
+                }
             });
 
         return cimDocument;
@@ -41,18 +41,18 @@ public static class ModelLoader
 
         var typeLib = new CimDatatypeLib(schema);
 
-        var cimDocument = new CimDocument(schema, typeLib, 
+        var cimDocument = new CimDocument(schema, typeLib,
             new TextDescriptorFactory());
 
-        cimDocument.Load(CommonAssetsPath + "ASubstation-CIMXML-FullModel-v1-changed.xml", 
-            new RdfXmlSerializerFactory() 
-            { 
-                Settings = new RdfSerializerSettings() 
-                {  
+        cimDocument.Load(CommonAssetsPath + "ASubstation-CIMXML-FullModel-v1-changed.xml",
+            new RdfXmlSerializerFactory
+            {
+                Settings = new RdfSerializerSettings
+                {
                     UnknownClassesAllowed = allowUnknown,
                     UnknownPropertiesAllowed = allowUnknown,
                     IncludeUnresolvedReferences = true
-                } 
+                }
             });
 
         return cimDocument;
@@ -61,13 +61,13 @@ public static class ModelLoader
     public static ICimDifferenceModel LoadCimDiffModel_v1()
     {
         var schema = Load552HeadersCimRdfSchema();
-        
+
         var typeLib = new CimDatatypeLib(schema);
 
-        var cimDifferenceModel = new CimDifferenceModel(schema, typeLib, 
+        var cimDifferenceModel = new CimDifferenceModel(schema, typeLib,
             new TextDescriptorFactory());
 
-        cimDifferenceModel.Load(CommonAssetsPath + "CIMXML-DifferenceModel-v1.xml", 
+        cimDifferenceModel.Load(CommonAssetsPath + "CIMXML-DifferenceModel-v1.xml",
             new RdfXmlSerializerFactory());
 
         return cimDifferenceModel;
@@ -88,13 +88,13 @@ public static class ModelLoader
     public static ICimDataModel CreateCimModelInstance()
     {
         var schema = LoadTestCimRdfSchema();
-        var cimDocument = new CimDocument(schema, new CimDatatypeLib(schema), 
+        var cimDocument = new CimDocument(schema, new CimDatatypeLib(schema),
             new TextDescriptorFactory());
 
         return cimDocument;
     }
 
-    private static ICimSchema LoadCimSchema(string path, 
+    private static ICimSchema LoadCimSchema(string path,
         ICimSchemaFactory factory)
     {
         var cimSchema = factory.CreateSchema();

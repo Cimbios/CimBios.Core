@@ -10,39 +10,73 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="CimBios.Tools.ModelDebug">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
+    <Grid RowDefinitions="3*, Auto, *">
 
-    <Grid RowDefinitions="Auto, Auto, *">
-        <Menu Grid.Row="0">
-            <MenuItem Header="_Data context">
-                <MenuItem Header="_Select context..." Command="{Binding ShowDataProviderSelectorCommand}"/>
-                <Separator/>
-                <MenuItem Header="_Close context"/>
-            </MenuItem>
-            <MenuItem Header="_Edit">
-                <MenuItem Header="Fake"/>
-                <MenuItem Header="Fake"/>
-            </MenuItem>
-        </Menu>
-        <Separator Grid.Row="1"/>
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" MinWidth="150" />
-                <ColumnDefinition Width="1"/>
-                <ColumnDefinition Width="2*" MinWidth="150"/>
-                <ColumnDefinition Width="1"/>
-                <ColumnDefinition Width="*" MinWidth="150"/>
+                <ColumnDefinition Width="1" />
+                <ColumnDefinition Width="2*" MinWidth="150" />
+                <ColumnDefinition Width="1" />
+                <ColumnDefinition Width="*" MinWidth="150" />
             </Grid.ColumnDefinitions>
-            <v:CimObjectsObserverControl Grid.Column="0"/>
-            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
-            <Rectangle Grid.Column="2" Fill="SteelBlue"/>
-            <GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
-            <v:CimSchemaTreeUserControl Grid.Column="4"/>
+            <v:CimObjectsObserverControl Grid.Column="0" />
+            <GridSplitter Grid.Column="1" ResizeDirection="Columns" />
+            <TabControl Grid.Column="2">
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Height="10" Width="10" Fill="Steelblue" />
+                            <TextBlock Margin="3">Scripts</TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <v:UserScriptsControl />
+                    </TabItem.Content>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Height="10" Width="10" Fill="Tomato" />
+                            <TextBlock Margin="3">Diffs</TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <v:DiffObjectsObserverControl />
+                    </TabItem.Content>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Height="10" Width="10" Fill="DeepPink" />
+                            <TextBlock Margin="3">Validation</TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <v:ValidationControl />
+                    </TabItem.Content>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Height="10" Width="10" Fill="Green" />
+                            <TextBlock Margin="3">Schema</TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <TabItem.Content>
+                        <v:CimSchemaTreeUserControl />
+                    </TabItem.Content>
+                </TabItem>
+            </TabControl>
+            <GridSplitter Grid.Column="3" ResizeDirection="Columns" />
+            <v:CimObjectPropertiesObserver Grid.Column="4" />
+            <!-- <Rectangle Grid.Column="4"/> -->
         </Grid>
+
+        <GridSplitter Grid.Row="1" ResizeDirection="Rows" />
+
+        <v:ProtocolUserControl Grid.Row="2" />
+
     </Grid>
 
 </Window>

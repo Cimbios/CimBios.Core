@@ -4,9 +4,8 @@ public interface IDataProvider
 {
     public Uri Source { get; }
     public Stream DataStream { get; }
-    public System.Type Datatype { get; }
+    public Type Datatype { get; }
 
-    public abstract object Get();
-    public abstract void Push(object data);
+    public object Get();
+    public void Push(object data);
 }
-

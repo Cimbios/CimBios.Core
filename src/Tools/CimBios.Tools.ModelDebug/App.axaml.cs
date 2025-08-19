@@ -1,18 +1,23 @@
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using CimBios.Tools.ModelDebug.Services;
+using CimBios.Tools.ModelDebug.ViewModels;
 using CimBios.Tools.ModelDebug.Views;
 
 namespace CimBios.Tools.ModelDebug;
 
-public partial class App : Application
+public class App : Application
 {
     public override void Initialize()
     {
-         Services.ServiceLocator.GetInstance()
-            .RegisterService(new NotifierService()); 
+        ServiceLocator.GetInstance()
+            .RegisterService(new CimModelLoaderService());
+
+        ServiceLocator.GetInstance()
+            .RegisterService(new ProtocolService());
 
         AvaloniaXamlLoader.Load(this);
     }
@@ -27,6 +32,15 @@ public partial class App : Application
 
             var mainWindow = new MainWindow();
             desktop.MainWindow = mainWindow;
+
+            AppDomain.CurrentDomain.UnhandledException
+                += (_, e) =>
+                {
+                    var exception = e.ExceptionObject as Exception;
+
+                    GlobalServices.ProtocolService.Error(
+                        exception!.Message, "AppDomain");
+                };
         }
 
         base.OnFrameworkInitializationCompleted();
