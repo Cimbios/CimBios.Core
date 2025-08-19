@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using CimBios.Tools.ModelDebug.Services;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
@@ -54,6 +54,19 @@ public static class GlobalServices
                     "Navigation service has not been initialized!");
 
             return navigationService;
+        }
+    }
+    
+    public static ValidationService ValidationService
+    {
+        get
+        {
+            if (ServiceLocator.GetInstance().TryGetService<ValidationService>(
+                    out var validationServiceService) == false || validationServiceService == null)
+                throw new NotSupportedException(
+                    "Validation service has not been initialized!");
+
+            return validationServiceService;
         }
     }
 }
