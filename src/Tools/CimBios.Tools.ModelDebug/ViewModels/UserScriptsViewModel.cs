@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AvaloniaEdit.Document;
 using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Tools.ModelDebug.Services;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 
@@ -60,8 +61,6 @@ public class UserScriptsViewModel : ViewModelBase
 
     public async Task Execute()
     {
-        if (GlobalServices.LoaderService.DataContext == null) return;
-        
         var options = ScriptOptions.Default.
             WithReferences(References).
             WithImports(Usings);
@@ -69,7 +68,7 @@ public class UserScriptsViewModel : ViewModelBase
         try
         {
             var state = await CSharpScript.RunAsync(Code.Text, 
-                options, GlobalServices.LoaderService.DataContext);
+                options, new UserScriptsGlobal());
             
             Result.Text += $"\n\n>>> {state.ReturnValue}";
             OnPropertyChanged(nameof(Result));
@@ -89,4 +88,16 @@ public class UserScriptsViewModel : ViewModelBase
     
     private TextDocument _code = new("");
     private TextDocument _result = new("");
+}
+
+public class UserScriptsGlobal
+{
+    public ICimDataModel DataModel => GlobalServices.LoaderService.DataContext 
+                                      ?? throw new NullReferenceException("DataModel is not initialized!");
+
+    public ProtocolService ProtocolService => GlobalServices.ProtocolService;
+    
+    public NavigationService NavigationService => GlobalServices.NavigationService;
+    
+    public ValidationService ValidationService => GlobalServices.ValidationService;
 }
