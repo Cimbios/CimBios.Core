@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata;
+using CimBios.Core.CimModel.CimDataModel;
 using CimBios.Core.CimModel.Validation;
+using CimBios.Core.CimModel.Validation.UserCustomRules;
 using CimBios.Tools.ModelDebug.ViewModels;
 
 namespace CimBios.Tools.ModelDebug.Services;
@@ -9,20 +12,22 @@ public class ValidationService
 {
     public ValidationService()
     {
-        MakeRulesSet();
+
     }
 
-    public IEnumerable<IValidationResult> ValidateDataModel()
+    public IEnumerable<IValidationResult> ValidateDataModel(
+        bool includeInternalRules = true,
+        bool includeCustomRules = true)
     {
-        if (GlobalServices.LoaderService.DataContext == null)
-            throw new NullReferenceException("DataContext is null");
+        var model = GlobalServices.LoaderService.DataContext
+            ?? throw new NullReferenceException("DataContext is null");
 
-        return GlobalServices.LoaderService
-            .DataContext.Validate([]);
-    }
-    
-    private void MakeRulesSet()
-    {
-        
+        var rules = new List<IValidationRule>();
+        if (includeCustomRules)
+        {
+            rules.AddRange(CustomValidationRulesBuilder.GetRules());
+        }
+
+        return model.Validate(rules, includeInternalRules);
     }
 }
