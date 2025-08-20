@@ -7,9 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DatatypeLib\CimBios.Core.CimModel.DatatypeLib.csproj"/>
-        <ProjectReference Include="..\DataModel\CimBios.Core.CimModel.DataModel.csproj"/>
-        <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj"/>
+        <ProjectReference Include="..\DatatypeLib\CimBios.Core.CimModel.DatatypeLib.csproj" />
+        <ProjectReference Include="..\DataModel\CimBios.Core.CimModel.DataModel.csproj" />
+        <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj" />
     </ItemGroup>
 
 </Project>
