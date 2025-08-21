@@ -12,6 +12,8 @@ namespace CimBios.Core.CimModel.Validation.UserCustomRules
         public static ICollection<IValidationRule> GetRules() =>
             [
                 new ACLineSegmentCustomValidationRule(),
+                new CurrentTransformerCustomValidationRule(),
+                new SubstationVoltageLevelCustomValidationRule(),
                 //
             ];
     }
