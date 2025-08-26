@@ -54,23 +54,23 @@ public class ReadEmptyValidRdfNodeTest
         rdfReader.ReadAll();
 
         Assert.Contains("rdf", rdfReader.Namespaces.Keys);
-    }   
+    }
 
     private static TextReader GetLoadAsset()
     {
-        return new StreamReader("../../../assets/EmptyRdfNode.xml"); 
+        return new StreamReader("../../../assets/EmptyRdfNode.xml");
     }
 
     private static XmlReader GetXmlReaderAsset()
     {
-        TextReader reader = GetLoadAsset();
+        var reader = GetLoadAsset();
         var xmlReader = XmlReader.Create(reader);
-        
+
         return xmlReader;
     }
 
     private static string GetParseAsset()
     {
-       return GetLoadAsset().ReadToEnd(); 
+        return GetLoadAsset().ReadToEnd();
     }
 }

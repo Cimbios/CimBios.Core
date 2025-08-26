@@ -5,7 +5,7 @@ namespace CimBios.Core.CimModel.Validation;
 public interface IValidationRule
 {
     /// <summary>
-    /// Метод для получения списка результатов проверки объекта CIM
+    ///     Метод для получения списка результатов проверки объекта CIM
     /// </summary>
     /// <param name="modelObject">Объект CIM из фрагмента</param>
     /// <returns>Список результатов проверки объекта CIM</returns>

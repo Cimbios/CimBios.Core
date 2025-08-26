@@ -8,14 +8,16 @@ namespace CimBios.Tools.ModelDebug.ViewModels;
 
 public abstract class TreeViewModelBase : ViewModelBase
 {
+    private TreeViewNodeModel? _SelectedItem;
     public abstract IEnumerable<TreeViewNodeModel> Nodes { get; }
 
-    public TreeViewNodeModel? SelectedItem { 
-        get => _SelectedItem; 
+    public TreeViewNodeModel? SelectedItem
+    {
+        get => _SelectedItem;
         set
         {
             _SelectedItem = value;
-            OnPropertyChanged(nameof(SelectedItem));   
+            OnPropertyChanged();
         }
     }
 
@@ -28,7 +30,7 @@ public abstract class TreeViewModelBase : ViewModelBase
         {
             node.IsVisible = true;
 
-            if (filterDelegate(node) == true)
+            if (filterDelegate(node))
             {
                 visited.Add(node);
 
@@ -43,15 +45,12 @@ public abstract class TreeViewModelBase : ViewModelBase
             }
             else
             {
-                if (visited.Contains(node) == false)
-                {
-                    node.IsVisible = false;
-                }
+                if (visited.Contains(node) == false) node.IsVisible = false;
             }
 
             node.SubNodes.OfType<TreeViewNodeModel>()
                 .ToList().ForEach(n => nodesStack.Push(n));
-        }     
+        }
 
         OnPropertyChanged(nameof(Nodes));
     }
@@ -69,6 +68,4 @@ public abstract class TreeViewModelBase : ViewModelBase
 
         return Task.CompletedTask;
     }
-
-    private TreeViewNodeModel? _SelectedItem;
 }

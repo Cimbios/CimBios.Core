@@ -1,34 +1,44 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-  </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-    <AvaloniaResource Include="Assets\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
-    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="Semi.Avalonia" Version="11.1.0" />
-    <PackageReference Include="Semi.Avalonia.TreeDataGrid" Version="11.0.10" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\CimModel\DataModel\CimBios.Core.CimModel.DataModel.csproj" />
-    <ProjectReference Include="..\..\Core\DataProvider\CimBios.Core.DataProvider.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Views/DataSelectorWindow.axaml.cs">
-      <DependentUpon>DataSelectorWindow.axaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    </PropertyGroup>
+    <ItemGroup>
+        <Folder Include="Models\" />
+        <AvaloniaResource Include="Assets\**" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.3.1" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.1" />
+        <PackageReference Include="Avalonia.Templates" Version="11.2.7" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.1" />
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.1" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="4.14.0" />
+        <PackageReference Include="Semi.Avalonia" Version="11.2.1.8" />
+        <PackageReference Include="Semi.Avalonia.AvaloniaEdit" Version="11.2.0.1" />
+        <PackageReference Include="Semi.Avalonia.TreeDataGrid" Version="11.0.10.4" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Core\CimModel\DataModel\CimBios.Core.CimModel.DataModel.csproj" />
+        <ProjectReference Include="..\..\Core\CimModel\Validation\CimBios.Core.CimModel.Validation.csproj" />
+        <ProjectReference Include="..\..\Core\DataProvider\CimBios.Core.DataProvider.csproj" />
+        <ProjectReference Include="..\..\Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Update="Views/DataSelectorWindow.axaml.cs">
+            <DependentUpon>DataSelectorWindow.axaml</DependentUpon>
+        </Compile>
+        <Compile Update="Views\DiffObjectsObserverControl.axaml.cs">
+          <DependentUpon>DiffObjectsObserverControl.axaml</DependentUpon>
+          <SubType>Code</SubType>
+        </Compile>
+        <Compile Remove="Assets\AggregationTree.cs" />
+    </ItemGroup>
 </Project>

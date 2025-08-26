@@ -3,18 +3,17 @@ using CimBios.Core.CimModel.Schema;
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
 /// <summary>
-/// Interface provides statements parse type properies storage.
+///     Interface provides statements parse type properies storage.
 /// </summary>
 public interface IStatementsContainer
 {
     /// <summary>
-    /// Dictionary of statements with key property.
+    ///     Dictionary of statements with key property.
     /// </summary>
-    IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> Statements 
-    { get; }
+    IReadOnlyDictionary<ICimMetaProperty, ICollection<IModelObject>> Statements { get; }
 
     /// <summary>
-    /// Add new statement to container.
+    ///     Add new statement to container.
     /// </summary>
     /// <param name="statementProperty">Meta property with statement type.</param>
     /// <param name="statement">Model object statement.</param>

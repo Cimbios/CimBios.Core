@@ -1,4 +1,3 @@
-
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.CimDatatypeLib.Utils;
@@ -8,35 +7,18 @@ using CimBios.Core.CimModel.Schema.AutoSchema;
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
 /// <summary>
-/// Base class for difference objects, provides comparision access to changes.
+///     Base class for difference objects, provides comparision access to changes.
 /// </summary>
 public abstract class DifferenceObjectBase : IDifferenceObject
 {
-    public IOIDDescriptor OID { get; }
-
-    public ICimMetaClass MetaClass { get; }
-
-    public bool HasProperty(string propertyName)
-    {
-        return ModifiedProperties.FirstOrDefault(
-            p => p.ShortName == propertyName) != null; 
-    }
-
-    public IReadOnlyCollection<ICimMetaProperty> ModifiedProperties
-        => _ModifiedProperties;
-
-    public IReadOnlyModelObject? OriginalObject => _OriginalObject?.AsReadOnly();
-    public IReadOnlyModelObject ModifiedObject => _ModifiedObject.AsReadOnly();
-
-    protected abstract WeakModelObject? _OriginalObject { get; }
-    protected WeakModelObject _ModifiedObject { get; }
+    protected HashSet<ICimMetaProperty> _ModifiedProperties = [];
 
     protected DifferenceObjectBase(IOIDDescriptor oid)
     {
         OID = oid;
 
         var descriptionMetaClass = new CimAutoClass(
-            new (Description.ClassUri),
+            new Uri(Description.ClassUri),
             nameof(Description),
             string.Empty
         );
@@ -46,7 +28,7 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         MetaClass = descriptionMetaClass;
     }
 
-    protected DifferenceObjectBase (IOIDDescriptor oid, ICimMetaClass metaClass)
+    protected DifferenceObjectBase(IOIDDescriptor oid, ICimMetaClass metaClass)
     {
         OID = oid;
 
@@ -55,61 +37,72 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         MetaClass = metaClass;
     }
 
-    protected DifferenceObjectBase (IModelObject modifiedObject)
+    protected DifferenceObjectBase(IModelObject modifiedObject)
     {
         OID = modifiedObject.OID;
 
-        _ModifiedObject = new WeakModelObject(modifiedObject); 
+        _ModifiedObject = new WeakModelObject(modifiedObject);
 
         _ModifiedProperties = _ModifiedObject
-            .GetNotNullProperties().ToHashSet();  
+            .GetNotNullProperties().ToHashSet();
 
         MetaClass = modifiedObject.MetaClass;
     }
 
     protected DifferenceObjectBase(IDifferenceObject differenceObject)
-        : this (differenceObject.OID)
+        : this(differenceObject.OID)
     {
         foreach (var prop in differenceObject.ModifiedProperties)
         {
             if (differenceObject.TryGetPropertyValue(prop,
-                out var oldObj, out var newObj) == false)
-            {
+                    out var oldObj, out var newObj) == false)
                 continue;
-            }
 
             ChangePropertyValue(prop, oldObj, newObj);
         }
     }
 
-    public virtual void ChangeAttribute(ICimMetaProperty metaProperty, 
+    protected abstract WeakModelObject? _OriginalObject { get; }
+    protected WeakModelObject _ModifiedObject { get; }
+    public IOIDDescriptor OID { get; }
+
+    public ICimMetaClass MetaClass { get; }
+
+    public bool HasProperty(string propertyName)
+    {
+        return ModifiedProperties.FirstOrDefault(p => p.ShortName == propertyName) != null;
+    }
+
+    public IReadOnlyCollection<ICimMetaProperty> ModifiedProperties
+        => _ModifiedProperties;
+
+    public IReadOnlyModelObject? OriginalObject => _OriginalObject?.AsReadOnly();
+    public IReadOnlyModelObject ModifiedObject => _ModifiedObject.AsReadOnly();
+
+    public virtual void ChangeAttribute(ICimMetaProperty metaProperty,
         object? fromValue, object? toValue)
     {
-        if (_ModifiedProperties.Contains(metaProperty) == false)
-        {           
-            _ModifiedProperties.Add(metaProperty);
-        }
+        if (_ModifiedProperties.Contains(metaProperty) == false) _ModifiedProperties.Add(metaProperty);
 
-        if (fromValue is WeakModelObject oldCompoundMock 
+        if (fromValue is WeakModelObject oldCompoundMock
             && toValue is WeakModelObject newCompoundMock)
         {
-            ChangeCompoundAttribute(metaProperty, 
+            ChangeCompoundAttribute(metaProperty,
                 oldCompoundMock, newCompoundMock);
 
             return;
         }
 
         if (_OriginalObject?.MetaClass.HasProperty(metaProperty) == false)
-        {
             _OriginalObject.SetAttribute(metaProperty, fromValue);
-        }
 
         _ModifiedObject.SetAttribute(metaProperty, toValue);
 
         var oldVal = _OriginalObject?.GetAttribute(metaProperty);
         var newVal = _ModifiedObject.GetAttribute(metaProperty);
-        
-        if (oldVal == newVal)
+
+        if (newVal is null && oldVal is null 
+            || newVal is not null && newVal.Equals(oldVal))
         {
             _ModifiedProperties.Remove(metaProperty);
             _OriginalObject?.SetAttribute<object>(metaProperty, null);
@@ -117,18 +110,13 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         }
     }
 
-    public virtual void ChangeAssoc1(ICimMetaProperty metaProperty, 
+    public virtual void ChangeAssoc1(ICimMetaProperty metaProperty,
         IModelObject? fromObject, IModelObject? toObject)
     {
-        if (_ModifiedProperties.Contains(metaProperty) == false)
-        {           
-            _ModifiedProperties.Add(metaProperty);
-        }
+        if (_ModifiedProperties.Contains(metaProperty) == false) _ModifiedProperties.Add(metaProperty);
 
         if (_OriginalObject?.MetaClass.HasProperty(metaProperty) == false)
-        {
-             _OriginalObject.SetAssoc1To1(metaProperty, fromObject);
-        }
+            _OriginalObject.SetAssoc1To1(metaProperty, fromObject);
 
         _ModifiedObject.SetAssoc1To1(metaProperty, toObject);
 
@@ -145,112 +133,102 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         }
     }
 
-    public virtual void AddToAssocM(ICimMetaProperty metaProperty, 
+    public virtual void AddToAssocM(ICimMetaProperty metaProperty,
         IModelObject modelObject)
     {
-        if (_ModifiedProperties.Contains(metaProperty) == false)
-        {           
-            _ModifiedProperties.Add(metaProperty);
-        }
+        var comparer = new ModelObjectOIDEqualityComparer();
+        
+        _ModifiedProperties.Add(metaProperty);
 
-        _ModifiedObject.AddAssoc1ToM(metaProperty, modelObject);
+        if (_OriginalObject?.GetAssoc1ToM(metaProperty)
+                .Contains(modelObject, comparer) ?? false)
+            _OriginalObject.RemoveAssoc1ToM(metaProperty, modelObject);
+        else
+            _ModifiedObject.AddAssoc1ToM(metaProperty, modelObject);
 
         var oldVal = _OriginalObject?.GetAssoc1ToM<IModelObject>(metaProperty) ?? [];
         var newVal = _ModifiedObject.GetAssoc1ToM<IModelObject>(metaProperty);
 
-        if (oldVal.Intersect(newVal, new ModelObjectOIDEqualityComparer())
-            .Contains(modelObject, new ModelObjectOIDEqualityComparer()))
-        {
+        // if (oldVal.Intersect(newVal, comparer)
+        //     .Contains(modelObject, comparer))
+        if(oldVal.Length == 0 && newVal.Length == 0)
             _ModifiedProperties.Remove(metaProperty);
-        }
     }
 
-    public virtual void RemoveFromAssocM(ICimMetaProperty metaProperty, 
+    public virtual void RemoveFromAssocM(ICimMetaProperty metaProperty,
         IModelObject modelObject)
     {
-        if (_ModifiedProperties.Contains(metaProperty) == false)
-        {           
-            _ModifiedProperties.Add(metaProperty);
-        }
-
-        _OriginalObject?.AddAssoc1ToM(metaProperty, modelObject);
+        var comparer = new ModelObjectOIDEqualityComparer();
+        
+        _ModifiedProperties.Add(metaProperty);
+        
+        if (_ModifiedObject.GetAssoc1ToM(metaProperty)
+                .Contains(modelObject, comparer))
+            _ModifiedObject.RemoveAssoc1ToM(metaProperty, modelObject);
+        else
+            _OriginalObject?.AddAssoc1ToM(metaProperty, modelObject);
 
         var oldVal = _OriginalObject?.GetAssoc1ToM<IModelObject>(metaProperty) ?? [];
         var newVal = _ModifiedObject.GetAssoc1ToM<IModelObject>(metaProperty);
 
-        if (!oldVal.Except(newVal, new ModelObjectOIDEqualityComparer()).Any())
-        {
+        // if (!oldVal.Except(newVal, new ModelObjectOIDEqualityComparer()).Any())
+        //     _ModifiedProperties.Remove(metaProperty);
+        if(oldVal.Length == 0 && newVal.Length == 0)
             _ModifiedProperties.Remove(metaProperty);
-        }
     }
 
-    public virtual bool ChangePropertyValue(ICimMetaProperty metaProperty, 
-            object? fromValue, object? toValue)
+    public virtual bool ChangePropertyValue(ICimMetaProperty metaProperty,
+        object? fromValue, object? toValue)
     {
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
         {
             ChangeAttribute(metaProperty, fromValue, toValue);
-            
+
             return true;
         }
-        else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
+
+        if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
         {
-            ChangeAssoc1(metaProperty, fromValue as IModelObject, 
+            ChangeAssoc1(metaProperty, fromValue as IModelObject,
                 toValue as IModelObject);
 
             return true;
         }
-        else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+
+        if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
         {
-            if (fromValue == null && toValue is IModelObject toMObj)
-            {
-                AddToAssocM(metaProperty, toMObj);
-            }
+            if (fromValue == null && toValue is IModelObject toMObj) AddToAssocM(metaProperty, toMObj);
 
-            if (toValue == null && fromValue is IModelObject fromMObj)
-            {
-                RemoveFromAssocM(metaProperty, fromMObj);
-            }       
+            if (toValue == null && fromValue is IModelObject fromMObj) RemoveFromAssocM(metaProperty, fromMObj);
 
-            if (fromValue == null && toValue 
-                is ICollection<IModelObject> toMObjs)
-            {
+            if (fromValue == null && toValue
+                    is ICollection<IModelObject> toMObjs)
                 foreach (var o in toMObjs)
-                {
                     AddToAssocM(metaProperty, o);
-                }
-            }
 
-            if (toValue == null && fromValue 
-                is ICollection<IModelObject> fromMObjs)
-            {
+            if (toValue == null && fromValue
+                    is ICollection<IModelObject> fromMObjs)
                 foreach (var o in fromMObjs)
-                {
                     RemoveFromAssocM(metaProperty, o);
-                }
-            }       
 
-             return true;
-        }   
+            return true;
+        }
 
-         return false;
+        return false;
     }
 
-    public bool TryGetPropertyValue (ICimMetaProperty metaProperty,
+    public bool TryGetPropertyValue(ICimMetaProperty metaProperty,
         out object? fromValue, out object? toValue)
     {
         fromValue = null;
         toValue = null;
 
-        if (ModifiedProperties.Contains(metaProperty) == false)
-        {
-            return false;
-        }
+        if (ModifiedProperties.Contains(metaProperty) == false) return false;
 
         if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute)
         {
             fromValue = _OriginalObject?.GetAttribute(metaProperty);
-            toValue = _ModifiedObject.GetAttribute(metaProperty); 
+            toValue = _ModifiedObject.GetAttribute(metaProperty);
         }
         else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
         {
@@ -264,48 +242,6 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         }
 
         return true;
-    }
-
-    private void ChangeCompoundAttribute(ICimMetaProperty metaProperty,
-        WeakModelObject oldCompoundMock, WeakModelObject newCompoundMock)
-    {
-        if (_OriginalObject?.GetAttribute(metaProperty) == null)
-        {
-            _OriginalObject?.InitializeCompoundAttribute(metaProperty.ShortName,
-                oldCompoundMock.MetaClass);
-        } 
-
-        if (_ModifiedObject.GetAttribute(metaProperty) == null)
-        {
-            _ModifiedObject.InitializeCompoundAttribute(metaProperty.ShortName,
-                newCompoundMock.MetaClass);
-        } 
-
-        _OriginalObject?.CopyPropertiesFrom(oldCompoundMock);
-        _ModifiedObject.CopyPropertiesFrom(newCompoundMock);
-        
-        var originalCompound = _OriginalObject?.GetAttribute(metaProperty) 
-            as IModelObject;
-        var modifiedCompound = _ModifiedObject.GetAttribute(metaProperty) 
-            as IModelObject;
-
-        if (originalCompound == null && modifiedCompound == null)
-        {
-            _ModifiedProperties.Remove(metaProperty);
-            return;
-        }
-
-        if (originalCompound != null && modifiedCompound != null)
-        {
-            var compoundDiff = ModelObjectsComparer.Compare(
-                originalCompound, modifiedCompound, true);
-
-            if (compoundDiff.ModifiedProperties.Count == 0)
-            {
-                _ModifiedProperties.Remove(metaProperty);
-                return;
-            }
-        }
     }
 
     public void RemovePropertyChange(ICimMetaProperty metaProperty)
@@ -329,82 +265,102 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         }
     }
 
-    protected HashSet<ICimMetaProperty> _ModifiedProperties = [];
+    private void ChangeCompoundAttribute(ICimMetaProperty metaProperty,
+        WeakModelObject oldCompoundMock, WeakModelObject newCompoundMock)
+    {
+        var modifiedCompound = _ModifiedObject.GetAttribute(metaProperty)
+            as IModelObject;
+        modifiedCompound ??= _ModifiedObject
+            .InitializeCompoundAttribute(metaProperty, false);
+        modifiedCompound.CopyPropertiesFrom(newCompoundMock);
+        
+        var originalCompound = _OriginalObject?.GetAttribute(metaProperty)
+            as IModelObject;
+        if (originalCompound == null)
+        {
+            originalCompound = _OriginalObject?
+                .InitializeCompoundAttribute(metaProperty, false);
+            originalCompound?.CopyPropertiesFrom(oldCompoundMock);
+        }
+        
+        if (originalCompound == null) return;
+        
+        var compoundDiff = ModelObjectsComparer.Compare(
+            originalCompound, modifiedCompound, true);
+
+        if (compoundDiff.ModifiedProperties.Count == 0) 
+            _ModifiedProperties.Remove(metaProperty);
+    }
 }
 
 /// <summary>
-/// 
 /// </summary>
 public class AdditionDifferenceObject : DifferenceObjectBase
 {
-    protected override WeakModelObject? _OriginalObject => null;
-
-    public AdditionDifferenceObject (IOIDDescriptor oid, ICimMetaClass metaClass)
-        : base (oid, metaClass)
+    public AdditionDifferenceObject(IOIDDescriptor oid, ICimMetaClass metaClass)
+        : base(oid, metaClass)
     {
     }
 
-     public AdditionDifferenceObject (IModelObject modifiedMOdelObject)
-        : base (modifiedMOdelObject)
+    public AdditionDifferenceObject(IModelObject modifiedModelObject)
+        : base(modifiedModelObject)
     {
-    }   
+    }
+    
+    protected override WeakModelObject? _OriginalObject => null;
 }
 
 /// <summary>
-/// 
 /// </summary>
 public class DeletionDifferenceObject
     : DifferenceObjectBase
 {
-    protected override WeakModelObject? _OriginalObject => null;
-
-    public DeletionDifferenceObject (IOIDDescriptor oid, ICimMetaClass metaClass)
-        : base (oid, metaClass)
+    public DeletionDifferenceObject(IOIDDescriptor oid, ICimMetaClass metaClass)
+        : base(oid, metaClass)
     {
     }
 
-     public DeletionDifferenceObject (IModelObject modifiedMOdelObject)
-        : base (modifiedMOdelObject)
+    public DeletionDifferenceObject(IModelObject modifiedMOdelObject)
+        : base(modifiedMOdelObject)
     {
-    }   
+    }
+
+    protected override WeakModelObject? _OriginalObject => null;
 }
 
 /// <summary>
-/// 
 /// </summary>
 public class UpdatingDifferenceObject
     : DifferenceObjectBase
 {
-    protected override WeakModelObject? _OriginalObject { get; }
-
-    public UpdatingDifferenceObject (IOIDDescriptor oid)
-        : base (oid)
+    public UpdatingDifferenceObject(IOIDDescriptor oid)
+        : base(oid)
     {
-        _OriginalObject = new WeakModelObject(oid, 
+        _OriginalObject = new WeakModelObject(oid,
             _ModifiedObject.MetaClass);
     }
 
-    public UpdatingDifferenceObject (IModelObject originalObject, 
+    public UpdatingDifferenceObject(IModelObject originalObject,
         IModelObject modifiedObject)
-        : base (modifiedObject)
+        : base(modifiedObject)
     {
         if (originalObject.MetaClass != modifiedObject.MetaClass)
-        {
             throw new NotSupportedException(
                 "Origin and modified objects meta classes should be equals!");
-        }
 
         _OriginalObject = new WeakModelObject(originalObject);
 
-        _ModifiedProperties = 
+        _ModifiedProperties =
             _OriginalObject.GetNotNullProperties()
-            .Union(_ModifiedObject.GetNotNullProperties())
-            .ToHashSet();
+                .Union(_ModifiedObject.GetNotNullProperties())
+                .ToHashSet();
     }
+
+    protected override WeakModelObject? _OriginalObject { get; }
 }
 
 /// <summary>
-/// Extension methods for WeakModelObject class.
+///     Extension methods for WeakModelObject class.
 /// </summary>
 internal static class WeakModelObjectExtensions
 {
@@ -414,23 +370,15 @@ internal static class WeakModelObjectExtensions
         var notNullProps = new List<ICimMetaProperty>();
 
         foreach (var metaProperty in modelObject.MetaClass.AllProperties)
-        {
             if (metaProperty.PropertyKind == CimMetaPropertyKind.Attribute
                 && modelObject.GetAttribute(metaProperty) != null)
-            {
                 notNullProps.Add(metaProperty);
-            }
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
-                && modelObject.GetAssoc1To1<IModelObject>(metaProperty) != null)
-            {
+                     && modelObject.GetAssoc1To1<IModelObject>(metaProperty) != null)
                 notNullProps.Add(metaProperty);
-            }
             else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
-                && modelObject.GetAssoc1ToM(metaProperty).Length != 0)
-            {
+                     && modelObject.GetAssoc1ToM(metaProperty).Length != 0)
                 notNullProps.Add(metaProperty);
-            }
-        }
 
         return notNullProps.ToArray();
     }

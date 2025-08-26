@@ -53,7 +53,7 @@ public class ApplyToDataModelTest
     public void UpdateAttribute()
     {
         var cimDifferenceModel = ModelLoader.LoadCimDiffModel_v1();
-        var cimDocument = ModelLoader.LoadCimModel_v1(); 
+        var cimDocument = ModelLoader.LoadCimModel_v1();
 
         cimDocument.ApplyDifferenceModel(cimDifferenceModel);
 
@@ -87,7 +87,7 @@ public class ApplyToDataModelTest
         Assert.NotNull(_ASubstationAsset);
         Assert.NotNull(_ASubstationAsset.inUseDate);
         Assert.Equal(DateTime.Parse("1995-01-01T00:00:00Z"),
-            _ASubstationAsset.inUseDate.inUseDate);  
+            _ASubstationAsset.inUseDate.inUseDate);
 
         // create compound attr
         var _JustLonelyAsset = cimDocument.GetObject<Asset>(
@@ -95,14 +95,14 @@ public class ApplyToDataModelTest
         Assert.NotNull(_JustLonelyAsset);
         Assert.NotNull(_JustLonelyAsset.inUseDate);
         Assert.Equal(DateTime.Parse("2000-01-01T00:00:00Z"),
-            _JustLonelyAsset.inUseDate.inUseDate);   
+            _JustLonelyAsset.inUseDate.inUseDate);
     }
 
     [Fact]
     public void UpdateAssocs()
     {
         var cimDifferenceModel = ModelLoader.LoadCimDiffModel_v1();
-        var cimDocument = ModelLoader.LoadCimModel_v1(); 
+        var cimDocument = ModelLoader.LoadCimModel_v1();
 
         cimDocument.ApplyDifferenceModel(cimDifferenceModel);
 
@@ -129,7 +129,7 @@ public class ApplyToDataModelTest
 
         var _AInputBay110 = cimDocument.GetObject<Bay>(
             cimDocument.OIDDescriptorFactory.Create("_AInputBay110"));
-        Assert.NotNull(_AInputBay110);       
+        Assert.NotNull(_AInputBay110);
 
         Assert.Null(_AGroundDisconnector110.EquipmentContainer);
         Assert.DoesNotContain(_AGroundDisconnector110, _AInputBay110.Equipments);

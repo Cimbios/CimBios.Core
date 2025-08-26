@@ -15,15 +15,15 @@ public class CimSchemaTests
     public void GetClassesTest()
     {
         throw new NotImplementedException();
-    }    
+    }
 
     [Fact]
     public void GetExtensionsTest()
     {
         throw new NotImplementedException();
-    }    
+    }
 
-    private static ICimSchema LoadCimSchema(string path, 
+    private static ICimSchema LoadCimSchema(string path,
         ICimSchemaFactory? factory = null)
     {
         factory ??= new CimRdfSchemaXmlFactory();

@@ -1,10 +1,12 @@
 namespace CimBios.Core.RdfIOLib;
 
 /// <summary>
-/// Flat structured RDF node class.
+///     Flat structured RDF node class.
 /// </summary>
 public class RdfNode
 {
+    private readonly List<RdfTriple> _Triples = [];
+
     public RdfNode(Uri identifier, Uri typeIdentifier,
         RdfTriple[] triples, bool isAuto)
     {
@@ -22,32 +24,32 @@ public class RdfNode
     }
 
     /// <summary>
-    /// Rdf resource identifier.
+    ///     Rdf resource identifier.
     /// </summary>
     public Uri Identifier { get; }
 
     /// <summary>
-    /// Rdf resource node identifier.
+    ///     Rdf resource node identifier.
     /// </summary>
     public Uri TypeIdentifier { get; internal set; }
 
     /// <summary>
-    /// Rdf node's triples collection.
+    ///     Rdf node's triples collection.
     /// </summary>
     public RdfTriple[] Triples => [.. _Triples];
 
     /// <summary>
-    /// Is auto (not identified rdf node) flag.
+    ///     Is auto (not identified rdf node) flag.
     /// </summary>
-    public bool IsAuto { get; } = false;
+    public bool IsAuto { get; }
 
     /// <summary>
-    /// Create and add RdfTriple triple with RdfNode subject
+    ///     Create and add RdfTriple triple with RdfNode subject
     /// </summary>
     /// <param name="predicate">Triple predicate URI.</param>
     /// <param name="object">Triple generic object.</param>
     /// <returns>Created rdf node.</returns>
-    public RdfTriple NewTriple(Uri predicate, 
+    public RdfTriple NewTriple(Uri predicate,
         RdfTripleObjectContainerBase @object)
     {
         var triple = new RdfTriple(this, predicate, @object);
@@ -57,7 +59,7 @@ public class RdfNode
     }
 
     /// <summary>
-    /// Remove all triples with predicate URI.
+    ///     Remove all triples with predicate URI.
     /// </summary>
     /// <param name="predicate">Triple predicate URI.</param>
     public void RemoveTriple(Uri predicate)
@@ -66,22 +68,20 @@ public class RdfNode
     }
 
     /// <summary>
-    /// Remove all triples with predicate URI and matched object.
+    ///     Remove all triples with predicate URI and matched object.
     /// </summary>
     /// <param name="predicate">Triple predicate URI.</param>
     /// <param name="object">Triple generic object.</param>
-    public void RemoveTriple(Uri predicate, 
+    public void RemoveTriple(Uri predicate,
         RdfTripleObjectContainerBase @object)
     {
-        _Triples.RemoveAll(m => RdfUtils.RdfUriEquals(m.Predicate, predicate) 
-            && m.Object ==  @object);
+        _Triples.RemoveAll(m => RdfUtils.RdfUriEquals(m.Predicate, predicate)
+                                && m.Object == @object);
     }
-
-    private readonly List<RdfTriple> _Triples = [];
 }
 
 /// <summary>
-/// RDF-Triple class.
+///     RDF-Triple class.
 /// </summary>
 public class RdfTriple
 {
@@ -96,7 +96,7 @@ public class RdfTriple
     public RdfNode Subject { get; set; }
 
     /// <summary>
-    /// Uri type limited predicate.
+    ///     Uri type limited predicate.
     /// </summary>
     public Uri Predicate { get; set; }
 
@@ -104,85 +104,79 @@ public class RdfTriple
 }
 
 /// <summary>
-/// Containered value object for RdfTriple instance.
+///     Containered value object for RdfTriple instance.
 /// </summary>
 public abstract class RdfTripleObjectContainerBase
 {
-    public System.Type Type { get; private set; }
-    public object RawObject { get; private set; }
-
     internal RdfTripleObjectContainerBase(object rawObject)
     {
         Type = rawObject.GetType();
         RawObject = rawObject;
     }
+
+    public Type Type { get; private set; }
+    public object RawObject { get; }
 }
 
-public sealed class RdfTripleObjectLiteralContainer 
+public sealed class RdfTripleObjectLiteralContainer
     : RdfTripleObjectContainerBase
 {
+    public RdfTripleObjectLiteralContainer(string literalObject)
+        : base(literalObject)
+    {
+    }
+
     public string LiteralObject
     {
         get
         {
             if (RawObject is not string literalObject)
-            {
                 throw new InvalidCastException(
                     "RdfTripleObjectLiteralContainer does not contain string object!");
-            }
 
             return literalObject;
         }
     }
-
-    public RdfTripleObjectLiteralContainer(string literalObject)
-        : base(literalObject)
-    {
-    }
 }
 
-public sealed class RdfTripleObjectUriContainer 
+public sealed class RdfTripleObjectUriContainer
     : RdfTripleObjectContainerBase
 {
+    public RdfTripleObjectUriContainer(Uri uriObject)
+        : base(uriObject)
+    {
+    }
+
     public Uri UriObject
     {
         get
         {
             if (RawObject is not Uri uriObject)
-            {
                 throw new InvalidCastException(
                     "RdfTripleObjectUriContainer does not contain URI object!");
-            }
 
             return uriObject;
         }
     }
-
-    public RdfTripleObjectUriContainer(Uri uriObject)
-        : base(uriObject)
-    {
-    }
 }
 
-public sealed class RdfTripleObjectStatementsContainer 
+public sealed class RdfTripleObjectStatementsContainer
     : RdfTripleObjectContainerBase
 {
+    public RdfTripleObjectStatementsContainer(ICollection<RdfNode> rdfNodes)
+        : base(rdfNodes)
+    {
+    }
+
     public ICollection<RdfNode> RdfNodesObject
     {
         get
         {
             if (RawObject is not ICollection<RdfNode> rdfNodes)
-            {
                 throw new InvalidCastException(
                     "RdfTripleObjectStatementsContainer does not contain ICollection<RdfNode> object!");
-            }
 
             return rdfNodes;
         }
-    }
-
-    public RdfTripleObjectStatementsContainer(ICollection<RdfNode> rdfNodes)
-        : base(rdfNodes)
-    {
     }
 }
