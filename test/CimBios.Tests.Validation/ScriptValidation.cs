@@ -1,134 +1,109 @@
-﻿using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
+using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
 using CimBios.Core.CimModel.Validation;
-using CimBios.Core.CimModel.Validation.Script.Rules;
 using CimBios.Core.CimModel.Validation.Script;
 using CimBios.Tests.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 
-namespace CimBios.Tests.Validation
+namespace CimBios.Tests.Validation;
+
+public class ScriptValidation
 {
-    public class ScriptValidation
+    private static string ChekingVoltageLevelBaseVoltageNullCode =
+        "dmFyIG1vID0gTW9kZWxPYmplY3QgYXMgVm9sdGFnZUxldmVsOw0KaWYgKG1vPy5CYXNlVm9" +
+        "sdGFnZSA9PSBudWxsKQ0Kew0KcmV0dXJuIG5ldyBMaXN0PElWYWxpZGF0aW9uUmVzdWx0Pi" +
+        "gpDQp7DQpuZXcgTW9kZWxPYmplY3RWYWxpZGF0aW9uUmVzdWx0KA0KVmFsaWRhdGlvblJlc" +
+        "3VsdEtpbmQuRmFpbCwNCiJCYXNlVm9sdGFnZSBpcyBudWxsIiwNCk1vZGVsT2JqZWN0DQop" +
+        "DQp9Ow0KfQ0KZWxzZQ0Kew0KcmV0dXJuIG5ldyBMaXN0PElWYWxpZGF0aW9uUmVzdWx0Pig" +
+        "pDQp7DQpuZXcgUGFzc1ZhbGlkYXRpb25SZXN1bHQoDQoiQmFzZVZvbHRhZ2UgaXMgbm90IG" +
+        "51bGwiDQopDQp9Ow0KfQ==";
+    
+    [Fact]
+    public void BaseVoltageIsNull()
     {
-        [Fact]
-        public async void BaseVoltageIsNull()
+        var voltageLevel = CreateVoltageLevelWithoutBaseVoltage();
+        
+        var validationResults = MakeRule()
+            .Execute(voltageLevel).ToList();
+
+        if (validationResults.FirstOrDefault() is null or ScriptExceptionValidationResult)
         {
-            var references = AssemblyInfo.References;
-            var usings = AssemblyInfo.Usings;
-
-            var script = await Script.Create(references, usings);
-
-            var voltageLevel = CreateVoltageLevelWithoutBaseVoltage();
-
-            var valid = new ScriptValidationRule(script);
-            valid.Code = new ChekingVoltageLevelBaseVoltageNull().Code;
-
-            IEnumerable<IValidationResult> validationResults = [];
-            try
-            {
-                validationResults = valid.Execute(voltageLevel);
-            }
-            catch (Microsoft.CodeAnalysis.Scripting.CompilationErrorException ex)
-            {
-                Assert.Fail(string.Join("", ex.Diagnostics));
-            }
-
-            if (validationResults?.FirstOrDefault()?.ResultType == 
-                ValidationResultKind.Fail)
-            {
-                Assert.True(
-                    validationResults?.FirstOrDefault()?.ResultType ==
-                    ValidationResultKind.Fail
-                    );
-            }
-            else
-            {
-                Assert.Fail();
-            }
+            Assert.Fail("Validation Failed: Script didn't run!");
         }
 
-        [Fact]
-        public async void BaseVoltageIsNotNull()
+        Assert.True(
+            validationResults.First().ResultType == ValidationResultKind.Fail
+        );
+    }
+
+    [Fact]
+    public void BaseVoltageIsNotNull()
+    {
+        var voltageLevel = CreateVoltageLevelWithBaseVoltage();
+        
+        var validationResults = MakeRule()
+            .Execute(voltageLevel).ToList();
+
+        if (validationResults.FirstOrDefault() is null or ScriptExceptionValidationResult)
         {
-            var references = AssemblyInfo.References;
-            var usings = AssemblyInfo.Usings;
-
-            var script = await Script.Create(references, usings);
-
-            var voltageLevel = CreateVoltageLevelWithBaseVoltage();
-
-            var valid = new ScriptValidationRule(script);
-            valid.Code = new ChekingVoltageLevelBaseVoltageNull().Code;
-
-            IEnumerable<IValidationResult> validationResults = [];
-            try
-            {
-                validationResults = valid.Execute(voltageLevel);
-            }
-            catch (Microsoft.CodeAnalysis.Scripting.CompilationErrorException ex)
-            {
-                Assert.Fail(string.Join("", ex.Diagnostics));
-            }
-
-            if (validationResults?.FirstOrDefault()?.ResultType ==
-                ValidationResultKind.Pass)
-            {
-                Assert.True(
-                    validationResults?.FirstOrDefault()?.ResultType ==
-                    ValidationResultKind.Pass
-                    );
-            }
-            else
-            {
-                Assert.Fail();
-            }
+            Assert.Fail("Validation Failed: Script didn't run!");
         }
 
-        private VoltageLevel CreateVoltageLevelWithBaseVoltage()
+        Assert.True(
+            validationResults.First().ResultType == ValidationResultKind.Pass
+        );
+    }
+
+    private VoltageLevel CreateVoltageLevelWithBaseVoltage()
+    {
+        var descriptorVoltageLevel = new TextDescriptorFactory().Create(
+            "http://iec.ch/TC57/CIM100#VoltageLevel");
+
+        var descriptorBaseVoltage = new TextDescriptorFactory().Create(
+            "http://iec.ch/TC57/CIM100#BaseVoltage");
+
+        var cimDocument = ModelLoader.CreateCimModelInstance();
+
+        var voltageLevel = cimDocument.CreateObject<VoltageLevel>(
+            descriptorVoltageLevel);
+
+        var baseVoltage = cimDocument.Schema
+            .TryGetResource<ICimMetaClass>(
+                new("http://iec.ch/TC57/CIM100#BaseVoltage"));
+
+        if (baseVoltage == null)
         {
-            var descriptorVoltageLevel = new TextDescriptorFactory().Create(
-                "http://iec.ch/TC57/CIM100#VoltageLevel");
-
-            var descriptorBaseVoltage = new TextDescriptorFactory().Create(
-                "http://iec.ch/TC57/CIM100#BaseVoltage");
-
-            var cimDocument = ModelLoader.CreateCimModelInstance();
-
-            var voltageLevel = cimDocument.CreateObject<VoltageLevel>(
-                descriptorVoltageLevel);
-
-            var baseVoltage = cimDocument.Schema
-                .TryGetResource<ICimMetaClass>(
-                    new("http://iec.ch/TC57/CIM100#BaseVoltage"));
-
-            if (baseVoltage == null)
-            {
-                throw new NullReferenceException();
-            }
-
-            voltageLevel.BaseVoltage = new BaseVoltage(
-                descriptorBaseVoltage, baseVoltage);
-            voltageLevel.BaseVoltage.nominalVoltage = 110;
-
-            return voltageLevel;
+            throw new NullReferenceException();
         }
 
-        private VoltageLevel CreateVoltageLevelWithoutBaseVoltage()
-        {
-            var descriptorVoltageLevel = new TextDescriptorFactory().Create(
-                "http://iec.ch/TC57/CIM100#VoltageLevel");
+        voltageLevel.BaseVoltage = new BaseVoltage(
+            descriptorBaseVoltage, baseVoltage);
+        voltageLevel.BaseVoltage.nominalVoltage = 110;
 
-            var cimDocument = ModelLoader.CreateCimModelInstance();
+        return voltageLevel;
+    }
 
-            var voltageLevel = cimDocument.CreateObject<VoltageLevel>(
-                descriptorVoltageLevel);
+    private VoltageLevel CreateVoltageLevelWithoutBaseVoltage()
+    {
+        var descriptorVoltageLevel = new TextDescriptorFactory().Create(
+            "http://iec.ch/TC57/CIM100#VoltageLevel");
 
-            return voltageLevel;
-        }
+        var cimDocument = ModelLoader.CreateCimModelInstance();
+
+        var voltageLevel = cimDocument.CreateObject<VoltageLevel>(
+            descriptorVoltageLevel);
+
+        return voltageLevel;
+    }
+
+    private IValidationRule MakeRule()
+    {
+        var rule = new ScriptValidationRule();
+        
+        var decode64 = System.Convert.FromBase64String(
+            ChekingVoltageLevelBaseVoltageNullCode);
+        rule.Code = System.Text.Encoding.UTF8.GetString(decode64);
+
+        return rule;
     }
 }
