@@ -1,6 +1,10 @@
 ﻿using System;
 using Avalonia;
 using CommunityToolkit.Mvvm.Input;
+using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
+using Avalonia.Media.TextFormatting.Unicode;
+using System.Reflection.Metadata;
+using Tmds.DBus.Protocol;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
