@@ -1,33 +1,47 @@
 using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
 using Microsoft.CodeAnalysis.Scripting;
-using System.Reflection;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
 
 namespace CimBios.Core.CimModel.Validation.Script;
 
 public class ScriptValidationRule : ValidationRuleBase
 {
-    private Script? _script;
-
     public string Code { get; set; } = string.Empty;
 
     public override IEnumerable<IValidationResult> Execute(
         IReadOnlyModelObject modelObject)
     {
-        _script?.ExecuteNext(Code, modelObject);
+        var options = ScriptOptions.Default.
+            WithReferences(AssemblyInfo.References).
+            WithImports(AssemblyInfo.Usings);
+        
+        var globals = new ScriptGlobals { ModelObject = modelObject };
 
-        if (_script == null || _script.Globals == null)
+        try
         {
-            throw new NullReferenceException();
+            var state = CSharpScript.RunAsync(Code, 
+                options, globals).Result;
+        
+            if (state.ReturnValue is not IEnumerable<IValidationResult> 
+                validationResults)
+            {
+                throw new InvalidDataException();
+            }
+            
+            return validationResults;
         }
-
-        return _script.Globals.ValidationResults;
+        catch (Exception e)
+        {
+            return [new ScriptExceptionValidationResult { Message = e.Message }];
+        }
     }
 
     public override bool NeedExecute(IReadOnlyModelObject modelObject) => true;
+}
 
-    public ScriptValidationRule(Script script) : base()
-    {
-        _script = script;
-    }
+public class ScriptExceptionValidationResult : IValidationResult
+{
+    public ValidationResultKind ResultType => ValidationResultKind.Fail;
+    
+    public required string Message { get; init; }
 }
