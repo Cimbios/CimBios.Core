@@ -12,21 +12,13 @@ public class CimSchema : ICimSchema
     private Dictionary<Uri, ICimMetaResource> _All;
 
     private Dictionary<string, Uri> _Namespaces;
-
-    public ICimMetaClass _ResourceSuperClass;
-
+    
     public CimSchema()
     {
         _Log = new PlainLogView(this);
 
         _All = [];
         _Namespaces = [];
-
-        var resourceSuperClass = new CimAutoClass(
-            CimRdfSchemaStrings.RdfsResource,
-            "Resource", "Root rdfs:Resource meta instance.");
-        resourceSuperClass.SetIsAbstract(true);
-        _ResourceSuperClass = resourceSuperClass;
     }
 
     public CimSchema(ICimSchemaSerializerFactory serializerFactory)
@@ -58,7 +50,8 @@ public class CimSchema : ICimSchema
 
     public bool TieSameNameEnums { get; set; } = true;
 
-    public ICimMetaClass ResourceSuperClass => _ResourceSuperClass;
+    public ICimMetaClass ResourceSuperClass => TryGetResource<ICimMetaClass>(
+        CimRdfSchemaStrings.RdfsResource) ?? throw new NullReferenceException();
 
     public void Load(TextReader textReader)
     {
@@ -72,20 +65,11 @@ public class CimSchema : ICimSchema
         _Serializer.Load(textReader);
 
         _All = _Serializer.Deserialize();
-        _All.Add(_ResourceSuperClass.BaseUri, _ResourceSuperClass);
-
-        _All.Add(CimRdfSchemaStrings.RdfDescription,
-            new CimAutoClass(
-                CimRdfSchemaStrings.RdfDescription,
-                "Description",
-                "rdf:Description meta instance.")
-        );
-
         _Namespaces = _Serializer.Namespaces.ToDictionary();
 
         if (TieSameNameEnums) TieEnumExtensions();
 
-        CreateSuperDescriptionClass();
+        CreateSuperDescriptionClasses();
 
         var details = string.Empty;
         if (_Namespaces.TryGetValue("base", out var baseUri)) details = baseUri.AbsoluteUri;
@@ -245,8 +229,21 @@ public class CimSchema : ICimSchema
         }
     }
 
-    private void CreateSuperDescriptionClass()
+    private void CreateSuperDescriptionClasses()
     {
+        var resourceSuperClass = new CimAutoClass(
+            CimRdfSchemaStrings.RdfsResource,
+            "Resource", "Root rdfs:Resource meta instance.");
+        resourceSuperClass.SetIsAbstract(true);
+        _All.TryAdd(resourceSuperClass.BaseUri, resourceSuperClass);
+        
+        _All.TryAdd(CimRdfSchemaStrings.RdfDescription,
+            new CimAutoClass(
+                CimRdfSchemaStrings.RdfDescription,
+                "Description",
+                "rdf:Description meta instance.")
+        );
+        
         var extensionsCache = Extensions;
         foreach (var quasiSuper in Classes.Where(c =>
                      c != ResourceSuperClass
