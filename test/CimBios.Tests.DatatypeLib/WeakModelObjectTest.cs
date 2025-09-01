@@ -25,7 +25,7 @@ public class WeakModelObjectTests
         var cimModel = ModelLoader.LoadCimModel_v1();
 
         var checkObject = cimModel
-            .GetObject<Terminal>(new TextDescriptor("_APTEndLVT1"));
+            .GetObject<Terminal>("_APTEndLVT1");
             
         Assert.NotNull(checkObject);
     }
@@ -35,8 +35,7 @@ public class WeakModelObjectTests
     {
         var cimModel = ModelLoader.LoadCimModel_v1(true);
 
-        var checkObject = cimModel.GetObject<WeakModelObject>(
-            new TextDescriptor("_Dummy"));
+        var checkObject = cimModel.GetObject<WeakModelObject>("_Dummy");
 
         var checkAttrName = checkObject?.GetAttribute("name");
             
@@ -48,8 +47,7 @@ public class WeakModelObjectTests
     {
         var cimModel = ModelLoader.LoadCimModel_v1(true);
 
-        var checkObject = cimModel.GetObject<WeakModelObject>(
-            new TextDescriptor("_Dummy"));
+        var checkObject = cimModel.GetObject<WeakModelObject>("_Dummy");
             
         var checkAttrName = checkObject?.GetAttribute("prop");
             
@@ -61,8 +59,7 @@ public class WeakModelObjectTests
     {
         var cimModel = ModelLoader.LoadCimModel_v1(true);
 
-        var checkObject = cimModel.GetObject<Substation>(
-            new TextDescriptor("_SubstationA"));
+        var checkObject = cimModel.GetObject<Substation>("_SubstationA");
             
         var checkEnumAssocType = checkObject?.GetAssoc1ToM("UndefinedAssoc");
             
@@ -74,8 +71,7 @@ public class WeakModelObjectTests
     {
         var cimModel = ModelLoader.LoadCimModel_v1(true);
 
-        var checkObject = cimModel.GetObject<Asset>(
-            new TextDescriptor("_ASubstationAsset"));
+        var checkObject = cimModel.GetObject<Asset>("_ASubstationAsset");
             
         var checkCompound = checkObject?.GetAttribute<IModelObject>("inUseDate");
 
