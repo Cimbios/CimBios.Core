@@ -10,94 +10,24 @@ namespace CimBios.Core.CimModel.DataModel.Utils;
 /// </summary>
 public static class ApplyDifferenceModelExtension
 {
+    /// <summary>
+    /// Apply difference model to ICimDataModel instance method.
+    /// Implementing add, remove and update operations via Importer and references resolver.
+    /// </summary>
+    /// <param name="model">Target ICimDataModel instance.</param>
+    /// <param name="differenceModel">ICimDifference model instance to apply.</param>
     public static void ApplyDifferenceModel(this ICimDataModel model,
         ICimDifferenceModel differenceModel)
     {
         foreach (var diff in differenceModel.Differences)
         {
-            var getObject = model.GetObject(diff.OID);
-
             if (diff is AdditionDifferenceObject addDiff)
-                ApplyAddition(model, addDiff);
+                model.ImportModelObject(addDiff.ModifiedObject);
             else if (diff is DeletionDifferenceObject)
                 model.RemoveObject(diff.OID);
             else if (diff is UpdatingDifferenceObject updatingDifferenceObject)
                 ApplyUpdating(model, updatingDifferenceObject);
         }
-    }
-
-    private static void ResolveReferencesInModelObject(ICimDataModel model,
-        IModelObject modelObject)
-    {
-        foreach (var metaProperty in modelObject.MetaClass.AllProperties)
-        {
-            var refs = new List<ModelObjectUnresolvedReference>();
-            if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
-            {
-                var assocObj = modelObject.GetAssoc1To1<IModelObject>(metaProperty)
-                    as ModelObjectUnresolvedReference;
-                if (assocObj != null) refs.Add(assocObj);
-            }
-            else if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
-            {
-                var assocObjs = modelObject.GetAssoc1ToM<IModelObject>(metaProperty)
-                    .OfType<ModelObjectUnresolvedReference>();
-
-                refs.AddRange(assocObjs);
-            }
-            else
-            {
-                continue;
-            }
-
-            foreach (var refObj in refs)
-            {
-                var referenceObject = model.GetObject(refObj.OID);
-                if (referenceObject == null) continue;
-
-                refObj.WaitingObjects.Add(modelObject);
-                refObj.ResolveWith(referenceObject);
-            }
-        }
-    }
-
-    private static void ApplyAddition(ICimDataModel model,
-        AdditionDifferenceObject diff)
-    {
-        var getObject = model.GetObject(diff.OID);
-
-        var schemaMetaClass = model.Schema
-            .TryGetResource<ICimMetaClass>(diff.MetaClass.BaseUri);
-
-        if (schemaMetaClass == null) return;
-
-        IModelObject targetObject;
-        if (getObject != null)
-        {
-            if (schemaMetaClass.Equals(getObject.MetaClass))
-            {
-                targetObject = getObject;
-            }
-            // Class changing.
-            else
-            {
-                model.RemoveObject(getObject);
-                targetObject = model.CreateObject(diff.OID,
-                    schemaMetaClass);
-            }
-        }
-        else
-        {
-            targetObject = model.CreateObject(diff.OID, schemaMetaClass);
-        }
-
-        var intersectedModifiedProps = targetObject.MetaClass
-            .AllProperties.Intersect(diff.ModifiedProperties).ToList();
-
-        targetObject.CopyPropertiesFrom(diff.ModifiedObject,
-            intersectedModifiedProps, true);
-
-        ResolveReferencesInModelObject(model, targetObject);
     }
 
     private static void ApplyUpdating(ICimDataModel model,
@@ -113,8 +43,8 @@ public static class ApplyDifferenceModelExtension
         getObject.CopyPropertiesFrom(diff.ModifiedObject,
             intersectedModifiedProps, true);
 
-        ResolveReferencesInModelObject(model, getObject);
-
+        model.ResolveReferencesInModelObject(getObject);
+        
         // reverse assocs M removing
         if (diff.OriginalObject != null)
             foreach (var metaProperty in intersectedModifiedProps
