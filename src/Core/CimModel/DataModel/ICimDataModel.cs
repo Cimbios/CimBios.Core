@@ -64,6 +64,21 @@ public interface ICimDataModel : ICanLog
     /// <param name="oid">Model object string identifier.</param>
     /// <returns>T casted IModelObject instance or null.</returns>
     public T? GetObject<T>(IOIDDescriptor oid) where T : IModelObject;
+    
+    /// <summary>
+    ///     Get generalized model object by uuid.
+    /// </summary>
+    /// <param name="oid"></param>
+    /// <returns>IModelObject instance or null.</returns>
+    public IModelObject? GetObject(string oid);
+
+    /// <summary>
+    ///     Get typed model object by uuid.
+    /// </summary>
+    /// <typeparam name="T">IModelObject generalized class.</typeparam>
+    /// <param name="oid">Model object string identifier.</param>
+    /// <returns>T casted IModelObject instance or null.</returns>
+    public T? GetObject<T>(string oid) where T : IModelObject;
 
     /// <summary>
     ///     Remove object from model context.
