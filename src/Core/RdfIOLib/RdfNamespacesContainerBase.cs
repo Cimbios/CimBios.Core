@@ -5,18 +5,23 @@ namespace CimBios.Core.RdfIOLib;
 /// </summary>
 public abstract class RdfNamespacesContainerBase
 {
-    protected const string xmlns = "http://www.w3.org/2000/xmlns/";
-    protected const string xml = "http://www.w3.org/XML/1998/namespace";
-    protected const string rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    protected const string Xmlns = "http://www.w3.org/2000/xmlns/";
+    protected const string Xml = "http://www.w3.org/XML/1998/namespace";
+    protected const string Rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
     /// <summary>
     ///     RDF document namespaces dictionary.
     /// </summary>
     public IReadOnlyDictionary<string, Uri> Namespaces
-        => _Namespaces.AsReadOnly();
+        => _namespaces.AsReadOnly();
 
-    private Dictionary<string, Uri> _Namespaces { get; } = [];
+    private readonly Dictionary<string, Uri> _namespaces = [];
 
+    protected RdfNamespacesContainerBase()
+    {
+        ClearNamespaces();
+    }
+    
     /// <summary>
     ///     Add namespace.
     /// </summary>
@@ -25,10 +30,7 @@ public abstract class RdfNamespacesContainerBase
     /// <returns>True if namespace has not been exists and added.</returns>
     public bool AddNamespace(string prefix, Uri ns)
     {
-        if (_Namespaces.ContainsKey(prefix)) return false;
-
-        _Namespaces.Add(prefix, ns);
-        return true;
+        return _namespaces.TryAdd(prefix, ns);
     }
 
     /// <summary>
@@ -38,7 +40,7 @@ public abstract class RdfNamespacesContainerBase
     /// <returns>True if namespace found and removed.</returns>
     public bool RemoveNamespace(string prefix)
     {
-        return _Namespaces.Remove(prefix);
+        return prefix != "rdf" && _namespaces.Remove(prefix);
     }
 
     /// <summary>
@@ -46,7 +48,9 @@ public abstract class RdfNamespacesContainerBase
     /// </summary>
     public void ClearNamespaces()
     {
-        _Namespaces.Clear();
+        _namespaces.Clear();
+        
+        _namespaces.TryAdd("rdf", new Uri(Rdf));
     }
 
     /// <summary>
@@ -57,7 +61,7 @@ public abstract class RdfNamespacesContainerBase
     protected Uri NameToUri(string identifier, string ns = "base")
     {
         var splittedPrefix = identifier.Split(':');
-        if (splittedPrefix.Count() == 2
+        if (splittedPrefix.Length == 2
             && Namespaces.ContainsKey(splittedPrefix.First()))
             return
                 new Uri(Namespaces[splittedPrefix.First()] + splittedPrefix.Last());
@@ -75,7 +79,7 @@ public abstract class RdfNamespacesContainerBase
     /// <exception cref="Exception"></exception>
     protected (string prefix, string name) UriToName(Uri uri)
     {
-        var prefix = _Namespaces.Where(ns => ns.Value == uri)
+        var prefix = _namespaces.Where(ns => ns.Value == uri)
             .Select(p => p.Key).FirstOrDefault();
 
         if (prefix == null)
