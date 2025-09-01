@@ -52,6 +52,12 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     public abstract IEnumerable<IModelObject> GetObjects(ICimMetaClass metaClass);
     public abstract IModelObject? GetObject(IOIDDescriptor oid);
     public abstract T? GetObject<T>(IOIDDescriptor oid) where T : IModelObject;
+    
+    public virtual IModelObject? GetObject(string oid)
+        => GetObject(OIDDescriptorFactory.Create(oid));
+    public virtual T? GetObject<T>(string oid) where T : IModelObject
+        => GetObject<T>( OIDDescriptorFactory.Create(oid));
+    
     public abstract bool RemoveObject(IOIDDescriptor oid);
     public abstract bool RemoveObject(IModelObject modelObject);
     public abstract void RemoveObjects(IEnumerable<IModelObject> modelObjects);
