@@ -50,7 +50,7 @@ public class TextDescriptorFactory : IOIDDescriptorFactory
 
     public IOIDDescriptor Create()
     {
-        throw new NotSupportedException("TextDescriptor cannot be empty string.");
+        return new TextDescriptor(new AutoDescriptor().AbsoluteOID);
     }
 
     public IOIDDescriptor Create(string value)
