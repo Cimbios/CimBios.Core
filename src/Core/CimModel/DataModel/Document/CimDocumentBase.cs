@@ -72,7 +72,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     ///     Load CIM model to context via stream reader and custom schema.
     /// </summary>
-    protected virtual void Load(StreamReader streamReader,
+    public virtual void Load(StreamReader streamReader,
         IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
@@ -115,7 +115,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     ///     Load CIM model to context by path.
     /// </summary>
-    private void Load(string path,
+    public void Load(string path,
         IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
@@ -134,7 +134,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     ///     Parse CIM model to context from string.
     /// </summary>
-    protected virtual void Parse(string content, IRdfSerializerFactory serializerFactory,
+    public virtual void Parse(string content, IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema, Encoding? encoding = null)
     {
         encoding ??= Encoding.Default;
@@ -155,7 +155,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     ///     Write CIM model to stream writer.
     /// </summary>
-    protected virtual void Save(StreamWriter streamWriter,
+    public virtual void Save(StreamWriter streamWriter,
         IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
