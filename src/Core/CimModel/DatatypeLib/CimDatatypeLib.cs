@@ -204,8 +204,7 @@ public class CimDatatypeLib : ICimDatatypeLib
     private ICimMetaClass TypedToMetaClass<T>()
     {
         var metaClass = RegisteredTypes.Keys
-            .Where(c => RegisteredTypes[c] == typeof(T))
-            .FirstOrDefault();
+            .FirstOrDefault(c => RegisteredTypes[c] == typeof(T));
 
         if (metaClass == null)
             throw new NotSupportedException(
