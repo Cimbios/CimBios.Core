@@ -18,22 +18,22 @@ public class CimDocument(
 {
     public override IEnumerable<IModelObject> GetAllObjects()
     {
-        return _Objects.Values;
+        return Objects.Values;
     }
 
     public override IEnumerable<T> GetObjects<T>() where T : default
     {
-        return _Objects.Values.OfType<T>();
+        return Objects.Values.OfType<T>();
     }
 
     public override IEnumerable<IModelObject> GetObjects(ICimMetaClass metaClass)
     {
-        return _Objects.Values.Where(o => o.MetaClass == metaClass);
+        return Objects.Values.Where(o => o.MetaClass == metaClass);
     }
 
     public override IModelObject? GetObject(IOIDDescriptor oid)
     {
-        if (_Objects.TryGetValue(oid, out var instance)
+        if (Objects.TryGetValue(oid, out var instance)
             && instance.OID is not AutoDescriptor
             && !instance.MetaClass.IsCompound)
             return instance;
@@ -51,11 +51,11 @@ public class CimDocument(
 
     public override bool RemoveObject(IOIDDescriptor oid)
     {
-        if (_Objects.TryGetValue(oid, out var removingObject))
+        if (Objects.TryGetValue(oid, out var removingObject))
         {
             UnlinkAllModelObjectAssocs(removingObject);
 
-            _Objects.Remove(oid);
+            Objects.Remove(oid);
 
             OnModelObjectStorageChanged(removingObject,
                 CimDataModelObjectStorageChangeType.Remove);
@@ -108,11 +108,11 @@ public class CimDocument(
 
     private void AddObjectToStorage(IModelObject modelObject)
     {
-        if (_Objects.ContainsKey(modelObject.OID))
+        if (Objects.ContainsKey(modelObject.OID))
             throw new ArgumentException(
                 $"Object with OID:{modelObject.OID} already exists!");
 
-        _Objects.Add(modelObject.OID, modelObject);
+        Objects.Add(modelObject.OID, modelObject);
         modelObject.PropertyChanged += OnModelObjectPropertyChanged;
 
         OnModelObjectStorageChanged(modelObject,
@@ -123,7 +123,7 @@ public class CimDocument(
 
     private void ResolveReferencesWithObject(IModelObject modelObject)
     {
-        foreach (var refObj in _UnresolvedReferences
+        foreach (var refObj in UnresolvedReferences
                      .Where(o => o.OID == modelObject.OID))
             refObj.ResolveWith(modelObject);
     }
@@ -131,20 +131,35 @@ public class CimDocument(
     protected override void PushDeserializedObjects(
         IEnumerable<IModelObject> cache)
     {
-        _Objects = cache.AsParallel().ToDictionary(k => k.OID, v => v);
+        Objects = cache.AsParallel().ToDictionary(k => k.OID, v => v);
 
-        foreach (var obj in _Objects.Values)
+        var needFullModel = true;
+        foreach (var obj in Objects.Values)
         {
             if (obj is FullModel fullModel)
             {
                 ModelDescription = fullModel;
-                _Objects.Remove(obj.OID);
+                Objects.Remove(obj.OID);
+                needFullModel = false;
                 continue;
             }
 
             obj.PropertyChanged += OnModelObjectPropertyChanged;
             obj.PropertyChanging += OnModelObjectPropertyChanging;
         }
+
+        if (!needFullModel) return;
+        
+        ModelDescription = TypeLib.CreateInstance<FullModel>(
+            OIDDescriptorFactory.Create());
+
+        if (ModelDescription == null)
+        {
+            PlainLog.Error("Failed to create FullModel!");
+            return;
+        }
+            
+        ModelDescription.created = DateTime.Now;
     }
 
     private static void UnlinkAllModelObjectAssocs(IModelObject modelObject)
