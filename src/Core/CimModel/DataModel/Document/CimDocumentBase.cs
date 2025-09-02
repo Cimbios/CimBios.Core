@@ -14,29 +14,28 @@ namespace CimBios.Core.CimModel.CimDataModel;
 
 public abstract class CimDocumentBase : ICimDataModel, ICanLog
 {
-    protected readonly PlainLogView _Log;
+    protected readonly PlainLogView PlainLog;
 
     protected CimDocumentBase(ICimSchema cimSchema, ICimDatatypeLib typeLib,
         IOIDDescriptorFactory oidDescriptorFactory)
     {
-        _Log = new PlainLogView(this);
-        _Objects = [];
+        PlainLog = new PlainLogView(this);
+        Objects = [];
 
         Schema = cimSchema;
         TypeLib = typeLib;
         OIDDescriptorFactory = oidDescriptorFactory;
     }
 
-
     protected IReadOnlyCollection<ModelObjectUnresolvedReference>
-        _UnresolvedReferences { get; set; } = [];
+        UnresolvedReferences { get; private set; } = [];
 
     /// <summary>
     ///     All cached objects collection (uuid to IModelObject).
     /// </summary>
-    protected virtual Dictionary<IOIDDescriptor, IModelObject> _Objects { get; set; }
+    protected Dictionary<IOIDDescriptor, IModelObject> Objects { get; set; }
 
-    public virtual ILogView Log => _Log;
+    public virtual ILogView Log => PlainLog;
 
     public virtual Model? ModelDescription { get; protected set; }
 
@@ -73,7 +72,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     ///     Load CIM model to context via stream reader and custom schema.
     /// </summary>
-    public virtual void Load(StreamReader streamReader,
+    protected virtual void Load(StreamReader streamReader,
         IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
@@ -84,23 +83,23 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
 
         try
         {
-            _Objects = [];
+            Objects = [];
             var deserialized = serializer.Deserialize(streamReader);
             PushDeserializedObjects(deserialized);
         }
         catch (Exception ex)
         {
-            _Log.Critical($"Deserialization failed: {ex.Message}");
+            PlainLog.Critical($"Deserialization failed: {ex.Message}");
             throw;
         }
         finally
         {
             streamReader.Close();
 
-            _UnresolvedReferences = serializer.UnresolvedReferences
+            UnresolvedReferences = serializer.UnresolvedReferences
                 .ToList().AsReadOnly();
 
-            _Log.FlushFrom(serializer.Log);
+            PlainLog.FlushFrom(serializer.Log);
         }
     }
 
@@ -116,7 +115,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     ///     Load CIM model to context by path.
     /// </summary>
-    public void Load(string path,
+    private void Load(string path,
         IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
@@ -135,7 +134,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     ///     Parse CIM model to context from string.
     /// </summary>
-    public virtual void Parse(string content, IRdfSerializerFactory serializerFactory,
+    protected virtual void Parse(string content, IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema, Encoding? encoding = null)
     {
         encoding ??= Encoding.Default;
@@ -156,13 +155,15 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     /// <summary>
     ///     Write CIM model to stream writer.
     /// </summary>
-    public virtual void Save(StreamWriter streamWriter,
+    protected virtual void Save(StreamWriter streamWriter,
         IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
-        var forSerializeObjects = _Objects.Values.ToImmutableList();
-        if (ModelDescription != null) forSerializeObjects.Add(ModelDescription);
-
+        var allObjects = new List<IModelObject>(Objects.Values.Count + 1);
+        if (ModelDescription != null) allObjects.Add(ModelDescription);
+        allObjects.AddRange(Objects.Values);
+        var forSerializeObjects = allObjects.ToImmutableList();
+        
         var serializer = serializerFactory.Create(cimSchema,
             TypeLib, OIDDescriptorFactory);
 
@@ -173,14 +174,14 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         }
         catch (Exception ex)
         {
-            _Log.Critical($"Serialization failed: {ex.Message}");
+            PlainLog.Critical($"Serialization failed: {ex.Message}");
             throw;
         }
         finally
         {
             streamWriter.Close();
 
-            _Log.FlushFrom(serializer.Log);
+            PlainLog.FlushFrom(serializer.Log);
         }
     }
 
