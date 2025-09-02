@@ -88,7 +88,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
     public void ResetAll()
     {
-        _Objects.Clear();
+        Objects.Clear();
 
         _internalDifferenceModel = TypeLib.CreateInstance<DifferenceModel>(
             new UuidDescriptor());
@@ -99,7 +99,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
         _internalDifferenceModel.created = DateTime.Now.ToUniversalTime();
 
-        _Objects.Add(_internalDifferenceModel.OID, _internalDifferenceModel);
+        Objects.Add(_internalDifferenceModel.OID, _internalDifferenceModel);
         DifferencesCache.Clear();
     }
 
@@ -369,7 +369,7 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             .OfType<DifferenceModel>()
             .Single();
 
-        _Objects.Add(_internalDifferenceModel.OID, _internalDifferenceModel);
+        Objects.Add(_internalDifferenceModel.OID, _internalDifferenceModel);
 
         ToDifferencesCache();
     }
