@@ -20,7 +20,7 @@ public class RdfXmlWriter : RdfWriterBase
     {
     }
 
-    private XmlWriter _XmlWriter
+    private XmlWriter XmlWriter
     {
         get
         {
@@ -55,8 +55,7 @@ public class RdfXmlWriter : RdfWriterBase
         _xmlWriter = xmlWriter;
         _excludeBase = excludeBase;
 
-        if (_xmlWriter.WriteState == WriteState.Closed
-            || _xmlWriter.WriteState == WriteState.Error)
+        if (_xmlWriter.WriteState is WriteState.Closed or WriteState.Error)
             throw new Exception("XmlWriter has not been initialized!");
 
         if (WriteRdfRootNode() == false) throw new Exception("Failed to write rdf:RDF root node!");
@@ -64,13 +63,13 @@ public class RdfXmlWriter : RdfWriterBase
 
     public override void Close()
     {
-        if (_XmlWriter.WriteState == WriteState.Closed
-            || _XmlWriter.WriteState == WriteState.Error)
+        if (XmlWriter.WriteState == WriteState.Closed
+            || XmlWriter.WriteState == WriteState.Error)
             return;
 
-        _XmlWriter.WriteEndElement();
-        _XmlWriter.WriteEndDocument();
-        _XmlWriter.Close();
+        XmlWriter.WriteEndElement();
+        XmlWriter.WriteEndDocument();
+        XmlWriter.Close();
     }
 
     public override void Write(RdfNode rdfNode)
@@ -78,37 +77,35 @@ public class RdfXmlWriter : RdfWriterBase
         var nodeName = UriToName(rdfNode.TypeIdentifier);
         WriteElementHeader(
             nodeName.prefix,
-            nodeName.name,
-            Namespaces[nodeName.prefix].AbsoluteUri);
+            nodeName.name);
 
         var iri = NormalizeIdentifier(rdfNode.Identifier);
 
         if (rdfNode.IsAuto == false)
-            _XmlWriter.WriteAttributeString(
+            XmlWriter.WriteAttributeString(
                 "rdf",
                 RdfIRIMode == RdfIRIModeKind.About ? "about" : "ID",
-                rdf, iri);
+                Rdf, iri);
 
         foreach (var triple in rdfNode.Triples)
         {
             var (prefix, name) = UriToName(triple.Predicate);
-            WriteElementHeader(prefix,
-                name, Namespaces[prefix].AbsoluteUri);
+            WriteElementHeader(prefix, name);
 
             if (triple.Object is RdfTripleObjectUriContainer uriContainer)
-                _XmlWriter.WriteAttributeString(
-                    "rdf", "resource", rdf,
+                XmlWriter.WriteAttributeString(
+                    "rdf", "resource", Rdf,
                     NormalizeIdentifier(uriContainer.UriObject));
             else if (triple.Object is RdfTripleObjectStatementsContainer statements)
                 foreach (var statement in statements.RdfNodesObject)
                     Write(statement);
             else if (triple.Object is RdfTripleObjectLiteralContainer literal)
-                _XmlWriter.WriteString(literal.LiteralObject);
+                XmlWriter.WriteString(literal.LiteralObject);
 
-            _XmlWriter.WriteEndElement();
+            XmlWriter.WriteEndElement();
         }
 
-        _XmlWriter.WriteEndElement();
+        XmlWriter.WriteEndElement();
     }
 
     public override void WriteAll(IEnumerable<RdfNode> rdfNodes)
@@ -122,13 +119,12 @@ public class RdfXmlWriter : RdfWriterBase
     /// </summary>
     /// <param name="prefix"></param>
     /// <param name="name"></param>
-    /// <param name="ns"></param>
-    private void WriteElementHeader(string prefix, string name, string ns)
+    private void WriteElementHeader(string prefix, string name)
     {
         if (prefix == "base")
-            _XmlWriter.WriteStartElement(name);
+            XmlWriter.WriteStartElement(name);
         else
-            _XmlWriter.WriteStartElement(
+            XmlWriter.WriteStartElement(
                 prefix,
                 name,
                 Namespaces[prefix].AbsoluteUri);
@@ -141,17 +137,17 @@ public class RdfXmlWriter : RdfWriterBase
     {
         if (CanWriteNext() == false) return false;
 
-        _XmlWriter.WriteStartDocument();
-        _XmlWriter.WriteStartElement("rdf", "RDF", rdf);
+        XmlWriter.WriteStartDocument();
+        XmlWriter.WriteStartElement("rdf", "RDF", Rdf);
 
         foreach (var ns in Namespaces)
         {
             if (_excludeBase && ns.Key == "base") continue;
 
-            _XmlWriter.WriteAttributeString(
+            XmlWriter.WriteAttributeString(
                 ns.Key == "base" ? "xml" : "xmlns",
                 ns.Key,
-                ns.Key == "base" ? xml : xmlns,
+                ns.Key == "base" ? Xml : Xmlns,
                 ns.Value.AbsoluteUri);
         }
 
@@ -170,7 +166,7 @@ public class RdfXmlWriter : RdfWriterBase
     }
 
     /// <summary>
-    ///     Makes string identifier with escaped syms.
+    ///     Makes string identifier with escaped symbols.
     /// </summary>
     /// <param name="uri"></param>
     /// <returns></returns>
