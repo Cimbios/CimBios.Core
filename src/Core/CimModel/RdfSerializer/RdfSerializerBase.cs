@@ -61,6 +61,16 @@ public abstract class RdfSerializerBase : ICanLog
     /// </summary>
     protected abstract IOIDDescriptorFactory OidDescriptorFactory { get; }
 
+    /// <summary>
+    ///     Cache used namespaces while objects serializing.
+    /// </summary>
+    private bool CacheUsedWritingNamespaces { get; set; } = true;
+
+    /// <summary>
+    ///     Cached used namespaces.
+    /// </summary>
+    private HashSet<Uri> CachedNamespaces { get; } = [];
+
     public ILogView Log => _log;
     
     private readonly PlainLogView _log;
@@ -100,12 +110,8 @@ public abstract class RdfSerializerBase : ICanLog
         ResetCache();
         
         var objsToWrite = BuildObjectsToWrite(modelObjects);
-        var nsInUse = objsToWrite.Select(o => o.TypeIdentifier)
-            .Distinct().Union(
-                objsToWrite.SelectMany(o => o.Triples)
-                    .Select(o => o.Predicate)).ToHashSet();
         
-        InitializeWriterNamespaces(nsInUse);
+        InitializeWriterNamespaces(CachedNamespaces);
         InitializeRdfWriter(streamWriter);
         
         RdfWriter.WriteAll(objsToWrite);
@@ -176,6 +182,9 @@ public abstract class RdfSerializerBase : ICanLog
                     modelObject);
             }
 
+        if (CacheUsedWritingNamespaces) 
+            CachedNamespaces.Add(rdfNode.TypeIdentifier);
+        
         return rdfNode;
     }
 
@@ -238,6 +247,9 @@ public abstract class RdfSerializerBase : ICanLog
                 objectNode.NewTriple(property.BaseUri,
                     new RdfTripleObjectLiteralContainer(formatted));
         }
+        
+        if (CacheUsedWritingNamespaces) 
+            CachedNamespaces.Add(property.BaseUri);
     }
 
     /// <summary>
@@ -386,6 +398,7 @@ public abstract class RdfSerializerBase : ICanLog
     private void ResetCache()
     {
         _objectsCache = [];
+        CachedNamespaces.Clear();
         _waitingReferenceObjects = [];
         _createdAutoClassesCache = [];
         _createdAutoPropertiesCache = [];
