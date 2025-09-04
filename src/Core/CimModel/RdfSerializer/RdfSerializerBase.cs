@@ -487,7 +487,12 @@ public abstract class RdfSerializerBase : ICanLog
             }
             else
             {
-                // warning skip unknown class
+                _log.Warn(
+                    "Skip non-existing schema class "
+                    + $"{instanceNode.TypeIdentifier.AbsoluteUri} in "
+                    + $"instance {instanceNode.Identifier}",
+                    instanceNode);
+                
                 return null;
             }
         }
@@ -549,6 +554,17 @@ public abstract class RdfSerializerBase : ICanLog
 
                 return;
             }
+        }
+
+        if (schemaProperty.PropertyDatatype is null)
+        {
+            _log.Warn(
+                "Skip schema property "
+                + $"{propertyTriple.Predicate.AbsoluteUri} in "
+                + $"instance {instance.OID} cause of non existing datatype",
+                instance);
+
+            return;
         }
 
         var data = DeserializableDataSelector(propertyTriple.Object);
