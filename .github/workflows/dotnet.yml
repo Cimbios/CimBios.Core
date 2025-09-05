@@ -26,6 +26,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore src/CimBios.sln
     - name: Build
-      run: dotnet build src/CimBios.sln --no-restore -property WarningLevel=0
+      run: dotnet build src/CimBios.sln --no-restore
     - name: Test
       run: dotnet test src/CimBios.sln --no-build --verbosity normal
