@@ -37,8 +37,6 @@ public class UserScriptsViewModel : ViewModelBase
         }
     }
 
-    public TextDocument CodeDocument { get; set; }
-
     private static Assembly[] References { get; } =
     [
         typeof(object).Assembly,

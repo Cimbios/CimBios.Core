@@ -24,7 +24,7 @@ public partial class CimPropertyValueEditorDialog
     
     public CimObjectPropertyModel? EditObject { get; private set; }
 
-    public string PropertyValue { get; set; }
+    public string PropertyValue { get; set; } = string.Empty;
     
     public Task Show(Window owner, params object[]? args)
     {
