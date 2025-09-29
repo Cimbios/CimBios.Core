@@ -79,13 +79,15 @@ public sealed class RdfXmlReader : RdfReaderBase
         ClearNamespaces();
         _xmlReader?.Close();
     }
+    
+    private const string RdfDescription = Rdf + "Description";
 
     public override IEnumerable<RdfNode> ReadAll()
     {
         while (ReadNext() is { } rdfNode)
         {
             if (XmlReader.IsEmptyElement) XmlReader.Read();
-
+            
             yield return rdfNode;
         }
     }

@@ -40,7 +40,7 @@ public abstract class RdfSerializerBase : ICanLog
     private ICimDatatypeLib TypeLib { get; }
 
     public Uri BaseUri { get; set; } = new(
-        "http://cim.bios/serialization/model/rdfxml");
+        "http://cim.bios/serialization/rdf");
 
 
     public IReadOnlyCollection<ModelObjectUnresolvedReference>
@@ -302,7 +302,8 @@ public abstract class RdfSerializerBase : ICanLog
             {
                 var compoundObject = subject.GetAttribute<IModelObject>(attribute);
 
-                if (compoundObject != null) tripleObject = ModelObjectToRdfNode(compoundObject);
+                if (compoundObject != null) 
+                    tripleObject = ModelObjectToRdfNode(compoundObject);
             }
         }
 
@@ -412,15 +413,25 @@ public abstract class RdfSerializerBase : ICanLog
     {
         ResetCache();
 
-        if (_streamReader == null) throw new Exception("Serializer reader has not been initialized!");
+        if (_streamReader == null) 
+            throw new Exception("Serializer reader has not been initialized!");
 
         // First step - creating objects.
         foreach (var instanceNode in RdfReader.ReadAll())
+        {
             try
             {
                 var instance = RdfNodeToModelObject(instanceNode);
                 if (instance == null) continue;
 
+                // type redefinition
+                if (_objectsCache.TryGetValue(instance.OID, out var cached)
+                    && cached.MetaClass.BaseUri.AbsoluteUri == RdfDescription
+                    && instance.MetaClass.BaseUri.AbsoluteUri != RdfDescription)
+                {
+                    _objectsCache.Remove(instance.OID);
+                }
+                
                 _objectsCache.TryAdd(instance.OID, instance);
             }
             catch (Exception ex)
@@ -430,6 +441,7 @@ public abstract class RdfSerializerBase : ICanLog
                     $"ModelObject constructing: {ex.Message}.",
                     instanceNode);
             }
+        }
 
         // Second step - fill objects properties.
         _streamReader.BaseStream.Position = 0;
@@ -442,7 +454,10 @@ public abstract class RdfSerializerBase : ICanLog
                     out var instance) == false)
                 continue;
 
-            foreach (var property in instanceNode.Triples) ReadObjectProperty(instance, property);
+            foreach (var property in instanceNode.Triples) 
+                ReadObjectProperty(instance, property);
+            
+            instance.Shrink();
         }
 
         RdfReader.Close();
@@ -464,7 +479,8 @@ public abstract class RdfSerializerBase : ICanLog
         if (isAuto == false)
         {
             instanceOid = OidDescriptorFactory.TryCreate(instanceNode.Identifier);
-            if (instanceOid == null) throw new ArgumentException("Failed to create model object oid!");
+            if (instanceOid == null) 
+                throw new ArgumentException("Failed to create model object oid!");
         }
         else
         {
@@ -512,7 +528,8 @@ public abstract class RdfSerializerBase : ICanLog
             return cimAutoClass;
 
         var shortName = typeIdentifier.AbsoluteUri;
-        if (RdfUtils.TryGetEscapedIdentifier(typeIdentifier, out var sIri)) shortName = sIri;
+        if (RdfUtils.TryGetEscapedIdentifier(typeIdentifier, out var sIri)) 
+            shortName = sIri;
 
         var newCimAutoClass = new CimAutoClass(typeIdentifier,
             shortName, string.Empty)
@@ -683,9 +700,11 @@ public abstract class RdfSerializerBase : ICanLog
             return compoundObjects;
         }
 
-        if (data is RdfTripleObjectUriContainer uriContainer) return uriContainer.UriObject;
+        if (data is RdfTripleObjectUriContainer uriContainer) 
+            return uriContainer.UriObject;
 
-        if (data is RdfTripleObjectLiteralContainer literalContainer) return literalContainer.LiteralObject;
+        if (data is RdfTripleObjectLiteralContainer literalContainer) 
+            return literalContainer.LiteralObject;
 
         return null;
     }
@@ -786,7 +805,8 @@ public abstract class RdfSerializerBase : ICanLog
         if (referenceInstance == null && Settings.IncludeUnresolvedReferences)
             SetAssociationAsUnresolved(instance, property, referenceOid);
 
-        if (referenceInstance != null) SetObjectDataAsAssociation(instance, property, referenceInstance);
+        if (referenceInstance != null) 
+            SetObjectDataAsAssociation(instance, property, referenceInstance);
     }
 
     private void SetObjectDataAsAssociation(IModelObject instance,
@@ -846,7 +866,8 @@ public abstract class RdfSerializerBase : ICanLog
 
         if (compoundPropertyObject == null) return null;
 
-        foreach (var property in objectRdfNode.Triples) ReadObjectProperty(compoundPropertyObject, property);
+        foreach (var property in objectRdfNode.Triples) 
+            ReadObjectProperty(compoundPropertyObject, property);
 
         return compoundPropertyObject;
     }

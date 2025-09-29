@@ -39,7 +39,7 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
                 new HierarchicalExpanderColumn<CimObjectPropertyModel>(
                     new TextColumn<CimObjectPropertyModel, string>
                         ("Name", x 
-                            => $"{x.MetaProperty.OwnerClass!.ShortName}.{x.MetaProperty.ShortName}"),
+                            => $"{x.MetaProperty.OwnerClass.ShortName}.{x.MetaProperty.ShortName}"),
                     x => x.SubNodes.Cast<CimObjectPropertyModel>(), 
                     x => x.SubNodes.Count != 0),
                 new TextColumn<CimObjectPropertyModel, string>
@@ -248,13 +248,11 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
                 
                 foreach (var oid in forRemoveOids)
                     selectedProp.ModelObject.RemoveAssoc1ToM(
-                        selectedProp.MetaProperty, dataContext.GetObject(oid)
-                        ?? throw new NullReferenceException());
+                        selectedProp.MetaProperty, dataContext.GetObject(oid));
                 
                 foreach (var oid in forAddOids)
                     selectedProp.ModelObject.AddAssoc1ToM(
-                        selectedProp.MetaProperty, dataContext.GetObject(oid)
-                        ?? throw new NullReferenceException());
+                        selectedProp.MetaProperty, dataContext.GetObject(oid));
             }
         }
         catch (Exception e)
@@ -268,7 +266,7 @@ public class CimObjectPropertiesObserverViewModel : ViewModelBase
     private static void EditEnumAttribute(CimObjectPropertyModel selectedProp,
         CimPropertyValueEditorDialogResult openSaveResult)
     {
-        var cimMetaIndividual = selectedProp.MetaProperty.PropertyDatatype?
+        var cimMetaIndividual = selectedProp.MetaProperty.PropertyDatatype
             .AllIndividuals.FirstOrDefault(
                 i => i.ShortName == openSaveResult.Value);
 

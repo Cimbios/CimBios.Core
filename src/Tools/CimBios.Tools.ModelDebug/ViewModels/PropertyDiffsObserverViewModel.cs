@@ -25,7 +25,7 @@ public class PropertyDiffsObserverViewModel : TreeViewNodeModel
         [
             new HierarchicalExpanderColumn<DiffObjectPropertyModel>(
                 new TextColumn<DiffObjectPropertyModel, string>("Property",
-                    x => $"{x.MetaProperty.OwnerClass!.ShortName}.{x.MetaProperty.ShortName}"),
+                    x => $"{x.MetaProperty.OwnerClass.ShortName}.{x.MetaProperty.ShortName}"),
                 x => x.SubNodes.Cast<DiffObjectPropertyModel>(),
                 x => x.SubNodes.Count != 0,
                 x => x.IsExpanded),

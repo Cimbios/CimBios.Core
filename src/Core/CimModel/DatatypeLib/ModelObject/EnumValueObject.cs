@@ -154,8 +154,8 @@ public static class ModelObjectSetEnumExtension
     public static void SetAttributeAsEnum(this IModelObject modelObject,
         ICimMetaProperty metaProperty, ICimMetaIndividual metaIndividual)
     {
-        if (modelObject is DynamicModelObjectBase dynamicModelObject
-            && dynamicModelObject.InternalTypeLib != null)
+        if (modelObject is DynamicModelObjectBase 
+                { InternalTypeLib: not null } dynamicModelObject)
         {
             var wrappedTypedEnumValue = dynamicModelObject.InternalTypeLib
                 .CreateEnumValueInstance(metaIndividual);
