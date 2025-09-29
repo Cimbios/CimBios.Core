@@ -199,7 +199,7 @@
     <cim:Terminal.phases rdf:resource="cim:PhaseCode.ABC" />
     <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
   </cim:Terminal>
-  <cim:BaseVoltage rdf:ID="#_1000063d-0000-0000-c000-0000006d746c">
+  <cim:BaseVoltage rdf:about="#_1000063d-0000-0000-c000-0000006d746c">
     <cim:BaseVoltage.ConductingEquipment rdf:resource="_ABreaker110" />
     <cim:BaseVoltage.ConductingEquipment rdf:resource="_ADisconnector110" />
     <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
