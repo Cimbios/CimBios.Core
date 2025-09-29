@@ -24,4 +24,9 @@ public interface IModelObjectCore
     /// <param name="propertyName">String property name.</param>
     /// <returns>True if exists like attribute or assoc.</returns>
     public bool HasProperty(string propertyName);
+    
+    /// <summary>
+    /// Shrink properties memory usage.
+    /// </summary>
+    public void Shrink();
 }

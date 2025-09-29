@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -138,8 +139,15 @@ public class DiffObjectsViewModel : ViewModelBase
             _currentModel.DifferencesStorageChanged
                 += OnDifferencesStorageChanged;
         _currentModel = null;
+
+        List<Type> typeSortOrder = [
+            typeof(AdditionDifferenceObject), 
+            typeof(DeletionDifferenceObject), 
+            typeof(UpdatingDifferenceObject)];
         
-        foreach (var diff in differenceModel.Differences)
+        foreach (var diff in differenceModel.Differences
+                     .OrderBy(o => typeSortOrder.IndexOf(o.GetType()))
+                     .ThenBy(o => o.MetaClass.ShortName))
             _diffsCache.Add(new DiffObjectModel(diff));
 
         differenceModel.DifferencesStorageChanged 

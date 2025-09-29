@@ -73,6 +73,13 @@ public abstract class DifferenceObjectBase : IDifferenceObject
         return ModifiedProperties.FirstOrDefault(p => p.ShortName == propertyName) != null;
     }
 
+    public void Shrink()
+    {
+        _ModifiedProperties.TrimExcess();
+        _OriginalObject?.Shrink();
+        _ModifiedObject.Shrink();
+    }
+
     public IReadOnlyCollection<ICimMetaProperty> ModifiedProperties
         => _ModifiedProperties;
 

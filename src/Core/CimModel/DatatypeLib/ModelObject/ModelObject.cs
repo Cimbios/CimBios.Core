@@ -1,6 +1,5 @@
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
-using System.Collections.Concurrent;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.CimDatatypeLib.Utils;
 
@@ -340,6 +339,11 @@ public class ModelObject : DynamicModelObjectBase,
         return GetAssoc1ToM(assocName).OfType<T>().ToArray();
     }
 
+    public override void Shrink()
+    {
+        _PropertiesData.TrimExcess();
+    }
+
     public override void AddAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj)
     {
@@ -540,9 +544,13 @@ public class ModelObject : DynamicModelObjectBase,
                 $"Unable assign {value} to {metaProperty.ShortName} property of " + 
                 $"{MetaClass.ShortName} class domain");
         }
-        else if ((metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1
-            || metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM)
+
+        if (metaProperty.PropertyKind is 
+                CimMetaPropertyKind.Assoc1To1 
+                or CimMetaPropertyKind.Assoc1ToM
+                
             && value is IModelObject modelObject
+            
             && CanAssignAssociationObject(metaProperty, modelObject) == false)
         {
             throw new InvalidDataException(
@@ -722,11 +730,11 @@ public class ModelObject : DynamicModelObjectBase,
 
     #endregion UtilsPrivate
 
-    private readonly ConcurrentDictionary<ICimMetaProperty, object?> 
+    private readonly Dictionary<ICimMetaProperty, object?> 
     _PropertiesData;
 
     private readonly 
-    ConcurrentDictionary<ICimMetaProperty, ICollection<IModelObject>> 
+        Dictionary<ICimMetaProperty, ICollection<IModelObject>> 
     _Statements = [];
 }
 

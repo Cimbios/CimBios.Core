@@ -100,6 +100,8 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         return new ReadOnlyModelObject(this);
     }
 
+    public abstract void Shrink();
+
     public abstract void AddAssoc1ToM(ICimMetaProperty metaProperty, 
         IModelObject obj);
 

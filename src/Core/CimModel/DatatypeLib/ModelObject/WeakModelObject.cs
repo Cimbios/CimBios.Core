@@ -18,11 +18,11 @@ public class WeakModelObject : DynamicModelObjectBase,
 
     private readonly IOIDDescriptor _Oid;
 
-    protected readonly ConcurrentDictionary<ICimMetaProperty, object?>
+    protected readonly Dictionary<ICimMetaProperty, object?>
         _PropertiesData = [];
 
     protected readonly
-        ConcurrentDictionary<ICimMetaProperty, ICollection<IModelObject>>
+        Dictionary<ICimMetaProperty, ICollection<IModelObject>>
         _Statements = [];
 
     /// <summary>
@@ -317,6 +317,11 @@ public class WeakModelObject : DynamicModelObjectBase,
     public override T[] GetAssoc1ToM<T>(string assocName)
     {
         return GetAssoc1ToM(assocName).Cast<T>().ToArray();
+    }
+
+    public override void Shrink()
+    {
+        _PropertiesData.TrimExcess();
     }
 
     public override void AddAssoc1ToM(ICimMetaProperty metaProperty,

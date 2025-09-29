@@ -14,10 +14,8 @@ public sealed class ModelObjectUnresolvedReference : IModelObject
     public ModelObjectUnresolvedReference(IOIDDescriptor oid,
         ICimMetaProperty metaProperty)
     {
-        if (metaProperty.PropertyDatatype == null) throw new InvalidDataException();
-
         OID = oid;
-        MetaClass = metaProperty.PropertyDatatype;
+        MetaClass = metaProperty.PropertyDatatype ?? throw new InvalidDataException();
 
         if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1To1
             && metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
@@ -100,6 +98,11 @@ public sealed class ModelObjectUnresolvedReference : IModelObject
     }
 
     public IReadOnlyModelObject AsReadOnly()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Shrink()
     {
         throw new NotImplementedException();
     }

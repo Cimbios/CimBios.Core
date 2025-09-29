@@ -15,6 +15,11 @@ public class ReadOnlyModelObject(IReadOnlyModelObject modelObject)
         return ModelObject.HasProperty(propertyName);
     }
 
+    public void Shrink()
+    {
+        ModelObject.Shrink();
+    }
+
     public object? GetAttribute(ICimMetaProperty metaProperty)
     {
         return ModelObject.GetAttribute(metaProperty);
