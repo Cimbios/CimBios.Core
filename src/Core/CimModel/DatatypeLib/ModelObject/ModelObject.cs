@@ -272,7 +272,8 @@ public class ModelObject : DynamicModelObjectBase,
 
             SetAssociationWithInverse(metaProperty, assocObj, obj);
 
-            if (_PropertiesData[metaProperty] == null)
+            if (_PropertiesData.TryGetValue(metaProperty, out var val) 
+                && val is null)
             {
                 _PropertiesData.Remove(metaProperty, out var _);
             }
