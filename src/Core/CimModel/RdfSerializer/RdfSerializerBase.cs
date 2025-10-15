@@ -79,6 +79,7 @@ public abstract class RdfSerializerBase : ICanLog
     private Dictionary<string, CimAutoProperty> _createdAutoPropertiesCache = [];
 
     private Dictionary<IOIDDescriptor, IModelObject> _objectsCache = [];
+    private List<IOIDDescriptor> _privateDeserializeObjects = [];
 
     private StreamReader? _streamReader;
     private StreamWriter? _streamWriter;
@@ -96,6 +97,7 @@ public abstract class RdfSerializerBase : ICanLog
         InitializeRdfReader(streamReader);
         Schema.InvalidateAuto();
         var deserializedObjects = ReadObjects();
+        ResetCache();
 
         return deserializedObjects;
     }
@@ -116,6 +118,7 @@ public abstract class RdfSerializerBase : ICanLog
         
         RdfWriter.WriteAll(objsToWrite);
         RdfWriter.Close();
+        ResetCache();
     }
 
     #region SerializerBlock
@@ -403,6 +406,7 @@ public abstract class RdfSerializerBase : ICanLog
         _waitingReferenceObjects = [];
         _createdAutoClassesCache = [];
         _createdAutoPropertiesCache = [];
+        _privateDeserializeObjects = [];
     }
 
     /// <summary>
@@ -449,10 +453,23 @@ public abstract class RdfSerializerBase : ICanLog
         InitializeRdfReader(_streamReader);
         foreach (var instanceNode in RdfReader.ReadAll())
         {
-            var instanceOid = OidDescriptorFactory.TryCreate(instanceNode.Identifier);
+            IOIDDescriptor? instanceOid;
+            if (instanceNode.IsAuto)
+                instanceOid = new TextDescriptor(instanceNode.Identifier);
+            else
+                instanceOid = OidDescriptorFactory
+                    .TryCreate(instanceNode.Identifier);
+            
             if (instanceOid == null || _objectsCache.TryGetValue(instanceOid,
                     out var instance) == false)
                 continue;
+
+            if (!Settings.UnknownClassesAllowed &&
+                instance.MetaClass.BaseUri.AbsoluteUri == RdfDescription)
+            {
+                _objectsCache.Remove(instanceOid);
+                continue;
+            }
 
             foreach (var property in instanceNode.Triples) 
                 ReadObjectProperty(instance, property);
@@ -463,6 +480,9 @@ public abstract class RdfSerializerBase : ICanLog
         RdfReader.Close();
         _streamReader.Close();
 
+        foreach (var forRemove in _privateDeserializeObjects)
+            _objectsCache.Remove(forRemove);
+
         return [.. _objectsCache.Values];
     }
 
@@ -472,11 +492,10 @@ public abstract class RdfSerializerBase : ICanLog
     /// <param name="instanceNode">RdfNode CIM object presentation.</param>
     /// <param name="isAuto"></param>
     /// <returns>IModelObject instance or null.</returns>
-    private IModelObject? RdfNodeToModelObject(RdfNode instanceNode,
-        bool isAuto = false)
+    private IModelObject? RdfNodeToModelObject(RdfNode instanceNode)
     {
         IOIDDescriptor? instanceOid;
-        if (isAuto == false)
+        if (instanceNode.IsAuto == false)
         {
             instanceOid = OidDescriptorFactory.TryCreate(instanceNode.Identifier);
             if (instanceOid == null) 
@@ -484,7 +503,7 @@ public abstract class RdfSerializerBase : ICanLog
         }
         else
         {
-            instanceOid = new AutoDescriptor();
+            instanceOid = new TextDescriptor(instanceNode.Identifier);
         }
 
         var metaClass = Schema.TryGetResource<ICimMetaClass>
@@ -733,10 +752,21 @@ public abstract class RdfSerializerBase : ICanLog
         }
         else if (property.PropertyDatatype is { } dataClass)
         {
-            if (dataClass.IsCompound &&
-                data is ICollection<IModelObject> { Count: 1 } modelObjects)
+            if (dataClass.IsCompound)
             {
-                endData = modelObjects.Single();
+                if (data is ICollection<IModelObject> { Count: 1 } modelObjects)
+                {
+                    endData = modelObjects.Single();
+                }
+                else if (data is Uri autoNodeUri)
+                {
+                    var oid = new TextDescriptor(autoNodeUri);
+                    _objectsCache.TryGetValue(oid, out var compoundReference);
+                    endData = compoundReference;
+                    
+                    if (compoundReference is not null)
+                        _privateDeserializeObjects.Add(oid);
+                }
             }
             else if (dataClass.IsEnum && data is Uri enumValueUri)
             {
@@ -861,8 +891,7 @@ public abstract class RdfSerializerBase : ICanLog
     /// <returns>Auto IModelObject or null.</returns>
     private IModelObject? MakeCompoundPropertyObject(RdfNode objectRdfNode)
     {
-        var compoundPropertyObject = RdfNodeToModelObject(objectRdfNode,
-            objectRdfNode.IsAuto);
+        var compoundPropertyObject = RdfNodeToModelObject(objectRdfNode);
 
         if (compoundPropertyObject == null) return null;
 
