@@ -131,7 +131,11 @@ public class CimSchema : ICimSchema
 
     public T? TryGetResource<T>(Uri uri) where T : ICimMetaResource
     {
-        if (_All.TryGetValue(uri, out var metaDescription)
+        var lookUp = uri;
+        if (Namespaces.TryGetValue(uri.Scheme, out var namespaceUri))
+            lookUp = new Uri(namespaceUri + uri.LocalPath);
+        
+        if (_All.TryGetValue(lookUp, out var metaDescription)
             && metaDescription is T meta)
             return meta;
 
