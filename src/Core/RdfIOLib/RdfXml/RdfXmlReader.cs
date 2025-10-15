@@ -114,7 +114,8 @@ public sealed class RdfXmlReader : RdfReaderBase
             if (SkipToNextElement(subtreeReader) == false) break;
 
             var predicateInfo = ReadNodeHeader();
-            if (predicateInfo.AttributesMap.ContainsKey(Rdf + "resource"))
+            if (predicateInfo.AttributesMap.ContainsKey(Rdf + "resource")
+                || predicateInfo.AttributesMap.ContainsKey(Rdf + "nodeID"))
             {
                 var resourceIRI = NameToUri(predicateInfo.Identifier);
                 var predicateTypeIRI = NameToUri(predicateInfo.TypeIdentifier);
@@ -151,7 +152,7 @@ public sealed class RdfXmlReader : RdfReaderBase
 
         return rdfNode;
     }
-
+    
     /// <summary>
     ///     Skip while Element not found or eof
     /// </summary>
@@ -194,7 +195,7 @@ public sealed class RdfXmlReader : RdfReaderBase
 
         var attributes = ReadNodeAttributes();
         info.AttributesMap = attributes.AsReadOnly();
-
+        
         if (attributes.TryGetValue(Rdf + "about", out var aboutName))
         {
             info.Identifier = aboutName;
@@ -210,7 +211,11 @@ public sealed class RdfXmlReader : RdfReaderBase
         else
         {
             info.IsAuto = true;
-            info.Identifier = $"#_auto{XmlReader.GetHashCode()}{info.GetHashCode()}";
+
+            info.Identifier = attributes.TryGetValue(Rdf + "nodeID", 
+                out var nodeId) 
+                    ? $"_{nodeId}" 
+                    : $"_auto-{DateTime.UtcNow.Ticks}";
         }
 
         return info;
