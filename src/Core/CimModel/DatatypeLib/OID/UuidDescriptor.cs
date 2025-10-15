@@ -27,15 +27,11 @@ public class UuidDescriptor : OIDDescriptorBase
         throw new ArgumentException($"Incorrect UUID uri {absoluteOID}!");
     }    
 
-    public UuidDescriptor (Guid value, string ns)
+    public UuidDescriptor (Guid value, string ns = DefaultNamespace)
     {        
         Uuid = value;
 
-        AbsoluteOID = new(DefaultNamespace + UuidPrefix + ToString().ToLower());
-    }  
-
-    public UuidDescriptor (Guid value) : this (value, DefaultNamespace)
-    {
+        AbsoluteOID = new(ns + UuidPrefix + ToString().ToLower());
     }
 
     public UuidDescriptor() : this (Guid.NewGuid())
