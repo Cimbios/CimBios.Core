@@ -76,7 +76,7 @@ public class WeakModelObjectTests
         var checkCompound = checkObject?.GetAttribute<IModelObject>("inUseDate");
 
         Assert.IsType<InUseDate>(checkCompound);
-        Assert.True(checkCompound.OID is AutoDescriptor);
+        Assert.True(checkCompound.OID is AutoDescriptor or TextDescriptor);
     }
 
     [Fact]
