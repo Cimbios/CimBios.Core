@@ -137,7 +137,7 @@ public abstract class RdfSerializerBase : ICanLog
         var objsToWrite = new List<RdfNode>();
         foreach (var modelObject in modelObjects)
         {
-            var moNode = ModelObjectToRdfNode(modelObject);
+            var moNode = ModelObjectToRdfNode(modelObject, false);
             if (moNode == null) continue;
 
             objsToWrite.Add(moNode);
@@ -145,14 +145,15 @@ public abstract class RdfSerializerBase : ICanLog
         
         return objsToWrite;
     }
-    
+
     /// <summary>
     ///     Converts IModelObject into RdfNode with all
     ///     the properties turned into RdfTriples
     /// </summary>
     /// <param name="modelObject">Rdf triple object - CIM object.</param>
+    /// <param name="isAuto"></param>
     /// <returns>Converted RdfNode or null.</returns>
-    private RdfNode? ModelObjectToRdfNode(IModelObject modelObject)
+    private RdfNode? ModelObjectToRdfNode(IModelObject modelObject, bool isAuto)
     {
         var metaClass = modelObject.MetaClass;
 
@@ -169,8 +170,7 @@ public abstract class RdfSerializerBase : ICanLog
 
         var rdfNode = new RdfNode(
             modelObject.OID.AbsoluteOID,
-            metaClass.BaseUri,
-            modelObject.OID is AutoDescriptor);
+            metaClass.BaseUri, isAuto);
 
         foreach (var schemaProperty in metaClass.AllProperties)
             try
@@ -306,7 +306,7 @@ public abstract class RdfSerializerBase : ICanLog
                 var compoundObject = subject.GetAttribute<IModelObject>(attribute);
 
                 if (compoundObject != null) 
-                    tripleObject = ModelObjectToRdfNode(compoundObject);
+                    tripleObject = ModelObjectToRdfNode(compoundObject, true);
             }
         }
 
@@ -353,7 +353,7 @@ public abstract class RdfSerializerBase : ICanLog
 
             foreach (var statement in statements)
             {
-                var rdfNode = ModelObjectToRdfNode(statement);
+                var rdfNode = ModelObjectToRdfNode(statement, true);
                 if (rdfNode == null 
                     || rdfNode.TypeIdentifier.AbsoluteUri == RdfDescription 
                     && rdfNode.Triples.Length == 0) continue;
@@ -490,7 +490,6 @@ public abstract class RdfSerializerBase : ICanLog
     ///     Build IModelObject instance from RdfNode.
     /// </summary>
     /// <param name="instanceNode">RdfNode CIM object presentation.</param>
-    /// <param name="isAuto"></param>
     /// <returns>IModelObject instance or null.</returns>
     private IModelObject? RdfNodeToModelObject(RdfNode instanceNode)
     {
