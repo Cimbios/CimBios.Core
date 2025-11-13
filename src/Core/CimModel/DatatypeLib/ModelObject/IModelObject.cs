@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 
@@ -9,7 +7,7 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 ///     CIM object abstaction view.
 ///     Provides read and modification logic with data validation.
 /// </summary>
-public interface IModelObject : INotifyPropertyChanged, IReadOnlyModelObject
+public interface IModelObject : IReadOnlyModelObject
 {
     /// <summary>
     ///     Set attribute typed T value.
@@ -94,11 +92,6 @@ public interface IModelObject : INotifyPropertyChanged, IReadOnlyModelObject
     /// </summary>
     /// <param name="assocName">Assoc name in format of '(Domain.)Assoc'.</param>
     public void RemoveAllAssocs1ToM(string assocName);
-
-    /// <summary>
-    ///     Event fires before changing property value.
-    /// </summary>
-    public event CanCancelPropertyChangingEventHandler? PropertyChanging;
 
     /// <summary>
     ///     Get read only wrapper for model object.
