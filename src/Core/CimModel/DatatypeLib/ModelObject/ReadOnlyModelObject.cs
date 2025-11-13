@@ -1,14 +1,31 @@
+using System.ComponentModel;
+using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
-public class ReadOnlyModelObject(IReadOnlyModelObject modelObject)
-    : IReadOnlyModelObject
+public class ReadOnlyModelObject : IReadOnlyModelObject
 {
-    protected IReadOnlyModelObject ModelObject { get; } = modelObject;
+    private IReadOnlyModelObject ModelObject { get; }
     public IOIDDescriptor OID => ModelObject.OID;
     public ICimMetaClass MetaClass => ModelObject.MetaClass;
+
+    public ReadOnlyModelObject (IReadOnlyModelObject modelObject)
+    {
+        ModelObject = modelObject;
+
+        RouteEventsSetup();
+    }
+
+    private void RouteEventsSetup()
+    {
+        ModelObject.PropertyChanging += (_, args) 
+            => PropertyChanging?.Invoke(this, args);
+        
+        ModelObject.PropertyChanged += (_, args) 
+            => PropertyChanged?.Invoke(this, args);
+    }
 
     public bool HasProperty(string propertyName)
     {
@@ -82,6 +99,9 @@ public class ReadOnlyModelObject(IReadOnlyModelObject modelObject)
     {
         return ModelObject.GetAssoc1To1(assocName);
     }
+    
+    public event PropertyChangedEventHandler? PropertyChanged;
+    public event CanCancelPropertyChangingEventHandler? PropertyChanging;
 }
 
 /// <summary>
