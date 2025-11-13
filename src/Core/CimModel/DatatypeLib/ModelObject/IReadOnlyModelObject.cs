@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
@@ -5,7 +7,7 @@ namespace CimBios.Core.CimModel.CimDatatypeLib;
 /// <summary>
 ///     Read abillities interface of CIM model object.
 /// </summary>
-public interface IReadOnlyModelObject : IModelObjectCore
+public interface IReadOnlyModelObject : INotifyPropertyChanged, IModelObjectCore
 {
     /// <summary>
     ///     Get attribute value by meta property instance.
@@ -94,4 +96,9 @@ public interface IReadOnlyModelObject : IModelObjectCore
     /// <returns>IModelObject instances array.</returns>
     public T[] GetAssoc1ToM<T>(string assocName)
         where T : IModelObject;
+    
+    /// <summary>
+    ///     Event fires before changing property value.
+    /// </summary>
+    public event CanCancelPropertyChangingEventHandler? PropertyChanging;
 }
