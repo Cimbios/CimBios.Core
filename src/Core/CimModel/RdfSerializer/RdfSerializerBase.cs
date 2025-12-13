@@ -353,7 +353,7 @@ public abstract class RdfSerializerBase : ICanLog
 
             foreach (var statement in statements)
             {
-                var rdfNode = ModelObjectToRdfNode(statement, true);
+                var rdfNode = ModelObjectToRdfNode(statement, false);
                 if (rdfNode == null 
                     || rdfNode.TypeIdentifier.AbsoluteUri == RdfDescription 
                     && rdfNode.Triples.Length == 0) continue;
