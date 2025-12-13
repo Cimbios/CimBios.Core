@@ -10,7 +10,7 @@ public interface ICimSchema : ICanLog
     /// <summary>
     ///     Prefix to namespace URI mapping for schema.
     /// </summary>
-    public IReadOnlyDictionary<string, Uri> Namespaces { get; }
+    public IDictionary<string, Uri> Namespaces { get; }
 
     /// <summary>
     ///     All CimMetaClass instances - RDF description instances

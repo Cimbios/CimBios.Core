@@ -30,7 +30,7 @@ public class CimSchema : ICimSchema
     private ICimSchemaSerializer? _Serializer { get; set; }
     public ILogView Log => _Log;
 
-    public IReadOnlyDictionary<string, Uri> Namespaces
+    public IDictionary<string, Uri> Namespaces
         => _Namespaces;
 
     public IEnumerable<ICimMetaClass> Classes
