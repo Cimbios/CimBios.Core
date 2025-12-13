@@ -22,6 +22,7 @@ public sealed class RdfSerializerSettings(
     bool unknownClassesAllowed = false,
     bool unknownPropertiesAllowed = false,
     bool includeUnresolvedReferences = true,
+    bool includeBaseNamespace = false,
     RdfIRIModeKind iriMode = RdfIRIModeKind.About)
 {
     /// <summary>
@@ -41,6 +42,12 @@ public sealed class RdfSerializerSettings(
     /// </summary>
     public bool IncludeUnresolvedReferences { get; set; }
         = includeUnresolvedReferences;
+
+    /// <summary>
+    ///     Include xml:base namespace definition.
+    /// </summary>
+    public bool IncludeBaseNamespace { get; set; }
+        = includeBaseNamespace;
 
     /// <summary>
     ///     rdf:_iri_ mode.

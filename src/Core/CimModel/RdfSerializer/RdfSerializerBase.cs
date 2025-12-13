@@ -128,7 +128,7 @@ public abstract class RdfSerializerBase : ICanLog
         _streamWriter = streamWriter ?? throw new Exception("No data stream for write!");
 
         RdfWriter.RdfIRIMode = Settings.WritingIRIMode;
-        RdfWriter.Open(streamWriter);
+        RdfWriter.Open(streamWriter, !Settings.IncludeUnresolvedReferences);
     }
 
     private List<RdfNode> BuildObjectsToWrite(
