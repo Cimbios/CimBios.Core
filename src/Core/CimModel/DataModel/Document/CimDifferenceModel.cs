@@ -166,53 +166,50 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
                 "Schema does not contains necessary rdf:Description class!");
 
         var waitingForwardUpdates = new Dictionary<IOIDDescriptor, IModelObject>();
-        InternalDifferenceModel.forwardDifferences.AsParallel().ForAll(s =>
+        foreach (var diff in InternalDifferenceModel.forwardDifferences)
+        {
+            if (diff.MetaClass != descriptionMetaClass)
             {
-                if (s.MetaClass != descriptionMetaClass)
-                {
-                    var addDiff = new AdditionDifferenceObject(s);
+                var addDiff = new AdditionDifferenceObject(diff);
 
-                    DifferencesCache.TryAdd(addDiff.OID, addDiff);
-                }
-                else
-                {
-                    waitingForwardUpdates.TryAdd(s.OID, s);
-                }
+                DifferencesCache.TryAdd(addDiff.OID, addDiff);
             }
-        );
-
-        InternalDifferenceModel.reverseDifferences.AsParallel().ForAll(s =>
+            else
             {
-                if (s.MetaClass != descriptionMetaClass)
-                {
-                    var delDiff = new DeletionDifferenceObject(s);
-
-                    DifferencesCache.TryAdd(delDiff.OID, delDiff);
-                }
-                else
-                {
-                    if (waitingForwardUpdates.Remove(s.OID,
-                            out var waiting) == false)
-                        waiting = new WeakModelObject(s.OID,
-                            descriptionMetaClass);
-
-                    var updDiff = new UpdatingDifferenceObject(s, waiting);
-
-                    DifferencesCache.TryAdd(updDiff.OID, updDiff);
-                }
+                waitingForwardUpdates.TryAdd(diff.OID, diff);
             }
-        );
+        }
 
-        waitingForwardUpdates.Values.AsParallel().ForAll(w =>
+        foreach (var diff in InternalDifferenceModel.reverseDifferences)
+        {
+            if (diff.MetaClass != descriptionMetaClass)
             {
-                var nullObj = new WeakModelObject(w.OID,
-                    descriptionMetaClass);
+                var delDiff = new DeletionDifferenceObject(diff);
 
-                var updDiff = new UpdatingDifferenceObject(nullObj, w);
+                DifferencesCache.TryAdd(delDiff.OID, delDiff);
+            }
+            else
+            {
+                if (waitingForwardUpdates.Remove(diff.OID,
+                        out var waiting) == false)
+                    waiting = new WeakModelObject(diff.OID,
+                        descriptionMetaClass);
+
+                var updDiff = new UpdatingDifferenceObject(diff, waiting);
 
                 DifferencesCache.TryAdd(updDiff.OID, updDiff);
             }
-        );
+        }
+
+        foreach (var waitingDiff in waitingForwardUpdates.Values)
+        {
+            var nullObj = new WeakModelObject(waitingDiff.OID,
+                    descriptionMetaClass);
+
+            var updDiff = new UpdatingDifferenceObject(nullObj, waitingDiff);
+
+            DifferencesCache.TryAdd(updDiff.OID, updDiff);
+        }
     }
 
     private void OnModelObjectStorageChanged(ICimDataModel? sender,
