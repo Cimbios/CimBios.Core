@@ -1,4 +1,5 @@
 using CimBios.Utils.ClassTraits.CanLog;
+using Serilog;
 
 namespace CimBios.Core.CimModel.Schema;
 
@@ -130,5 +131,5 @@ public interface ICimSchemaFactory
     ///     Create ICimSchema instance.
     /// </summary>
     /// <returns>ICimSchema instance.</returns>
-    public ICimSchema CreateSchema();
+    public ICimSchema CreateSchema(ILogger? logger=null);
 }

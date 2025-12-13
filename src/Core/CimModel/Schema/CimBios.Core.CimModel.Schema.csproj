@@ -5,8 +5,11 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\RdfIOLib\CimBios.Core.RdfIOLib.csproj"/>
-        <ProjectReference Include="..\..\..\Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj"/>
-        <ProjectReference Include="..\..\..\Utils\MetaReflectionHelper\CimBios.Utils.MetaReflectionHelper.csproj"/>
+        <ProjectReference Include="..\..\RdfIOLib\CimBios.Core.RdfIOLib.csproj" />
+        <ProjectReference Include="..\..\..\Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj" />
+        <ProjectReference Include="..\..\..\Utils\MetaReflectionHelper\CimBios.Utils.MetaReflectionHelper.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Serilog" Version="4.3.0" />
     </ItemGroup>
 </Project>
