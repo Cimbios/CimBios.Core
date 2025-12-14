@@ -1,14 +1,13 @@
 using System.Reflection;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
 /// <summary>
 ///     Structure interface for datatype lib.
 /// </summary>
-public interface ICimDatatypeLib : ICanLog
+public interface ICimDatatypeLib
 {
     /// <summary>
     ///     Dictionary Uri to Type of IModelObject concrete classes.

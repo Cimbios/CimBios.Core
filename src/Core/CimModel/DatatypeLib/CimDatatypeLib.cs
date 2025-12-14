@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Reflection;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Utils.ClassTraits.CanLog;
+using Serilog;
 
 namespace CimBios.Core.CimModel.CimDatatypeLib;
 
@@ -13,23 +13,23 @@ public class CimDatatypeLib : ICimDatatypeLib
 {
     private readonly HashSet<Assembly> _LoadedAssemblies = [];
 
-    private readonly PlainLogView _Log;
-
     private readonly Dictionary<ICimMetaClass, Type> _RegisteredTypes = [];
 
     private readonly ICimSchema _Schema;
+    
+    protected ILogger? Logger { get; }
 
-    public CimDatatypeLib(ICimSchema cimSchema)
+    public CimDatatypeLib(ICimSchema cimSchema, ILogger? logger = null)
     {
-        _Log = new PlainLogView(this);
-
         _Schema = cimSchema;
+        Logger = logger;
 
         LoadAssembly(Assembly.GetExecutingAssembly());
     }
 
-    public CimDatatypeLib(string typesAssemblyPath, ICimSchema cimSchema)
-        : this(cimSchema)
+    public CimDatatypeLib(string typesAssemblyPath,
+        ICimSchema cimSchema, ILogger? logger=null)
+        : this(cimSchema, logger)
     {
         LoadAssembly(typesAssemblyPath);
     }
@@ -42,8 +42,6 @@ public class CimDatatypeLib : ICimDatatypeLib
     public IReadOnlyDictionary<ICimMetaClass, Type> RegisteredTypes
         => _RegisteredTypes.AsReadOnly();
 
-    public ILogView Log => _Log.AsReadOnly();
-
     public void LoadAssembly(string typesAssemblyPath, bool reset = true)
     {
         var assembly = Assembly.Load(typesAssemblyPath);
@@ -52,7 +50,7 @@ public class CimDatatypeLib : ICimDatatypeLib
 
     public void LoadAssembly(Assembly typesAssembly, bool reset = true)
     {
-        if (_Log.DebugLogMode) _Log.Info($"Loading types assembly {typesAssembly.FullName}");
+        Logger?.Debug("Loading types assembly {name}", typesAssembly.FullName);
 
         if (reset)
         {
@@ -70,13 +68,12 @@ public class CimDatatypeLib : ICimDatatypeLib
 
     public void RegisterType(Type type)
     {
-        if (_Log.DebugLogMode) _Log.Info($"Register type {type.FullName}");
+        Logger?.Debug("Register type {name}", type.FullName);
 
         var attribute = type.GetCustomAttribute<CimClassAttribute>();
         if (attribute == null)
         {
-            _Log.Warn($"Type {type.FullName} does not have CimClass attribute!");
-
+            Logger?.Warning("Type {name} does not have CimClass attribute", type.FullName);
             return;
         }
 
@@ -84,18 +81,24 @@ public class CimDatatypeLib : ICimDatatypeLib
         var metaType = _Schema.TryGetResource<ICimMetaClass>(typeUri);
 
         // Not registered in schema.
-        if (metaType == null) return;
-
-        if (type.IsEnum)
+        if (metaType == null)
         {
-            _RegisteredTypes.Add(metaType, type);
+            Logger?.Debug("Schema entity {type} skipped: type not registered", typeUri);
+
             return;
         }
+
+        if (type.IsEnum)
+            {
+                _RegisteredTypes.Add(metaType, type);
+                return;
+            }
 
         var iface = type.GetInterface(nameof(IModelObject));
         if (iface == null)
         {
-            _Log.Warn($"Type {type.FullName} does not implement IModelObject interface!");
+            Logger?.Warning("Type {name} does not implement IModelObject interface",
+                type.FullName);
 
             return;
         }
