@@ -1,34 +1,27 @@
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Core.RdfIOLib;
-using CimBios.Utils.ClassTraits.CanLog;
+using Serilog;
 
 namespace CimBios.Core.CimModel.Schema;
 
 public class CimSchema : ICimSchema
 {
-    private readonly PlainLogView _Log;
-
     private Dictionary<Uri, ICimMetaResource> _All;
 
     private Dictionary<string, Uri> _Namespaces;
-    
-    public CimSchema()
+
+    protected ILogger? Logger { get; }
+
+    public CimSchema(ILogger? logger = null)
     {
-        _Log = new PlainLogView(this);
+        Logger = logger;
 
         _All = [];
         _Namespaces = [];
     }
 
-    public CimSchema(ICimSchemaSerializerFactory serializerFactory)
-        : this()
-    {
-        _Serializer = serializerFactory.CreateSerializer();
-    }
-
     private ICimSchemaSerializer? _Serializer { get; set; }
-    public ILogView Log => _Log;
 
     public IDictionary<string, Uri> Namespaces
         => _Namespaces;
@@ -53,28 +46,40 @@ public class CimSchema : ICimSchema
     public ICimMetaClass ResourceSuperClass => TryGetResource<ICimMetaClass>(
         CimRdfSchemaStrings.RdfsResource) ?? throw new NullReferenceException();
 
+    public CimSchema(ICimSchemaSerializerFactory serializerFactory)
+        : this()
+    {
+        _Serializer = serializerFactory.CreateSerializer();
+    }
+
     public void Load(TextReader textReader)
     {
         if (_Serializer == null)
         {
-            _Log.Error("Schema serializer has not been initialized", this);
-
+            Logger?.Fatal("Schema serializer has not been initialized");
             return;
         }
 
-        _Serializer.Load(textReader);
+        try
+        {
+            _Serializer.Load(textReader);
 
-        _All = _Serializer.Deserialize();
-        _Namespaces = _Serializer.Namespaces.ToDictionary();
+            _All = _Serializer.Deserialize();
+            _Namespaces = _Serializer.Namespaces.ToDictionary();
 
-        if (TieSameNameEnums) TieEnumExtensions();
+            if (TieSameNameEnums) TieEnumExtensions();
 
-        CreateSuperDescriptionClasses();
+            CreateSuperDescriptionClasses();
 
-        var details = string.Empty;
-        if (_Namespaces.TryGetValue("base", out var baseUri)) details = baseUri.AbsoluteUri;
+            var details = string.Empty;
+            if (_Namespaces.TryGetValue("base", out var baseUri)) details = baseUri.AbsoluteUri;
 
-        _Log.Info($"Schema has been loaded. Base = {details}", this);
+            Logger?.Information("Schema has been loaded. Base = {details}", details);
+        }
+        finally
+        {
+            textReader.Close();
+        }
     }
 
     public void Load(TextReader textReader,

@@ -6,7 +6,7 @@ namespace CimBios.Core.CimModel.Schema;
 /// <summary>
 ///     Cim schema interface. Defines usage structure.
 /// </summary>
-public interface ICimSchema : ICanLog
+public interface ICimSchema
 {
     /// <summary>
     ///     Prefix to namespace URI mapping for schema.
