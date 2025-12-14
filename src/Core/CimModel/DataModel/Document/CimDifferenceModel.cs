@@ -8,6 +8,7 @@ using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
+using Serilog;
 
 namespace CimBios.Core.CimModel.CimDifferenceModel;
 
@@ -24,15 +25,15 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         DifferencesStorageChanged;
     
     public CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
-        IOIDDescriptorFactory oidDescriptorFactory)
-        : base(cimSchema, typeLib, oidDescriptorFactory)
+        IOIDDescriptorFactory oidDescriptorFactory, ILogger? logger=null)
+        : base(cimSchema, typeLib, oidDescriptorFactory, logger)
     {
         ResetAll();
     }
 
     public CimDifferenceModel(ICimSchema cimSchema, ICimDatatypeLib typeLib,
-        ICimDataModel cimDataModel)
-        : this(cimSchema, typeLib, cimDataModel.OIDDescriptorFactory)
+        ICimDataModel cimDataModel, ILogger? logger=null)
+        : this(cimSchema, typeLib, cimDataModel.OIDDescriptorFactory, logger)
     {
         SubscribeToDataModelChanges(cimDataModel);
     }
@@ -88,8 +89,6 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
     public void ResetAll()
     {
-        //Objects.Clear();
-
         _internalDifferenceModel = TypeLib.CreateInstance<DifferenceModel>(
             new UuidDescriptor());
 
@@ -99,12 +98,14 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
 
         _internalDifferenceModel.created = DateTime.Now.ToUniversalTime();
 
-        //Objects.Add(_internalDifferenceModel.OID, _internalDifferenceModel);
         DifferencesCache.Clear();
     }
 
     public void SubscribeToDataModelChanges(ICimDataModel cimDataModel)
     {
+        Logger?.ForContext<CimDifferenceModel>()
+            .Debug("Subscribing to data model");
+
         DifferencesCache.Clear();
 
         _subscribedDataModel = cimDataModel;
@@ -119,6 +120,10 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
     public void UnsubscribeFromDataModelChanges()
     {
         if (_subscribedDataModel == null) return;
+
+        Logger?.ForContext<CimDifferenceModel>()
+            .Debug("Unsubscribing from data model");
+
 
         _subscribedDataModel.ModelObjectPropertyChanged
             -= OnModelObjectPropertyChanged;
@@ -162,8 +167,13 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
             new Uri(Description.ClassUri));
 
         if (descriptionMetaClass == null)
+        {
+            Logger?.ForContext<CimDifferenceModel>()
+                .Fatal("Schema does not contains necessary rdf:Description class!");
+
             throw new NotSupportedException(
                 "Schema does not contains necessary rdf:Description class!");
+        }
 
         var waitingForwardUpdates = new Dictionary<IOIDDescriptor, IModelObject>();
         foreach (var diff in InternalDifferenceModel.forwardDifferences)
@@ -240,6 +250,10 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
                 }
                 else
                 {
+                    Logger?.ForContext<CimDifferenceModel>()
+                        .Fatal("Unexpected {kind} change before adding difference in {oid}",
+                            e.ChangeType, modelObject.OID);
+                
                     throw new NotSupportedException(
                         "Unexpected change before adding difference!");
                 }
@@ -260,8 +274,14 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
                 }
 
                 if (diff is DeletionDifferenceObject)
+                {
+                    Logger?.ForContext<CimDifferenceModel>()
+                        .Fatal("Unexpected {kind} change before removing difference in {oid}",
+                            e.ChangeType, modelObject.OID);
+                            
                     throw new NotSupportedException(
                         "Unexpected change before removing difference!");
+                }
 
                 var tmpDiff = diff;
                 diff = new DeletionDifferenceObject(modelObject.OID,
@@ -344,6 +364,10 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         }
         else
         {
+            Logger?.ForContext<CimDifferenceModel>()
+                .Fatal("Unexpected {kind} change before updating difference in {oid}",
+                    e.GetType().Name, modelObject.OID);
+
             throw new NotSupportedException(
                 "Unexpected change before updating difference!");
         }
@@ -365,8 +389,6 @@ public class CimDifferenceModel : CimDocumentBase, ICimDifferenceModel
         _internalDifferenceModel = cache
             .OfType<DifferenceModel>()
             .Single();
-
-        //Objects.Add(_internalDifferenceModel.OID, _internalDifferenceModel);
 
         ToDifferencesCache();
     }

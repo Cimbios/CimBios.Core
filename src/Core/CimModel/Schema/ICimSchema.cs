@@ -1,4 +1,3 @@
-using CimBios.Utils.ClassTraits.CanLog;
 using Serilog;
 
 namespace CimBios.Core.CimModel.Schema;

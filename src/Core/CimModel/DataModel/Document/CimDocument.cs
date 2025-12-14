@@ -3,6 +3,7 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
+using Serilog;
 
 namespace CimBios.Core.CimModel.CimDataModel;
 
@@ -13,8 +14,9 @@ namespace CimBios.Core.CimModel.CimDataModel;
 public class CimDocument(
     ICimSchema cimSchema,
     ICimDatatypeLib typeLib,
-    IOIDDescriptorFactory oidDescriptorFactory)
-    : CimDocumentBase(cimSchema, typeLib, oidDescriptorFactory), ICimDataModel
+    IOIDDescriptorFactory oidDescriptorFactory,
+    ILogger? logger=null)
+    : CimDocumentBase(cimSchema, typeLib, oidDescriptorFactory, logger), ICimDataModel
 {
     public override IEnumerable<IModelObject> GetAllObjects()
     {
@@ -157,7 +159,9 @@ public class CimDocument(
 
             if (ModelDescription == null)
             {
-                Logger?.Error("Failed to create FullModel: it's not registered");
+                Logger?.ForContext<CimDocument>()
+                    .Error("Failed to create FullModel: it's not registered");
+
                 return;
             }
 
@@ -165,7 +169,8 @@ public class CimDocument(
         }
         catch (Exception ex)
         {
-            Logger?.Error("Failed to create FullModel: {message}", ex.Message);
+            Logger?.ForContext<CimDocument>()
+                .Error(ex, "Failed to create FullModel");
         }
     }
 

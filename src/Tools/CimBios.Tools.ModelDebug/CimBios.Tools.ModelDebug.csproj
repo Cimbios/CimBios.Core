@@ -24,12 +24,12 @@
         <PackageReference Include="Semi.Avalonia" Version="11.2.1.8" />
         <PackageReference Include="Semi.Avalonia.AvaloniaEdit" Version="11.2.0.1" />
         <PackageReference Include="Semi.Avalonia.TreeDataGrid" Version="11.0.10.4" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Core\CimModel\DataModel\CimBios.Core.CimModel.DataModel.csproj" />
         <ProjectReference Include="..\..\Core\CimModel\Validation\CimBios.Core.CimModel.Validation.csproj" />
         <ProjectReference Include="..\..\Core\DataProvider\CimBios.Core.DataProvider.csproj" />
-        <ProjectReference Include="..\..\Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Compile Update="Views/DataSelectorWindow.axaml.cs">

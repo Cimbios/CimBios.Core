@@ -1,6 +1,7 @@
 using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
+using Serilog;
 
 namespace CimBios.Core.CimModel.RdfSerializer;
 
@@ -12,5 +13,6 @@ public interface IRdfSerializerFactory
     public RdfSerializerSettings Settings { get; set; }
 
     public RdfSerializerBase Create(ICimSchema cimSchema,
-        ICimDatatypeLib typeLib, IOIDDescriptorFactory? oidDescriptorFactory);
+        ICimDatatypeLib typeLib, IOIDDescriptorFactory? oidDescriptorFactory,
+        ILogger? logger=null);
 }

@@ -50,7 +50,8 @@ public class CimDatatypeLib : ICimDatatypeLib
 
     public void LoadAssembly(Assembly typesAssembly, bool reset = true)
     {
-        Logger?.Debug("Loading types assembly {name}", typesAssembly.FullName);
+        Logger?.ForContext<CimDatatypeLib>()
+            .Debug("Loading types assembly {name}", typesAssembly.FullName);
 
         if (reset)
         {
@@ -68,12 +69,14 @@ public class CimDatatypeLib : ICimDatatypeLib
 
     public void RegisterType(Type type)
     {
-        Logger?.Debug("Register type {name}", type.FullName);
+        Logger?.ForContext<CimDatatypeLib>()
+            .Debug("Register type {name}", type.FullName);
 
         var attribute = type.GetCustomAttribute<CimClassAttribute>();
         if (attribute == null)
         {
-            Logger?.Warning("Type {name} does not have CimClass attribute", type.FullName);
+            Logger?.ForContext<CimDatatypeLib>()
+                .Warning("Type {name} does not have CimClass attribute", type.FullName);
             return;
         }
 
@@ -83,7 +86,8 @@ public class CimDatatypeLib : ICimDatatypeLib
         // Not registered in schema.
         if (metaType == null)
         {
-            Logger?.Debug("Schema entity {type} skipped: type not registered", typeUri);
+            Logger?.ForContext<CimDatatypeLib>()
+                .Debug("Schema entity {type} skipped: type not registered", typeUri);
 
             return;
         }
@@ -97,8 +101,9 @@ public class CimDatatypeLib : ICimDatatypeLib
         var iface = type.GetInterface(nameof(IModelObject));
         if (iface == null)
         {
-            Logger?.Warning("Type {name} does not implement IModelObject interface",
-                type.FullName);
+            Logger?.ForContext<CimDatatypeLib>()
+                .Warning("Type {name} does not implement IModelObject interface",
+                    type.FullName);
 
             return;
         }
@@ -122,7 +127,8 @@ public class CimDatatypeLib : ICimDatatypeLib
 
         instance ??= modelObjectFactory.Create(oid, metaClass);
 
-        if (instance is DynamicModelObjectBase dynamicModelObject) dynamicModelObject.InternalTypeLib = this;
+        if (instance is DynamicModelObjectBase dynamicModelObject)
+            dynamicModelObject.InternalTypeLib = this;
 
         return instance;
     }

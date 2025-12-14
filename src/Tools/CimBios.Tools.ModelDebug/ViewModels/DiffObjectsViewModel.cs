@@ -70,8 +70,7 @@ public class DiffObjectsViewModel : ViewModelBase
         var diffModel = GlobalServices.LoaderService.LoadDifferenceModelFromFile(
             openSaveResult.ModelPath,
             openSaveResult.DescriptorFactory,
-            openSaveResult.RdfSerializerFactory,
-            out _
+            openSaveResult.RdfSerializerFactory
         );
         
         if (diffModel is null) return;
@@ -101,8 +100,7 @@ public class DiffObjectsViewModel : ViewModelBase
         GlobalServices.LoaderService.SaveDifferenceModelToFile(
             _currentModel,
             openSaveResult.ModelPath,
-            openSaveResult.RdfSerializerFactory,
-            out _
+            openSaveResult.RdfSerializerFactory
         );
     }
 
@@ -125,7 +123,7 @@ public class DiffObjectsViewModel : ViewModelBase
                 openSaveResult.DescriptorFactory, 
                 openSaveResult.SchemaFactory, 
                 openSaveResult.RdfSerializerFactory,
-                openSaveResult.SerializerSettings, out _);
+                openSaveResult.SerializerSettings);
         
         if (comparedModel is null) return;
         

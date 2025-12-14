@@ -6,6 +6,7 @@ using Avalonia.Markup.Xaml;
 using CimBios.Tools.ModelDebug.Services;
 using CimBios.Tools.ModelDebug.ViewModels;
 using CimBios.Tools.ModelDebug.Views;
+using Serilog;
 
 namespace CimBios.Tools.ModelDebug;
 
@@ -29,6 +30,11 @@ public class App : Application
             // Line below is needed to remove Avalonia data validation.
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
+
+            var log = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+            ServiceLocator.GetInstance().RegisterService<ILogger>(log);
 
             var mainWindow = new MainWindow();
             desktop.MainWindow = mainWindow;

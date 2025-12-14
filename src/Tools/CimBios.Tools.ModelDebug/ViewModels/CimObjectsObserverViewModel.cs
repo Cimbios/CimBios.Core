@@ -177,8 +177,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             openSaveResult.DescriptorFactory,
             openSaveResult.SchemaFactory,
             openSaveResult.RdfSerializerFactory,
-            openSaveResult.SerializerSettings,
-            out _
+            openSaveResult.SerializerSettings
         );
     }
 
@@ -196,8 +195,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             openSaveResult.SchemaPath,
             openSaveResult.SchemaFactory,
             openSaveResult.RdfSerializerFactory,
-            openSaveResult.SerializerSettings,
-            out _
+            openSaveResult.SerializerSettings
         );
     }
 

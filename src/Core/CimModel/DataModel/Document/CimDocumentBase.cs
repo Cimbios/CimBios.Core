@@ -75,10 +75,10 @@ public abstract class CimDocumentBase : ICimDataModel
         IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
-        Logger?.Information("Loading model ...");
+        Logger?.ForContext<CimDocumentBase>().Information("Loading model ...");
 
         var serializer = serializerFactory.Create(cimSchema,
-            TypeLib, OIDDescriptorFactory);
+            TypeLib, OIDDescriptorFactory, Logger);
 
         serializer.BaseUri = new Uri(OIDDescriptorFactory.Namespace);
 
@@ -90,7 +90,9 @@ public abstract class CimDocumentBase : ICimDataModel
         }
         catch (Exception ex)
         {
-            Logger?.Fatal("Deserialization failed: {@exception", ex);
+            Logger?.ForContext<CimDocumentBase>()
+                .Fatal(ex, "Deserialization failed");
+
             throw;
         }
         finally
@@ -164,7 +166,7 @@ public abstract class CimDocumentBase : ICimDataModel
         var forSerializeObjects = allObjects.ToImmutableList();
         
         var serializer = serializerFactory.Create(cimSchema,
-            TypeLib, OIDDescriptorFactory);
+            TypeLib, OIDDescriptorFactory, Logger);
 
         try
         {
@@ -173,7 +175,8 @@ public abstract class CimDocumentBase : ICimDataModel
         }
         catch (Exception ex)
         {
-            Logger?.Fatal("Serialization failed: {@exception}", ex);
+            Logger?.ForContext<CimDocumentBase>()
+                .Fatal(ex, "Serialization failed");
             throw;
         }
         finally

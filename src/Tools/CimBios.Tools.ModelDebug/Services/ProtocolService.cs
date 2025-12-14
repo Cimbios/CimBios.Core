@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Tools.ModelDebug.Services;
 
@@ -108,42 +107,4 @@ public enum ProtocolMessageKind
     Info,
     Warn,
     Error
-}
-
-public static class CanLogMessagesConverter
-{
-    public static ProtocolMessage Convert(ILogMessage logMessage,
-        GroupDescriptor? groupDescriptor = null)
-    {
-        var kind = ProtocolMessageKind.Info;
-        switch (logMessage.Severity)
-        {
-            case LogMessageSeverity.Warning:
-                kind = ProtocolMessageKind.Warn;
-                break;
-            case LogMessageSeverity.Error:
-            case LogMessageSeverity.Critical:
-                kind = ProtocolMessageKind.Error;
-                break;
-        }
-
-        var pm = new ProtocolMessage(logMessage.Text,
-            logMessage.CallerName, kind, groupDescriptor);
-
-        return pm;
-    }
-}
-
-public static class ProtocolServiceExtensions
-{
-    public static void AddFromLibLog(this ProtocolService ps,
-        ILog log, string groupName)
-    {
-        var groupDescriptor = new GroupDescriptor(groupName);
-
-        foreach (var logMessage in log.Messages
-                     .Select(m => CanLogMessagesConverter
-                         .Convert(m, groupDescriptor)))
-            ps.AddMessage(logMessage);
-    }
 }

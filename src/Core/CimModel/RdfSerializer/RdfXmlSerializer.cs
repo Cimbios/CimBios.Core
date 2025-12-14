@@ -2,6 +2,7 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
+using Serilog;
 
 namespace CimBios.Core.CimModel.RdfSerializer;
 
@@ -16,8 +17,8 @@ public class RdfXmlSerializer : RdfSerializerBase
     private readonly RdfWriterBase _rdfWriter;
 
     public RdfXmlSerializer(ICimSchema schema, ICimDatatypeLib datatypeLib,
-        IOIDDescriptorFactory? oidDescriptorFactory = null)
-        : base(schema, datatypeLib)
+        IOIDDescriptorFactory? oidDescriptorFactory = null, ILogger? logger=null)
+        : base(schema, datatypeLib, logger)
     {
         _rdfReader = new RdfXmlReader();
         _rdfWriter = new RdfXmlWriter();
@@ -41,10 +42,11 @@ public class RdfXmlSerializerFactory : IRdfSerializerFactory
 
     public RdfSerializerBase Create(ICimSchema cimSchema,
         ICimDatatypeLib typeLib,
-        IOIDDescriptorFactory? oidDescriptorFactory = null)
+        IOIDDescriptorFactory? oidDescriptorFactory = null,
+        ILogger? logger=null)
     {
         var serializer = new RdfXmlSerializer(cimSchema,
-            typeLib, oidDescriptorFactory)
+            typeLib, oidDescriptorFactory, logger)
         {
             Settings = Settings
         };

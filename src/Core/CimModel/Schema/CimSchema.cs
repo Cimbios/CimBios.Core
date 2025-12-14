@@ -57,7 +57,9 @@ public class CimSchema : ICimSchema
     {
         if (_Serializer == null)
         {
-            Logger?.Fatal("Schema serializer has not been initialized");
+            Logger?.ForContext<CimSchema>()
+                .Fatal("Schema serializer has not been initialized");
+
             return;
         }
 
@@ -75,7 +77,13 @@ public class CimSchema : ICimSchema
             var details = string.Empty;
             if (_Namespaces.TryGetValue("base", out var baseUri)) details = baseUri.AbsoluteUri;
 
-            Logger?.Information("Schema has been loaded. Base = {details}", details);
+            Logger?.ForContext<CimSchema>()
+                .Information("Schema has been loaded. Base = {details}", details);
+        }
+        catch (Exception ex)
+        {
+            Logger?.ForContext<CimSchema>()
+                .Fatal(ex, "Schema deserializing failed");
         }
         finally
         {
