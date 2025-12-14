@@ -149,17 +149,24 @@ public class CimDocument(
         }
 
         if (!needFullModel) return;
-        
-        ModelDescription = TypeLib.CreateInstance<FullModel>(
-            OIDDescriptorFactory.Create());
 
-        if (ModelDescription == null)
+        try
         {
-            PlainLog.Error("Failed to create FullModel!");
-            return;
+            ModelDescription = TypeLib.CreateInstance<FullModel>(
+                OIDDescriptorFactory.Create());
+
+            if (ModelDescription == null)
+            {
+                Logger?.Error("Failed to create FullModel: it's not registered");
+                return;
+            }
+
+            ModelDescription.created = DateTime.Now;
         }
-            
-        ModelDescription.created = DateTime.Now;
+        catch (Exception ex)
+        {
+            Logger?.Error("Failed to create FullModel: {message}", ex.Message);
+        }
     }
 
     private static void UnlinkAllModelObjectAssocs(IModelObject modelObject)

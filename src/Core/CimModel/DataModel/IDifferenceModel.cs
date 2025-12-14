@@ -9,7 +9,7 @@ namespace CimBios.Core.CimModel.CimDifferenceModel;
 /// <summary>
 ///     CIM model differences managment wrapper.
 /// </summary>
-public interface ICimDifferenceModel : ICanLog
+public interface ICimDifferenceModel
 {
     /// <summary>
     ///     Model description.

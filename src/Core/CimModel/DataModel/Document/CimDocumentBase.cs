@@ -8,24 +8,25 @@ using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Utils.ClassTraits.CanLog;
+using Serilog;
 
 namespace CimBios.Core.CimModel.CimDataModel;
 
-public abstract class CimDocumentBase : ICimDataModel, ICanLog
+public abstract class CimDocumentBase : ICimDataModel
 {
-    protected readonly PlainLogView PlainLog;
-
     protected CimDocumentBase(ICimSchema cimSchema, ICimDatatypeLib typeLib,
-        IOIDDescriptorFactory oidDescriptorFactory)
+        IOIDDescriptorFactory oidDescriptorFactory, ILogger? logger = null)
     {
-        PlainLog = new PlainLogView(this);
         Objects = [];
 
         Schema = cimSchema;
         TypeLib = typeLib;
         OIDDescriptorFactory = oidDescriptorFactory;
+
+        Logger = logger;
     }
+    
+    protected ILogger? Logger { get; }
 
     protected IReadOnlyCollection<ModelObjectUnresolvedReference>
         UnresolvedReferences { get; private set; } = [];
@@ -34,8 +35,6 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     ///     All cached objects collection (uuid to IModelObject).
     /// </summary>
     protected Dictionary<IOIDDescriptor, IModelObject> Objects { get; set; }
-
-    public virtual ILogView Log => PlainLog;
 
     public virtual Model? ModelDescription { get; protected set; }
 
@@ -76,6 +75,8 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
+        Logger?.Information("Loading model ...");
+
         var serializer = serializerFactory.Create(cimSchema,
             TypeLib, OIDDescriptorFactory);
 
@@ -89,7 +90,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         }
         catch (Exception ex)
         {
-            PlainLog.Critical($"Deserialization failed: {ex.Message}");
+            Logger?.Fatal("Deserialization failed: {@exception", ex);
             throw;
         }
         finally
@@ -98,8 +99,6 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
 
             UnresolvedReferences = serializer.UnresolvedReferences
                 .ToList().AsReadOnly();
-
-            PlainLog.FlushFrom(serializer.Log);
         }
     }
 
@@ -174,14 +173,12 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         }
         catch (Exception ex)
         {
-            PlainLog.Critical($"Serialization failed: {ex.Message}");
+            Logger?.Fatal("Serialization failed: {@exception}", ex);
             throw;
         }
         finally
         {
             streamWriter.Close();
-
-            PlainLog.FlushFrom(serializer.Log);
         }
     }
 

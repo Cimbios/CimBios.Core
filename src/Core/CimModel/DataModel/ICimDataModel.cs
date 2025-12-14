@@ -3,14 +3,13 @@ using CimBios.Core.CimModel.CimDatatypeLib;
 using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
 using CimBios.Core.CimModel.CimDatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Utils.ClassTraits.CanLog;
 
 namespace CimBios.Core.CimModel.CimDataModel;
 
 /// <summary>
 ///     Definition of CIM model object type.
 /// </summary>
-public interface ICimDataModel : ICanLog
+public interface ICimDataModel
 {
     /// <summary>
     ///     Model description.
