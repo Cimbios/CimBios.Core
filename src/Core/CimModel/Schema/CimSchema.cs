@@ -13,14 +13,6 @@ public class CimSchema : ICimSchema
 
     protected ILogger? Logger { get; }
 
-    public CimSchema(ILogger? logger = null)
-    {
-        Logger = logger;
-
-        _All = [];
-        _Namespaces = [];
-    }
-
     private ICimSchemaSerializer? _Serializer { get; set; }
 
     public IDictionary<string, Uri> Namespaces
@@ -46,8 +38,17 @@ public class CimSchema : ICimSchema
     public ICimMetaClass ResourceSuperClass => TryGetResource<ICimMetaClass>(
         CimRdfSchemaStrings.RdfsResource) ?? throw new NullReferenceException();
 
-    public CimSchema(ICimSchemaSerializerFactory serializerFactory)
-        : this()
+    public CimSchema(ILogger? logger = null)
+    {
+        Logger = logger;
+
+        _All = [];
+        _Namespaces = [];
+    }
+
+    public CimSchema(ICimSchemaSerializerFactory serializerFactory,
+        ILogger? logger = null)
+        : this(logger)
     {
         _Serializer = serializerFactory.CreateSerializer();
     }

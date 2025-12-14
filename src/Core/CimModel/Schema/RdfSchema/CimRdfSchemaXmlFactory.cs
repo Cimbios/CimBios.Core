@@ -9,6 +9,6 @@ public class CimRdfSchemaXmlFactory : ICimSchemaFactory
     {
         var rdfReader = new RdfXmlReader();
         var serializerFactory = new CimRdfSchemaSerializerFactory(rdfReader, logger);
-        return new CimSchema(serializerFactory);
+        return new CimSchema(serializerFactory, logger);
     }
 }
