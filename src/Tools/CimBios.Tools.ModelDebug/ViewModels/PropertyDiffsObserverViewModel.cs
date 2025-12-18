@@ -2,7 +2,7 @@
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
-using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.DifferenceObject;
 using CimBios.Tools.ModelDebug.Models;
 using CimBios.Tools.ModelDebug.Models.CimObjects;
 

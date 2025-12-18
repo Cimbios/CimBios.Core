@@ -1,4 +1,4 @@
-using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 

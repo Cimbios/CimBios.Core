@@ -1,5 +1,6 @@
 using System.Text;
 using CimBios.Core.RdfIOLib;
+using CimBios.Core.RdfIOLib.RdfXml;
 
 namespace CimBios.Tests.RdfIOLib;
 

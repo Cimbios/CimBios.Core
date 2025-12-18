@@ -1,6 +1,6 @@
-using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 
-namespace CimBios.Tools.ModelDebug.Models;
+namespace CimBios.Tools.ModelDebug.Models.CimObjects;
 
 public class CimObjectDataTreeModel : TreeViewNodeModel
 {

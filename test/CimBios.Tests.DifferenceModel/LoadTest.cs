@@ -1,8 +1,8 @@
-using CimBios.Core.CimModel.CimDataModel;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
-using CimBios.Core.CimModel.CimDifferenceModel;
+using CimBios.Core.CimModel.DataModel;
+using CimBios.Core.CimModel.DataModel.Document;
 using CimBios.Core.CimModel.DataModel.Utils;
+using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.RdfIOLib;
 using CimBios.Tests.Infrastructure;
@@ -107,8 +107,9 @@ public class LoadTest
 
         var modifiedModel = ModelLoader.LoadCimModel_v1_changed() as CimDocument;
         Assert.NotNull(modifiedModel);
-
+        
         var diffSchema = ModelLoader.Load552HeadersCimRdfSchema();
+
         var cimDifferenceModelCheck = new CimDifferenceModel(
             diffSchema,
             new CimDatatypeLib(diffSchema),

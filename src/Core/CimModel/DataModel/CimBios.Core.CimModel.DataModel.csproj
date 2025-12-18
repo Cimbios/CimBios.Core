@@ -2,11 +2,15 @@
     <ItemGroup>
         <ProjectReference Include="..\RdfSerializer\CimBios.Core.CimModel.RdfSerializer.csproj"/>
         <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj"/>
-        <ProjectReference Include="..\..\..\Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj"/>
     </ItemGroup>
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>0.1.0</Version>
+        <Title>CimBios.Core.CimModel.DataModel</Title>
+        <Authors>CimBios Org</Authors>
+        <Description>Core data model library. Provides classes for load, store and manipulate CIM model objects.</Description>
     </PropertyGroup>
 </Project>

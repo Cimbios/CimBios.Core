@@ -1,9 +1,8 @@
-using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
+using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Core.CimModel.Validation;
 using CimBios.Core.CimModel.Validation.Script;
 using CimBios.Tests.Infrastructure;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
 
 namespace CimBios.Tests.Validation;
 

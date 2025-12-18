@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 using CimBios.Core.CimModel.Schema;
 
-namespace CimBios.Tools.ModelDebug.Models;
+namespace CimBios.Tools.ModelDebug.Models.CimObjects;
 
 public class CimObjectPropertyModel : TreeViewNodeModel
 {
@@ -92,8 +89,8 @@ public class CimObjectPropertyModel : TreeViewNodeModel
         else if (MetaProperty.PropertyKind == CimMetaPropertyKind.Assoc1To1)
         {
             var ref1 = ModelObject.GetAssoc1To1(MetaProperty);
-            if (ref1 is IdentifiedObject io)
-                stringValue = $"{ref1.OID} ({io.name})";
+            if (ref1?.MetaClass.BaseUri.AbsoluteUri == "http://iec.ch/TC57/CIM100#IdentifiedObject")
+                stringValue = $"{ref1.OID} ({ref1.GetAttribute("name")})";
             else
                 stringValue = ref1?.OID.ToString() ?? "null";
         }
@@ -127,8 +124,8 @@ public class CimAssocPropertyModel(IModelObject assocObject,
     {
         var value = AssocObject.OID.ToString();
         
-        if (AssocObject is IdentifiedObject io)
-            return $"{value} ({io.name})";
+        if (AssocObject.MetaClass.BaseUri.AbsoluteUri == "http://iec.ch/TC57/CIM100#IdentifiedObject")
+            return $"{value} ({AssocObject.GetAttribute("name")})";
         
         return value;
     }

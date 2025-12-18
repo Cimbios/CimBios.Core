@@ -1,10 +1,10 @@
 using System;
 using System.IO;
 using Avalonia.Platform;
-using CimBios.Core.CimModel.CimDataModel;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
-using CimBios.Core.CimModel.CimDifferenceModel;
+using CimBios.Core.CimModel.DataModel;
+using CimBios.Core.CimModel.DataModel.Document;
+using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.RdfSchema;

@@ -1,8 +1,9 @@
 using System;
 using System.Linq;
 using Avalonia.Controls.Selection;
-using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 using CimBios.Tools.ModelDebug.Models;
+using CimBios.Tools.ModelDebug.Models.CimObjects;
 using CimBios.Tools.ModelDebug.ViewModels;
 
 namespace CimBios.Tools.ModelDebug.Services;

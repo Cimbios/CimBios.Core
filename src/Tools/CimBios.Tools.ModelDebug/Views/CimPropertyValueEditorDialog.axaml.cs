@@ -2,9 +2,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Data;
-using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Tools.ModelDebug.Models;
+using CimBios.Tools.ModelDebug.Models.CimObjects;
 
 namespace CimBios.Tools.ModelDebug.Views;
 

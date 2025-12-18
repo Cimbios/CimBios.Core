@@ -1,6 +1,26 @@
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 using System.Globalization;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
+using CimBios.Core.CimModel.DatatypeLib.OID;
+using CimBios.Core.CimModel.RdfSerializer.DeserializationResult;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.RdfIOLib;
@@ -11,7 +31,7 @@ namespace CimBios.Core.CimModel.RdfSerializer;
 /// <summary>
 ///     Base serializer class provides (de)serialization functions.
 /// </summary>
-public abstract class RdfSerializerBase
+public abstract class RdfSerializerBase : IRdfSerializer
 {
     private const string RdfDescription = "http://www.w3.org/1999/02/22-rdf-syntax-ns#Description";
 
@@ -24,11 +44,10 @@ public abstract class RdfSerializerBase
 
         Settings = new RdfSerializerSettings();
     }
-
-    /// <summary>
-    ///     Rdf serializer settings.
-    /// </summary>
+    
     public RdfSerializerSettings Settings { get; init; }
+    
+    public Uri BaseUri { get; set; } = new("http://cim.bios/serialization/rdf");
 
     /// <summary>
     ///     Cim schema rules.
@@ -39,14 +58,7 @@ public abstract class RdfSerializerBase
     ///     CIM data types library for concrete typed instances creating.
     /// </summary>
     private ICimDatatypeLib TypeLib { get; }
-
-    public Uri BaseUri { get; set; } = new(
-        "http://cim.bios/serialization/rdf");
-
-
-    public IReadOnlyCollection<ModelObjectUnresolvedReference>
-        UnresolvedReferences => _waitingReferenceObjects.Values;
-
+    
     /// <summary>
     ///     Rdf reader abstract entity.
     /// </summary>
@@ -61,6 +73,8 @@ public abstract class RdfSerializerBase
     ///     OID Descriptor factory for producing model objects.
     /// </summary>
     protected abstract IOIDDescriptorFactory OidDescriptorFactory { get; }
+    
+    protected ILogger? Logger { get; }
 
     /// <summary>
     ///     Cache used namespaces while objects serializing.
@@ -71,9 +85,7 @@ public abstract class RdfSerializerBase
     ///     Cached used namespaces.
     /// </summary>
     private HashSet<Uri> CachedNamespaces { get; } = [];
-
-    protected ILogger? Logger { get; }
-
+    
     private Dictionary<string, CimAutoClass> _createdAutoClassesCache = [];
     private Dictionary<string, CimAutoProperty> _createdAutoPropertiesCache = [];
 
@@ -85,26 +97,26 @@ public abstract class RdfSerializerBase
 
     private Dictionary<(IOIDDescriptor, ICimMetaProperty),
         ModelObjectUnresolvedReference> _waitingReferenceObjects = [];
-
-    /// <summary>
-    ///     Deserialize data provider data to IModelObject instances.
-    ///     <returns>Deserializer IModelObject collection.</returns>
-    /// </summary>
-    public IEnumerable<IModelObject> Deserialize(StreamReader streamReader)
+    
+    public IDeserializationResult Deserialize(StreamReader streamReader)
     {
         ResetCache();
         InitializeRdfReader(streamReader);
         Schema.InvalidateAuto();
         var deserializedObjects = ReadObjects();
+
+        var result = new DeserializationResult.DeserializationResult
+        {
+            Namespaces = RdfReader.Namespaces,
+            UnresolvedReferences = _waitingReferenceObjects.Values.ToHashSet(),
+            ModelObjects = deserializedObjects
+        };
+        
         ResetCache();
 
-        return deserializedObjects;
+        return result;
     }
-
-    /// <summary>
-    ///     Serialize IModelObject instances to data provider source.
-    ///     <param name="modelObjects">IModelObject collection for serialization.</param>
-    /// </summary>
+    
     public void Serialize(StreamWriter streamWriter,
         IEnumerable<IModelObject> modelObjects)
     {
@@ -127,7 +139,8 @@ public abstract class RdfSerializerBase
         _streamWriter = streamWriter ?? throw new Exception("No data stream for write!");
 
         RdfWriter.RdfIRIMode = Settings.WritingIRIMode;
-        RdfWriter.Open(streamWriter, !Settings.IncludeUnresolvedReferences);
+        RdfWriter.NormalizeIris = Settings.NormalizeIris;
+        RdfWriter.Open(streamWriter, !Settings.IncludeBaseNamespace);
     }
 
     private List<RdfNode> BuildObjectsToWrite(

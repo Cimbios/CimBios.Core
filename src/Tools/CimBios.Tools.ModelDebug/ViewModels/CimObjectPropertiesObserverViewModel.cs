@@ -5,10 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Tools.ModelDebug.Models;
+using CimBios.Tools.ModelDebug.Models.CimObjects;
 using CimBios.Tools.ModelDebug.Services;
 using CimBios.Tools.ModelDebug.Views;
 

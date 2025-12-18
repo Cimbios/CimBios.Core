@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.DifferenceObject;
 using CimBios.Tools.ModelDebug.ViewModels;
 
 namespace CimBios.Tools.ModelDebug.Views;

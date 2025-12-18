@@ -1,7 +1,7 @@
 using System.Xml;
-using CimBios.Core.RdfIOLib;
+using CimBios.Core.RdfIOLib.RdfXml;
 
-namespace CimBios.Tests.RdfXmlIOLib;
+namespace CimBios.Tests.RdfIOLib;
 
 public class ReadEmptyValidRdfNodeTest
 {

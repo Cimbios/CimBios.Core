@@ -1,8 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <ItemGroup>
         <ProjectReference Include="..\..\RdfIOLib\CimBios.Core.RdfIOLib.csproj"/>
-        <ProjectReference Include="..\..\..\Utils\ClassTraits\CimBios.Utils.ClassTraits.csproj"/>
         <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj"/>
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="Factory\CoreDatatypeLib.rdfs" />
+    </ItemGroup>
+    <ItemGroup>
+      <AdditionalFiles Include="Schemas\CoreDatatypeLib.rdfs">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </AdditionalFiles>
     </ItemGroup>
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>

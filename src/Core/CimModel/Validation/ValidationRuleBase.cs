@@ -1,4 +1,4 @@
-using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Core.CimModel.Validation;

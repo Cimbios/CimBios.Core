@@ -1,6 +1,6 @@
 using CimBios.Core.CimModel.Schema;
 
-namespace CimBios.Tools.ModelDebug.Models;
+namespace CimBios.Tools.ModelDebug.Models.CimSchemaTree;
 
 public class CimSchemaEntityNodeModel : TreeViewNodeModel
 {

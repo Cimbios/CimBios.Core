@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Builder;
 using CimBios.Core.CimModel.Schema.RdfSchema;
+using CimBios.Tools.CimTypeLibBuilder;
 using CimBios.Tools.CimTypeLibBuilder.CodeBuilder;
 using CimBios.Tools.CimTypeLibBuilder.TemplateReader;
 
@@ -51,8 +52,11 @@ codeBuilder.Compile(codePath);
 #endregion Typelib compilation
 
 // ----------------------------------------------------------------------------
-public enum SerializerTypeInfo
+namespace CimBios.Tools.CimTypeLibBuilder
 {
-    Auto,
-    RDFS,
+    public enum SerializerTypeInfo
+    {
+        Auto,
+        RDFS,
+    }
 }

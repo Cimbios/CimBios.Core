@@ -1,16 +1,35 @@
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Text;
-using CimBios.Core.CimModel.CimDataModel.Utils;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
-using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.DataModel.Utils;
+using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
+using CimBios.Core.CimModel.DatatypeLib.OID;
+using CimBios.Core.CimModel.DatatypeLib.TypeLib;
 using CimBios.Core.CimModel.RdfSerializer;
+using CimBios.Core.CimModel.RdfSerializer.DeserializationResult;
 using CimBios.Core.CimModel.Schema;
 using Serilog;
 
-namespace CimBios.Core.CimModel.CimDataModel;
+namespace CimBios.Core.CimModel.DataModel.Document;
 
 public abstract class CimDocumentBase : ICimDataModel
 {
@@ -77,16 +96,17 @@ public abstract class CimDocumentBase : ICimDataModel
     {
         Logger?.ForContext<CimDocumentBase>().Information("Loading model ...");
 
-        var serializer = serializerFactory.Create(cimSchema,
-            TypeLib, OIDDescriptorFactory, Logger);
-
-        serializer.BaseUri = new Uri(OIDDescriptorFactory.Namespace);
-
+        IDeserializationResult? result = null;
         try
         {
+            var serializer = serializerFactory.Create(cimSchema,
+                TypeLib, OIDDescriptorFactory, Logger);
+            
+            serializer.BaseUri = new Uri(OIDDescriptorFactory.Namespace);
+            
             Objects = [];
-            var deserialized = serializer.Deserialize(streamReader);
-            PushDeserializedObjects(deserialized);
+            result = serializer.Deserialize(streamReader);
+            PushDeserializedObjects(result.ModelObjects);
         }
         catch (Exception ex)
         {
@@ -99,8 +119,7 @@ public abstract class CimDocumentBase : ICimDataModel
         {
             streamReader.Close();
 
-            UnresolvedReferences = serializer.UnresolvedReferences
-                .ToList().AsReadOnly();
+            if (result != null) UnresolvedReferences = result.UnresolvedReferences;
         }
     }
 

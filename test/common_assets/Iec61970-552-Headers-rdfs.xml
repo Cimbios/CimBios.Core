@@ -5,9 +5,7 @@
   xmlns:uml="http://langdale.com.au/2005/UML#" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema#" 
   xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" 
-  xmlns:dm="http://iec.ch/TC57/61970-552/DifferenceModel/1#" 
-  xmlns:cim="http://iec.ch/TC57/CIM100#" 
-  xmlns:rf="http://gost.ru/2019/schema-cim01#"
+  xmlns:dm="http://iec.ch/TC57/61970-552/DifferenceModel/1#"
   xml:base="http://cim.bios/Profiles/v1">
 	<rdf:Description rdf:about="http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel">
 		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>

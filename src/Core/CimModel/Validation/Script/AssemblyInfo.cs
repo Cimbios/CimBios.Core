@@ -1,5 +1,5 @@
-using CimBios.Core.CimModel.CimDatatypeLib;
 using System.Reflection;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 
 namespace CimBios.Core.CimModel.Validation.Script;
 public static class AssemblyInfo
@@ -21,6 +21,5 @@ public static class AssemblyInfo
         "System.Linq",
         "CimBios.Core.CimModel.CimDatatypeLib",
         "CimBios.Core.CimModel.Validation",
-        "CimBios.Core.CimModel.CimDatatypeLib.CIM17Types"
     ];
 }

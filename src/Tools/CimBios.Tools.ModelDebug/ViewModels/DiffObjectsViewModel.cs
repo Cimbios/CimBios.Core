@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
-using CimBios.Core.CimModel.CimDataModel;
-using CimBios.Core.CimModel.CimDataModel.Utils;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDifferenceModel;
+using CimBios.Core.CimModel.DataModel;
 using CimBios.Core.CimModel.DataModel.Utils;
+using CimBios.Core.CimModel.DatatypeLib.DifferenceObject;
 using CimBios.Tools.ModelDebug.Models.CimObjects;
 using CimBios.Tools.ModelDebug.Views;
 

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
-using CimBios.Core.CimModel.CimDataModel;
+using CimBios.Core.CimModel.DataModel;
+using CimBios.Core.CimModel.Validation.InternalRules;
 
 namespace CimBios.Core.CimModel.Validation;
 

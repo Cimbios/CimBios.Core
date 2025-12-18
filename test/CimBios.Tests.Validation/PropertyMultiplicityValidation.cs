@@ -1,6 +1,6 @@
-using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Validation;
+using CimBios.Core.CimModel.Validation.InternalRules;
 using CimBios.Tests.Infrastructure;
 
 namespace CimBios.Tests.Validation;

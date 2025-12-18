@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Tools.ModelDebug.ViewModels;

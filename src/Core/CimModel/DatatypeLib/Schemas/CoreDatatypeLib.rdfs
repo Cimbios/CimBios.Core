@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+         xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" 
+         xml:base="http://cim.bios/schemas/part552/v1">
+  <cims:ClassCategory rdf:about="Part552%20Headers.ModelDescription">
+    <cims:belongsToCategory rdf:resource="Part552%20Headers" />
+    <rdfs:label>ModelDescription</rdfs:label>
+  </cims:ClassCategory>
+  <cims:ClassCategory rdf:about="Part552%20Headers">
+    <rdfs:label>Part552_Headers</rdfs:label>
+  </cims:ClassCategory>
+  <cims:ClassCategory rdf:about="Part552%20Headers.DifferenceModel">
+    <cims:belongsToCategory rdf:resource="Part552%20Headers" />
+    <rdfs:label>DifferenceModel</rdfs:label>
+  </cims:ClassCategory>
+  
+  <rdfs:Class rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#FullModel">
+    <rdfs:subClassOf rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:belongsToCategory rdf:resource="Part552%20Headers.ModelDescription" />
+    <rdfs:label>FullModel</rdfs:label>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model">
+    <cims:belongsToCategory rdf:resource="Part552%20Headers.ModelDescription" />
+    <rdfs:label>Model</rdfs:label>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.created">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1" />
+    <cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute" />
+    <rdfs:label>created</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.description">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1" />
+    <cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute" />
+    <rdfs:label>description</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.modelingAuthoritySet">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1" />
+    <cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#anyuri"/>
+    <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute" />
+    <rdfs:label>modelingAuthoritySet</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.profile">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n" />
+    <cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#anyuri"/>
+    <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute" />
+    <rdfs:label>profile</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.scenarioTime">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1" />
+    <cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+    <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute" />
+    <rdfs:label>scenarioTime</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.version">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1" />
+    <cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute" />
+    <rdfs:label>version</rdfs:label>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.DependentOn">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <rdfs:range rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:dataType rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n" />
+    <cims:inverseRoleName rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.Depending" />
+    <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute" />
+    <rdfs:label>DependentOn</rdfs:label>
+    <cims:belongsToCategory rdf:resource="Part552%20Headers.ModelDescription" />
+  </rdf:Property>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.Supersedes">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <rdfs:range rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:dataType rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n" />
+    <cims:inverseRoleName rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.SupersededBy" />
+    <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute" />
+    <rdfs:label>Supersedes</rdfs:label>
+    <cims:belongsToCategory rdf:resource="Part552%20Headers.ModelDescription" />
+  </rdf:Property>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.Depending">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <rdfs:range rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n" />
+    <cims:inverseRoleName rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.DependentOn" />
+    <rdfs:label>Depending</rdfs:label>
+    <cims:belongsToCategory rdf:resource="Part552%20Headers.ModelDescription" />
+  </rdf:Property>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.SupersededBy">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <rdfs:range rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n" />
+    <cims:inverseRoleName rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model.Supersedes" />
+    <rdfs:label>SupersededBy</rdfs:label>
+    <cims:belongsToCategory rdf:resource="Part552%20Headers.ModelDescription" />
+  </rdf:Property>
+  
+  <rdfs:Class rdf:about="http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel">
+    <rdfs:subClassOf rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model" />
+    <cims:belongsToCategory rdf:resource="Part552%20Headers.DifferenceModel" />
+    <rdfs:label>DifferenceModel</rdfs:label>
+  </rdfs:Class>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel.forwardDifferences">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel" />
+    <rdfs:range rdf:resource="rdf:Statement" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n" />
+    <rdfs:label>forwardDifferences</rdfs:label>
+    <cims:belongsToCategory rdf:resource="Part552%20Headers.DifferenceModel" />
+  </rdf:Property>
+  <rdf:Property rdf:about="http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel.reverseDifferences">
+    <rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/DifferenceModel/1#DifferenceModel" />
+    <rdfs:range rdf:resource="rdf:Statement" />
+    <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n" />
+    <rdfs:label>reverseDifferences</rdfs:label>
+    <cims:belongsToCategory rdf:resource="Part552%20Headers.DifferenceModel" />
+  </rdf:Property>
+</rdf:RDF>

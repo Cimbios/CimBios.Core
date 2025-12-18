@@ -1,6 +1,6 @@
 using CimBios.Tools.ModelDebug.Services;
 
-namespace CimBios.Tools.ModelDebug.Models;
+namespace CimBios.Tools.ModelDebug.Models.Protocol;
 
 public class ProtocolMessageModel : TreeViewNodeModel
 {
