@@ -37,12 +37,6 @@ public interface ICimSchema
     public IEnumerable<ICimMetaClass> Classes { get; }
 
     /// <summary>
-    ///     All CimMetaClass instances - RDF description instances
-    ///     of RDF type Class.
-    /// </summary>
-    public IEnumerable<ICimMetaClass> Extensions { get; }
-
-    /// <summary>
     ///     All CimMetaProperty instances - RDF description instances
     ///     of RDF type Property.
     /// </summary>
@@ -58,11 +52,6 @@ public interface ICimSchema
     ///     of RDF type Datatype.
     /// </summary>
     public IEnumerable<ICimMetaDatatype> Datatypes { get; }
-
-    /// <summary>
-    ///     Tie all same name enums in one via extension link.
-    /// </summary>
-    public bool TieSameNameEnums { get; set; }
 
     /// <summary>
     ///     Resource super class for all objective classes.
@@ -136,7 +125,7 @@ public interface ICimSchema
     /// <summary>
     ///     Clear no reference (auto created) auto meta types from schema.
     /// </summary>
-    public void InvalidateAuto();
+    //public void InvalidateAuto();
 }
 
 /// <summary>

@@ -102,7 +102,6 @@ public abstract class RdfSerializerBase : IRdfSerializer
     {
         ResetCache();
         InitializeRdfReader(streamReader);
-        Schema.InvalidateAuto();
         var deserializedObjects = ReadObjects();
 
         var result = new DeserializationResult.DeserializationResult

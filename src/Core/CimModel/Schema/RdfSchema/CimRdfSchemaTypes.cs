@@ -84,21 +84,6 @@ public class CimRdfsClass : CimMetaClassBase,
     public override bool IsCompound => Stereotypes.Contains(UMLStereotype.Compound);
     public override bool IsDatatype => Stereotypes.Contains(UMLStereotype.CIMDatatype);
 
-    public override bool AddExtension(ICimMetaClass extension)
-    {
-        if (CanAddExtension(extension))
-        {
-            _Ancestors.Add(extension);
-
-            (extension as CimRdfsClass)?.Stereotypes
-                .Add(UMLStereotype.CIMExtension);
-
-            return true;
-        }
-
-        return false;
-    }
-
     public string Label
     {
         get => ShortName;
@@ -113,21 +98,6 @@ public class CimRdfsClass : CimMetaClassBase,
 
     public CimRdfsClass? Datatype { get; set; }
     public ICollection<UMLStereotype> Stereotypes => _Stereotypes;
-
-    private bool CanAddExtension(ICimMetaClass metaClass)
-    {
-        if (metaClass.IsCompound || metaClass.IsDatatype) return false;
-
-        if (metaClass.IsExtension) return true;
-
-        if (RdfUtils.TryGetEscapedIdentifier(BaseUri, out var thisName)
-            && RdfUtils.TryGetEscapedIdentifier(metaClass.BaseUri,
-                out var className)
-            && thisName == className)
-            return true;
-
-        return false;
-    }
 }
 
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Datatype")]
@@ -208,7 +178,6 @@ public class CimRdfsProperty : CimMetaPropertyBase,
 
     public override CimMetaPropertyKind PropertyKind => GetMetaPropertyKind();
     public override ICimMetaClass? PropertyDatatype => GetDatatype();
-    public override bool IsExtension => IsDomainExtension();
     public override bool IsValueRequired => ValueRequired();
 
     [
@@ -261,13 +230,6 @@ public class CimRdfsProperty : CimMetaPropertyBase,
             return Datatype;
 
         return Range;
-    }
-
-    private bool IsDomainExtension()
-    {
-        if (Domain == null) return false;
-
-        return Domain.IsExtension;
     }
 
     private bool ValueRequired()

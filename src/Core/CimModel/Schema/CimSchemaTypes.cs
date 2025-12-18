@@ -114,13 +114,11 @@ public interface ICimMetaClass : ICimMetaResource
     public bool SuperClass { get; }
     public ICimMetaClass? ParentClass { get; set; }
     public IEnumerable<ICimMetaClass> AllAncestors { get; }
-    public IEnumerable<ICimMetaClass> Extensions { get; }
     public IEnumerable<ICimMetaProperty> AllProperties { get; }
     public IEnumerable<ICimMetaProperty> SelfProperties { get; }
     public IEnumerable<ICimMetaIndividual> AllIndividuals { get; }
     public IEnumerable<ICimMetaIndividual> SelfIndividuals { get; }
     public bool IsAbstract { get; }
-    public bool IsExtension { get; }
     public bool IsEnum { get; }
     public bool IsCompound { get; }
     public bool IsDatatype { get; }
@@ -135,20 +133,6 @@ public interface ICimMetaClass : ICimMetaResource
 /// </summary>
 internal interface ICimMetaExtensible
 {
-    /// <summary>
-    /// Add extension class to meta resource.
-    /// </summary>
-    /// <param name="extension">Meta extension class</param>
-    /// <returns>True if added.</returns>
-    public bool AddExtension(ICimMetaClass extension);
-
-    /// <summary>
-    /// Remove extension class from meta resource.
-    /// </summary>
-    /// <param name="extension"Meta extension class></param>
-    /// <returns>True if removed.</returns>
-    public bool RemoveExtension(ICimMetaClass extension);  
-
     /// <summary>
     /// 
     /// </summary>

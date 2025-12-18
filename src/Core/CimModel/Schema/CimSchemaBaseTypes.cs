@@ -113,11 +113,6 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
 
     public virtual IEnumerable<ICimMetaClass> AllAncestors => GetAllAncestors();
 
-    public virtual IEnumerable<ICimMetaClass> Extensions
-        => _Ancestors
-            .OfType<ICimMetaClass>()
-            .Where(c => c.IsExtension && c.ParentClass == null);
-
     public virtual bool IsAbstract { get; protected set; } = false;
 
     public virtual bool IsExtension { get; protected set; }
@@ -145,27 +140,6 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
     {
         return GetAllProperties().Contains(metaProperty)
                && (inherit || Equals(metaProperty.OwnerClass));
-    }
-
-    // public bool IsDescendantOf(ICimMetaClass metaClass, bool orEquals = false)
-    // {
-    //     if (orEquals == true && this.Equals(metaClass))
-    //     {
-    //         return true;
-    //     }
-
-
-    // }
-
-    public virtual bool AddExtension(ICimMetaClass metaClass)
-    {
-        if (_Ancestors.Contains(metaClass)) return false;
-
-        _Ancestors.Add(metaClass);
-
-        (metaClass as CimMetaClassBase)!.IsExtension = true;
-
-        return true;
     }
 
     public virtual bool RemoveExtension(ICimMetaClass metaClass)
@@ -199,9 +173,7 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
 
     protected virtual ICimMetaClass? GetParentClass()
     {
-        return _Ancestors.OfType<ICimMetaClass>()
-            .FirstOrDefault(o => o.IsExtension == false
-                                 || BaseUri == o.BaseUri);
+        return _Ancestors.OfType<ICimMetaClass>().SingleOrDefault();
     }
 
     protected virtual IEnumerable<ICimMetaClass> GetAllAncestors()
@@ -229,15 +201,6 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
                 properties.Add(p);
             }
 
-            foreach (var ext in nextClass.Extensions)
-            foreach (var extp in ext.SelfProperties
-                         .OfType<ICimMetaProperty>())
-            {
-                if (properties.Contains(extp)) continue;
-
-                properties.Add(extp);
-            }
-
             nextClass = nextClass.ParentClass;
         }
 
@@ -257,15 +220,6 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
                 if (individuals.Contains(ind)) continue;
 
                 individuals.Add(ind);
-            }
-
-            foreach (var ext in nextClass.Extensions)
-            foreach (var extind in ext.SelfIndividuals
-                         .OfType<ICimMetaIndividual>())
-            {
-                if (individuals.Contains(extind)) continue;
-
-                individuals.Add(extind);
             }
 
             nextClass = nextClass.ParentClass;

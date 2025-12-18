@@ -241,7 +241,6 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
             + $"Enum={cimMetaClass.IsEnum}; "
             + $"Datatype={cimMetaClass.IsDatatype}; "
             + $"Abstract={cimMetaClass.IsAbstract}; "
-            + $"Extension={cimMetaClass.IsExtension}; "
             + $"CanCreate={CimSchemaContext?.CanCreateClass(cimMetaClass)};";
 
         return traits;

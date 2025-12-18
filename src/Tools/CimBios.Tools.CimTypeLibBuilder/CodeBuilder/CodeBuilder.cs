@@ -53,8 +53,7 @@ internal class CodeBuilder(
 
         if (namespaceSyntax.References.Contains(ClassBlock))
         {
-            var extensions = _cimSchema.Extensions;
-            var classes = _cimSchema.Classes.Where(c => !c.IsEnum && !c.IsDatatype && !extensions.Contains(c));
+            var classes = _cimSchema.Classes.Where(c => !c.IsEnum && !c.IsDatatype);
 
             var compiledClasses = CompileClasses(classes);
             compliedNamespace = compliedNamespace
@@ -63,7 +62,7 @@ internal class CodeBuilder(
 
         if (namespaceSyntax.References.Contains(EnumBlock))
         {
-            var enums = _cimSchema.Classes.Where(c => c.IsEnum && !c.IsExtension);
+            var enums = _cimSchema.Classes.Where(c => c.IsEnum);
 
             var compiledEnums = CompileEnums(enums);
             compliedNamespace = compliedNamespace
@@ -181,8 +180,7 @@ internal class CodeBuilder(
             throw new Exception($"Compilation failed. Property block {blockClassName} has not been defined!");
 
         var propsList = ownerClass.AllProperties.Where(p => p.PropertyKind == propertyKind
-                                                            && (p.OwnerClass == ownerClass
-                                                                || ownerClass.Extensions.Contains(p.OwnerClass))
+                                                            && (p.OwnerClass == ownerClass)
         );
 
         var compiledProps = string.Empty;

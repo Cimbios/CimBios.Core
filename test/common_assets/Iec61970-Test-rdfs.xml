@@ -2830,7 +2830,7 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.Windings">
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>Windings</rdfs:label>
-		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#CurrentTransformer"/>
 		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformerWinding"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
 		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformerWinding.Transformer"/>
@@ -2838,7 +2838,7 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.isEmbeded">
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>isEmbeded</rdfs:label>
-		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#CurrentTransformer"/>
 		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
@@ -2846,7 +2846,7 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.ratedCurrent">
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>ratedCurrent</rdfs:label>
-		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#CurrentTransformer"/>
 		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
@@ -2854,7 +2854,7 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.ratedSecondaryCurrent">
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>ratedSecondaryCurrent</rdfs:label>
-		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#CurrentTransformer"/>
 		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
@@ -2864,7 +2864,6 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 		<rdfs:label>CurrentTransformer</rdfs:label>
 		<rdfs:comment>Instrument transformer used to measure electrical qualities of the circuit that is being protected and/or monitored. Typically used as current transducer for the purpose of metering or protection. A typical secondary current rating would be 5A.</rdfs:comment>
 		<cims:belongsToCategory rdf:resource="#Package_AuxiliaryEquipment"/>
-		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
 		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#Sensor"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#CurrentTransformer.accuracyClass">

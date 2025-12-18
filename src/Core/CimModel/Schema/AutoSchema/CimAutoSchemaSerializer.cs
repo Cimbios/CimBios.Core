@@ -241,16 +241,16 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
     /// <param name="classUri">Source class URI.</param>
     /// <param name="ancestorUri">Ancestor class URI.</param>
     /// <returns>True if link was been created.</returns>
-    private bool AddAncestorToClass(Uri childClassUri, Uri ancestorUri)
-    {
-        if (_ObjectsCache[childClassUri] is not CimAutoClass childClass
-            || _ObjectsCache[ancestorUri] is not CimAutoClass ancestorClass)
-            return false;
+    // private bool AddAncestorToClass(Uri childClassUri, Uri ancestorUri)
+    // {
+    //     if (_ObjectsCache[childClassUri] is not CimAutoClass childClass
+    //         || _ObjectsCache[ancestorUri] is not CimAutoClass ancestorClass)
+    //         return false;
 
-        childClass.AddExtension(ancestorClass);
+    //     childClass.AddExtension(ancestorClass);
 
-        return true;
-    }
+    //     return true;
+    // }
 
     /// <summary>
     ///     Create new domain class of property (for abstract classes). Makes
@@ -269,8 +269,8 @@ public class CimAutoSchemaSerializer(RdfReaderBase rdfReader)
 
         if (_ObjectsCache.ContainsKey(ancestorClassUri) == false) AddClass(ancestorClassUri, false, false);
 
-        if (RdfUtils.RdfUriEquals(ancestorClassUri, childClassUri) == false)
-            AddAncestorToClass(childClassUri, ancestorClassUri);
+        // if (RdfUtils.RdfUriEquals(ancestorClassUri, childClassUri) == false)
+        //     AddAncestorToClass(childClassUri, ancestorClassUri);
 
         return ancestorClassUri;
     }
