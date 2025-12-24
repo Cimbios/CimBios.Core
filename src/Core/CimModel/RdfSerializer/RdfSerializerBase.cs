@@ -1,33 +1,53 @@
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 using System.Globalization;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
+using CimBios.Core.CimModel.DatatypeLib.OID;
+using CimBios.Core.CimModel.RdfSerializer.DeserializationResult;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Core.RdfIOLib;
-using CimBios.Utils.ClassTraits.CanLog;
+using Serilog;
 
 namespace CimBios.Core.CimModel.RdfSerializer;
 
 /// <summary>
 ///     Base serializer class provides (de)serialization functions.
 /// </summary>
-public abstract class RdfSerializerBase : ICanLog
+public abstract class RdfSerializerBase : IRdfSerializer
 {
     private const string RdfDescription = "http://www.w3.org/1999/02/22-rdf-syntax-ns#Description";
 
-    protected RdfSerializerBase(ICimSchema schema, ICimDatatypeLib datatypeLib)
+    protected RdfSerializerBase(ICimSchema schema, ICimDatatypeLib datatypeLib,
+        ILogger? logger=null)
     {
         Schema = schema;
         TypeLib = datatypeLib;
-        _log = new PlainLogView(this);
+        Logger = logger;
 
         Settings = new RdfSerializerSettings();
     }
-
-    /// <summary>
-    ///     Rdf serializer settings.
-    /// </summary>
+    
     public RdfSerializerSettings Settings { get; init; }
+    
+    public Uri BaseUri { get; set; } = new("http://cim.bios/serialization/rdf");
 
     /// <summary>
     ///     Cim schema rules.
@@ -38,14 +58,7 @@ public abstract class RdfSerializerBase : ICanLog
     ///     CIM data types library for concrete typed instances creating.
     /// </summary>
     private ICimDatatypeLib TypeLib { get; }
-
-    public Uri BaseUri { get; set; } = new(
-        "http://cim.bios/serialization/rdf");
-
-
-    public IReadOnlyCollection<ModelObjectUnresolvedReference>
-        UnresolvedReferences => _waitingReferenceObjects.Values;
-
+    
     /// <summary>
     ///     Rdf reader abstract entity.
     /// </summary>
@@ -60,6 +73,8 @@ public abstract class RdfSerializerBase : ICanLog
     ///     OID Descriptor factory for producing model objects.
     /// </summary>
     protected abstract IOIDDescriptorFactory OidDescriptorFactory { get; }
+    
+    protected ILogger? Logger { get; }
 
     /// <summary>
     ///     Cache used namespaces while objects serializing.
@@ -70,11 +85,7 @@ public abstract class RdfSerializerBase : ICanLog
     ///     Cached used namespaces.
     /// </summary>
     private HashSet<Uri> CachedNamespaces { get; } = [];
-
-    public ILogView Log => _log;
     
-    private readonly PlainLogView _log;
-
     private Dictionary<string, CimAutoClass> _createdAutoClassesCache = [];
     private Dictionary<string, CimAutoProperty> _createdAutoPropertiesCache = [];
 
@@ -86,26 +97,25 @@ public abstract class RdfSerializerBase : ICanLog
 
     private Dictionary<(IOIDDescriptor, ICimMetaProperty),
         ModelObjectUnresolvedReference> _waitingReferenceObjects = [];
-
-    /// <summary>
-    ///     Deserialize data provider data to IModelObject instances.
-    ///     <returns>Deserializer IModelObject collection.</returns>
-    /// </summary>
-    public IEnumerable<IModelObject> Deserialize(StreamReader streamReader)
+    
+    public IDeserializationResult Deserialize(StreamReader streamReader)
     {
         ResetCache();
         InitializeRdfReader(streamReader);
-        Schema.InvalidateAuto();
         var deserializedObjects = ReadObjects();
+
+        var result = new DeserializationResult.DeserializationResult
+        {
+            Namespaces = RdfReader.Namespaces,
+            UnresolvedReferences = _waitingReferenceObjects.Values.ToHashSet(),
+            ModelObjects = deserializedObjects
+        };
+        
         ResetCache();
 
-        return deserializedObjects;
+        return result;
     }
-
-    /// <summary>
-    ///     Serialize IModelObject instances to data provider source.
-    ///     <param name="modelObjects">IModelObject collection for serialization.</param>
-    /// </summary>
+    
     public void Serialize(StreamWriter streamWriter,
         IEnumerable<IModelObject> modelObjects)
     {
@@ -128,7 +138,8 @@ public abstract class RdfSerializerBase : ICanLog
         _streamWriter = streamWriter ?? throw new Exception("No data stream for write!");
 
         RdfWriter.RdfIRIMode = Settings.WritingIRIMode;
-        RdfWriter.Open(streamWriter);
+        RdfWriter.NormalizeIris = Settings.NormalizeIris;
+        RdfWriter.Open(streamWriter, !Settings.IncludeBaseNamespace);
     }
 
     private List<RdfNode> BuildObjectsToWrite(
@@ -160,10 +171,11 @@ public abstract class RdfSerializerBase : ICanLog
         if (Schema.TryGetResource<ICimMetaClass>(metaClass.BaseUri) == null
             && Settings.UnknownClassesAllowed == false)
         {
-            _log.Error(
-                $"Failed to write instance {modelObject.OID} to Rdf node: " +
-                $"Property {metaClass.ShortName} does not exist in schema!",
-                modelObject);
+            Logger?.ForContext<RdfReaderBase>().Error(
+                "Failed to write instance {oid} to Rdf node: " +
+                "Property {metaClass} does not exist in schema!",
+                modelObject.OID,
+                metaClass.ShortName);
 
             return null;
         }
@@ -179,10 +191,9 @@ public abstract class RdfSerializerBase : ICanLog
             }
             catch (Exception ex)
             {
-                _log.Error(
-                    $"Failed to write property {schemaProperty.ShortName} " +
-                    $"of instance {modelObject.OID} to Rdf node: {ex.Message}",
-                    modelObject);
+                Logger?.ForContext<RdfReaderBase>().Error(ex,
+                    "Failed to write property {property} of instance {modelObject} to Rdf node",
+                    schemaProperty.ShortName, modelObject.OID);
             }
 
         if (CacheUsedWritingNamespaces) 
@@ -219,7 +230,11 @@ public abstract class RdfSerializerBase : ICanLog
             case CimMetaPropertyKind.Statements:
                 objectData = GetObjectAsStatements(modelObject, property);
                 break;
-            //CimMetaPropertyKind.NonStandard
+            case CimMetaPropertyKind.NonStandard:
+                Logger?.ForContext<RdfReaderBase>()
+                    .Error("Property {property} kind is not supported",
+                        property.BaseUri);
+                break;
         }
 
         if (objectData is Uri uriReference)
@@ -353,7 +368,7 @@ public abstract class RdfSerializerBase : ICanLog
 
             foreach (var statement in statements)
             {
-                var rdfNode = ModelObjectToRdfNode(statement, true);
+                var rdfNode = ModelObjectToRdfNode(statement, false);
                 if (rdfNode == null 
                     || rdfNode.TypeIdentifier.AbsoluteUri == RdfDescription 
                     && rdfNode.Triples.Length == 0) continue;
@@ -440,10 +455,10 @@ public abstract class RdfSerializerBase : ICanLog
             }
             catch (Exception ex)
             {
-                _log.Error(
-                    $"Error raised while {instanceNode.Identifier} " +
-                    $"ModelObject constructing: {ex.Message}.",
-                    instanceNode);
+                Logger?.ForContext<RdfReaderBase>().Error(ex,
+                    "Error raised while {instanceNode} " +
+                    "ModelObject constructing",
+                    instanceNode.Identifier);
             }
         }
 
@@ -521,11 +536,9 @@ public abstract class RdfSerializerBase : ICanLog
             }
             else
             {
-                _log.Warn(
-                    "Skip non-existing schema class "
-                    + $"{instanceNode.TypeIdentifier.AbsoluteUri} in "
-                    + $"instance {instanceNode.Identifier}",
-                    instanceNode);
+                Logger?.ForContext<RdfReaderBase>().Warning(
+                    "Skip non-existing schema class {class} in instance {instance}",
+                    instanceNode.TypeIdentifier, instanceNode.Identifier);
                 
                 return null;
             }
@@ -581,11 +594,9 @@ public abstract class RdfSerializerBase : ICanLog
             }
             else
             {
-                _log.Warn(
-                    "Skip non-existing schema property "
-                    + $"{propertyTriple.Predicate.AbsoluteUri} in "
-                    + $"instance {instance.OID}",
-                    instance);
+                Logger?.ForContext<RdfReaderBase>().Warning(
+                    "Skip non-existing schema property {property} in {oid}",
+                    propertyTriple.Predicate, instance.OID);
 
                 return;
             }
@@ -593,11 +604,9 @@ public abstract class RdfSerializerBase : ICanLog
 
         if (schemaProperty.PropertyDatatype is null)
         {
-            _log.Warn(
-                "Skip schema property "
-                + $"{propertyTriple.Predicate.AbsoluteUri} in "
-                + $"instance {instance.OID} cause of non existing datatype",
-                instance);
+            Logger?.ForContext<RdfReaderBase>().Warning(
+                "Skip schema property {property} in {oid} cause of non existing datatype",
+                propertyTriple.Predicate, instance.OID);
 
             return;
         }
@@ -743,11 +752,10 @@ public abstract class RdfSerializerBase : ICanLog
                     out var convertedValue))
                 endData = convertedValue;
             else
-                _log.Error(
-                    $"Unable to convert {data} value to " +
-                    $"{dataType.PrimitiveType.Name} for {property.ShortName}" +
-                    $"of instance {instance.OID}!",
-                    instance);
+                Logger?.ForContext<RdfReaderBase>().Error(
+                    "Unable to convert {data} value to " +
+                    "{dataType} for {property} of instance {instance}!",
+                    data, dataType.PrimitiveType.Name, property.ShortName, instance.OID);
         }
         else if (property.PropertyDatatype is { } dataClass)
         {
@@ -762,7 +770,7 @@ public abstract class RdfSerializerBase : ICanLog
                     var oid = new TextDescriptor(autoNodeUri);
                     _objectsCache.TryGetValue(oid, out var compoundReference);
                     endData = compoundReference;
-                    
+
                     if (compoundReference is not null)
                         _privateDeserializeObjects.Add(oid);
                 }
@@ -775,10 +783,10 @@ public abstract class RdfSerializerBase : ICanLog
                 if (schemaEnumValue != null)
                     endData = TypeLib.CreateEnumValueInstance(schemaEnumValue);
                 else
-                    _log.Error(
-                        $"Enum value {enumValueUri} of instance " +
-                        $"{instance.OID} does not exist in schema!",
-                        instance);
+                    Logger?.ForContext<RdfReaderBase>().Error(
+                        "Enum value {enumValueUri} of instance " +
+                        "{instance} does not exist in schema!",
+                        enumValueUri, instance.OID);
             }
         }
 
@@ -788,8 +796,9 @@ public abstract class RdfSerializerBase : ICanLog
         }
         catch (Exception ex)
         {
-            _log.Error("Failed set attribute to instance " +
-                       $"{instance.OID}: {ex.Message}", instance);
+            Logger?.ForContext<RdfReaderBase>()
+                .Error(ex, "Failed set attribute to instance {oid}",
+                       instance.OID);
         }
     }
 
@@ -852,10 +861,10 @@ public abstract class RdfSerializerBase : ICanLog
         }
         catch (Exception ex)
         {
-            _log.Error(
+            Logger?.ForContext<RdfReaderBase>().Error(ex,
                 "Failed to set association between instances " +
-                $"{instance.OID} and {referenceInstance.OID}: {ex.Message}",
-                instance);
+                "{instance} and {referenceInstance}",
+                instance.OID, referenceInstance.OID);
         }
     }
 

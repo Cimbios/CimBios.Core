@@ -1,28 +1,40 @@
-using CimBios.Utils.ClassTraits.CanLog;
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+using Serilog;
 
 namespace CimBios.Core.CimModel.Schema;
 
 /// <summary>
 ///     Cim schema interface. Defines usage structure.
 /// </summary>
-public interface ICimSchema : ICanLog
+public interface ICimSchema
 {
     /// <summary>
     ///     Prefix to namespace URI mapping for schema.
     /// </summary>
-    public IReadOnlyDictionary<string, Uri> Namespaces { get; }
+    public IDictionary<string, Uri> Namespaces { get; }
 
     /// <summary>
     ///     All CimMetaClass instances - RDF description instances
     ///     of RDF type Class.
     /// </summary>
     public IEnumerable<ICimMetaClass> Classes { get; }
-
-    /// <summary>
-    ///     All CimMetaClass instances - RDF description instances
-    ///     of RDF type Class.
-    /// </summary>
-    public IEnumerable<ICimMetaClass> Extensions { get; }
 
     /// <summary>
     ///     All CimMetaProperty instances - RDF description instances
@@ -40,11 +52,12 @@ public interface ICimSchema : ICanLog
     ///     of RDF type Datatype.
     /// </summary>
     public IEnumerable<ICimMetaDatatype> Datatypes { get; }
-
+    
     /// <summary>
-    ///     Tie all same name enums in one via extension link.
+    ///     All CimMetaPackage instances - RDF description instances
+    ///     of RDF type cims:ClassCategory.
     /// </summary>
-    public bool TieSameNameEnums { get; set; }
+    public IEnumerable<ICimMetaPackage> Packages { get; }
 
     /// <summary>
     ///     Resource super class for all objective classes.
@@ -118,7 +131,7 @@ public interface ICimSchema : ICanLog
     /// <summary>
     ///     Clear no reference (auto created) auto meta types from schema.
     /// </summary>
-    public void InvalidateAuto();
+    //public void InvalidateAuto();
 }
 
 /// <summary>
@@ -130,5 +143,5 @@ public interface ICimSchemaFactory
     ///     Create ICimSchema instance.
     /// </summary>
     /// <returns>ICimSchema instance.</returns>
-    public ICimSchema CreateSchema();
+    public ICimSchema CreateSchema(ILogger? logger=null);
 }

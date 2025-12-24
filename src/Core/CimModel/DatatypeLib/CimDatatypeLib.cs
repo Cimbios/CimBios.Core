@@ -1,35 +1,54 @@
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 using System.ComponentModel;
 using System.Reflection;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
+using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Utils.ClassTraits.CanLog;
+using Serilog;
 
-namespace CimBios.Core.CimModel.CimDatatypeLib;
+namespace CimBios.Core.CimModel.DatatypeLib;
 
 /// <summary>
 ///     Concrete model objects types library class.
 /// </summary>
 public class CimDatatypeLib : ICimDatatypeLib
 {
-    private readonly HashSet<Assembly> _LoadedAssemblies = [];
+    public ICimSchema Schema { get; }
 
-    private readonly PlainLogView _Log;
+    private readonly HashSet<Assembly> _LoadedAssemblies = [];
 
     private readonly Dictionary<ICimMetaClass, Type> _RegisteredTypes = [];
 
-    private readonly ICimSchema _Schema;
+    protected ILogger? Logger { get; }
 
-    public CimDatatypeLib(ICimSchema cimSchema)
+    public CimDatatypeLib(ICimSchema cimSchema, ILogger? logger = null)
     {
-        _Log = new PlainLogView(this);
-
-        _Schema = cimSchema;
+        Schema = cimSchema;
+        Logger = logger;
 
         LoadAssembly(Assembly.GetExecutingAssembly());
     }
 
-    public CimDatatypeLib(string typesAssemblyPath, ICimSchema cimSchema)
-        : this(cimSchema)
+    public CimDatatypeLib(string typesAssemblyPath,
+        ICimSchema cimSchema, ILogger? logger=null)
+        : this(cimSchema, logger)
     {
         LoadAssembly(typesAssemblyPath);
     }
@@ -42,8 +61,6 @@ public class CimDatatypeLib : ICimDatatypeLib
     public IReadOnlyDictionary<ICimMetaClass, Type> RegisteredTypes
         => _RegisteredTypes.AsReadOnly();
 
-    public ILogView Log => _Log.AsReadOnly();
-
     public void LoadAssembly(string typesAssemblyPath, bool reset = true)
     {
         var assembly = Assembly.Load(typesAssemblyPath);
@@ -52,12 +69,16 @@ public class CimDatatypeLib : ICimDatatypeLib
 
     public void LoadAssembly(Assembly typesAssembly, bool reset = true)
     {
-        if (_Log.DebugLogMode) _Log.Info($"Loading types assembly {typesAssembly.FullName}");
+        Logger?.ForContext<CimDatatypeLib>()
+            .Debug("Loading types assembly {name}", typesAssembly.FullName);
 
         if (reset)
         {
             _LoadedAssemblies.Clear();
             _RegisteredTypes.Clear();
+            
+            // Restore default core types
+            LoadAssembly(Assembly.GetExecutingAssembly(), reset: false);
         }
 
         _LoadedAssemblies.Add(typesAssembly);
@@ -70,32 +91,41 @@ public class CimDatatypeLib : ICimDatatypeLib
 
     public void RegisterType(Type type)
     {
-        if (_Log.DebugLogMode) _Log.Info($"Register type {type.FullName}");
+        Logger?.ForContext<CimDatatypeLib>()
+            .Debug("Register type {name}", type.FullName);
 
         var attribute = type.GetCustomAttribute<CimClassAttribute>();
         if (attribute == null)
         {
-            _Log.Warn($"Type {type.FullName} does not have CimClass attribute!");
-
+            Logger?.ForContext<CimDatatypeLib>()
+                .Warning("Type {name} does not have CimClass attribute", type.FullName);
             return;
         }
 
         var typeUri = new Uri(attribute.AbsoluteUri);
-        var metaType = _Schema.TryGetResource<ICimMetaClass>(typeUri);
+        var metaType = Schema.TryGetResource<ICimMetaClass>(typeUri);
 
         // Not registered in schema.
-        if (metaType == null) return;
-
-        if (type.IsEnum)
+        if (metaType == null)
         {
-            _RegisteredTypes.Add(metaType, type);
+            Logger?.ForContext<CimDatatypeLib>()
+                .Debug("Schema entity {type} skipped: type not registered", typeUri);
+
             return;
         }
+
+        if (type.IsEnum)
+            {
+                _RegisteredTypes.Add(metaType, type);
+                return;
+            }
 
         var iface = type.GetInterface(nameof(IModelObject));
         if (iface == null)
         {
-            _Log.Warn($"Type {type.FullName} does not implement IModelObject interface!");
+            Logger?.ForContext<CimDatatypeLib>()
+                .Warning("Type {name} does not implement IModelObject interface",
+                    type.FullName);
 
             return;
         }
@@ -106,7 +136,7 @@ public class CimDatatypeLib : ICimDatatypeLib
     public IModelObject? CreateInstance(IModelObjectFactory modelObjectFactory,
         IOIDDescriptor oid, ICimMetaClass metaClass)
     {
-        if (_Schema.CanCreateClass(metaClass) == false)
+        if (Schema.CanCreateClass(metaClass) == false)
             throw new NotSupportedException(
                 $"Class {metaClass.ShortName} cannot be created!");
 
@@ -119,7 +149,8 @@ public class CimDatatypeLib : ICimDatatypeLib
 
         instance ??= modelObjectFactory.Create(oid, metaClass);
 
-        if (instance is DynamicModelObjectBase dynamicModelObject) dynamicModelObject.InternalTypeLib = this;
+        if (instance is DynamicModelObjectBase dynamicModelObject)
+            dynamicModelObject.InternalTypeLib = this;
 
         return instance;
     }
@@ -130,7 +161,7 @@ public class CimDatatypeLib : ICimDatatypeLib
         var metaClass = TypedToMetaClass<T>();
         var type = RegisteredTypes[metaClass];
 
-        if (_Schema.CanCreateClass(metaClass) == false)
+        if (Schema.CanCreateClass(metaClass) == false)
             throw new NotSupportedException(
                 $"Class {metaClass.ShortName} cannot be created!");
 
@@ -160,7 +191,7 @@ public class CimDatatypeLib : ICimDatatypeLib
             return enumValueInstance as EnumValueObject;
         }
 
-        if (_Schema.Individuals.Contains(metaIndividual)) return new EnumValueObject(metaIndividual);
+        if (Schema.Individuals.Contains(metaIndividual)) return new EnumValueObject(metaIndividual);
 
         throw new NotSupportedException(
             $"Enum value {metaIndividual.ShortName} is not registered!");

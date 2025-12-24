@@ -1,6 +1,5 @@
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
+using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Tests.Infrastructure;
 
 namespace CimBios.Tests.DatatypeLib;

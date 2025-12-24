@@ -1,20 +1,42 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.0</Version>
+    <Title>CimBios.Core.CimModel.Validation</Title>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\cbios.snk</AssemblyOriginatorKeyFile>
+    <PublicSign>true</PublicSign>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Description>Core data model library. Provides base classes and rules to validating CIM model.</Description>
+    <Copyright>Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt &lt;belizahrt@gmail.com&gt;</Copyright>
+    <PackageProjectUrl>https://github.com/Cimbios/CimBios.Core</PackageProjectUrl>
+    <PackageIcon>Core logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/Cimbios/CimBios.Core</RepositoryUrl>
+    <PackageTags>CIM, Common Information Model, CIMXML, RDFXML, IEC61970</PackageTags>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.13.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\DatatypeLib\CimBios.Core.CimModel.DatatypeLib.csproj" />
     <ProjectReference Include="..\DataModel\CimBios.Core.CimModel.DataModel.csproj" />
     <ProjectReference Include="..\Schema\CimBios.Core.CimModel.Schema.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Include="..\..\cbios.snk">
+      <Link>cbios.snk</Link>
+    </None>
+    <None Include="..\..\..\..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\..\Core logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <Link>Core logo.png</Link>
+    </None>
+  </ItemGroup>
 </Project>

@@ -38,7 +38,7 @@
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>created</rdfs:label>
 		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
-		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#datetime"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
@@ -54,7 +54,7 @@
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>modelingAuthoritySet</rdfs:label>
 		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
-		<rdfs:range rdf:resource="#URI"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#anyuri"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
@@ -62,6 +62,7 @@
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>profile</rdfs:label>
 		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#anyuri"/>
 		<rdfs:range rdf:resource="#URI"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1..n"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
@@ -70,7 +71,7 @@
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>scenarioTime</rdfs:label>
 		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
-		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#datetime"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
@@ -235,7 +236,7 @@ In a bus-branch model, the connected status is used to tell if equipment is disc
 		<rdfs:label>startTime</rdfs:label>
 		<rdfs:comment>The time for the first time point.  The value can be a time of day, not a specific date.</rdfs:comment>
 		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#BasicIntervalSchedule"/>
-		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#datetime"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
@@ -1328,7 +1329,7 @@ The integer values are from IEC 61968-9 to support revenue metering applications
 		<rdfs:label>endTime</rdfs:label>
 		<rdfs:comment>The time for the last time point.  The value can be a time of day, not a specific date.</rdfs:comment>
 		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#RegularIntervalSchedule"/>
-		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#datetime"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
@@ -2652,6 +2653,14 @@ The inherited association ConductingEquipment.BaseVoltage should not be used.  T
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
 		<cims:inverseRoleName rdf:resource="http://iec.ch/TC57/CIM100#BaseVoltage.TransformerEnds"/>
 	</rdf:Description>
+	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#BaseVoltage.TransformerEnds">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#BaseVoltage" />
+		<rdfs:range rdf:resource="http://iec.ch/TC57/CIM100#TransformerEnd" />
+		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n" />
+		<cims:inverseRoleName rdf:resource="http://iec.ch/TC57/CIM100#TransformerEnd.BaseVoltage" />
+		<rdfs:label>TransformerEnds</rdfs:label>
+	</rdf:Description>
 	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#TransformerEnd.Terminal">
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>Terminal</rdfs:label>
@@ -2830,7 +2839,7 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.Windings">
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>Windings</rdfs:label>
-		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#CurrentTransformer"/>
 		<rdfs:range rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformerWinding"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..n"/>
 		<cims:inverseRoleName rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformerWinding.Transformer"/>
@@ -2838,7 +2847,7 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.isEmbeded">
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>isEmbeded</rdfs:label>
-		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#CurrentTransformer"/>
 		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
@@ -2846,7 +2855,7 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.ratedCurrent">
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>ratedCurrent</rdfs:label>
-		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#CurrentTransformer"/>
 		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
@@ -2854,7 +2863,7 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 	<rdf:Description rdf:about="http://gost.ru/2019/schema-cim01#CurrentTransformer.ratedSecondaryCurrent">
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>ratedSecondaryCurrent</rdfs:label>
-		<rdfs:domain rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
+		<rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#CurrentTransformer"/>
 		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
@@ -2864,7 +2873,6 @@ AuxiliaryEquipment is attached to primary equipment via an association with Term
 		<rdfs:label>CurrentTransformer</rdfs:label>
 		<rdfs:comment>Instrument transformer used to measure electrical qualities of the circuit that is being protected and/or monitored. Typically used as current transducer for the purpose of metering or protection. A typical secondary current rating would be 5A.</rdfs:comment>
 		<cims:belongsToCategory rdf:resource="#Package_AuxiliaryEquipment"/>
-		<rdfs:subClassOf rdf:resource="http://gost.ru/2019/schema-cim01#CurrentTransformer"/>
 		<rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#Sensor"/>
 	</rdf:Description>
 	<rdf:Description rdf:about="http://iec.ch/TC57/CIM100#CurrentTransformer.accuracyClass">

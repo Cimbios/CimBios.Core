@@ -1,7 +1,9 @@
-﻿using CimBios.Core.CimModel.CimDataModel;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
-using CimBios.Core.CimModel.CimDifferenceModel;
+﻿using System.Reflection;
+using CimBios.Core.CimModel.DataModel;
+using CimBios.Core.CimModel.DataModel.Document;
+using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.Factory;
+using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
@@ -17,6 +19,7 @@ public static class ModelLoader
         var schema = LoadTestCimRdfSchema();
 
         var typeLib = new CimDatatypeLib(schema);
+        typeLib.LoadAssembly(Assembly.GetExecutingAssembly(), reset: true);
 
         var cimDocument = new CimDocument(schema, typeLib,
             new TextDescriptorFactory());
@@ -40,6 +43,7 @@ public static class ModelLoader
         var schema = LoadTestCimRdfSchema();
 
         var typeLib = new CimDatatypeLib(schema);
+        typeLib.LoadAssembly(Assembly.GetExecutingAssembly(), reset: true);
 
         var cimDocument = new CimDocument(schema, typeLib,
             new TextDescriptorFactory());
@@ -63,6 +67,7 @@ public static class ModelLoader
         var schema = Load552HeadersCimRdfSchema();
 
         var typeLib = new CimDatatypeLib(schema);
+        typeLib.LoadAssembly(Assembly.GetExecutingAssembly(), reset: false);
 
         var cimDifferenceModel = new CimDifferenceModel(schema, typeLib,
             new TextDescriptorFactory());
@@ -88,7 +93,10 @@ public static class ModelLoader
     public static ICimDataModel CreateCimModelInstance()
     {
         var schema = LoadTestCimRdfSchema();
-        var cimDocument = new CimDocument(schema, new CimDatatypeLib(schema),
+        var typeLib = new CimDatatypeLib(schema);
+        typeLib.LoadAssembly(Assembly.GetExecutingAssembly(), reset: true);
+        
+        var cimDocument = new CimDocument(schema, typeLib,
             new TextDescriptorFactory());
 
         return cimDocument;
@@ -100,6 +108,8 @@ public static class ModelLoader
         var cimSchema = factory.CreateSchema();
 
         cimSchema.Load(new StreamReader(path));
+        cimSchema.Namespaces.TryAdd("cim", new Uri("http://iec.ch/TC57/CIM100#"));
+        cimSchema.Namespaces.TryAdd("rf", new Uri("http://gost.ru/2019/schema-cim01#"));
 
         return cimSchema;
     }

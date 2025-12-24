@@ -1,3 +1,21 @@
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 using CimBios.Core.RdfIOLib;
 
 namespace CimBios.Core.CimModel.Schema.RdfSchema;
@@ -25,6 +43,11 @@ public interface ICimRdfDescription : ICimMetaResource
         "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#dataType",
         MetaFieldType.ByRef)]
     public CimRdfsClass? Datatype { get; set; }
+    
+    [CimSchemaSerializable(
+        "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#belongsToCategory",
+        MetaFieldType.ByRef)]
+    public CimRdfsPackage? BelongsToCategory { get; set; }
 
     [CimSchemaSerializable(
         "http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#stereotype",
@@ -32,11 +55,38 @@ public interface ICimRdfDescription : ICimMetaResource
     public ICollection<UMLStereotype> Stereotypes { get; }
 }
 
+[CimSchemaSerializable("http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#ClassCategory")]
+public class CimRdfsPackage : CimMetaPackageBase, ICimRdfDescription, ICimMetaPackage
+{
+    public CimRdfsPackage(Uri baseUri): base(baseUri,
+        string.Empty, string.Empty)
+    {
+    }
+
+    public string Label
+    {
+        get => ShortName;
+        set => ShortName = value;
+    }
+
+    public string Comment
+    {
+        get => Description;
+        set => Description = value;
+    }
+    
+    public CimRdfsClass? Datatype { get; set; }
+    public CimRdfsPackage? BelongsToCategory { get; set; }
+    public ICollection<UMLStereotype> Stereotypes => _stereotypes;
+    
+    private readonly List<UMLStereotype> _stereotypes = [];
+}
+
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Class")]
 public class CimRdfsClass : CimMetaClassBase,
     ICimRdfDescription, ICimMetaClass, ICimMetaExtensible
 {
-    private readonly List<UMLStereotype> _Stereotypes = [];
+    private readonly List<UMLStereotype> _stereotypes = [];
 
     public CimRdfsClass(Uri baseUri) : base(baseUri,
         string.Empty, string.Empty)
@@ -61,25 +111,9 @@ public class CimRdfsClass : CimMetaClassBase,
     }
 
     public override bool IsAbstract => Stereotypes.Contains(UMLStereotype.CIMAbstract);
-    public override bool IsExtension => Stereotypes.Contains(UMLStereotype.CIMExtension);
     public override bool IsEnum => Stereotypes.Contains(UMLStereotype.Enumeration);
     public override bool IsCompound => Stereotypes.Contains(UMLStereotype.Compound);
     public override bool IsDatatype => Stereotypes.Contains(UMLStereotype.CIMDatatype);
-
-    public override bool AddExtension(ICimMetaClass extension)
-    {
-        if (CanAddExtension(extension))
-        {
-            _Ancestors.Add(extension);
-
-            (extension as CimRdfsClass)?.Stereotypes
-                .Add(UMLStereotype.CIMExtension);
-
-            return true;
-        }
-
-        return false;
-    }
 
     public string Label
     {
@@ -94,22 +128,11 @@ public class CimRdfsClass : CimMetaClassBase,
     }
 
     public CimRdfsClass? Datatype { get; set; }
-    public ICollection<UMLStereotype> Stereotypes => _Stereotypes;
-
-    private bool CanAddExtension(ICimMetaClass metaClass)
-    {
-        if (metaClass.IsCompound || metaClass.IsDatatype) return false;
-
-        if (metaClass.IsExtension) return true;
-
-        if (RdfUtils.TryGetEscapedIdentifier(BaseUri, out var thisName)
-            && RdfUtils.TryGetEscapedIdentifier(metaClass.BaseUri,
-                out var className)
-            && thisName == className)
-            return true;
-
-        return false;
-    }
+    
+    public CimRdfsPackage? BelongsToCategory 
+    { get => Package as CimRdfsPackage; set => Package = value; }
+    
+    public ICollection<UMLStereotype> Stereotypes => _stereotypes;
 }
 
 [CimSchemaSerializable("http://www.w3.org/2000/01/rdf-schema#Datatype")]
@@ -156,7 +179,7 @@ public class CimRdfsDatatype : CimRdfsClass, ICimMetaDatatype
 public class CimRdfsProperty : CimMetaPropertyBase,
     ICimRdfDescription, ICimMetaProperty
 {
-    private readonly List<UMLStereotype> _Stereotypes = [];
+    private readonly List<UMLStereotype> _stereotypes = [];
 
     public CimRdfsProperty(Uri baseUri)
         : base(baseUri, string.Empty, string.Empty)
@@ -190,7 +213,6 @@ public class CimRdfsProperty : CimMetaPropertyBase,
 
     public override CimMetaPropertyKind PropertyKind => GetMetaPropertyKind();
     public override ICimMetaClass? PropertyDatatype => GetDatatype();
-    public override bool IsExtension => IsDomainExtension();
     public override bool IsValueRequired => ValueRequired();
 
     [
@@ -213,7 +235,11 @@ public class CimRdfsProperty : CimMetaPropertyBase,
     }
 
     public CimRdfsClass? Datatype { get; set; }
-    public ICollection<UMLStereotype> Stereotypes => _Stereotypes;
+    
+    public CimRdfsPackage? BelongsToCategory 
+    { get => Package as CimRdfsPackage; set => Package = value; }
+    
+    public ICollection<UMLStereotype> Stereotypes => _stereotypes;
 
     private CimMetaPropertyKind GetMetaPropertyKind()
     {
@@ -245,13 +271,6 @@ public class CimRdfsProperty : CimMetaPropertyBase,
         return Range;
     }
 
-    private bool IsDomainExtension()
-    {
-        if (Domain == null) return false;
-
-        return Domain.IsExtension;
-    }
-
     private bool ValueRequired()
     {
         if (Multiplicity == null) return false;
@@ -268,7 +287,7 @@ public class CimRdfsIndividual(Uri baseUri)
     : CimMetaIndividualBase(baseUri, string.Empty, string.Empty),
         ICimRdfDescription, ICimMetaIndividual
 {
-    private readonly List<UMLStereotype> _Stereotypes = [];
+    private readonly List<UMLStereotype> _stereotypes = [];
 
     public string Label
     {
@@ -283,7 +302,11 @@ public class CimRdfsIndividual(Uri baseUri)
     }
 
     public CimRdfsClass? Datatype { get; set; }
-    public ICollection<UMLStereotype> Stereotypes => _Stereotypes;
+    
+    public CimRdfsPackage? BelongsToCategory 
+    { get => Package as CimRdfsPackage; set => Package = value; }
+    
+    public ICollection<UMLStereotype> Stereotypes => _stereotypes;
 }
 
 [

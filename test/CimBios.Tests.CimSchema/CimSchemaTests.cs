@@ -1,4 +1,4 @@
-namespace CimBios.Tests.CimSchemaTests;
+namespace CimBios.Tests.CimSchema;
 
 public class CimSchemaTests
 {

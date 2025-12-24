@@ -6,6 +6,7 @@ using System.Linq;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.RdfIOLib;
 using CimBios.Tools.ModelDebug.Models;
+using CimBios.Tools.ModelDebug.Models.CimSchemaTree;
 using CimBios.Tools.ModelDebug.Services;
 using CommunityToolkit.Mvvm.Input;
 
@@ -240,7 +241,6 @@ public class CimSchemaTreeViewModel : TreeViewModelBase
             + $"Enum={cimMetaClass.IsEnum}; "
             + $"Datatype={cimMetaClass.IsDatatype}; "
             + $"Abstract={cimMetaClass.IsAbstract}; "
-            + $"Extension={cimMetaClass.IsExtension}; "
             + $"CanCreate={CimSchemaContext?.CanCreateClass(cimMetaClass)};";
 
         return traits;

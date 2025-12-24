@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
-using CimBios.Core.CimModel.CimDataModel;
-using CimBios.Core.CimModel.CimDataModel.Utils;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDifferenceModel;
+using CimBios.Core.CimModel.DataModel;
 using CimBios.Core.CimModel.DataModel.Utils;
+using CimBios.Core.CimModel.DatatypeLib.DifferenceObject;
 using CimBios.Tools.ModelDebug.Models.CimObjects;
 using CimBios.Tools.ModelDebug.Views;
 
@@ -70,8 +68,7 @@ public class DiffObjectsViewModel : ViewModelBase
         var diffModel = GlobalServices.LoaderService.LoadDifferenceModelFromFile(
             openSaveResult.ModelPath,
             openSaveResult.DescriptorFactory,
-            openSaveResult.RdfSerializerFactory,
-            out _
+            openSaveResult.RdfSerializerFactory
         );
         
         if (diffModel is null) return;
@@ -101,8 +98,7 @@ public class DiffObjectsViewModel : ViewModelBase
         GlobalServices.LoaderService.SaveDifferenceModelToFile(
             _currentModel,
             openSaveResult.ModelPath,
-            openSaveResult.RdfSerializerFactory,
-            out _
+            openSaveResult.RdfSerializerFactory
         );
     }
 
@@ -125,7 +121,7 @@ public class DiffObjectsViewModel : ViewModelBase
                 openSaveResult.DescriptorFactory, 
                 openSaveResult.SchemaFactory, 
                 openSaveResult.RdfSerializerFactory,
-                openSaveResult.SerializerSettings, out _);
+                openSaveResult.SerializerSettings);
         
         if (comparedModel is null) return;
         

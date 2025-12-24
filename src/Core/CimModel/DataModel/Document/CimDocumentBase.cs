@@ -1,31 +1,51 @@
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Text;
-using CimBios.Core.CimModel.CimDataModel.Utils;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
-using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.DataModel.Utils;
+using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
+using CimBios.Core.CimModel.DatatypeLib.OID;
+using CimBios.Core.CimModel.DatatypeLib.TypeLib;
 using CimBios.Core.CimModel.RdfSerializer;
+using CimBios.Core.CimModel.RdfSerializer.DeserializationResult;
 using CimBios.Core.CimModel.Schema;
-using CimBios.Utils.ClassTraits.CanLog;
+using Serilog;
 
-namespace CimBios.Core.CimModel.CimDataModel;
+namespace CimBios.Core.CimModel.DataModel.Document;
 
-public abstract class CimDocumentBase : ICimDataModel, ICanLog
+public abstract class CimDocumentBase : ICimDataModel
 {
-    protected readonly PlainLogView PlainLog;
-
     protected CimDocumentBase(ICimSchema cimSchema, ICimDatatypeLib typeLib,
-        IOIDDescriptorFactory oidDescriptorFactory)
+        IOIDDescriptorFactory oidDescriptorFactory, ILogger? logger = null)
     {
-        PlainLog = new PlainLogView(this);
         Objects = [];
 
         Schema = cimSchema;
         TypeLib = typeLib;
         OIDDescriptorFactory = oidDescriptorFactory;
+
+        Logger = logger;
     }
+    
+    protected ILogger? Logger { get; }
 
     protected IReadOnlyCollection<ModelObjectUnresolvedReference>
         UnresolvedReferences { get; private set; } = [];
@@ -34,8 +54,6 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
     ///     All cached objects collection (uuid to IModelObject).
     /// </summary>
     protected Dictionary<IOIDDescriptor, IModelObject> Objects { get; set; }
-
-    public virtual ILogView Log => PlainLog;
 
     public virtual Model? ModelDescription { get; protected set; }
 
@@ -76,30 +94,36 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         IRdfSerializerFactory serializerFactory,
         ICimSchema cimSchema)
     {
-        var serializer = serializerFactory.Create(cimSchema,
-            TypeLib, OIDDescriptorFactory);
+        Logger?.ForContext<CimDocumentBase>().Information("Loading model ...");
 
-        serializer.BaseUri = new Uri(OIDDescriptorFactory.Namespace);
-
+        IDeserializationResult? result = null;
         try
         {
+            var serializer = serializerFactory.Create(cimSchema,
+                TypeLib, OIDDescriptorFactory, Logger);
+            
+            serializer.BaseUri = new Uri(OIDDescriptorFactory.Namespace);
+            
             Objects = [];
-            var deserialized = serializer.Deserialize(streamReader);
-            PushDeserializedObjects(deserialized);
+            result = serializer.Deserialize(streamReader);
+
+            foreach (var ns in result.Namespaces)
+                cimSchema.Namespaces.TryAdd(ns.Key, ns.Value);
+            
+            PushDeserializedObjects(result.ModelObjects);
         }
         catch (Exception ex)
         {
-            PlainLog.Critical($"Deserialization failed: {ex.Message}");
+            Logger?.ForContext<CimDocumentBase>()
+                .Fatal(ex, "Deserialization failed");
+
             throw;
         }
         finally
         {
             streamReader.Close();
 
-            UnresolvedReferences = serializer.UnresolvedReferences
-                .ToList().AsReadOnly();
-
-            PlainLog.FlushFrom(serializer.Log);
+            if (result != null) UnresolvedReferences = result.UnresolvedReferences;
         }
     }
 
@@ -165,7 +189,7 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         var forSerializeObjects = allObjects.ToImmutableList();
         
         var serializer = serializerFactory.Create(cimSchema,
-            TypeLib, OIDDescriptorFactory);
+            TypeLib, OIDDescriptorFactory, Logger);
 
         try
         {
@@ -174,14 +198,13 @@ public abstract class CimDocumentBase : ICimDataModel, ICanLog
         }
         catch (Exception ex)
         {
-            PlainLog.Critical($"Serialization failed: {ex.Message}");
+            Logger?.ForContext<CimDocumentBase>()
+                .Fatal(ex, "Serialization failed");
             throw;
         }
         finally
         {
             streamWriter.Close();
-
-            PlainLog.FlushFrom(serializer.Log);
         }
     }
 

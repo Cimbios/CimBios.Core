@@ -1,6 +1,6 @@
 using System.ComponentModel;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
+using System.Reflection;
+using CimBios.Core.CimModel.DatatypeLib;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Tests.Infrastructure;
 
@@ -68,6 +68,8 @@ public class EnumValueObjectTest
     private static ICimDatatypeLib GetTypeLib()
     {
         var schema = ModelLoader.LoadTestCimRdfSchema();
-        return new CimDatatypeLib(schema);
+        var typeLib = new CimDatatypeLib(schema);
+        typeLib.LoadAssembly("CimBios.Tests.Infrastructure", reset: true);
+        return typeLib;
     }
 }

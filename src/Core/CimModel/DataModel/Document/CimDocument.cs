@@ -1,10 +1,30 @@
-using CimBios.Core.CimModel.CimDataModel.Utils;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.Headers552;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
-using CimBios.Core.CimModel.Schema;
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 
-namespace CimBios.Core.CimModel.CimDataModel;
+using CimBios.Core.CimModel.DataModel.Utils;
+using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
+using CimBios.Core.CimModel.DatatypeLib.OID;
+using CimBios.Core.CimModel.DatatypeLib.TypeLib;
+using CimBios.Core.CimModel.Schema;
+using Serilog;
+
+namespace CimBios.Core.CimModel.DataModel.Document;
 
 /// <summary>
 ///     Instance of CIM model in Rdf/* format.
@@ -13,8 +33,9 @@ namespace CimBios.Core.CimModel.CimDataModel;
 public class CimDocument(
     ICimSchema cimSchema,
     ICimDatatypeLib typeLib,
-    IOIDDescriptorFactory oidDescriptorFactory)
-    : CimDocumentBase(cimSchema, typeLib, oidDescriptorFactory), ICimDataModel
+    IOIDDescriptorFactory oidDescriptorFactory,
+    ILogger? logger=null)
+    : CimDocumentBase(cimSchema, typeLib, oidDescriptorFactory, logger), ICimDataModel
 {
     public override IEnumerable<IModelObject> GetAllObjects()
     {
@@ -124,7 +145,7 @@ public class CimDocument(
     private void ResolveReferencesWithObject(IModelObject modelObject)
     {
         foreach (var refObj in UnresolvedReferences
-                     .Where(o => o.OID == modelObject.OID))
+                     .Where(o => o.OID.Equals(modelObject.OID)))
             refObj.ResolveWith(modelObject);
     }
 
@@ -149,17 +170,27 @@ public class CimDocument(
         }
 
         if (!needFullModel) return;
-        
-        ModelDescription = TypeLib.CreateInstance<FullModel>(
-            OIDDescriptorFactory.Create());
 
-        if (ModelDescription == null)
+        try
         {
-            PlainLog.Error("Failed to create FullModel!");
-            return;
+            ModelDescription = TypeLib.CreateInstance<FullModel>(
+                OIDDescriptorFactory.Create());
+
+            if (ModelDescription == null)
+            {
+                Logger?.ForContext<CimDocument>()
+                    .Error("Failed to create FullModel: it's not registered");
+
+                return;
+            }
+
+            ModelDescription.created = DateTime.Now;
         }
-            
-        ModelDescription.created = DateTime.Now;
+        catch (Exception ex)
+        {
+            Logger?.ForContext<CimDocument>()
+                .Error(ex, "Failed to create FullModel");
+        }
     }
 
     private static void UnlinkAllModelObjectAssocs(IModelObject modelObject)
@@ -167,6 +198,7 @@ public class CimDocument(
         foreach (var assoc in modelObject.MetaClass.AllProperties)
             if (assoc.PropertyKind == CimMetaPropertyKind.Assoc1To1)
                 modelObject.SetAssoc1To1(assoc, null);
-            else if (assoc.PropertyKind == CimMetaPropertyKind.Assoc1ToM) modelObject.RemoveAllAssocs1ToM(assoc);
+            else if (assoc.PropertyKind == CimMetaPropertyKind.Assoc1ToM) 
+                modelObject.RemoveAllAssocs1ToM(assoc);
     }
 }

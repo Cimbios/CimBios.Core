@@ -1,10 +1,24 @@
 using System;
 using CimBios.Tools.ModelDebug.Services;
+using Serilog;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
 
 public static class GlobalServices
 {
+    public static ILogger Logger
+    {
+        get
+        {
+            if (ServiceLocator.GetInstance().TryGetService<ILogger>(
+                    out var logger) == false || logger == null)
+                throw new NotSupportedException(
+                    "Logger has not been initialized!");
+
+            return logger;
+        }
+    }
+
     public static ProtocolService ProtocolService
     {
         get

@@ -1,9 +1,26 @@
-using CimBios.Core.CimModel.Schema;
-using CimBios.Core.CimModel.CimDatatypeLib.EventUtils;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
-using CimBios.Core.CimModel.CimDatatypeLib.Utils;
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 
-namespace CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.OID;
+using CimBios.Core.CimModel.DatatypeLib.Utils;
+using CimBios.Core.CimModel.Schema;
+
+namespace CimBios.Core.CimModel.DatatypeLib.ModelObject;
 
 /// <summary>
 /// Implementation of CIM meta typed identified object.
@@ -629,16 +646,13 @@ public class ModelObject : DynamicModelObjectBase,
             return true;
         }
 
-        if (metaProperty.PropertyDatatype.Equals(modelObject.MetaClass)
-            || modelObject.MetaClass.Extensions
-                .Any(a => a.Equals(metaProperty.PropertyDatatype)))
+        if (metaProperty.PropertyDatatype.Equals(modelObject.MetaClass))
         {
             return true;
         }
 
         var allAncestors = modelObject.MetaClass.AllAncestors;
-        if (allAncestors.Any(a => a.Equals(metaProperty.PropertyDatatype) 
-            || a.Extensions.Any(a => a.Equals(metaProperty.PropertyDatatype))))
+        if (allAncestors.Any(a => a.Equals(metaProperty.PropertyDatatype)))
         {
             return true;
         }

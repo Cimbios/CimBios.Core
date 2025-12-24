@@ -1,11 +1,30 @@
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 using System.Collections.ObjectModel;
 using System.Reflection;
 using CimBios.Core.RdfIOLib;
 using CimBios.Utils.MetaReflectionHelper;
+using Serilog;
 
 namespace CimBios.Core.CimModel.Schema.RdfSchema;
 
-public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
+public class CimRdfSchemaSerializer(RdfReaderBase rdfReader, ILogger? logger=null)
     : ICimSchemaSerializer
 {
     private readonly Dictionary<string, Uri> _Namespaces = [];
@@ -23,6 +42,9 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
 
     public void Load(TextReader reader)
     {
+        logger?.ForContext<CimRdfSchemaSerializer>()
+            .Information("Load schema from reader ...");
+
         _RdfReader.Load(reader);
     }
 
@@ -52,7 +74,8 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
     /// </summary>
     private void ForwardReaderNamespaces()
     {
-        foreach (var item in _RdfReader.Namespaces) _Namespaces.Add(item.Key, item.Value);
+        foreach (var item in _RdfReader.Namespaces)
+            _Namespaces.Add(item.Key, item.Value);
     }
 
     /// <summary>
@@ -65,15 +88,26 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
 
         foreach (var node in descriptionTypedNodes)
         {
-            if (_ObjectsCache.ContainsKey(node.Identifier)) continue;
+            if (_ObjectsCache.ContainsKey(node.Identifier))
+            {
+                logger?.ForContext<CimRdfSchemaSerializer>()
+                    .Warning("Duplicate definition of {iri} schema resource skiped",
+                            node.Identifier);
+
+                continue;
+            }
 
             if (_SerializeHelper.TryGetTypeInfo(node.TypeIdentifier
-                    .AbsoluteUri.ToLower(), out var typeInfo)
-                && typeInfo != null)
+                        .AbsoluteUri.ToLower(), out var typeInfo)
+                    && typeInfo != null)
             {
                 if (Activator.CreateInstance(typeInfo, node.Identifier)
                     is ICimRdfDescription instance)
                     _ObjectsCache.Add(node.Identifier, instance);
+                else
+                    logger?.ForContext<CimRdfSchemaSerializer>()
+                        .Warning("Failed to create {iri} schema resource",
+                            node.Identifier);
             }
             else
             {
@@ -94,7 +128,10 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
         {
             if ((_ObjectsCache.TryGetValue(node.TypeIdentifier, out var entity)
                  && entity is CimRdfsClass metaClass) == false)
+            {
+                logger?.ForContext<CimRdfSchemaSerializer>().Debug("Unknown node type {@node}", node);
                 continue;
+            }
 
             _ObjectsCache.Add(node.Identifier,
                 new CimRdfsIndividual(node.Identifier)
@@ -115,7 +152,13 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
             if (_ObjectsCache.TryGetValue(node.Identifier,
                     out var metaDescription) == false
                 || metaDescription is ICimRdfDescription == false)
+            {
+                logger?.ForContext<CimRdfSchemaSerializer>()
+                    .Error("Resolve error for {iri}: not found in dictionary",
+                        node.Identifier);
+
                 continue;
+            }
 
             foreach (var triple in node.Triples)
             {
@@ -123,13 +166,27 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
                     .TryGetMemberInfo(triple.Predicate.AbsoluteUri.ToLower(),
                         out var memberInfo);
 
-                if (result == false || memberInfo == null) continue;
+                if (result == false || memberInfo == null)
+                {
+                    logger?.ForContext<CimRdfSchemaSerializer>()
+                        .Debug("Resolve error for {iri}: triple {triple} not found in serializable entities",
+                            node.Identifier, triple.Predicate);
+
+                    continue;
+                }
 
                 var attribute = memberInfo
                     .GetCustomAttribute<CimSchemaSerializableAttribute>(true);
                 var value = triple.Object;
 
-                if (attribute == null || value == null) continue;
+                if (attribute == null || value == null)
+                {
+                    logger?.ForContext<CimRdfSchemaSerializer>()
+                        .Debug("Resolve error for {iri}: triple {triple} not found in serializable entities",
+                            node.Identifier, triple.Predicate);
+
+                    continue;
+                }
 
                 if (attribute.FieldType == MetaFieldType.ByRef
                     && value is RdfTripleObjectUriContainer valueRefUriContainer)
@@ -138,15 +195,19 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
                             out var description))
                         _SerializeHelper.SetMetaMemberValue(metaDescription,
                             memberInfo, description);
+                    else
+                        logger?.ForContext<CimRdfSchemaSerializer>()
+                            .Error("Resolve error for {iri}: triple {triple} reference target {target} not found in dictionary",
+                                node.Identifier, triple.Predicate, valueRefUriContainer.UriObject);
                 }
                 else if (attribute.FieldType == MetaFieldType.Value
-                         && value is RdfTripleObjectLiteralContainer literalContainer)
+                            && value is RdfTripleObjectLiteralContainer literalContainer)
                 {
                     _SerializeHelper.SetMetaMemberValue(metaDescription,
                         memberInfo, literalContainer.LiteralObject);
                 }
                 else if (attribute.FieldType == MetaFieldType.Enum
-                         && value is RdfTripleObjectUriContainer valueEnumUriContainer)
+                            && value is RdfTripleObjectUriContainer valueEnumUriContainer)
                 {
                     _SerializeHelper.TryGetMemberInfo(valueEnumUriContainer
                         .UriObject.AbsoluteUri.ToLower(), out var field);
@@ -158,6 +219,12 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
                         var enumValue = Enum.Parse(enumClass, field.Name);
                         _SerializeHelper.SetMetaMemberValue(metaDescription,
                             memberInfo, enumValue);
+                    }
+                    else
+                    {
+                        logger?.ForContext<CimRdfSchemaSerializer>()
+                            .Debug("Resolve error for {iri}: triple {triple} reference enum {enum} is not serializable",
+                                node.Identifier, triple.Predicate, valueEnumUriContainer.UriObject);
                     }
                 }
             }
@@ -215,6 +282,10 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader)
             if (valueProperty?.Datatype is CimRdfsDatatype cimRdfsDatatype
                 && cimRdfsDatatype.SystemType != null)
                 type = cimRdfsDatatype.SystemType;
+            else
+                logger?.ForContext<CimRdfSchemaSerializer>()
+                    .Error("Datatype {type} has not .value definition",
+                        metaClass.BaseUri);
 
             var metaDatatype = new CimRdfsDatatype(metaClass)
             {
@@ -255,11 +326,11 @@ public static class CimRdfSchemaStrings
         new("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement");
 }
 
-public class CimRdfSchemaSerializerFactory(RdfReaderBase rdfReader)
-    : ICimSchemaSerializerFactory
+public class CimRdfSchemaSerializerFactory (RdfReaderBase rdfReader,
+    ILogger? logger = null) : ICimSchemaSerializerFactory
 {
     public ICimSchemaSerializer CreateSerializer()
     {
-        return new CimRdfSchemaSerializer(rdfReader);
+        return new CimRdfSchemaSerializer(rdfReader, logger);
     }
 }

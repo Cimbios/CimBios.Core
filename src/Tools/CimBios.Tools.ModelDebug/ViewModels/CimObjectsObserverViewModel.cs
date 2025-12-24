@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using Avalonia.Controls.Selection;
-using CimBios.Core.CimModel.CimDataModel;
-using CimBios.Core.CimModel.CimDataModel.Utils;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.DataModel;
+using CimBios.Core.CimModel.DataModel.Utils;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
+using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Core.RdfIOLib;
 using CimBios.Tools.ModelDebug.Models;
+using CimBios.Tools.ModelDebug.Models.CimObjects;
 using CimBios.Tools.ModelDebug.Services;
 using CimBios.Tools.ModelDebug.Views;
 using CommunityToolkit.Mvvm.Input;
@@ -177,8 +178,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             openSaveResult.DescriptorFactory,
             openSaveResult.SchemaFactory,
             openSaveResult.RdfSerializerFactory,
-            openSaveResult.SerializerSettings,
-            out _
+            openSaveResult.SerializerSettings
         );
     }
 
@@ -196,8 +196,7 @@ public class CimObjectsObserverViewModel : TreeViewModelBase
             openSaveResult.SchemaPath,
             openSaveResult.SchemaFactory,
             openSaveResult.RdfSerializerFactory,
-            openSaveResult.SerializerSettings,
-            out _
+            openSaveResult.SerializerSettings
         );
     }
 

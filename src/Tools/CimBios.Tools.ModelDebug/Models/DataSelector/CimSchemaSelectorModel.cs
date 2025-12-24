@@ -1,6 +1,6 @@
 using CimBios.Core.CimModel.Schema;
 
-namespace CimBios.Tools.ModelDebug.Models;
+namespace CimBios.Tools.ModelDebug.Models.DataSelector;
 
 public class CimSchemaSelectorModel(
     string title,

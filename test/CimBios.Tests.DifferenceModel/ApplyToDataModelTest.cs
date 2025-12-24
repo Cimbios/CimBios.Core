@@ -1,6 +1,5 @@
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.CIM17Types;
 using CimBios.Core.CimModel.DataModel.Utils;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 using CimBios.Tests.Infrastructure;
 
 namespace CimBios.Tests.DifferenceModel;

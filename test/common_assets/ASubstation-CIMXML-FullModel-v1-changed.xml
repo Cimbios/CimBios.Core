@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" xmlns:uml="http://langdale.com.au/2005/UML#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:cim="http://iec.ch/TC57/CIM100#">
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#" xmlns:uml="http://langdale.com.au/2005/UML#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:cim="http://iec.ch/TC57/CIM100#">
+  <md:FullModel rdf:ID="_FullModelHeader">
+    <md:Model.created>2000-01-01T00:00:00.000Z</md:Model.created>
+  </md:FullModel>
   <cim:Substation rdf:ID="_SubstationA">
     <cim:Substation.Region rdf:resource="_TestRegion" />
     <cim:Substation.VoltageLevels rdf:resource="_AVoltageLevel35" />

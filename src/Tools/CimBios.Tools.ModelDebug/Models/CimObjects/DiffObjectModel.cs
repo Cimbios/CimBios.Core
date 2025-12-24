@@ -1,4 +1,4 @@
-﻿using CimBios.Core.CimModel.CimDatatypeLib;
+﻿using CimBios.Core.CimModel.DatatypeLib.DifferenceObject;
 
 namespace CimBios.Tools.ModelDebug.Models.CimObjects;
 

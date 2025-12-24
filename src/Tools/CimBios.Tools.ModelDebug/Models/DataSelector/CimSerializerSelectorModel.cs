@@ -1,6 +1,6 @@
 using CimBios.Core.CimModel.RdfSerializer;
 
-namespace CimBios.Tools.ModelDebug.Models;
+namespace CimBios.Tools.ModelDebug.Models.DataSelector;
 
 public class CimSerializerSelectorModel(
     string title,

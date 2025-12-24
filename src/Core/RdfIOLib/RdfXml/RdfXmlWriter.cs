@@ -1,7 +1,25 @@
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 using System.Text;
 using System.Xml;
 
-namespace CimBios.Core.RdfIOLib;
+namespace CimBios.Core.RdfIOLib.RdfXml;
 
 /// <summary>
 ///     Writer for rdf/xml formatted data.
@@ -79,7 +97,8 @@ public class RdfXmlWriter : RdfWriterBase
             nodeName.prefix,
             nodeName.name);
 
-        var iri = NormalizeIdentifier(rdfNode.Identifier);
+        var iri = NormalizeIris ? NormalizeIdentifier(rdfNode.Identifier) 
+            : rdfNode.Identifier.AbsoluteUri;
 
         if (rdfNode.IsAuto == false)
             XmlWriter.WriteAttributeString(
@@ -95,10 +114,13 @@ public class RdfXmlWriter : RdfWriterBase
             if (triple.Object is RdfTripleObjectUriContainer uriContainer)
                 XmlWriter.WriteAttributeString(
                     "rdf", "resource", Rdf,
-                    NormalizeIdentifier(uriContainer.UriObject));
+                    NormalizeIris ? NormalizeIdentifier(uriContainer.UriObject) 
+                        : uriContainer.UriObject.AbsoluteUri);
+            
             else if (triple.Object is RdfTripleObjectStatementsContainer statements)
                 foreach (var statement in statements.RdfNodesObject)
                     Write(statement);
+            
             else if (triple.Object is RdfTripleObjectLiteralContainer literal)
                 XmlWriter.WriteString(literal.LiteralObject);
 

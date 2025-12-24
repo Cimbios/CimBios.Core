@@ -6,6 +6,7 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.Models.TreeDataGrid;
 using CimBios.Tools.ModelDebug.Models;
+using CimBios.Tools.ModelDebug.Models.Protocol;
 using CimBios.Tools.ModelDebug.Services;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;

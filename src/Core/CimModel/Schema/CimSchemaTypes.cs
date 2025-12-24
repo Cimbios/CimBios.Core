@@ -1,3 +1,21 @@
+/*
+*    CimBios.Core - Common Information Model (IEC61970) I/O Library
+*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 using CimBios.Utils.MetaReflectionHelper;
 
 namespace CimBios.Core.CimModel.Schema;
@@ -28,10 +46,10 @@ internal static class XmlDatatypesMapping
     internal const string DecimalUri = "http://www.w3.org/2001/XMLSchema#decimal";
     internal const string FloatUri = "http://www.w3.org/2001/XMLSchema#float";
     internal const string DoubleUri = "http://www.w3.org/2001/XMLSchema#double";
-    internal const string DateTimeUri = "http://www.w3.org/2001/XMLSchema#dateTime";
+    internal const string DateTimeUri = "http://www.w3.org/2001/XMLSchema#datetime";
     internal const string TimeUri = "http://www.w3.org/2001/XMLSchema#time";
     internal const string DateUri = "http://www.w3.org/2001/XMLSchema#date";
-    internal const string AnyURIUri = "http://www.w3.org/2001/XMLSchema#anyURI";
+    internal const string AnyURIUri = "http://www.w3.org/2001/XMLSchema#anyuri";
 }
 
 /// <summary>
@@ -88,6 +106,11 @@ public interface ICimMetaResource : IEquatable<ICimMetaResource>
     public int GetHashCode();
 }
 
+public interface ICimMetaPackage : ICimMetaResource
+{
+    public IReadOnlySet<ICimMetaResource> Resources { get; }
+}
+
 /// <summary>
 /// Meta cim class info.
 /// </summary>
@@ -95,21 +118,20 @@ public interface ICimMetaClass : ICimMetaResource
 {
     public bool SuperClass { get; }
     public ICimMetaClass? ParentClass { get; set; }
+    public ICimMetaPackage? Package { get; }
     public IEnumerable<ICimMetaClass> AllAncestors { get; }
-    public IEnumerable<ICimMetaClass> Extensions { get; }
     public IEnumerable<ICimMetaProperty> AllProperties { get; }
     public IEnumerable<ICimMetaProperty> SelfProperties { get; }
     public IEnumerable<ICimMetaIndividual> AllIndividuals { get; }
     public IEnumerable<ICimMetaIndividual> SelfIndividuals { get; }
     public bool IsAbstract { get; }
-    public bool IsExtension { get; }
     public bool IsEnum { get; }
     public bool IsCompound { get; }
     public bool IsDatatype { get; }
 
     public bool HasProperty(ICimMetaProperty metaProperty, bool inherit = true);
-    
-    // public bool IsDescendantOf(ICimMetaClass metaClass, bool orEquals = false);
+        
+    public bool IsDescendantOf(ICimMetaClass metaClass, bool orEquals = false);
 }
 
 /// <summary>
@@ -117,20 +139,6 @@ public interface ICimMetaClass : ICimMetaResource
 /// </summary>
 internal interface ICimMetaExtensible
 {
-    /// <summary>
-    /// Add extension class to meta resource.
-    /// </summary>
-    /// <param name="extension">Meta extension class</param>
-    /// <returns>True if added.</returns>
-    public bool AddExtension(ICimMetaClass extension);
-
-    /// <summary>
-    /// Remove extension class from meta resource.
-    /// </summary>
-    /// <param name="extension"Meta extension class></param>
-    /// <returns>True if removed.</returns>
-    public bool RemoveExtension(ICimMetaClass extension);  
-
     /// <summary>
     /// 
     /// </summary>
@@ -162,6 +170,7 @@ internal interface ICimMetaExtensible
 public interface ICimMetaProperty : ICimMetaResource
 {   
     public ICimMetaClass? OwnerClass { get; }
+    public ICimMetaPackage? Package { get; }
     public CimMetaPropertyKind PropertyKind { get; }
     public ICimMetaProperty? InverseProperty { get; }
     public ICimMetaClass? PropertyDatatype { get; }

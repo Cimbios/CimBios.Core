@@ -2,7 +2,7 @@ namespace CimBios.Tools.CimTypeLibBuilder.TemplateReader;
 
 internal static class TemplateReader
 {
-    public static string RootBlock = "root";
+    public const string RootBlock = "root";
 
     public static IEnumerable<CodeBlockSyntax> ReadTemplate(string templatePath)
     {
@@ -22,7 +22,7 @@ internal static class TemplateReader
             ++lineNumber;
             var line = reader.ReadLine();
 
-            if (line == null || line == string.Empty)
+            if (string.IsNullOrEmpty(line))
             {
             }
             else if (line.Trim() == "~")
@@ -57,8 +57,6 @@ internal static class TemplateReader
                 var variables = ParseSpecs(line, '$', lineNumber);
                 foreach (var variable in variables.Distinct())
                 {
-                    if (blocksCache[cursor].Variables.Contains(variable)) continue;
-
                     blocksCache[cursor].Variables.Add(variable);
                 }
 
@@ -87,7 +85,7 @@ internal static class TemplateReader
 
         while ((fid = line.IndexOf(spec, fid)) != -1)
         {
-            var closeId = line.IndexOf(":", fid + 2);
+            var closeId = line.IndexOf(':', fid + 2);
             if (closeId == -1)
                 throw new Exception("Unexpected end of the line while variable definition in line" + lineNumber);
 

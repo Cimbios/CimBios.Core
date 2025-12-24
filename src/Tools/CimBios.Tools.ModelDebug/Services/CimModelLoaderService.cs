@@ -1,16 +1,17 @@
 using System;
 using System.IO;
 using Avalonia.Platform;
-using CimBios.Core.CimModel.CimDataModel;
-using CimBios.Core.CimModel.CimDatatypeLib;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
-using CimBios.Core.CimModel.CimDifferenceModel;
+using CimBios.Core.CimModel.DataModel;
+using CimBios.Core.CimModel.DataModel.Document;
+using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.Factory;
+using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
 using CimBios.Core.CimModel.Schema.RdfSchema;
 using CimBios.Tools.ModelDebug.ViewModels;
-using CimBios.Utils.ClassTraits.CanLog;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Serilog;
 
 namespace CimBios.Tools.ModelDebug.Services;
 
@@ -62,29 +63,25 @@ public class CimModelLoaderService : ObservableObject
         ICimSchemaFactory schemaFactory,
         IRdfSerializerFactory serializerFactory,
         RdfSerializerSettings serializerSettings,
-        out ILog log)
+        ILogger? logger=null)
     {
-        log = new PlainLogView(this);
+        logger ??= GlobalServices.Logger;
 
         try
         {
-            var schema = schemaFactory.CreateSchema();
+            var schema = schemaFactory.CreateSchema(logger);
             schema.Load(new StreamReader(schemaPath));
 
-            var typeLib = new CimDatatypeLib(schema);
+            var typeLib = new CimDatatypeLib(schema, logger);
 
-            var model = new CimDocument(schema, typeLib, descriptorFactory);
+            var model = new CimDocument(schema, typeLib, descriptorFactory, logger);
 
             serializerFactory.Settings = serializerSettings;
             model.Load(modelPath, serializerFactory);
 
-            log.FlushFrom(schema.Log);
-            log.FlushFrom(typeLib.Log);
-            log.FlushFrom(model.Log);
-
             DataContext = model;
 
-            InitializeLocalDifferences(model);
+            InitializeLocalDifferences(model, logger);
         }
         catch (Exception ex)
         {
@@ -92,7 +89,7 @@ public class CimModelLoaderService : ObservableObject
         }
         finally
         {
-            GlobalServices.ProtocolService.AddFromLibLog(log, $"Load CIM model {modelPath}");
+            GlobalServices.ProtocolService.Info($"Load CIM model {modelPath}", "Loader");
         }
     }
 
@@ -100,9 +97,9 @@ public class CimModelLoaderService : ObservableObject
         ICimSchemaFactory schemaFactory,
         IRdfSerializerFactory serializerFactory,
         RdfSerializerSettings serializerSettings,
-        out ILog log)
+        ILogger? logger=null)
     {
-        log = new PlainLogView(this);
+        logger ??= GlobalServices.Logger;
 
         if (DataContext is not CimDocument model)
         {
@@ -114,13 +111,11 @@ public class CimModelLoaderService : ObservableObject
 
         try
         {
-            var schema = schemaFactory.CreateSchema();
+            var schema = schemaFactory.CreateSchema(logger);
             schema.Load(new StreamReader(schemaPath));
 
             serializerFactory.Settings = serializerSettings;
             model.Save(modelPath, serializerFactory, schema);
-            log.FlushFrom(schema.Log);
-            log.FlushFrom(model.Log);
         }
         catch (Exception ex)
         {
@@ -129,8 +124,7 @@ public class CimModelLoaderService : ObservableObject
         }
         finally
         {
-            GlobalServices.ProtocolService.AddFromLibLog(log,
-                $"Save CIM model {modelPath}");
+            GlobalServices.ProtocolService.Info($"Save CIM model {modelPath}", "Loader");
         }
     }
 
@@ -138,20 +132,18 @@ public class CimModelLoaderService : ObservableObject
         string modelPath, 
         IOIDDescriptorFactory descriptorFactory,
         IRdfSerializerFactory serializerFactory, 
-        out ILog log)
+        ILogger? logger=null)
     {
-        log = new PlainLogView(this);
+        logger ??= GlobalServices.Logger;
 
         try
         {
-            var diffSchema = MakeDifferencesSchema();
-            var diffTypeLib = new CimDatatypeLib(diffSchema);
+            var diffTypeLib =  new CoreDatatypeLibFactory().Create();
 
-            var diffModel = new CimDifferenceModel(diffSchema, 
-                diffTypeLib, descriptorFactory);
+            var diffModel = new CimDifferenceModel(diffTypeLib.Schema, 
+                diffTypeLib, descriptorFactory, logger);
             
             diffModel.Load(modelPath, serializerFactory);
-            log.FlushFrom(diffModel.Log);
             
             DifferencesContext = diffModel;
             
@@ -164,8 +156,7 @@ public class CimModelLoaderService : ObservableObject
         }
         finally
         {
-            GlobalServices.ProtocolService.AddFromLibLog(log,
-                $"Difference model loaded {modelPath}");
+            GlobalServices.ProtocolService.Info($"Difference model loaded {modelPath}", "Loader");
         }
         
         return null;
@@ -175,16 +166,13 @@ public class CimModelLoaderService : ObservableObject
         ICimDifferenceModel differenceModel,
         string modelPath,
         IRdfSerializerFactory serializerFactory,
-        out ILog log)
+        ILogger? logger=null)
     {
-        log = new PlainLogView(this);
-
         try
         {
             if (differenceModel is not CimDifferenceModel differenceModelDoc) return;
             
             differenceModelDoc.Save(modelPath, serializerFactory);
-            log.FlushFrom(differenceModelDoc.Log);
         }
         catch (Exception ex)
         {
@@ -193,8 +181,7 @@ public class CimModelLoaderService : ObservableObject
         }
         finally
         {
-            GlobalServices.ProtocolService.AddFromLibLog(log,
-                $"Difference model saved {modelPath}");
+            GlobalServices.ProtocolService.Info($"Difference model saved {modelPath}", "Loader");
         }
     }
 
@@ -211,38 +198,30 @@ public class CimModelLoaderService : ObservableObject
         ICimSchemaFactory schemaFactory,
         IRdfSerializerFactory serializerFactory,
         RdfSerializerSettings serializerSettings,
-        out ILog log)
+        ILogger? logger=null)
     {        
-        log = new PlainLogView(this);
+        logger ??= GlobalServices.Logger;
         
         if (DataContext == null) return null;
 
         try
         {
-            var schema = schemaFactory.CreateSchema();
+            var schema = schemaFactory.CreateSchema(logger);
             schema.Load(new StreamReader(schemaPath));
 
-            var typeLib = new CimDatatypeLib(schema);
-
-            var model = new CimDocument(schema, typeLib, descriptorFactory);
+            var typeLib = new CimDatatypeLib(schema, logger);
+            var model = new CimDocument(schema, typeLib, descriptorFactory, logger);
 
             serializerFactory.Settings = serializerSettings;
             model.Load(modelPath, serializerFactory);
-            
-            log.FlushFrom(schema.Log);
-            log.FlushFrom(typeLib.Log);
-            log.FlushFrom(model.Log);
 
-            var diffSchema = MakeDifferencesSchema();
-            var diffTypeLib = new CimDatatypeLib(diffSchema);
+            var diffTypeLib = new CoreDatatypeLibFactory().Create();
+            var diffModel = new CimDifferenceModel(diffTypeLib.Schema,
+                diffTypeLib, descriptorFactory, logger);
 
-            var diffModel = new CimDifferenceModel(diffSchema, 
-                diffTypeLib, descriptorFactory);
-            
             diffModel.CompareDataModels(DataContext, model);
-            
-            log.FlushFrom(diffModel.Log);
-            
+
+
             return diffModel;
         }
         catch (Exception ex)
@@ -251,30 +230,15 @@ public class CimModelLoaderService : ObservableObject
         }
         finally
         {
-            GlobalServices.ProtocolService.AddFromLibLog(log, $"Compared with {modelPath}");
+            GlobalServices.ProtocolService.Info($"Compared with {modelPath}", "Loader");
         }
         
         return null;
     }
 
-    private void InitializeLocalDifferences(ICimDataModel model)
+    private void InitializeLocalDifferences(ICimDataModel model, ILogger logger)
     {
-        var diffSchema = MakeDifferencesSchema();
-        var diffTypeLib = new CimDatatypeLib(diffSchema);
-
-        _localDifferences = new CimDifferenceModel(diffSchema, diffTypeLib, model);
-    }
-
-    private static ICimSchema MakeDifferencesSchema()
-    {
-        var diffSchema = new CimRdfSchemaXmlFactory().CreateSchema();
-
-        var diffSchemaResource = AssetLoader
-            .Open(new Uri("avares://CimBios.Tools.ModelDebug/Assets/Iec61970-552-Headers-rdfs.xml"));
-        using TextReader schemaReader = new StreamReader(diffSchemaResource);
-
-        diffSchema.Load(schemaReader);
-        
-        return diffSchema;
+        var diffTypeLib =  new CoreDatatypeLibFactory().Create();
+        _localDifferences = new CimDifferenceModel(diffTypeLib.Schema, diffTypeLib, model);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
-using CimBios.Core.CimModel.CimDatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.DifferenceObject;
+using CimBios.Core.CimModel.DatatypeLib.ModelObject;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Tools.ModelDebug.Models.CimObjects;

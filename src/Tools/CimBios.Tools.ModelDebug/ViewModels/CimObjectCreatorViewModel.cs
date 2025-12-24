@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
-using CimBios.Core.CimModel.CimDatatypeLib.OID;
+using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
 
 namespace CimBios.Tools.ModelDebug.ViewModels;
