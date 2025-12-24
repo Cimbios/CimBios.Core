@@ -29,7 +29,6 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Core\CimModel\DataModel\CimBios.Core.CimModel.DataModel.csproj" />
         <ProjectReference Include="..\..\Core\CimModel\Validation\CimBios.Core.CimModel.Validation.csproj" />
-        <ProjectReference Include="..\..\Core\DataProvider\CimBios.Core.DataProvider.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Compile Update="Views/DataSelectorWindow.axaml.cs">

@@ -5,15 +5,41 @@
     </ItemGroup>
     <ItemGroup>
       <None Remove="Factory\CoreDatatypeLib.rdfs" />
+      <None Include="..\..\cbios.snk">
+        <Link>cbios.snk</Link>
+      </None>
+      <None Include="..\..\Core logo.png">
+        <Pack>True</Pack>
+          <PackagePath></PackagePath>
+        <Link>Core logo.png</Link>
+      </None>
+        <None Include="..\..\..\..\LICENSE" Pack="true" PackagePath="" />
     </ItemGroup>
     <ItemGroup>
-      <AdditionalFiles Include="Schemas\CoreDatatypeLib.rdfs">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </AdditionalFiles>
+        <Content Include="Schemas\**\*.*">
+            <IncludeInPackage>true</IncludeInPackage>
+            <PackageCopyToOutput>true</PackageCopyToOutput>
+        </Content>
     </ItemGroup>
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>1.0.0</Version>
+        <Title>CimBios.Core.CimModel.DatatypeLib</Title>
+        <Authors>CimBios Org</Authors>
+        <Description>Core data model objects library. Provides CIM type library classes to store and manipulate model objects properties and links</Description>
+        <Copyright>Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt &lt;belizahrt@gmail.com&gt;</Copyright>
+        <PackageProjectUrl>https://github.com/Cimbios/CimBios.Core</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Cimbios/CimBios.Core</RepositoryUrl>
+        <PackageTags>CIM, Common Information Model, CIMXML, RDFXML, IEC61970</PackageTags>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+        <FileVersion>1.0.0</FileVersion>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>..\..\cbios.snk</AssemblyOriginatorKeyFile>
+        <PublicSign>true</PublicSign>
+        <PackageIcon>Core logo.png</PackageIcon>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
     </PropertyGroup>
 </Project>

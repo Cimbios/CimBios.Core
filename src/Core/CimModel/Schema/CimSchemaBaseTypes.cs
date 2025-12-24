@@ -38,6 +38,25 @@ public abstract class CimMetaResourceBase : ICimMetaResource
     public string ShortName { get; protected set; }
 
     public string Description { get; protected set; }
+    
+    public ICimMetaPackage? Package
+    {
+        get => _package;
+        protected set
+        {
+            if (_package == value) return;
+            
+            if (value == null && _package != null)
+                (_package as CimMetaPackageBase)?._resources.Remove(this);
+            
+            _package = value;
+            
+            if (_package is CimMetaPackageBase basePackage)
+                basePackage._resources.Add(this);
+        }
+    }
+    
+    private ICimMetaPackage? _package;
 
     public bool Equals(ICimMetaResource? other)
     {
@@ -80,6 +99,18 @@ public abstract class CimMetaResourceBase : ICimMetaResource
     }
 }
 
+public abstract class CimMetaPackageBase : CimMetaResourceBase, ICimMetaPackage
+{
+    protected CimMetaPackageBase(Uri baseUri, string shortName, string description) 
+        : base(baseUri, shortName, description)
+    {
+    }
+
+    public IReadOnlySet<ICimMetaResource> Resources => _resources;
+    
+    internal HashSet<ICimMetaResource> _resources = [];
+}
+
 /// <summary>
 ///     Base meta cim class info.
 /// </summary>
@@ -107,15 +138,14 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
             var parentClass = GetParentClass();
             if (parentClass != null) _Ancestors.Remove(parentClass);
 
-            if (value != null && _Ancestors.Contains(value) == false) _Ancestors.Add(value);
+            if (value != null && _Ancestors.Contains(value) == false) 
+                _Ancestors.Add(value);
         }
     }
-
+    
     public virtual IEnumerable<ICimMetaClass> AllAncestors => GetAllAncestors();
 
     public virtual bool IsAbstract { get; protected set; } = false;
-
-    public virtual bool IsExtension { get; protected set; }
 
     public virtual bool IsEnum { get; protected set; } = false;
 
@@ -134,7 +164,7 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
 
     public virtual IEnumerable<ICimMetaIndividual> SelfIndividuals
         => _Individuals;
-
+    
     public virtual bool HasProperty(ICimMetaProperty metaProperty,
         bool inherit = true)
     {
@@ -142,9 +172,19 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
                && (inherit || Equals(metaProperty.OwnerClass));
     }
 
-    public virtual bool RemoveExtension(ICimMetaClass metaClass)
+    public bool IsDescendantOf(ICimMetaClass metaClass, bool orEquals = false)
     {
-        return _Ancestors.Remove(metaClass);
+        if (orEquals && metaClass.Equals(this)) return true;
+        
+        ICimMetaClass? nextClass = this;
+        while (nextClass != null)
+        {
+            if (nextClass.Equals(metaClass)) return true;
+
+            nextClass = nextClass.ParentClass;
+        }
+
+        return false;
     }
 
     public virtual void AddProperty(ICimMetaProperty metaProperty)
@@ -173,7 +213,7 @@ public abstract class CimMetaClassBase : CimMetaResourceBase,
 
     protected virtual ICimMetaClass? GetParentClass()
     {
-        return _Ancestors.OfType<ICimMetaClass>().SingleOrDefault();
+        return _Ancestors.SingleOrDefault();
     }
 
     protected virtual IEnumerable<ICimMetaClass> GetAllAncestors()

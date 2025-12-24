@@ -56,7 +56,7 @@
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>created</rdfs:label>
 		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
-		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#datetime"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>
@@ -88,7 +88,7 @@
 		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 		<rdfs:label>scenarioTime</rdfs:label>
 		<rdfs:domain rdf:resource="http://iec.ch/TC57/61970-552/ModelDescription/1#Model"/>
-		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
+		<cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#datetime"/>
 		<cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:1"/>
 		<cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
 	</rdf:Description>

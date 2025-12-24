@@ -52,6 +52,12 @@ public interface ICimSchema
     ///     of RDF type Datatype.
     /// </summary>
     public IEnumerable<ICimMetaDatatype> Datatypes { get; }
+    
+    /// <summary>
+    ///     All CimMetaPackage instances - RDF description instances
+    ///     of RDF type cims:ClassCategory.
+    /// </summary>
+    public IEnumerable<ICimMetaPackage> Packages { get; }
 
     /// <summary>
     ///     Resource super class for all objective classes.

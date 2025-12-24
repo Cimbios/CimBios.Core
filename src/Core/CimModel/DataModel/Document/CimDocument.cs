@@ -145,7 +145,7 @@ public class CimDocument(
     private void ResolveReferencesWithObject(IModelObject modelObject)
     {
         foreach (var refObj in UnresolvedReferences
-                     .Where(o => o.OID == modelObject.OID))
+                     .Where(o => o.OID.Equals(modelObject.OID)))
             refObj.ResolveWith(modelObject);
     }
 
@@ -198,6 +198,7 @@ public class CimDocument(
         foreach (var assoc in modelObject.MetaClass.AllProperties)
             if (assoc.PropertyKind == CimMetaPropertyKind.Assoc1To1)
                 modelObject.SetAssoc1To1(assoc, null);
-            else if (assoc.PropertyKind == CimMetaPropertyKind.Assoc1ToM) modelObject.RemoveAllAssocs1ToM(assoc);
+            else if (assoc.PropertyKind == CimMetaPropertyKind.Assoc1ToM) 
+                modelObject.RemoveAllAssocs1ToM(assoc);
     }
 }

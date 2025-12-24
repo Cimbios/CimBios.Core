@@ -19,6 +19,7 @@
 using System.ComponentModel;
 using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Core.CimModel.Schema;
+using CimBios.Core.CimModel.Schema.AutoSchema;
 
 namespace CimBios.Core.CimModel.DatatypeLib.ModelObject;
 
@@ -206,7 +207,9 @@ public sealed class ModelObjectUnresolvedReference : IModelObject
     /// <exception cref="InvalidDataException"></exception>
     public void ResolveWith(IModelObject modelObject)
     {
-        if (modelObject is ModelObjectUnresolvedReference) throw new InvalidDataException();
+        if (modelObject is ModelObjectUnresolvedReference) 
+            throw new InvalidOperationException(
+                $"Unexpected null inverse association: {MetaProperty.BaseUri}");
 
         foreach (var waiting in WaitingObjects)
         {

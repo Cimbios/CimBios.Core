@@ -3,6 +3,21 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>1.0.0</Version>
+        <Title>CimBios.Core.CimModel.Schema</Title>
+        <Description>Core schema library. Use to load data schemas which defines IM profile.</Description>
+        <Copyright>Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt &lt;belizahrt@gmail.com&gt;</Copyright>
+        <PackageProjectUrl>https://github.com/Cimbios/CimBios.Core</PackageProjectUrl>
+        <PackageIcon>Core logo.png</PackageIcon>
+        <RepositoryUrl>https://github.com/Cimbios/CimBios.Core</RepositoryUrl>
+        <PackageTags>CIM, Common Information Model, CIMXML, RDFXML, IEC61970</PackageTags>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+        <FileVersion>1.0.0</FileVersion>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>..\..\cbios.snk</AssemblyOriginatorKeyFile>
+        <PublicSign>true</PublicSign>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\RdfIOLib\CimBios.Core.RdfIOLib.csproj" />
@@ -10,5 +25,16 @@
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="Serilog" Version="4.3.0" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Include="..\..\cbios.snk">
+        <Link>cbios.snk</Link>
+      </None>
+      <None Include="..\..\Core logo.png">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+        <Link>Core logo.png</Link>
+      </None>
+        <None Include="..\..\..\..\LICENSE" Pack="true" PackagePath="" />
     </ItemGroup>
 </Project>

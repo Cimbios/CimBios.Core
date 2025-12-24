@@ -106,6 +106,10 @@ public abstract class CimDocumentBase : ICimDataModel
             
             Objects = [];
             result = serializer.Deserialize(streamReader);
+
+            foreach (var ns in result.Namespaces)
+                cimSchema.Namespaces.TryAdd(ns.Key, ns.Value);
+            
             PushDeserializedObjects(result.ModelObjects);
         }
         catch (Exception ex)

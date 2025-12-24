@@ -26,9 +26,9 @@ namespace CimBios.Core.CimModel.DatatypeLib.TypeLib;
 /// </summary>
 [CimClass(ClassUri)]
 public class Model(IOIDDescriptor oid, ICimMetaClass metaClass)
-    : ModelObject.ModelObject(oid, metaClass)
+    : Resource(oid, metaClass)
 {
-    public const string ClassUri
+    public new const string ClassUri
         = "http://iec.ch/TC57/61970-552/ModelDescription/1#Model";
 
     /// <summary>

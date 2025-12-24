@@ -169,7 +169,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader, ILogger? logger=nul
                 if (result == false || memberInfo == null)
                 {
                     logger?.ForContext<CimRdfSchemaSerializer>()
-                        .Error("Resolve error for {iri}: triple {triple} not found in serializable entities",
+                        .Debug("Resolve error for {iri}: triple {triple} not found in serializable entities",
                             node.Identifier, triple.Predicate);
 
                     continue;
@@ -182,7 +182,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader, ILogger? logger=nul
                 if (attribute == null || value == null)
                 {
                     logger?.ForContext<CimRdfSchemaSerializer>()
-                        .Error("Resolve error for {iri}: triple {triple} not found in serializable entities",
+                        .Debug("Resolve error for {iri}: triple {triple} not found in serializable entities",
                             node.Identifier, triple.Predicate);
 
                     continue;
@@ -223,7 +223,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader, ILogger? logger=nul
                     else
                     {
                         logger?.ForContext<CimRdfSchemaSerializer>()
-                            .Error("Resolve error for {iri}: triple {triple} reference enum {enum} is not serializable",
+                            .Debug("Resolve error for {iri}: triple {triple} reference enum {enum} is not serializable",
                                 node.Identifier, triple.Predicate, valueEnumUriContainer.UriObject);
                     }
                 }

@@ -46,10 +46,10 @@ internal static class XmlDatatypesMapping
     internal const string DecimalUri = "http://www.w3.org/2001/XMLSchema#decimal";
     internal const string FloatUri = "http://www.w3.org/2001/XMLSchema#float";
     internal const string DoubleUri = "http://www.w3.org/2001/XMLSchema#double";
-    internal const string DateTimeUri = "http://www.w3.org/2001/XMLSchema#dateTime";
+    internal const string DateTimeUri = "http://www.w3.org/2001/XMLSchema#datetime";
     internal const string TimeUri = "http://www.w3.org/2001/XMLSchema#time";
     internal const string DateUri = "http://www.w3.org/2001/XMLSchema#date";
-    internal const string AnyURIUri = "http://www.w3.org/2001/XMLSchema#anyURI";
+    internal const string AnyURIUri = "http://www.w3.org/2001/XMLSchema#anyuri";
 }
 
 /// <summary>
@@ -106,6 +106,11 @@ public interface ICimMetaResource : IEquatable<ICimMetaResource>
     public int GetHashCode();
 }
 
+public interface ICimMetaPackage : ICimMetaResource
+{
+    public IReadOnlySet<ICimMetaResource> Resources { get; }
+}
+
 /// <summary>
 /// Meta cim class info.
 /// </summary>
@@ -113,6 +118,7 @@ public interface ICimMetaClass : ICimMetaResource
 {
     public bool SuperClass { get; }
     public ICimMetaClass? ParentClass { get; set; }
+    public ICimMetaPackage? Package { get; }
     public IEnumerable<ICimMetaClass> AllAncestors { get; }
     public IEnumerable<ICimMetaProperty> AllProperties { get; }
     public IEnumerable<ICimMetaProperty> SelfProperties { get; }
@@ -124,8 +130,8 @@ public interface ICimMetaClass : ICimMetaResource
     public bool IsDatatype { get; }
 
     public bool HasProperty(ICimMetaProperty metaProperty, bool inherit = true);
-    
-    // public bool IsDescendantOf(ICimMetaClass metaClass, bool orEquals = false);
+        
+    public bool IsDescendantOf(ICimMetaClass metaClass, bool orEquals = false);
 }
 
 /// <summary>
@@ -164,6 +170,7 @@ internal interface ICimMetaExtensible
 public interface ICimMetaProperty : ICimMetaResource
 {   
     public ICimMetaClass? OwnerClass { get; }
+    public ICimMetaPackage? Package { get; }
     public CimMetaPropertyKind PropertyKind { get; }
     public ICimMetaProperty? InverseProperty { get; }
     public ICimMetaClass? PropertyDatatype { get; }

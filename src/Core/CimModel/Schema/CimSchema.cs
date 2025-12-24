@@ -46,8 +46,9 @@ public class CimSchema : ICimSchema
 
     public IEnumerable<ICimMetaDatatype> Datatypes
         => _All.Values.OfType<ICimMetaDatatype>();
-
-    public bool TieSameNameEnums { get; set; } = true;
+    
+    public IEnumerable<ICimMetaPackage> Packages
+        => _All.Values.OfType<ICimMetaPackage>();
 
     public ICimMetaClass ResourceSuperClass => TryGetResource<ICimMetaClass>(
         CimRdfSchemaStrings.RdfsResource) ?? throw new NullReferenceException();
@@ -167,9 +168,10 @@ public class CimSchema : ICimSchema
 
     public bool CanCreateClass(ICimMetaClass metaClass)
     {
-        if (metaClass.IsAbstract || metaClass.IsDatatype || metaClass.IsEnum) return false;
-
-        return true;
+        return metaClass is
+        {
+            IsAbstract: false, IsDatatype: false, IsEnum: false
+        };
     }
 
     public string GetUriNamespacePrefix(Uri uri)
@@ -196,12 +198,10 @@ public class CimSchema : ICimSchema
                 "rdf:Description meta instance.")
         );
         
-        //var extensionsCache = Extensions;
         foreach (var quasiSuper in Classes.Where(c =>
                      c != ResourceSuperClass
-                     && c.SuperClass
-                     && !c.IsEnum
-                     && c is not ICimMetaDatatype))
+                     && c is { SuperClass: true, IsEnum: false } 
+                         and not ICimMetaDatatype))
             quasiSuper.ParentClass = ResourceSuperClass;
     }
 }

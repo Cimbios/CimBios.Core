@@ -4,6 +4,7 @@ using Avalonia.Platform;
 using CimBios.Core.CimModel.DataModel;
 using CimBios.Core.CimModel.DataModel.Document;
 using CimBios.Core.CimModel.DatatypeLib;
+using CimBios.Core.CimModel.DatatypeLib.Factory;
 using CimBios.Core.CimModel.DatatypeLib.OID;
 using CimBios.Core.CimModel.RdfSerializer;
 using CimBios.Core.CimModel.Schema;
@@ -137,10 +138,9 @@ public class CimModelLoaderService : ObservableObject
 
         try
         {
-            var diffSchema = MakeDifferencesSchema(logger);
-            var diffTypeLib = new CimDatatypeLib(diffSchema, logger);
+            var diffTypeLib =  new CoreDatatypeLibFactory().Create();
 
-            var diffModel = new CimDifferenceModel(diffSchema, 
+            var diffModel = new CimDifferenceModel(diffTypeLib.Schema, 
                 diffTypeLib, descriptorFactory, logger);
             
             diffModel.Load(modelPath, serializerFactory);
@@ -215,10 +215,8 @@ public class CimModelLoaderService : ObservableObject
             serializerFactory.Settings = serializerSettings;
             model.Load(modelPath, serializerFactory);
 
-            var diffSchema = MakeDifferencesSchema(logger);
-            var diffTypeLib = new CimDatatypeLib(diffSchema);
-
-            var diffModel = new CimDifferenceModel(diffSchema,
+            var diffTypeLib = new CoreDatatypeLibFactory().Create();
+            var diffModel = new CimDifferenceModel(diffTypeLib.Schema,
                 diffTypeLib, descriptorFactory, logger);
 
             diffModel.CompareDataModels(DataContext, model);
@@ -240,22 +238,7 @@ public class CimModelLoaderService : ObservableObject
 
     private void InitializeLocalDifferences(ICimDataModel model, ILogger logger)
     {
-        var diffSchema = MakeDifferencesSchema(logger);
-        var diffTypeLib = new CimDatatypeLib(diffSchema);
-
-        _localDifferences = new CimDifferenceModel(diffSchema, diffTypeLib, model);
-    }
-
-    private static ICimSchema MakeDifferencesSchema(ILogger logger)
-    {
-        var diffSchema = new CimRdfSchemaXmlFactory().CreateSchema(logger);
-
-        var diffSchemaResource = AssetLoader
-            .Open(new Uri("avares://CimBios.Tools.ModelDebug/Assets/Iec61970-552-Headers-rdfs.xml"));
-        using TextReader schemaReader = new StreamReader(diffSchemaResource);
-
-        diffSchema.Load(schemaReader);
-        
-        return diffSchema;
+        var diffTypeLib =  new CoreDatatypeLibFactory().Create();
+        _localDifferences = new CimDifferenceModel(diffTypeLib.Schema, diffTypeLib, model);
     }
 }

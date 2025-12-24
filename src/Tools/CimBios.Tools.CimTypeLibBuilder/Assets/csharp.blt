@@ -37,8 +37,8 @@ public void RemoveAllFrom$:property_name:() => RemoveAllAssocs1ToM(nameof($:prop
 ~
 &:annotation:
 [CimClass(ClassUri)]
-public partial class $:class_name:(ICimDatatypeLib typeLib, IOIDDescriptor oid, ICimMetaClass metaClass)
-    : $:parent_class:(typeLib, oid, metaClass)
+public partial class $:class_name:(IOIDDescriptor oid, ICimMetaClass metaClass)
+    : $:parent_class:(oid, metaClass)
 {
 	public new const string ClassUri = "$:class_uri:";
 
