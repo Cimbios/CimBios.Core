@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Avalonia.Platform;
 using CimBios.Core.CimModel.DataModel;
@@ -71,7 +72,8 @@ public class CimModelLoaderService : ObservableObject
         {
             var schema = schemaFactory.CreateSchema(logger);
             schema.Load(new StreamReader(schemaPath));
-
+            FillSchemaWithDefaultNamespaces(schema);
+            
             var typeLib = new CimDatatypeLib(schema, logger);
 
             var model = new CimDocument(schema, typeLib, descriptorFactory, logger);
@@ -113,6 +115,7 @@ public class CimModelLoaderService : ObservableObject
         {
             var schema = schemaFactory.CreateSchema(logger);
             schema.Load(new StreamReader(schemaPath));
+            FillSchemaWithDefaultNamespaces(schema);
 
             serializerFactory.Settings = serializerSettings;
             model.Save(modelPath, serializerFactory, schema);
@@ -139,6 +142,7 @@ public class CimModelLoaderService : ObservableObject
         try
         {
             var diffTypeLib =  new CoreDatatypeLibFactory().Create();
+            FillSchemaWithDefaultNamespaces(diffTypeLib.Schema);
 
             var diffModel = new CimDifferenceModel(diffTypeLib.Schema, 
                 diffTypeLib, descriptorFactory, logger);
@@ -208,6 +212,7 @@ public class CimModelLoaderService : ObservableObject
         {
             var schema = schemaFactory.CreateSchema(logger);
             schema.Load(new StreamReader(schemaPath));
+            FillSchemaWithDefaultNamespaces(schema);
 
             var typeLib = new CimDatatypeLib(schema, logger);
             var model = new CimDocument(schema, typeLib, descriptorFactory, logger);
@@ -216,6 +221,7 @@ public class CimModelLoaderService : ObservableObject
             model.Load(modelPath, serializerFactory);
 
             var diffTypeLib = new CoreDatatypeLibFactory().Create();
+            FillSchemaWithDefaultNamespaces(diffTypeLib.Schema);
             var diffModel = new CimDifferenceModel(diffTypeLib.Schema,
                 diffTypeLib, descriptorFactory, logger);
 
@@ -238,7 +244,17 @@ public class CimModelLoaderService : ObservableObject
 
     private void InitializeLocalDifferences(ICimDataModel model, ILogger logger)
     {
-        var diffTypeLib =  new CoreDatatypeLibFactory().Create();
+        var diffTypeLib = new CoreDatatypeLibFactory().Create();
+        FillSchemaWithDefaultNamespaces(diffTypeLib.Schema);
         _localDifferences = new CimDifferenceModel(diffTypeLib.Schema, diffTypeLib, model);
+    }
+
+    private static void FillSchemaWithDefaultNamespaces(ICimSchema schema)
+    {
+        schema.Namespaces.TryAdd("cim", new Uri("http://iec.ch/TC57/CIM100#"));
+        schema.Namespaces.TryAdd("rf", new Uri("http://gost.ru/2019/schema-cim01#"));
+        schema.Namespaces.TryAdd("so", new Uri("http://so-ups.ru/2015/schema-cim16#"));
+        schema.Namespaces.TryAdd("rh", new Uri("http://rushydro.ru/2015/schema-cim16#"));
+        schema.Namespaces.TryAdd("me", new Uri("http://monitel.com/2014/schema-cim16#"));
     }
 }
