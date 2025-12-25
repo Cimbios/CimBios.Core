@@ -18,4 +18,9 @@
     <ItemGroup>
         <ProjectReference Include="..\CimBios.Tests.Infrastructure\CimBios.Tests.Infrastructure.csproj"/>
     </ItemGroup>
+    <ItemGroup>
+        <Content Include="assets\CoreDatatypeLib.rdfs">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 </Project>
