@@ -133,6 +133,15 @@ public class CimDocument(
             throw new ArgumentException(
                 $"Object with OID:{modelObject.OID} already exists!");
 
+        switch (modelObject)
+        {
+            case FullModel fullModel:
+                ModelDescription = fullModel;
+                return;
+            case DifferenceModel:
+                throw new InvalidDataException("DifferenceModel cannot be added explicitly!");
+        }
+
         Objects.Add(modelObject.OID, modelObject);
         modelObject.PropertyChanged += OnModelObjectPropertyChanged;
 
