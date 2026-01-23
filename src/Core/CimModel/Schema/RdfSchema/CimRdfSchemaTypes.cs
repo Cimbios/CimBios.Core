@@ -1,6 +1,6 @@
 /*
 *    CimBios.Core - Common Information Model (IEC61970) I/O Library
-*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*    Copyright (C) 2026 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ namespace CimBios.Core.CimModel.Schema.RdfSchema;
 ///     Base class provides general RDF description node data.
 /// </summary>
 [
-    CimSchemaSerializable
+CimSchemaSerializable
         ("http://www.w3.org/1999/02/22-rdf-syntax-ns#description")
 ]
 public interface ICimRdfDescription : ICimMetaResource
@@ -333,7 +333,7 @@ public enum UMLStereotype
     [CimSchemaSerializable("http://langdale.com.au/2005/UML#cimextension")]
     CIMExtension,
 
-    [CimSchemaSerializable("http://langdale.com.au/2005/UML#cimabstract")]
+    [CimSchemaSerializable("http://langdale.com.au/2005/UML#abstract")]
     CIMAbstract,
 
     [CimSchemaSerializable("http://langdale.com.au/2005/UML#cimdatatype")]
