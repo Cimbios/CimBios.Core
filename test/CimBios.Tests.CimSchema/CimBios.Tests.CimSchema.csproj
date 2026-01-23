@@ -18,4 +18,14 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Core\CimModel\Schema\CimBios.Core.CimModel.Schema.csproj"/>
     </ItemGroup>
+    <ItemGroup>
+      <None Remove="assets\SplittedXmlNodes.rdfs" />
+      <Content Include="assets\SplitXmlNodes.rdfs">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="assets\XmlNodes.rdfs" />
+      <Content Include="assets\XmlNodes.rdfs">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
 </Project>
