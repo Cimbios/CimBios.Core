@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:cims="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#">
+
+    <rdf:Description rdf:about="http://iec.ch/TC57/CIM100#IdentifiedObject">
+        <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+        <rdfs:label>IdentifiedObject</rdfs:label>
+        <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#abstract"/>
+    </rdf:Description>
+    
+    <rdf:Description rdf:about="http://iec.ch/TC57/CIM100#IdentifiedObject.name">
+        <rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+        <rdfs:domain rdf:resource="http://iec.ch/TC57/CIM100#IdentifiedObject"/>
+        <cims:multiplicity rdf:resource="http://iec.ch/TC57/1999/rdf-schema-extensions-19990926#M:0..1"/>
+        <cims:dataType rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#attribute"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="http://iec.ch/TC57/CIM100#Organisation">
+        <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+        <rdfs:subClassOf rdf:resource="http://iec.ch/TC57/CIM100#IdentifiedObject"/>
+    </rdf:Description>
+
+    <rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PhaseCode">
+        <rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+        <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumeration"/>
+    </rdf:Description>
+    
+    <rdf:Description rdf:about="http://iec.ch/TC57/CIM100#PhaseCode.ABC">
+        <rdf:type rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode"/>
+        <cims:stereotype rdf:resource="http://langdale.com.au/2005/UML#enumerationliteral"/>
+    </rdf:Description>
+    
+</rdf:RDF>

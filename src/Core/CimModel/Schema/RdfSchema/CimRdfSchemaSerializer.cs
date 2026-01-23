@@ -1,6 +1,6 @@
 /*
 *    CimBios.Core - Common Information Model (IEC61970) I/O Library
-*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*    Copyright (C) 2026 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@ namespace CimBios.Core.CimModel.Schema.RdfSchema;
 public class CimRdfSchemaSerializer(RdfReaderBase rdfReader, ILogger? logger=null)
     : ICimSchemaSerializer
 {
+    private const string RdfDescription = "http://www.w3.org/1999/02/22-rdf-syntax-ns#Description";
+    
     private readonly Dictionary<string, Uri> _Namespaces = [];
 
     private readonly Dictionary<Uri, ICimMetaResource> _ObjectsCache
@@ -88,15 +90,17 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader, ILogger? logger=nul
 
         foreach (var node in descriptionTypedNodes)
         {
+            if (node.TypeIdentifier.AbsoluteUri == RdfDescription) continue;
+            
             if (_ObjectsCache.ContainsKey(node.Identifier))
             {
                 logger?.ForContext<CimRdfSchemaSerializer>()
-                    .Warning("Duplicate definition of {iri} schema resource skiped",
-                            node.Identifier);
+                    .Warning("Duplicate definition of {iri} schema resource skipped",
+                        node.Identifier);
 
                 continue;
             }
-
+            
             if (_SerializeHelper.TryGetTypeInfo(node.TypeIdentifier
                         .AbsoluteUri.ToLower(), out var typeInfo)
                     && typeInfo != null)
@@ -179,7 +183,7 @@ public class CimRdfSchemaSerializer(RdfReaderBase rdfReader, ILogger? logger=nul
                     .GetCustomAttribute<CimSchemaSerializableAttribute>(true);
                 var value = triple.Object;
 
-                if (attribute == null || value == null)
+                if (attribute == null)
                 {
                     logger?.ForContext<CimRdfSchemaSerializer>()
                         .Debug("Resolve error for {iri}: triple {triple} not found in serializable entities",
