@@ -1,6 +1,6 @@
 /*
 *    CimBios.Core - Common Information Model (IEC61970) I/O Library
-*    Copyright (C) 2025 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
+*    Copyright (C) 2026 Yuri A. Kovalenko a.k.a belizahrt <belizahrt@gmail.com>
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -30,6 +30,10 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
 {
     protected DynamicModelObjectBase() : base() {}
 
+    private const string AddToStringQualifier = "AddTo";
+    private const string RemoveFromStringQualifier = "RemoveFrom";
+    private const string RemoveAllStringQualifier = "RemoveAllFrom";
+
     public int CompareTo(object? obj)
     {
         if (obj is not IModelObjectCore modelObjectCore)
@@ -40,24 +44,23 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         return OID.CompareTo(modelObjectCore.OID);
     }
 
-    public dynamic? AsDynamic()
+    public dynamic AsDynamic()
     {
         return this;
     }
 
-    public override bool TryGetMember(GetMemberBinder binder, out object? result)
+    public override IEnumerable<string> GetDynamicMemberNames()
     {
+        return MetaClass.AllProperties.Select(p => p.ShortName);
+    }
+
+    public override bool TryGetMember(GetMemberBinder binder, out object? result)
+    {   
         var metaProperty = TryGetMetaPropertyByName(binder.Name);
         if (metaProperty != null)
         {
             var propValue = this.TryGetPropertyValue(metaProperty);
             result = propValue;
-
-            if (metaProperty.PropertyKind == CimMetaPropertyKind.Assoc1ToM
-                && propValue is IList<IModelObject> assocCollection)
-            {                
-                result = BindDynamicAssocsCollection(metaProperty, assocCollection);
-            }
 
             return true;
         }
@@ -83,6 +86,56 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
         }
 
         return base.TrySetMember(binder, value);
+    }
+
+    public override bool TryInvokeMember(InvokeMemberBinder binder, 
+        object?[]? args, out object? result)
+    {
+        var add = false;
+        var remove = false;
+        var removeAll = false;
+
+        var propertyName = binder.Name;
+        if (binder.Name.StartsWith(AddToStringQualifier))
+        {
+            propertyName = binder.Name[AddToStringQualifier.Length..];
+            add = true;
+        }
+        else if (binder.Name.StartsWith(RemoveFromStringQualifier))
+        {
+            propertyName = binder.Name[RemoveFromStringQualifier.Length..];
+            remove = true;
+        }
+        else if (binder.Name.StartsWith(RemoveAllStringQualifier))
+        {
+            propertyName = binder.Name[RemoveAllStringQualifier.Length..];
+            removeAll = true;
+        }
+            
+        var metaProperty = TryGetMetaPropertyByName(propertyName);
+        if (metaProperty != null)
+        {
+            result = null;
+
+            if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
+                throw new InvalidOperationException("Property is not muplitple association");
+
+            IModelObject? argumentObject = null;
+            if (args is not null && args.Length > 0)
+                argumentObject = args[0] as IModelObject;
+
+            if (add && argumentObject != null)
+                AddAssoc1ToM(metaProperty, argumentObject);
+            else if (remove && argumentObject != null)
+                RemoveAssoc1ToM(metaProperty, argumentObject);
+            else if (removeAll)
+                RemoveAllAssocs1ToM(metaProperty);
+            else throw new InvalidOperationException();
+
+            return true;
+        }
+
+        return base.TryInvokeMember(binder, args, out result);
     }
 
     protected ICimMetaProperty? TryGetMetaPropertyByName(string name)
@@ -259,35 +312,6 @@ public abstract class DynamicModelObjectBase : DynamicObject, IModelObject
                 );
             };
         }
-    }
-
-    private BindingList<IModelObject> BindDynamicAssocsCollection(
-        ICimMetaProperty metaProperty, IList<IModelObject> assocCollection)
-    {
-        if (metaProperty.PropertyKind != CimMetaPropertyKind.Assoc1ToM)
-        {
-            throw new NotSupportedException();
-        }
-
-        var blist = new BindingList<IModelObject>(assocCollection);
-
-        blist.ListChanged += (_, e) =>
-        {
-            if (e.ListChangedType == ListChangedType.ItemAdded)
-            {
-                var newObj = blist.ElementAt(e.NewIndex);
-                AddAssoc1ToM(metaProperty, newObj);
-            }
-            else if (e.ListChangedType == ListChangedType.ItemDeleted)
-            {
-                var oldObj = GetAssoc1ToM(metaProperty)
-                    .ElementAt(e.NewIndex);
-                
-                RemoveAssoc1ToM(metaProperty, oldObj);
-            }
-        };
-
-        return blist;
     }
 }
 
