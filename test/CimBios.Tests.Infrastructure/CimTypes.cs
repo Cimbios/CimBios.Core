@@ -31,15 +31,6 @@ public partial class IdentifiedObject
     set => SetAttribute (nameof (aliasName), value);
   }
   /// <summary>
-  /// The description is a free human readable text describing or naming the
-  /// object. It may be non unique and may not correlate to a naming hierarchy.
-  /// </summary>
-  public string ? description
-  {
-    get => GetAttribute < string ? > (nameof (description));
-    set => SetAttribute (nameof (description), value);
-  }
-  /// <summary>
   /// Master resource identifier issued by a model authority. The mRID is unique
   /// within an exchange context. Global uniqueness is easily achieved by using
   /// a UUID, as specified in RFC 4122, for the mRID. The use of UUID is
