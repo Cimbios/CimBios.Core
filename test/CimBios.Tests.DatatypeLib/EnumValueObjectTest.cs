@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using System.Reflection;
 using CimBios.Core.CimModel.DatatypeLib;
 using CimBios.Core.CimModel.Schema.AutoSchema;
 using CimBios.Tests.Infrastructure;
