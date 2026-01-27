@@ -32,7 +32,9 @@ public class App : Application
             BindingPlugins.DataValidators.RemoveAt(0);
 
             var log = new LoggerConfiguration()
+                .MinimumLevel.Debug()
                 .WriteTo.Console()
+                .WriteTo.ProtocolServiceSink()
                 .CreateLogger();
             ServiceLocator.GetInstance().RegisterService<ILogger>(log);
 
