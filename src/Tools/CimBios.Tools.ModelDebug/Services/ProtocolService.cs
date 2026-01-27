@@ -106,5 +106,6 @@ public enum ProtocolMessageKind
 {
     Info,
     Warn,
-    Error
+    Error,
+    Debug
 }
